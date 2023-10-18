@@ -27,3 +27,8 @@
  *   }
  * }
  */
+
+import { contextBridge } from 'electron';
+import { windowAPI } from 'app/src-electron/windowAPI';
+
+contextBridge.exposeInMainWorld('windowAPI', windowAPI);

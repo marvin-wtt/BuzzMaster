@@ -1,45 +1,34 @@
 import { ref } from 'vue';
-import {
-  BuzzerButton,
-  Dongle,
-} from 'src/composables/buzzer/types';
+import { ButtonEvent, Dongle } from 'src/composables/buzzer/types';
 import { Device } from 'src/composables/buzzer/device';
-
-interface ButtonEvent {
-  type: 'pressed' | 'released';
-  button: BuzzerButton;
-  controller: string;
-}
-
-interface ButtonPressedEvent extends ButtonEvent {
-  type: 'pressed';
-}
-
-interface ButtonReleasedEvent extends ButtonEvent {
-  type: 'released';
-}
 
 const useBuzzer = () => {
   const dongles = ref<Dongle[]>([]);
   const ready = ref<boolean>(false);
+
+  const fireEvent = (event: ButtonEvent) => {
+    console.log(event.controller.name, event.button, event.type);
+  };
 
   const init = async () => {
     const devices = await navigator.hid.getDevices();
 
     // Load all already connected devices
     dongles.value = await Promise.all(
-      devices.map(async (device) => Device(device))
+      devices.map(async (device) => Device(device, fireEvent))
     );
 
     navigator.hid.addEventListener('connect', async (event) => {
       const { device } = event;
-      dongles.value.push(await Device(device));
+      dongles.value.push(await Device(device, fireEvent));
     });
 
     navigator.hid.addEventListener('disconnect', (event) => {
       const { device } = event;
 
-      const index = dongles.value.findIndex((dongle) => dongle.device === device);
+      const index = dongles.value.findIndex(
+        (dongle) => dongle.device === device
+      );
       if (index === -1) {
         return;
       }
@@ -49,7 +38,9 @@ const useBuzzer = () => {
   };
 
   const reset = () => {
-    // TODO Reset LEDs
+    dongles.value.forEach((dongle) => {
+      dongle.reset();
+    });
   };
 
   // initiate listeners

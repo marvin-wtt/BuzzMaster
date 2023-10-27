@@ -4,7 +4,7 @@ import {
   BuzzerButton,
   Dongle,
 } from 'src/composables/buzzer/types';
-import { findDevice } from 'src/composables/buzzer/deviceInfo';
+import {devices, findDevice} from 'src/composables/buzzer/deviceInfo';
 
 let dongleCount = 0;
 
@@ -33,7 +33,12 @@ export const Device = async (device: HIDDevice): Promise<Dongle> => {
     changedStates.forEach((state) => {
       console.log(name, state);
 
-      setAllLights(state.button === 0, state.button === 1, state.button === 2, state.button === 2);
+      setAllLights(
+        state.pressed && state.controller === 0,
+        state.pressed && state.controller === 1,
+        state.pressed && state.controller === 2,
+        state.pressed && state.controller === 3
+      );
 
       // TODO fire event to listeners
       // General event
@@ -47,15 +52,21 @@ export const Device = async (device: HIDDevice): Promise<Dongle> => {
     previousState = buttonStates;
   };
 
-  await device.open();
-  device.addEventListener('inputreport', deviceInputListener);
-
   const setAllLights = async (l0: boolean, l1: boolean, l2: boolean, l3: boolean) => {
-    const leds = [l0, l1, l2, l3];
-    const data = new Uint8Array([0x00, 0x00, ...leds.map(led => led ? 0x00 : 0xff)]);
+    const lights = [l0, l1, l2, l3];
+    const data = new Uint8Array([0x00, 0x00, ...lights.map(l => l ? 0xff : 0x00)]);
 
     await device.sendReport(0, data);
   }
+
+  if (!device.opened) {
+    await device.open();
+  }
+
+  // Disable all lights
+  await setAllLights(false, false, false, false);
+
+  device.addEventListener('inputreport', deviceInputListener);
 
   return {
     name,

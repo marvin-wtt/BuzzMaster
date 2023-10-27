@@ -24,14 +24,6 @@ export const Device = async (
   const name = `Dongle ${++dongleCount}`;
   let previousLLights: boolean[] = [false, false, false, false];
 
-  const controllers: IController[] = Array.from({ length: 4 }, (_, i) => {
-    const controller = Controller(
-      `Controller ${dongleCount}-${i + 1}`
-    ) as IController;
-    controller.setLight = updateControllerLight(i);
-    return controller;
-  });
-
   const updateControllerLight = (controller: number) => {
     return async (value: boolean) => {
       const lights = Array(4).fill(undefined);
@@ -39,6 +31,14 @@ export const Device = async (
       return updateLights(lights);
     };
   };
+
+  const controllers: IController[] = Array.from({ length: 4 }, (_, i) => {
+    const controller = Controller(
+      `Controller ${dongleCount}-${i + 1}`
+    ) as IController;
+    controller.setLight = updateControllerLight(i);
+    return controller;
+  });
 
   const updateLights = async (lights: (boolean | undefined)[]) => {
     const updatedLights = lights.map((l, index) =>

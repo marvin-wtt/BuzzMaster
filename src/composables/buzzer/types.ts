@@ -10,7 +10,7 @@ export type IController = {
   setLight: (value: boolean) => Promise<void>;
   buttons: Record<BuzzerButton, boolean>;
   update: (value: ButtonState) => boolean;
-}
+};
 
 export type ButtonMapping = {
   controller: number;

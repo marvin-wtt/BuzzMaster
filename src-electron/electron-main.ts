@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import { initialize, enable } from '@electron/remote/main'
+import { initialize, enable } from '@electron/remote/main';
 import path from 'path';
 import os from 'os';
 
@@ -40,7 +40,7 @@ function createWindow() {
     }
 
     return false;
-  })
+  });
 
   mainWindow.loadURL(process.env.APP_URL);
 

@@ -27,14 +27,17 @@ export const Device = async (device: HIDDevice): Promise<Dongle> => {
 
     const changedStates = buttonStates.filter((state, index) => {
       // It is assumed, that the order of the previous buttons is identical thus the controller and button index is ignored.
-      return previousState[index] !== state;
+      return previousState[index].pressed !== state.pressed;
     });
 
-    changedStates.forEach((button) => {
-      console.log(name, button);
+    changedStates.forEach((state) => {
+      console.log(name, state);
+
+      setAllLights(state.button === 0, state.button === 1, state.button === 2, state.button === 2);
+
       // TODO fire event to listeners
       // General event
-      if (button.pressed) {
+      if (state.pressed) {
         // Press event
       } else {
         // Release event
@@ -46,6 +49,13 @@ export const Device = async (device: HIDDevice): Promise<Dongle> => {
 
   await device.open();
   device.addEventListener('inputreport', deviceInputListener);
+
+  const setAllLights = async (l0: boolean, l1: boolean, l2: boolean, l3: boolean) => {
+    const leds = [l0, l1, l2, l3];
+    const data = new Uint8Array([0x00, 0x00, ...leds.map(led => led ? 0x00 : 0xff)]);
+
+    await device.sendReport(0, data);
+  }
 
   return {
     name,

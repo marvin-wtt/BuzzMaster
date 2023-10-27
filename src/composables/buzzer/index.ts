@@ -8,8 +8,7 @@ import { Device } from 'src/composables/buzzer/device';
 interface ButtonEvent {
   type: 'pressed' | 'released';
   button: BuzzerButton;
-  buttons: Record<BuzzerButton, boolean>;
-  controller: Controller;
+  controller: string;
 }
 
 interface ButtonPressedEvent extends ButtonEvent {
@@ -18,17 +17,6 @@ interface ButtonPressedEvent extends ButtonEvent {
 
 interface ButtonReleasedEvent extends ButtonEvent {
   type: 'released';
-}
-
-interface ButtonEventListener {
-  onButtonPressed?: (event: ButtonPressedEvent) => void;
-  onButtonReleased?: (event: ButtonReleasedEvent) => void;
-}
-
-interface Controller {
-  id: number;
-  name: string;
-  dongle: string;
 }
 
 const useBuzzer = () => {

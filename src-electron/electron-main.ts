@@ -35,7 +35,7 @@ function createWindow() {
    */
   mainWindow.webContents.session.setDevicePermissionHandler((details) => {
     // TODO Filter devices here
-    if (details.deviceType === 'hid' && details.device.vendorId === 0x044f) {
+    if (details.deviceType === 'hid' && details.device.vendorId === 0x054c) {
       return true;
     }
 

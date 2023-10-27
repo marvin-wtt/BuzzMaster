@@ -30,6 +30,18 @@ function createWindow() {
 
   enable(mainWindow.webContents);
 
+  /**
+   * Set permissions for buzzer devices
+   */
+  mainWindow.webContents.session.setDevicePermissionHandler((details) => {
+    // TODO Filter devices here
+    if (details.deviceType === 'hid' && details.device.vendorId === 0x044f) {
+      return true;
+    }
+
+    return false;
+  })
+
   mainWindow.loadURL(process.env.APP_URL);
 
   if (process.env.DEBUGGING) {

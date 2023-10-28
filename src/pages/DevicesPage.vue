@@ -16,13 +16,17 @@
               v-for="controller in dongle.controllers"
               :key="controller.name"
             >
-                <q-item-section class="col col-shrink">
-                  <q-icon name="circle" :color="getButtonColor(controller)" size="xs" />
-                </q-item-section>
+              <q-item-section class="col col-shrink">
+                <q-icon
+                  name="circle"
+                  :color="getButtonColor(controller)"
+                  size="xs"
+                />
+              </q-item-section>
 
-                <q-item-section class="col col-grow">
-                  {{ controller.name }}
-                </q-item-section>
+              <q-item-section class="col col-grow">
+                {{ controller.name }}
+              </q-item-section>
 
               <q-item-section side>
                 <q-btn
@@ -44,7 +48,11 @@
               </q-item-section>
               <q-item-section side>
                 <q-btn
-                  :icon="controller.disabled ? 'play_circle' : 'remove_circle_outline'"
+                  :icon="
+                    controller.disabled
+                      ? 'play_circle'
+                      : 'remove_circle_outline'
+                  "
                   size="xs"
                   flat
                   round
@@ -60,9 +68,9 @@
 </template>
 
 <script lang="ts" setup>
-import useBuzzer from 'src/composables/buzzer';
-import {BuzzerButton, IController} from "src/composables/buzzer/types";
-import {NamedColor, useQuasar} from "quasar";
+import { useBuzzer } from 'src/plugins/buzzer';
+import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
+import { NamedColor, useQuasar } from 'quasar';
 
 const quasar = useQuasar();
 const { dongles } = useBuzzer();
@@ -81,19 +89,21 @@ const findDevice = (controller: IController) => {
 };
 
 const editControllerName = (controller: IController) => {
-  quasar.dialog({
-    title: 'Controller name',
-    // message: 'Maximum 20 characters',
-    prompt: {
-      model: controller.name,
-      isValid: val => val.length > 0 && val.length <= 20,
-      type: 'text'
-    },
-    cancel: true,
-    persistent: true
-  }).onOk((name: string) => {
-    controller.name = name;
-  });
+  quasar
+    .dialog({
+      title: 'Controller name',
+      // message: 'Maximum 20 characters',
+      prompt: {
+        model: controller.name,
+        isValid: (val) => val.length > 0 && val.length <= 20,
+        type: 'text',
+      },
+      cancel: true,
+      persistent: true,
+    })
+    .onOk((name: string) => {
+      controller.name = name;
+    });
 };
 
 const getButtonColor = (controller: IController): NamedColor => {
@@ -118,10 +128,7 @@ const getButtonColor = (controller: IController): NamedColor => {
   }
 
   return 'grey';
-}
-
-
+};
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

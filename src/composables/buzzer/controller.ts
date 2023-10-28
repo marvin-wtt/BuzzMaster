@@ -3,15 +3,17 @@ import {
   BuzzerButton,
   IController,
 } from 'src/composables/buzzer/types';
+import {reactive} from "vue";
 
 export const Controller = (name: string): Omit<IController, 'setLight'> => {
-  const buttons: Record<BuzzerButton, boolean> = {
-    0: false,
-    1: false,
-    2: false,
-    3: false,
-    4: false,
-  };
+  const disabled = false;
+  const buttons: Record<BuzzerButton, boolean> = reactive({
+    [BuzzerButton.RED]: false,
+    [BuzzerButton.BLUE]: false,
+    [BuzzerButton.ORANGE]: false,
+    [BuzzerButton.GREEN]: false,
+    [BuzzerButton.YELLOW]: false,
+  });
 
   const update = (state: ButtonState): boolean => {
     const changed = buttons[state.button] !== state.pressed;
@@ -23,6 +25,7 @@ export const Controller = (name: string): Omit<IController, 'setLight'> => {
   return {
     name,
     buttons,
+    disabled,
     update,
   };
 };

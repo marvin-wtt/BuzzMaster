@@ -7,6 +7,7 @@ export type Dongle = {
 
 export type IController = {
   name: string;
+  disabled: boolean;
   setLight: (value: boolean) => Promise<void>;
   buttons: Record<BuzzerButton, boolean>;
   update: (value: ButtonState) => boolean;

@@ -1,4 +1,4 @@
-import { ButtonMapping, BuzzerButton } from 'src/composables/buzzer/types';
+import { ButtonMapping, BuzzerButton } from 'src/plugins/buzzer/types';
 
 /**
  * 20 mappings: 5 buttons x 4 buzzers

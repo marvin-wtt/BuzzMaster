@@ -1,3 +1,11 @@
+import { Ref } from 'vue';
+
+export interface BuzzerApi {
+  dongles: Ref<Dongle[]>;
+  reset: () => void;
+  ready: Ref<boolean>;
+}
+
 export type Dongle = {
   name: string;
   device: HIDDevice;

@@ -3,9 +3,9 @@ import {
   ButtonMapping,
   ButtonState,
   IController,
-} from 'src/composables/buzzer/types';
-import { findDevice } from 'src/composables/buzzer/deviceInfo';
-import { Controller } from 'src/composables/buzzer/controller';
+} from 'src/plugins/buzzer/types';
+import { findDevice } from 'src/plugins/buzzer/deviceInfo';
+import { Controller } from 'src/plugins/buzzer/controller';
 
 let dongleCount = 0;
 

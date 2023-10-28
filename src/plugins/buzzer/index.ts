@@ -1,8 +1,18 @@
-import { ref } from 'vue';
-import { ButtonEvent, Dongle } from 'src/composables/buzzer/types';
-import { Device } from 'src/composables/buzzer/device';
+import { inject, ref } from 'vue';
+import { ButtonEvent, BuzzerApi, Dongle } from 'src/plugins/buzzer/types';
+import { Device } from 'src/plugins/buzzer/device';
 
-const useBuzzer = () => {
+export const useBuzzer = () => {
+  const buzzerApi = inject<BuzzerApi>('buzzer');
+
+  if (!buzzerApi) {
+    throw 'Buzzer Api not installed.';
+  }
+
+  return buzzerApi;
+};
+
+const Buzzer = (): BuzzerApi => {
   const dongles = ref<Dongle[]>([]);
   const ready = ref<boolean>(false);
 
@@ -50,7 +60,8 @@ const useBuzzer = () => {
 
   return {
     dongles,
+    ready,
     reset,
   };
 };
-export default useBuzzer;
+export default Buzzer;

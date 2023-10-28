@@ -2,8 +2,8 @@ import {
   ButtonState,
   BuzzerButton,
   IController,
-} from 'src/composables/buzzer/types';
-import {reactive} from "vue";
+} from 'src/plugins/buzzer/types';
+import { reactive } from 'vue';
 
 export const Controller = (name: string): Omit<IController, 'setLight'> => {
   const disabled = false;

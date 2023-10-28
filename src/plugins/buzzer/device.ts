@@ -61,7 +61,12 @@ export const Device = async (
     const buttonStates = readDeviceData(data, buttonMappings);
 
     const changedStates = buttonStates.filter((state) => {
-      return controllers[state.controller].update(state);
+      const controller = controllers[state.controller];
+      if (controller.disabled) {
+        return false;
+      }
+
+      return controller.update(state);
     });
 
     // FIre events

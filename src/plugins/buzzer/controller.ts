@@ -16,10 +16,6 @@ export const Controller = (name: string): Omit<IController, 'setLight'> => {
   });
 
   const update = (state: ButtonState): boolean => {
-    if (disabled) {
-      return false;
-    }
-
     const changed = buttons[state.button] !== state.pressed;
     buttons[state.button] = state.pressed;
 

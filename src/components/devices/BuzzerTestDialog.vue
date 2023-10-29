@@ -113,7 +113,7 @@
           :outline="!done"
           rounded
           :color="done ? 'positive' : 'primary'"
-          @click="onDialogCancel"
+          @click="close"
         />
       </q-card-actions>
     </q-card>
@@ -122,12 +122,7 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
-import {
-  ButtonEventListener,
-  ButtonPressedEvent,
-  ButtonPressedEventListener,
-  BuzzerButton,
-} from 'src/plugins/buzzer/types';
+import { ButtonPressEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { computed, onMounted, onUnmounted, reactive } from 'vue';
 
@@ -170,35 +165,31 @@ const listener = (event: ButtonPressEvent) => {
   }
 };
 
+const close = () => {
+  if (done.value) {
+    onDialogOK();
+  } else {
+    onDialogCancel();
+  }
+};
+
 const controllers = computed(() => {
   return dongles.value
-    .flatMap((dongle) => {
-      return dongle.controllers;
-    })
-    .filter((controller) => {
-      return !controller.disabled;
-    });
+    .flatMap((dongle) => dongle.controllers)
+    .filter((controller) => !controller.disabled);
 });
 
 const doneControllers = computed<number>(() => {
   return controllers.value
-    .map((controller) => {
-      return pressedButtons[controller.id]?.length === 5;
-    })
-    .reduce((acc, val) => {
-      return val ? acc + 1 : acc;
-    }, 0);
+    .map((controller) => pressedButtons[controller.id]?.length === 5)
+    .reduce((acc, val) => (val ? acc + 1 : acc), 0);
 });
 
 const buttonsDone = computed<number>(() => {
   const total = controllers.value.length * 5;
   const active = controllers.value
-    .map((controller) => {
-      return pressedButtons[controller.id]?.length ?? 0;
-    })
-    .reduce((acc, val) => {
-      return acc + val;
-    }, 0);
+    .map((controller) => pressedButtons[controller.id]?.length ?? 0)
+    .reduce((acc, val) => acc + val, 0);
   return active / total;
 });
 

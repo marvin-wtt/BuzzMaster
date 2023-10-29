@@ -53,7 +53,7 @@
 <script lang="ts" setup>
 import { useQuasar } from 'quasar';
 import { computed } from 'vue';
-import {useI18n} from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
 const quasar = useQuasar();
 const { t } = useI18n();

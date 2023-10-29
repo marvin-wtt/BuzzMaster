@@ -83,7 +83,7 @@
         </q-expansion-item>
         <!-- Buzzer Test -->
         <q-item>
-          <q-item-section> Test All Buzzers </q-item-section>
+          <q-item-section> Test All Buzzers</q-item-section>
           <q-item-section side>
             <q-btn
               label="Start"
@@ -116,12 +116,15 @@ const navigateBack = () => {
   router.back();
 };
 
-const findTimerId: {
-  intervalId: NodeJS.Timeout;
-  timeoutId: NodeJS.Timeout;
-}[] = [];
+let findTimerId:
+  | {
+      intervalId: NodeJS.Timeout;
+      timeoutId: NodeJS.Timeout;
+    }
+  | undefined = undefined;
 
 const findDevice = (controller: IController) => {
+  cancelFindDevice();
   let toggle = true;
   const intervalId = setInterval(() => {
     controller.setLight(toggle);
@@ -133,22 +136,23 @@ const findDevice = (controller: IController) => {
     controller.setLight(false);
 
     // Remove from list
-    findTimerId.splice(findTimerId.indexOf(timerOptions), 1);
+    findTimerId = undefined;
   }, 5000);
 
   // Add ids so the timers can be canceled externally
-  const timerOptions = {
+  findTimerId = {
     intervalId,
     timeoutId,
   };
-  findTimerId.push(timerOptions);
 };
 
 const cancelFindDevice = () => {
-  findTimerId.forEach((value) => {
-    clearInterval(value.intervalId);
-    clearTimeout(value.timeoutId);
-  });
+  if (!findTimerId) {
+    return;
+  }
+
+  clearInterval(findTimerId.intervalId);
+  clearTimeout(findTimerId.timeoutId);
   reset();
 };
 

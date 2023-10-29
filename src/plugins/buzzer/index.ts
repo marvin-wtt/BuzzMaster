@@ -1,11 +1,10 @@
 import { inject, ref } from 'vue';
 import {
+  ButtonChangeEventListener,
   ButtonEvent,
   ButtonEventListener,
-  ButtonPressedEvent,
-  ButtonPressedEventListener,
-  ButtonReleasedEvent,
-  ButtonReleasedEventListener,
+  ButtonPressEventListener,
+  ButtonReleaseEventListener,
   BuzzerApi,
   Dongle,
 } from 'src/plugins/buzzer/types';
@@ -25,33 +24,33 @@ const Buzzer = (): BuzzerApi => {
   const dongles = ref<Dongle[]>([]);
   const ready = ref<boolean>(false);
 
-  const changeListener = new Set<ButtonEventListener>();
-  const pressedListener = new Set<ButtonPressedEventListener>();
-  const releasedListener = new Set<ButtonReleasedEventListener>();
+  const changeListener = new Set<ButtonChangeEventListener>();
+  const pressedListener = new Set<ButtonPressEventListener>();
+  const releasedListener = new Set<ButtonReleaseEventListener>();
 
-  const onButtonChange = (listener: ButtonEventListener) => {
+  const onButtonChange = (listener: ButtonChangeEventListener) => {
     changeListener.add(listener);
   };
 
-  const onButtonPressed = (listener: ButtonPressedEventListener) => {
+  const onButtonPressed = (listener: ButtonPressEventListener) => {
     pressedListener.add(listener);
   };
 
-  const onButtonReleaseListener = (listener: ButtonReleasedEventListener) => {
+  const onButtonReleaseListener = (listener: ButtonReleaseEventListener) => {
     releasedListener.add(listener);
   };
 
   const removeListener = (
-    type: 'pressed' | 'released' | 'change',
+    type: 'press' | 'release' | 'change',
     listener: ButtonEventListener
   ) => {
     switch (type) {
       case 'change':
-        return changeListener.delete(listener);
-      case 'pressed':
-        return pressedListener.delete(listener);
-      case 'released':
-        return pressedListener.delete(listener);
+        return changeListener.delete(listener as ButtonChangeEventListener);
+      case 'press':
+        return pressedListener.delete(listener as ButtonPressEventListener);
+      case 'release':
+        return releasedListener.delete(listener as ButtonReleaseEventListener);
     }
   };
 
@@ -60,15 +59,15 @@ const Buzzer = (): BuzzerApi => {
       listener(event);
     });
 
-    if (event.type === 'pressed') {
+    if (event.type === 'press') {
       pressedListener.forEach((listener) => {
-        listener(event as ButtonPressedEvent);
+        listener(event);
       });
     }
 
-    if (event.type === 'released') {
+    if (event.type === 'release') {
       releasedListener.forEach((listener) => {
-        listener(event as ButtonReleasedEvent);
+        listener(event);
       });
     }
   };

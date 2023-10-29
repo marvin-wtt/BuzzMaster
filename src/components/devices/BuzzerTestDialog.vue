@@ -151,13 +151,12 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // TODO Why is a cast needed here
-  removeListener('pressed', listener as ButtonEventListener);
+  removeListener('press', listener);
 });
 
 const pressedButtons: Record<string, BuzzerButton[]> = reactive({});
 
-const listener: ButtonPressedEventListener = (event: ButtonPressedEvent) => {
+const listener = (event: ButtonPressEvent) => {
   if (!pressedButtons[event.controller.id]) {
     pressedButtons[event.controller.id] = [];
   }

@@ -4,11 +4,13 @@ export interface BuzzerApi {
   dongles: Ref<Dongle[]>;
   reset: () => void;
   ready: Ref<boolean>;
-  onButtonChange: (listener: ButtonEventListener) => void;
-  onButtonPressed: (listener: ButtonPressedEventListener) => void;
-  onButtonReleaseListener: (listener: ButtonReleasedEventListener) => void;
+  onButtonChange: (listener: (event: ButtonEvent) => void) => void;
+  onButtonPressed: (listener: (event: ButtonPressEvent) => void) => void;
+  onButtonReleaseListener: (
+    listener: (event: ButtonReleaseEvent) => void
+  ) => void;
   removeListener: (
-    type: 'pressed' | 'released' | 'change',
+    type: 'press' | 'release' | 'change',
     listener: ButtonEventListener
   ) => void;
 }
@@ -50,22 +52,24 @@ export type ButtonState = {
   pressed: boolean;
 };
 
-export type ButtonEventListener = <T extends ButtonEvent>(
-  event: T | ButtonEvent
-) => void;
-export type ButtonPressedEventListener = (event: ButtonPressedEvent) => void;
-export type ButtonReleasedEventListener = (event: ButtonReleasedEvent) => void;
+export type ButtonChangeEventListener = (event: ButtonEvent) => void;
+export type ButtonPressEventListener = (event: ButtonPressEvent) => void;
+export type ButtonReleaseEventListener = (event: ButtonReleaseEvent) => void;
+export type ButtonEventListener =
+  | ButtonChangeEventListener
+  | ButtonPressEventListener
+  | ButtonReleaseEventListener;
 
-export interface ButtonEvent {
-  type: 'pressed' | 'released';
+export type ButtonEvent = ButtonPressEvent | ButtonReleaseEvent;
+
+export type ButtonPressEvent = {
+  type: 'press';
   button: BuzzerButton;
   controller: IController;
-}
+};
 
-export interface ButtonPressedEvent extends ButtonEvent {
-  type: 'pressed';
-}
-
-export interface ButtonReleasedEvent extends ButtonEvent {
-  type: 'released';
-}
+export type ButtonReleaseEvent = {
+  type: 'release';
+  button: BuzzerButton;
+  controller: IController;
+};

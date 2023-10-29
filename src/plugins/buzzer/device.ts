@@ -1,5 +1,5 @@
 import {
-  ButtonEventListener,
+  ButtonChangeEventListener,
   ButtonMapping,
   ButtonState,
   IController,
@@ -11,7 +11,7 @@ let dongleCount = 0;
 
 export const Device = async (
   device: HIDDevice,
-  handler: ButtonEventListener
+  handler: ButtonChangeEventListener
 ) => {
   const buttonMappings = findDevice(
     device.vendorId,
@@ -72,7 +72,7 @@ export const Device = async (
     // FIre events
     changedStates.forEach((state) => {
       handler({
-        type: state.pressed ? 'pressed' : 'released',
+        type: state.pressed ? 'press' : 'release',
         button: state.button,
         controller: controllers[state.controller],
       });

@@ -1,9 +1,20 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <router-link to="devices"> Devices </router-link>
+  <q-page class="column items-center justify-evenly">
+    <a class="text-h3">
+      {{ t('app_name') }}
+    </a>
+    <q-btn
+      label="Devices"
+      to="devices"
+      color="primary"
+      rounded
+    />
 
     <q-list>
-      <q-item v-for="dongle in dongles" :key="dongle.name">
+      <q-item
+        v-for="dongle in dongles"
+        :key="dongle.name"
+      >
         {{ dongle.name }}
       </q-item>
     </q-list>
@@ -12,6 +23,9 @@
 
 <script setup lang="ts">
 import { useBuzzer } from 'src/plugins/buzzer';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const { dongles } = useBuzzer();
 </script>

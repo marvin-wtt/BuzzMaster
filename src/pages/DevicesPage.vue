@@ -1,8 +1,27 @@
 <template>
-  <q-page padding class="row justify-center">
-    <div class="column col-10">
-      <div class="text-h4 text-center">Devices</div>
-      <q-list>
+  <q-page class="column">
+    <div class="col-shrink row justify-between bg-primary text-white">
+      <q-btn
+        class="col-1"
+        icon="arrow_back"
+        size="md"
+        rounded
+        dense
+        flat
+        @click="navigateBack()"
+      />
+      <div class="col text-h5 text-center self-center">Devices</div>
+      <div class="col-1" />
+    </div>
+
+    <q-separator />
+
+    <div class="col row justify-center">
+      <q-list
+        class="col-10"
+        separator
+      >
+        <!-- Dongles -->
         <q-expansion-item
           v-for="(dongle, index) in dongles"
           :key="dongle.name"
@@ -62,6 +81,19 @@
             </q-item>
           </q-list>
         </q-expansion-item>
+        <!-- Buzzer Test -->
+        <q-item>
+          <q-item-section> Test All Buzzers </q-item-section>
+          <q-item-section side>
+            <q-btn
+              label="Start"
+              outline
+              rounded
+              :disable="!hasEnabledController"
+              @click="startBuzzerTest"
+            />
+          </q-item-section>
+        </q-item>
       </q-list>
     </div>
   </q-page>
@@ -71,9 +103,23 @@
 import { useBuzzer } from 'src/plugins/buzzer';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { NamedColor, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
+import { computed } from 'vue';
 
 const quasar = useQuasar();
-const { dongles } = useBuzzer();
+const { dongles, reset } = useBuzzer();
+const router = useRouter();
+
+const navigateBack = () => {
+  cancelFindDevice();
+  router.back();
+};
+
+const findTimerId: {
+  intervalId: NodeJS.Timeout;
+  timeoutId: NodeJS.Timeout;
+}[] = [];
 
 const findDevice = (controller: IController) => {
   let toggle = true;
@@ -82,11 +128,37 @@ const findDevice = (controller: IController) => {
     toggle = !toggle;
   }, 500);
 
-  setTimeout(() => {
+  const timeoutId = setTimeout(() => {
     clearInterval(intervalId);
     controller.setLight(false);
+
+    // Remove from list
+    findTimerId.splice(findTimerId.indexOf(timerOptions), 1);
   }, 5000);
+
+  // Add ids so the timers can be canceled externally
+  const timerOptions = {
+    intervalId,
+    timeoutId,
+  };
+  findTimerId.push(timerOptions);
 };
+
+const cancelFindDevice = () => {
+  findTimerId.forEach((value) => {
+    clearInterval(value.intervalId);
+    clearTimeout(value.timeoutId);
+  });
+  reset();
+};
+
+const hasEnabledController = computed<boolean>(() => {
+  return dongles.value.some((dongle) => {
+    return dongle.controllers.some((controller) => {
+      return !controller.disabled;
+    });
+  });
+});
 
 const editControllerName = (controller: IController) => {
   quasar
@@ -128,6 +200,24 @@ const getButtonColor = (controller: IController): NamedColor => {
   }
 
   return 'grey';
+};
+
+const startBuzzerTest = () => {
+  cancelFindDevice();
+
+  quasar
+    .dialog({
+      component: BuzzerTestDialog,
+    })
+    .onOk(() => {
+      reset();
+    })
+    .onCancel(() => {
+      reset();
+    })
+    .onDismiss(() => {
+      reset();
+    });
 };
 </script>
 

@@ -4,6 +4,13 @@ export interface BuzzerApi {
   dongles: Ref<Dongle[]>;
   reset: () => void;
   ready: Ref<boolean>;
+  onButtonChange: (listener: ButtonEventListener) => void;
+  onButtonPressed: (listener: ButtonPressedEventListener) => void;
+  onButtonReleaseListener: (listener: ButtonReleasedEventListener) => void;
+  removeListener: (
+    type: 'pressed' | 'released' | 'change',
+    listener: ButtonEventListener
+  ) => void;
 }
 
 export type Dongle = {
@@ -14,6 +21,7 @@ export type Dongle = {
 };
 
 export type IController = {
+  id: string;
   name: string;
   disabled: boolean;
   setLight: (value: boolean) => Promise<void>;
@@ -42,7 +50,11 @@ export type ButtonState = {
   pressed: boolean;
 };
 
-export type ButtonEventHandler = (event: ButtonEvent) => void;
+export type ButtonEventListener = <T extends ButtonEvent>(
+  event: T | ButtonEvent
+) => void;
+export type ButtonPressedEventListener = (event: ButtonPressedEvent) => void;
+export type ButtonReleasedEventListener = (event: ButtonReleasedEvent) => void;
 
 export interface ButtonEvent {
   type: 'pressed' | 'released';

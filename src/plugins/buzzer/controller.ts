@@ -6,6 +6,7 @@ import {
 import { reactive } from 'vue';
 
 export const Controller = (name: string): Omit<IController, 'setLight'> => {
+  const id = crypto.randomUUID();
   const disabled = false;
   const buttons: Record<BuzzerButton, boolean> = reactive({
     [BuzzerButton.RED]: false,
@@ -23,6 +24,7 @@ export const Controller = (name: string): Omit<IController, 'setLight'> => {
   };
 
   return {
+    id,
     name,
     buttons,
     disabled,

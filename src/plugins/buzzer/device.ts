@@ -1,5 +1,5 @@
 import {
-  ButtonEventHandler,
+  ButtonEventListener,
   ButtonMapping,
   ButtonState,
   IController,
@@ -11,7 +11,7 @@ let dongleCount = 0;
 
 export const Device = async (
   device: HIDDevice,
-  handler: ButtonEventHandler
+  handler: ButtonEventListener
 ) => {
   const buttonMappings = findDevice(
     device.vendorId,

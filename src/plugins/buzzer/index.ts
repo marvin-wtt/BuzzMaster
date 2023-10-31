@@ -1,4 +1,4 @@
-import { inject, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import {
   ButtonChangeEventListener,
   ButtonEvent,
@@ -7,6 +7,7 @@ import {
   ButtonReleaseEventListener,
   BuzzerApi,
   Dongle,
+  IController,
 } from 'src/plugins/buzzer/types';
 import { Device } from 'src/plugins/buzzer/device';
 
@@ -27,6 +28,12 @@ const Buzzer = (): BuzzerApi => {
   const changeListener = new Set<ButtonChangeEventListener>();
   const pressedListener = new Set<ButtonPressEventListener>();
   const releasedListener = new Set<ButtonReleaseEventListener>();
+
+  const controllers = computed<IController[]>(() => {
+    return dongles.value
+      .flatMap((dongle) => dongle.controllers)
+      .filter((controller) => !controller.disabled);
+  });
 
   const onButtonChange = (listener: ButtonChangeEventListener) => {
     changeListener.add(listener);
@@ -112,6 +119,7 @@ const Buzzer = (): BuzzerApi => {
 
   return {
     dongles,
+    controllers,
     ready,
     reset,
     onButtonChange,

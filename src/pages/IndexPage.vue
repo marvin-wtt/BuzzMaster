@@ -3,12 +3,24 @@
     <a class="text-h3">
       {{ t('app_name') }}
     </a>
-    <q-btn
-      label="Devices"
-      to="devices"
-      color="primary"
-      rounded
-    />
+
+    <div class="column q-gutter-lg">
+      <q-btn
+        label="Start"
+        icon="play_arrow"
+        to="questions"
+        color="primary"
+        rounded
+      />
+
+      <q-btn
+        label="Devices"
+        icon="sports_esports"
+        to="devices"
+        color="primary"
+        rounded
+      />
+    </div>
 
     <q-list>
       <q-item

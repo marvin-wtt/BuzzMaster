@@ -137,7 +137,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 //                    example: onDialogOK({ /*...*/ }) - with payload
 // onDialogCancel - Function to call to settle dialog with "cancel" outcome
 
-const { dongles, reset, onButtonPressed, removeListener } = useBuzzer();
+const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 
 onMounted(() => {
   reset();
@@ -172,12 +172,6 @@ const close = () => {
     onDialogCancel();
   }
 };
-
-const controllers = computed(() => {
-  return dongles.value
-    .flatMap((dongle) => dongle.controllers)
-    .filter((controller) => !controller.disabled);
-});
 
 const doneControllers = computed<number>(() => {
   return controllers.value

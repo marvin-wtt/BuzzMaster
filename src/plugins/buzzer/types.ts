@@ -1,7 +1,8 @@
-import { Ref } from 'vue';
+import { ComputedRef, Ref } from 'vue';
 
 export interface BuzzerApi {
   dongles: Ref<Dongle[]>;
+  controllers: ComputedRef<IController[]>;
   reset: () => void;
   ready: Ref<boolean>;
   onButtonChange: (listener: (event: ButtonEvent) => void) => void;

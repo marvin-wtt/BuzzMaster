@@ -1,21 +1,8 @@
 <template>
-  <q-page class="column">
-    <div class="col-shrink row justify-between bg-primary text-white">
-      <q-btn
-        class="col-1"
-        icon="arrow_back"
-        size="md"
-        rounded
-        dense
-        flat
-        @click="navigateBack()"
-      />
-      <div class="col text-h5 text-center self-center">Devices</div>
-      <div class="col-1" />
-    </div>
-
-    <q-separator />
-
+  <navigation-bar
+    @back="cancelFindDevice()"
+    :title="t('devices.title')"
+  >
     <div class="col row justify-center">
       <q-list
         class="col-10"
@@ -83,7 +70,7 @@
         </q-expansion-item>
         <!-- Buzzer Test -->
         <q-item>
-          <q-item-section> Test All Buzzers</q-item-section>
+          <q-item-section>Test All Buzzers</q-item-section>
           <q-item-section side>
             <q-btn
               label="Start"
@@ -96,25 +83,21 @@
         </q-item>
       </q-list>
     </div>
-  </q-page>
+  </navigation-bar>
 </template>
 
 <script lang="ts" setup>
 import { useBuzzer } from 'src/plugins/buzzer';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { NamedColor, useQuasar } from 'quasar';
-import { useRouter } from 'vue-router';
 import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
 import { computed } from 'vue';
+import NavigationBar from 'components/PageNavigation.vue';
+import { useI18n } from 'vue-i18n';
 
 const quasar = useQuasar();
+const { t } = useI18n();
 const { dongles, reset } = useBuzzer();
-const router = useRouter();
-
-const navigateBack = () => {
-  cancelFindDevice();
-  router.back();
-};
 
 let findTimerId:
   | {

@@ -10,11 +10,10 @@
       >
         <!-- Dongles -->
         <q-expansion-item
-          v-for="(dongle, index) in dongles"
+          v-for="dongle in dongles"
           :key="dongle.name"
           group="dongles"
           :label="dongle.name"
-          :default-opened="index === 0"
           expand-separator
         >
           <q-list>

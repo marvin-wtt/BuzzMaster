@@ -21,15 +21,6 @@
         rounded
       />
     </div>
-
-    <q-list>
-      <q-item
-        v-for="dongle in dongles"
-        :key="dongle.name"
-      >
-        {{ dongle.name }}
-      </q-item>
-    </q-list>
   </q-page>
 </template>
 
@@ -38,6 +29,4 @@ import { useBuzzer } from 'src/plugins/buzzer';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
-
-const { dongles } = useBuzzer();
 </script>

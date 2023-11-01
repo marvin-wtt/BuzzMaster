@@ -8,11 +8,17 @@
       <div class="col column text-center justify-center">
         <div
           v-if="pressedController"
-          class="column justify-center"
+          class="column justify-center q-col-gutter-sm"
         >
           <a class="text-h4">{{ pressedController.name }}</a>
 
-          <a class="text-h2 clock"> 00 </a>
+          <count-down
+            v-if="buzzerSettings.answerTime > 0"
+            :time="buzzerSettings.answerTime"
+            class="text-h5"
+            :beep="buzzerSettings.playSounds"
+            :beep-start-time="buzzerSettings.countDownBeepStartAt"
+          />
         </div>
         <a
           v-else-if="!started"
@@ -44,6 +50,7 @@
             label="Settings"
             outline
             rounded
+            @click="settings"
           />
         </div>
 
@@ -97,24 +104,33 @@
 
 <script lang="ts" setup>
 import NavigationBar from 'components/PageNavigation.vue';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
   ButtonPressEvent,
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
+import { useQuasar } from 'quasar';
+import BuzzerQuestionDialog from 'components/questions/BuzzerQuestionDialog.vue';
+import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import CountDown from 'components/CountDown.vue';
 
+const quasar = useQuasar();
+const { buzzerSettings } = useQuestionSettingsStore();
 const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 
 const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
 
-onMounted(() => {
-  reset();
+const audio = new Audio('sounds/buzzer.mp3');
 
+onBeforeMount(() => {
+  reset();
   onButtonPressed(listener);
+
+  audio.load();
 });
 
 onUnmounted(() => {
@@ -140,9 +156,15 @@ const listener = (event: ButtonPressEvent) => {
     return;
   }
 
-  // TODO Check if this option is enabled
-  if (pressedControllers.value.includes(event.controller.id)) {
+  if (
+    !buzzerSettings.multipleAttempts &&
+    pressedControllers.value.includes(event.controller.id)
+  ) {
     return;
+  }
+
+  if (buzzerSettings.playSounds) {
+    audio.play();
   }
 
   pressedController.value = event.controller;
@@ -173,10 +195,18 @@ const quickPlay = () => {
 const start = () => {
   started.value = true;
 };
+
+const settings = () => {
+  quasar.dialog({
+    component: BuzzerQuestionDialog,
+  });
+};
 </script>
 
 <style scoped>
-.clock {
-  font-family: 'Digital-7', Arial, sans-serif;
+.test {
+  border-radius: 50%;
+  border: 2px dashed white;
+  aspect-ratio: 1 / 1;
 }
 </style>

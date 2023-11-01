@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header>
       <q-bar class="q-electron-drag bg-primary">
-        <q-icon name="laptop_chromebook" />
+        <q-icon name="cast" />
         <div>
           {{ t('app_name') }}
         </div>
@@ -54,9 +54,11 @@
 import { useQuasar } from 'quasar';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useBuzzer } from 'src/plugins/buzzer';
 
 const quasar = useQuasar();
 const { t } = useI18n();
+const { reset } = useBuzzer();
 
 const toggleDarkMode = quasar.dark.toggle;
 
@@ -74,6 +76,7 @@ function toggleMaximize() {
 }
 
 function closeApp() {
+  reset();
   window.windowAPI?.close();
 }
 </script>

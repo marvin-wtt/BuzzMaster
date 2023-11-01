@@ -7,31 +7,36 @@
       <!-- Content -->
       <div class="col column text-center justify-center">
         <div
-          v-if="pressedController"
-          class="column justify-center q-col-gutter-sm"
+          class="circle flex content-center q-pa-lg"
+          :class="pulseClass"
         >
-          <a class="text-h4">{{ pressedController.name }}</a>
+          <div
+            v-if="pressedController"
+            class="column justify-center q-col-gutter-sm"
+          >
+            <a class="text-h4">{{ pressedController.name }}</a>
 
-          <count-down
-            v-if="buzzerSettings.answerTime > 0"
-            :time="buzzerSettings.answerTime"
+            <count-down
+              v-if="buzzerSettings.answerTime > 0"
+              :time="buzzerSettings.answerTime"
+              class="text-h5"
+              :beep="buzzerSettings.playSounds"
+              :beep-start-time="buzzerSettings.countDownBeepStartAt"
+            />
+          </div>
+          <a
+            v-else-if="!started"
             class="text-h5"
-            :beep="buzzerSettings.playSounds"
-            :beep-start-time="buzzerSettings.countDownBeepStartAt"
-          />
+          >
+            {{ controllers.length + ' controllers ready!' }}
+          </a>
+          <a
+            v-else
+            class="text-h5"
+          >
+            Waiting for buzzer...
+          </a>
         </div>
-        <a
-          v-else-if="!started"
-          class="text-h5"
-        >
-          {{ controllers.length + ' controllers ready!' }}
-        </a>
-        <a
-          v-else
-          class="text-h5"
-        >
-          Waiting for buzzer...
-        </a>
       </div>
 
       <!-- Actions -->
@@ -137,6 +142,18 @@ onUnmounted(() => {
   removeListener('press', listener);
 });
 
+const pulseClass = computed<string>(() => {
+  if (pressedController.value) {
+    return 'pulse-negative';
+  }
+
+  if (started.value) {
+    return 'pulse';
+  }
+
+  return '';
+});
+
 const allControllersPressed = computed<boolean>(() => {
   return !controllers.value.some(
     (controller) => !pressedControllers.value.includes(controller.id)
@@ -203,10 +220,75 @@ const settings = () => {
 };
 </script>
 
-<style scoped>
-.test {
+<style lang="scss" scoped>
+$pulseMin: 0.95;
+$pulseMax: 1;
+
+.circle {
   border-radius: 50%;
-  border: 2px dashed white;
   aspect-ratio: 1 / 1;
+
+  box-shadow: 0 0 0 1px;
+}
+
+.pulse {
+  animation: t-pulse 2s infinite;
+}
+
+.pulse-negative {
+  animation: t-pulse-negative 2s infinite;
+}
+
+.pulse *,
+.pulse-negative * {
+  animation: pulse-inverse 2s infinite;
+}
+
+@keyframes pulse-inverse {
+  0% {
+    transform: scale(1 / $pulseMin);
+  }
+
+  70% {
+    transform: scale($pulseMax);
+  }
+
+  100% {
+    transform: scale(1 / $pulseMin);
+  }
+}
+
+@keyframes t-pulse-negative {
+  0% {
+    transform: scale($pulseMin);
+    box-shadow: 0 0 0 0 $negative;
+  }
+
+  70% {
+    transform: scale($pulseMax);
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+
+  100% {
+    transform: scale($pulseMin);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+@keyframes t-pulse {
+  0% {
+    transform: scale($pulseMin);
+    box-shadow: 0 0 0 0;
+  }
+
+  70% {
+    transform: scale($pulseMax);
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+
+  100% {
+    transform: scale($pulseMin);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 </style>

@@ -5,38 +5,35 @@
   >
     <div class="col-12 column justify-around">
       <!-- Content -->
-      <div class="col row justify-center">
-        <div class="col-shrink column text-center justify-center">
-          <!-- -->
-          <div
-            class="circle column justify-center q-pa-md q-col-gutter-sm"
-            :class="pulseClass"
+      <div class="col-grow row justify-center">
+        <div class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center">
+          <!-- Result -->
+          <circle-timer
+            v-if="started && pressedController"
+            v-model="countDownTIme"
+            :max="buzzerSettings.answerTime"
           >
-            <template
-              v-if="started && pressedController"
-            >
+            <div class="column justify-center q-col-gutter-sm">
               <a class="text-h4">{{ pressedController.name }}</a>
-
               <count-down
                 v-if="buzzerSettings.answerTime > 0"
-                :time="buzzerSettings.answerTime"
+                v-model="countDownTIme"
                 class="text-h5"
                 :beep="buzzerSettings.playSounds"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
               />
-            </template>
-            <a
-              v-else-if="!started"
-              class="text-h5"
-            >
+            </div>
+          </circle-timer>
+          <!-- Waiting -->
+          <div
+            v-else
+            class="column justify-center q-col-gutter-sm text-h5 circle"
+            :class="pulseClass"
+          >
+            <div v-if="!started">
               {{ controllers.length + ' controllers ready!' }}
-            </a>
-            <a
-              v-else
-              class="text-h5"
-            >
-              Waiting for buzzer...
-            </a>
+            </div>
+            <div v-else>Waiting for buzzer...</div>
           </div>
         </div>
       </div>
@@ -121,6 +118,7 @@ import { useQuasar } from 'quasar';
 import BuzzerQuestionDialog from 'components/questions/BuzzerQuestionDialog.vue';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import CountDown from 'components/CountDown.vue';
+import CircleTimer from 'components/CircleTimer.vue';
 
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
@@ -129,6 +127,7 @@ const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
+const countDownTIme = ref<number>(0);
 
 const audio = new Audio('sounds/buzzer.mp3');
 
@@ -185,6 +184,7 @@ const listener = (event: ButtonPressEvent) => {
     audio.play();
   }
 
+  countDownTIme.value = buzzerSettings.answerTime;
   pressedController.value = event.controller;
   pressedControllers.value.push(event.controller.id);
 

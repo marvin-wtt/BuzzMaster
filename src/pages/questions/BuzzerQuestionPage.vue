@@ -3,42 +3,43 @@
     title="Buzzer Question"
     padding
   >
-    <div class="col-10 column justify-around content-center">
+    <div class="col-12 column justify-around">
       <!-- Content -->
-      <div class="col column text-center justify-center">
-        <div
-          class="circle flex content-center q-pa-lg"
-          :class="pulseClass"
-        >
+      <div class="col row justify-center">
+        <div class="col-shrink column text-center justify-center">
+          <!-- -->
           <div
-            v-if="pressedController"
-            class="column justify-center q-col-gutter-sm"
+            class="circle column justify-center q-pa-md q-col-gutter-sm"
+            :class="pulseClass"
           >
-            <a class="text-h4">{{ pressedController.name }}</a>
+            <template
+              v-if="started && pressedController"
+            >
+              <a class="text-h4">{{ pressedController.name }}</a>
 
-            <count-down
-              v-if="buzzerSettings.answerTime > 0"
-              :time="buzzerSettings.answerTime"
+              <count-down
+                v-if="buzzerSettings.answerTime > 0"
+                :time="buzzerSettings.answerTime"
+                class="text-h5"
+                :beep="buzzerSettings.playSounds"
+                :beep-start-time="buzzerSettings.countDownBeepStartAt"
+              />
+            </template>
+            <a
+              v-else-if="!started"
               class="text-h5"
-              :beep="buzzerSettings.playSounds"
-              :beep-start-time="buzzerSettings.countDownBeepStartAt"
-            />
+            >
+              {{ controllers.length + ' controllers ready!' }}
+            </a>
+            <a
+              v-else
+              class="text-h5"
+            >
+              Waiting for buzzer...
+            </a>
           </div>
-          <a
-            v-else-if="!started"
-            class="text-h5"
-          >
-            {{ controllers.length + ' controllers ready!' }}
-          </a>
-          <a
-            v-else
-            class="text-h5"
-          >
-            Waiting for buzzer...
-          </a>
         </div>
       </div>
-
       <!-- Actions -->
       <div class="col-2 column content-center">
         <div
@@ -144,7 +145,7 @@ onUnmounted(() => {
 
 const pulseClass = computed<string>(() => {
   if (pressedController.value) {
-    return 'pulse-negative';
+    return '';
   }
 
   if (started.value) {
@@ -235,12 +236,7 @@ $pulseMax: 1;
   animation: t-pulse 2s infinite;
 }
 
-.pulse-negative {
-  animation: t-pulse-negative 2s infinite;
-}
-
-.pulse *,
-.pulse-negative * {
+.pulse * {
   animation: pulse-inverse 2s infinite;
 }
 
@@ -250,28 +246,11 @@ $pulseMax: 1;
   }
 
   70% {
-    transform: scale($pulseMax);
+    transform: scale(1 / $pulseMax);
   }
 
   100% {
     transform: scale(1 / $pulseMin);
-  }
-}
-
-@keyframes t-pulse-negative {
-  0% {
-    transform: scale($pulseMin);
-    box-shadow: 0 0 0 0 $negative;
-  }
-
-  70% {
-    transform: scale($pulseMax);
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-
-  100% {
-    transform: scale($pulseMin);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 

@@ -6,21 +6,27 @@
     <div class="col-12 column justify-around">
       <!-- Content -->
       <div class="col-grow row justify-center">
-        <div class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center">
+        <div
+          class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
+        >
           <!-- Result -->
           <circle-timer
             v-if="started && pressedController"
             v-model="countDownTIme"
             :max="buzzerSettings.answerTime"
           >
-            <div class="column justify-center q-col-gutter-sm">
-              <a class="text-h4">{{ pressedController.name }}</a>
+            <q-resize-observer @resize="onCircleTimerResize" />
+
+            <div class="column justify-center q-col-gutter-xs">
+              <div :style="controllerNameStyle">
+                {{ pressedController.name }}
+              </div>
               <count-down
                 v-if="buzzerSettings.answerTime > 0"
                 v-model="countDownTIme"
-                class="text-h5"
                 :beep="buzzerSettings.playSounds"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
+                :style="countDownStyle"
               />
             </div>
           </circle-timer>
@@ -107,7 +113,7 @@
 
 <script lang="ts" setup>
 import NavigationBar from 'components/PageNavigation.vue';
-import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
   ButtonPressEvent,
@@ -120,10 +126,18 @@ import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 
+interface Size {
+  width: number;
+  height: number;
+}
+
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
 const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 
+const controllerNameStyle = ref<string | { fontSize: string }>('');
+const countDownStyle = ref<string | { fontSize: string }>('');
+const circleSize = ref<Size>();
 const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
@@ -141,6 +155,59 @@ onBeforeMount(() => {
 onUnmounted(() => {
   removeListener('press', listener);
 });
+
+const onCircleTimerResize = (size?: { width: number; height: number }) => {
+  size ??= circleSize.value ?? { width: 0, height: 0 };
+  const elementWidth = size.width;
+
+  // Magical numbers so that the font size stays within the circle with padding
+  const scaleFactor = 8.5;
+  const heightFactor = 3;
+  const countDownScale = 0.75;
+
+  const { width, height } = textMetrics(pressedController.value?.name ?? '');
+  if (!elementWidth || !pressedController.value) {
+    return;
+  }
+
+  let scale = elementWidth / width;
+  // Rescale for height if the height outgrows the circle
+  if (height * heightFactor * scale > elementWidth) {
+    scale = elementWidth / (height * heightFactor);
+  }
+
+  const fontSize = scaleFactor * scale;
+  controllerNameStyle.value = {
+    fontSize: `${fontSize}pt`,
+  };
+
+  const countDownFontSize = fontSize * countDownScale;
+  countDownStyle.value = {
+    fontSize: `${countDownFontSize}pt`,
+  };
+};
+
+watch([pressedController], () => {
+  onCircleTimerResize();
+});
+
+// Measure normal text width
+const canvas = document.createElement('canvas');
+const textMetrics = (text: string) => {
+  const context = canvas.getContext('2d');
+  if (context === null) {
+    return { width: 0, height: 0 };
+  }
+  context.font = '12pt arial';
+  const metrics = context.measureText(text);
+  const height =
+    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+  return {
+    width: metrics.width,
+    height,
+  };
+};
 
 const pulseClass = computed<string>(() => {
   if (pressedController.value) {

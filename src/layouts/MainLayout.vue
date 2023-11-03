@@ -2,12 +2,30 @@
   <q-layout view="lHh Lpr lFf">
     <q-header>
       <q-bar class="q-electron-drag bg-primary">
-        <q-icon name="cast" />
-        <div>
-          {{ t('app_name') }}
-        </div>
+        <q-btn
+          dense
+          flat
+          no-caps
+          no-wrap
+          rounded
+          @click="goToHome"
+        >
+          <div class="row q-gutter-sm">
+            <q-icon name="cast" />
+            <div class="text-body2">
+              {{ t('app_name') }}
+            </div>
+          </div>
+        </q-btn>
 
         <q-space />
+
+        <q-btn
+          dense
+          flat
+          :icon="muted ? 'volume_off' : 'volume_up'"
+          @click="toggleMute"
+        />
 
         <q-btn
           dense
@@ -55,16 +73,30 @@ import { useQuasar } from 'quasar';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
+import { useRouter } from 'vue-router';
+import { useAppSettingsStore } from 'stores/application-settings-store';
+import { storeToRefs } from 'pinia';
 
+const router = useRouter();
 const quasar = useQuasar();
 const { t } = useI18n();
 const { reset } = useBuzzer();
+const applicationStore = useAppSettingsStore();
 
+const { muted } = storeToRefs(applicationStore);
 const toggleDarkMode = quasar.dark.toggle;
 
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;
 });
+
+const toggleMute = () => {
+  muted.value = !muted.value;
+};
+
+const goToHome = () => {
+  router.push('/');
+};
 
 // TODO Add typescript support
 function minimize() {

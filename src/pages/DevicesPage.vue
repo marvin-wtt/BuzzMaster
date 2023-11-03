@@ -150,6 +150,7 @@ const editControllerName = (controller: IController) => {
   quasar
     .dialog({
       title: 'Controller name',
+      color: 'primary',
       // message: 'Maximum 20 characters',
       prompt: {
         model: controller.name,

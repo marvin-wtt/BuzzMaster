@@ -24,7 +24,7 @@
               <count-down
                 v-if="buzzerSettings.answerTime > 0"
                 v-model="countDownTIme"
-                :beep="buzzerSettings.playSounds"
+                :beep="soundsEnabled"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
               />
@@ -72,7 +72,7 @@
             <q-btn
               label="Re-open"
               icon="loop"
-              color="negative"
+              color="primary"
               rounded
               :outline="allControllersPressed"
               :disable="allControllersPressed"
@@ -81,7 +81,7 @@
             <q-btn
               label="Quick Play"
               icon="fast_forward"
-              color="positive"
+              color="primary"
               rounded
               @click="quickPlay()"
             />
@@ -91,7 +91,7 @@
             <q-btn
               label="Reset"
               icon="replay"
-              color="primary"
+              outline
               rounded
               @click="restart()"
             />
@@ -125,6 +125,8 @@ import BuzzerQuestionDialog from 'components/questions/BuzzerQuestionDialog.vue'
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
+import { useAppSettingsStore } from 'stores/application-settings-store';
+import { storeToRefs } from 'pinia';
 
 interface Size {
   width: number;
@@ -133,6 +135,7 @@ interface Size {
 
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
+const appSettingsStore = useAppSettingsStore();
 const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
@@ -142,6 +145,7 @@ const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
 const countDownTIme = ref<number>(0);
+const { muted: globalMuted } = storeToRefs(appSettingsStore);
 
 const audio = new Audio('sounds/buzzer.mp3');
 
@@ -154,6 +158,11 @@ onBeforeMount(() => {
 
 onUnmounted(() => {
   removeListener('press', listener);
+  reset();
+});
+
+const soundsEnabled = computed<boolean>(() => {
+  return buzzerSettings.playSounds && !globalMuted.value;
 });
 
 const onCircleTimerResize = (size?: { width: number; height: number }) => {
@@ -247,7 +256,7 @@ const listener = (event: ButtonPressEvent) => {
     return;
   }
 
-  if (buzzerSettings.playSounds) {
+  if (soundsEnabled.value) {
     audio.play();
   }
 
@@ -293,6 +302,7 @@ $pulseMin: 0.95;
 $pulseMax: 1;
 
 .circle {
+  margin: 15px;
   border-radius: 50%;
   aspect-ratio: 1 / 1;
 

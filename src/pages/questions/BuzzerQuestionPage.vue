@@ -12,7 +12,7 @@
           <!-- Result -->
           <circle-timer
             v-if="started && pressedController"
-            v-model="countDownTIme"
+            v-model="countDownTime"
             :max="buzzerSettings.answerTime"
           >
             <q-resize-observer @resize="onCircleTimerResize" />
@@ -23,7 +23,7 @@
               </div>
               <count-down
                 v-if="buzzerSettings.answerTime > 0"
-                v-model="countDownTIme"
+                v-model="countDownTime"
                 :beep="soundsEnabled"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
@@ -31,16 +31,16 @@
             </div>
           </circle-timer>
           <!-- Waiting -->
-          <div
+          <pulse-circle
             v-else
-            class="column justify-center q-col-gutter-sm text-h5 circle"
-            :class="pulseClass"
+            class="column justify-center q-col-gutter-sm text-h5"
+            :pulse="pulse"
           >
             <div v-if="!started">
               {{ controllers.length + ' controllers ready!' }}
             </div>
             <div v-else>Waiting for buzzer...</div>
-          </div>
+          </pulse-circle>
         </div>
       </div>
       <!-- Actions -->
@@ -98,7 +98,7 @@
           </div>
         </div>
 
-        <div v-if="started == !pressedController">
+        <div v-if="started && !pressedController">
           <q-btn
             label="Cancel"
             outline
@@ -127,6 +127,7 @@ import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
+import PulseCircle from 'components/PulseCircle.vue';
 
 interface Size {
   width: number;
@@ -144,7 +145,7 @@ const circleSize = ref<Size>();
 const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
-const countDownTIme = ref<number>(0);
+const countDownTime = ref<number>(0);
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
 
 const audio = new Audio('sounds/buzzer.mp3');
@@ -218,16 +219,8 @@ const textMetrics = (text: string) => {
   };
 };
 
-const pulseClass = computed<string>(() => {
-  if (pressedController.value) {
-    return '';
-  }
-
-  if (started.value) {
-    return 'pulse';
-  }
-
-  return '';
+const pulse = computed<boolean>(() => {
+  return !pressedController.value && started.value;
 });
 
 const allControllersPressed = computed<boolean>(() => {
@@ -260,7 +253,7 @@ const listener = (event: ButtonPressEvent) => {
     audio.play();
   }
 
-  countDownTIme.value = buzzerSettings.answerTime;
+  countDownTime.value = buzzerSettings.answerTime;
   pressedController.value = event.controller;
   pressedControllers.value.push(event.controller.id);
 
@@ -297,54 +290,4 @@ const settings = () => {
 };
 </script>
 
-<style lang="scss" scoped>
-$pulseMin: 0.95;
-$pulseMax: 1;
-
-.circle {
-  margin: 15px;
-  border-radius: 50%;
-  aspect-ratio: 1 / 1;
-
-  box-shadow: 0 0 0 1px;
-}
-
-.pulse {
-  animation: t-pulse 2s infinite;
-}
-
-.pulse * {
-  animation: pulse-inverse 2s infinite;
-}
-
-@keyframes pulse-inverse {
-  0% {
-    transform: scale(1 / $pulseMin);
-  }
-
-  70% {
-    transform: scale(1 / $pulseMax);
-  }
-
-  100% {
-    transform: scale(1 / $pulseMin);
-  }
-}
-
-@keyframes t-pulse {
-  0% {
-    transform: scale($pulseMin);
-    box-shadow: 0 0 0 0;
-  }
-
-  70% {
-    transform: scale($pulseMax);
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-
-  100% {
-    transform: scale($pulseMin);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-  }
-}
-</style>
+<style scoped></style>

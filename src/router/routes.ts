@@ -19,6 +19,11 @@ const routes: RouteRecordRaw[] = [
             name: 'buzzer-question',
             component: () => import('pages/questions/BuzzerQuestionPage.vue'),
           },
+          {
+            path: 'quiz',
+            name: 'quiz-question',
+            component: () => import('pages/questions/QuizQuestionPage.vue'),
+          },
         ],
       },
     ],

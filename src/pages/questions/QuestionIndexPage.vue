@@ -3,10 +3,17 @@
     title="Questions"
     padding
   >
-    <div class="col-10 column justify-center">
+    <div class="col-10 column justify-center q-gutter-md">
       <q-btn
         :to="{ name: 'buzzer-question' }"
-        label="Buzzer Question"
+        label="Buzzer"
+        color="primary"
+        rounded
+      />
+
+      <q-btn
+        :to="{ name: 'quiz-question' }"
+        label="Quiz"
         color="primary"
         rounded
       />

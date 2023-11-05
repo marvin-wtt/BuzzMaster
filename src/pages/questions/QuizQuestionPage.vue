@@ -3,7 +3,7 @@
     title="Quiz Question"
     padding
   >
-    <div class="col-12 column justify-around">
+    <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center">
         <div
@@ -69,8 +69,70 @@
               />
             </circle-timer>
 
-            <div v-else-if="showResults">
-              <!-- TODO Show results -->
+            <div
+              v-else
+              class="row"
+            >
+              <!-- Options -->
+              <q-list class="col">
+                <q-item
+                  v-for="button in resultOptions"
+                  :key="button"
+                  group="results"
+                  :label="buttonLabels[button]"
+                  :class="
+                    activeResult === undefined || activeResult === button
+                      ? resultItemClass[button]
+                      : ''
+                  "
+                  clickable
+                  @click="changeActiveResult(button)"
+                >
+                  <q-item-section avatar>
+                    <q-avatar
+                      color="grey-7"
+                      text-color="white"
+                    >
+                      {{ buttonsByResult[button]?.length ?? 0 }}
+                    </q-avatar>
+                  </q-item-section>
+
+                  <q-item-section>
+                    <q-item-section>
+                      {{ buttonLabels[button] }}
+                    </q-item-section>
+                  </q-item-section>
+
+                  <q-item-section
+                    side
+                    v-if="activeResult === button"
+                  >
+                    <q-icon name="navigate_next" />
+                  </q-item-section>
+                  <!-- content -->
+                </q-item>
+              </q-list>
+
+              <q-separator vertical />
+
+              <!-- Results -->
+              <q-list
+                class="col col-6"
+                v-if="activeResult !== undefined"
+              >
+                <q-scroll-area style="height: 100%">
+                  <q-item
+                    v-for="(controllerName, index) in buttonsByResult[
+                      activeResult
+                    ]"
+                    :key="index"
+                  >
+                    <q-item-section>
+                      {{ controllerName }}
+                    </q-item-section>
+                  </q-item>
+                </q-scroll-area>
+              </q-list>
             </div>
           </transition-fade>
         </div>
@@ -97,39 +159,23 @@
           </div>
 
           <div
-            class="col-12"
+            class="column q-gutter-sm"
             v-if="done && showResults"
           >
-            <!-- First row -->
-            <div class="row q-gutter-sm">
-              <!-- TODO Add buttons -->
-              <!--            <q-btn-->
-              <!--              label="Re-open"-->
-              <!--              icon="loop"-->
-              <!--              color="primary"-->
-              <!--              rounded-->
-              <!--              :outline="allControllersPressed"-->
-              <!--              :disable="allControllersPressed"-->
-              <!--              @click="continueQuestion()"-->
-              <!--            />-->
-              <!--            <q-btn-->
-              <!--              label="Quick Play"-->
-              <!--              icon="fast_forward"-->
-              <!--              color="primary"-->
-              <!--              rounded-->
-              <!--              @click="quickPlay()"-->
-              <!--            />-->
-            </div>
-            <!-- Second row -->
-            <div class="row justify-center q-mt-md">
-              <q-btn
-                label="Reset"
-                icon="replay"
-                outline
-                rounded
-                @click="restart()"
-              />
-            </div>
+            <q-btn
+              label="Quick Play"
+              icon="fast_forward"
+              color="primary"
+              rounded
+              @click="quickPlay()"
+            />
+            <q-btn
+              label="Reset"
+              icon="replay"
+              outline
+              rounded
+              @click="restart()"
+            />
           </div>
 
           <div v-if="started && !done">
@@ -174,6 +220,10 @@ const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
 const countDownTime = ref<number>(0);
 const showResults = ref<boolean>(false);
+const activeResult = ref<BuzzerButton>();
+const pressedButtons = ref<Map<string, BuzzerButton>>(
+  new Map<string, BuzzerButton>()
+);
 
 onBeforeMount(() => {
   reset();
@@ -186,11 +236,27 @@ onUnmounted(() => {
   reset();
 });
 
-const pressedButtons = ref<Map<string, BuzzerButton>>(
-  new Map<string, BuzzerButton>()
-);
-const confirmedControllers = ref<string[]>([]);
+const changeActiveResult = (button: BuzzerButton) => {
+  activeResult.value = activeResult.value !== button ? button : undefined;
+};
 
+const resultOptions = computed(() => {
+  // Red button as equivalent for not pressed
+  return [...quizSettings.activeButtons, BuzzerButton.RED];
+});
+
+const buttonsByResult = computed(() => {
+  return controllers.value.reduce((acc, controller) => {
+    const button = pressedButtons.value.get(controller.id) ?? BuzzerButton.RED;
+
+    acc[button] ??= [];
+    acc[button].push(controller.name);
+
+    return acc;
+  }, {} as Record<BuzzerButton, string[]>);
+});
+
+const confirmedControllers = ref<string[]>([]);
 const listener = (event: ButtonPressEvent) => {
   if (!started.value) {
     return;
@@ -280,9 +346,31 @@ const start = () => {
 const restart = () => {
   pressedButtons.value = new Map<string, BuzzerButton>();
   confirmedControllers.value = [];
+  activeResult.value = undefined;
   reset();
 
   started.value = false;
+};
+
+const quickPlay = () => {
+  restart();
+  start();
+};
+
+const buttonLabels = {
+  [BuzzerButton.BLUE]: 'Blue',
+  [BuzzerButton.ORANGE]: 'Orange',
+  [BuzzerButton.GREEN]: 'Green',
+  [BuzzerButton.YELLOW]: 'Yellow',
+  [BuzzerButton.RED]: 'Not answered',
+};
+
+const resultItemClass = {
+  [BuzzerButton.BLUE]: 'bg-blue text-white',
+  [BuzzerButton.ORANGE]: 'bg-orange text-white',
+  [BuzzerButton.GREEN]: 'bg-green text-white',
+  [BuzzerButton.YELLOW]: 'bg-yellow text-white',
+  [BuzzerButton.RED]: 'bg-grey text-white',
 };
 </script>
 

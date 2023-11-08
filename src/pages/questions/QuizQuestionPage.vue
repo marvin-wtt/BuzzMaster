@@ -7,6 +7,60 @@
       <!-- Content -->
       <div class="col-grow row justify-center">
         <div
+          v-if="showResults"
+          class="column q-mb-sm"
+        >
+          <q-tabs
+            v-model="activeResult"
+            class="col-shrink"
+            dense
+          >
+            <q-tab
+              v-for="button in resultOptions"
+              :key="button"
+              :name="button"
+              :class="resultItemClass[button]"
+            >
+              <div
+                :class="
+                  activeResult === button
+                    ? 'result-tab-active-content'
+                    : 'result-tab-content'
+                "
+              >
+                {{ buttonsByResult[button]?.length ?? 0 }}
+              </div>
+            </q-tab>
+          </q-tabs>
+          <q-tab-panels
+            v-model="activeResult"
+            class="col-grow column"
+            animated
+          >
+            <q-tab-panel
+              v-for="button in resultOptions"
+              :key="button"
+              :name="button"
+              class="col-grow absolute"
+            >
+              <q-virtual-scroll
+                :items="buttonsByResult[button]"
+                separator
+                v-slot="{ item }"
+                style="height: 100%"
+              >
+                <q-item>
+                  <q-item-section>
+                    {{ item }}
+                  </q-item-section>
+                </q-item>
+              </q-virtual-scroll>
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+
+        <div
+          v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
         >
           <transition-fade>
@@ -68,72 +122,6 @@
                 :beep-start-time="quizSettings.countDownBeepStartAt"
               />
             </circle-timer>
-
-            <div
-              v-else
-              class="row"
-            >
-              <!-- Options -->
-              <q-list class="col">
-                <q-item
-                  v-for="button in resultOptions"
-                  :key="button"
-                  group="results"
-                  :label="buttonLabels[button]"
-                  :class="
-                    activeResult === undefined || activeResult === button
-                      ? resultItemClass[button]
-                      : ''
-                  "
-                  clickable
-                  @click="changeActiveResult(button)"
-                >
-                  <q-item-section avatar>
-                    <q-avatar
-                      color="grey-7"
-                      text-color="white"
-                    >
-                      {{ buttonsByResult[button]?.length ?? 0 }}
-                    </q-avatar>
-                  </q-item-section>
-
-                  <q-item-section>
-                    <q-item-section>
-                      {{ buttonLabels[button] }}
-                    </q-item-section>
-                  </q-item-section>
-
-                  <q-item-section
-                    side
-                    v-if="activeResult === button"
-                  >
-                    <q-icon name="navigate_next" />
-                  </q-item-section>
-                  <!-- content -->
-                </q-item>
-              </q-list>
-
-              <q-separator vertical />
-
-              <!-- Results -->
-              <q-list
-                class="col col-6"
-                v-if="activeResult !== undefined"
-              >
-                <q-scroll-area style="height: 100%">
-                  <q-item
-                    v-for="(controllerName, index) in buttonsByResult[
-                      activeResult
-                    ]"
-                    :key="index"
-                  >
-                    <q-item-section>
-                      {{ controllerName }}
-                    </q-item-section>
-                  </q-item>
-                </q-scroll-area>
-              </q-list>
-            </div>
           </transition-fade>
         </div>
       </div>
@@ -236,10 +224,6 @@ onUnmounted(() => {
   reset();
 });
 
-const changeActiveResult = (button: BuzzerButton) => {
-  activeResult.value = activeResult.value !== button ? button : undefined;
-};
-
 const resultOptions = computed(() => {
   // Red button as equivalent for not pressed
   return [...quizSettings.activeButtons, BuzzerButton.RED];
@@ -247,7 +231,14 @@ const resultOptions = computed(() => {
 
 const buttonsByResult = computed(() => {
   return controllers.value.reduce((acc, controller) => {
-    const button = pressedButtons.value.get(controller.id) ?? BuzzerButton.RED;
+    const hasConfirmed =
+      quizSettings.changeMode === 'always' ||
+      confirmedControllers.value.includes(controller.id);
+    // Mo input is default button
+    const pressedButton =
+      pressedButtons.value.get(controller.id) ?? BuzzerButton.RED;
+    // Ignore input if user has not confirmed the button selection
+    const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
 
     acc[button] ??= [];
     acc[button].push(controller.name);
@@ -320,9 +311,13 @@ watch(done, (val) => {
   clearTimeout(showTimeoutId);
 
   if (val) {
-    setTimeout(() => {
+    if (countDownTime.value <= 0) {
+      setTimeout(() => {
+        showResults.value = true;
+      }, 1000);
+    } else {
       showResults.value = true;
-    }, 1000);
+    }
   } else {
     showResults.value = false;
   }
@@ -357,21 +352,27 @@ const quickPlay = () => {
   start();
 };
 
-const buttonLabels = {
-  [BuzzerButton.BLUE]: 'Blue',
-  [BuzzerButton.ORANGE]: 'Orange',
-  [BuzzerButton.GREEN]: 'Green',
-  [BuzzerButton.YELLOW]: 'Yellow',
-  [BuzzerButton.RED]: 'Not answered',
-};
-
 const resultItemClass = {
-  [BuzzerButton.BLUE]: 'bg-blue text-white',
-  [BuzzerButton.ORANGE]: 'bg-orange text-white',
-  [BuzzerButton.GREEN]: 'bg-green text-white',
-  [BuzzerButton.YELLOW]: 'bg-yellow text-white',
-  [BuzzerButton.RED]: 'bg-grey text-white',
+  [BuzzerButton.BLUE]: 'bg-blue',
+  [BuzzerButton.ORANGE]: 'bg-orange',
+  [BuzzerButton.GREEN]: 'bg-green',
+  [BuzzerButton.YELLOW]: 'bg-yellow',
+  [BuzzerButton.RED]: 'bg-grey',
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.result-tab-content {
+  background-color: black;
+  color: white;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+
+.result-tab-active-content {
+  background-color: white;
+  color: black;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+</style>

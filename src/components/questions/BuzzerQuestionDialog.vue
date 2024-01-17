@@ -66,8 +66,7 @@ import { useQuestionSettingsStore } from 'stores/question-settings-store';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 
 const { buzzerSettings } = useQuestionSettingsStore();
 </script>

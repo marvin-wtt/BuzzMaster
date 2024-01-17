@@ -100,8 +100,7 @@ import { BuzzerButton } from 'src/plugins/buzzer/types';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 
 const { quizSettings } = useQuestionSettingsStore();
 

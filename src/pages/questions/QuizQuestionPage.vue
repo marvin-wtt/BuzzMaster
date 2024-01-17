@@ -121,6 +121,7 @@
                 :beep="soundsEnabled"
                 :beep-start-time="quizSettings.countDownBeepStartAt"
                 animated
+                class="text-h2"
               />
             </circle-timer>
           </transition-fade>

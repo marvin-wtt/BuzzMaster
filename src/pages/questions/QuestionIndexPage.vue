@@ -17,6 +17,13 @@
         color="primary"
         rounded
       />
+
+      <q-btn
+        :to="{ name: 'stopwatch-question' }"
+        label="Stopwatch"
+        color="primary"
+        rounded
+      />
     </div>
 
     <!-- content -->

@@ -24,6 +24,12 @@ const routes: RouteRecordRaw[] = [
             name: 'quiz-question',
             component: () => import('pages/questions/QuizQuestionPage.vue'),
           },
+          {
+            path: 'stopwatch',
+            name: 'stopwatch-question',
+            component: () =>
+              import('pages/questions/StopwatchQuestionPage.vue'),
+          },
         ],
       },
     ],

@@ -1,6 +1,6 @@
 <template>
   <navigation-bar
-    title="Buzzer Question"
+    title="Buzzer"
     padding
   >
     <div class="col-12 column justify-around">
@@ -27,6 +27,7 @@
                 :beep="soundsEnabled"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
+                animated
               />
             </div>
           </circle-timer>

@@ -1,6 +1,6 @@
 <template>
   <navigation-bar
-    title="Quiz Question"
+    title="Quiz"
     padding
   >
     <div class="col-12 column justify-around no-wrap">
@@ -120,6 +120,7 @@
                 v-model="countDownTime"
                 :beep="soundsEnabled"
                 :beep-start-time="quizSettings.countDownBeepStartAt"
+                animated
               />
             </circle-timer>
           </transition-fade>

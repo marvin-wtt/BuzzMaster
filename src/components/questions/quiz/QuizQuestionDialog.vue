@@ -62,6 +62,16 @@
           </template>
         </q-input>
 
+        <q-select
+          v-model="quizSettings.changeMode"
+          label="Result Mode"
+          :options="resultOption"
+          emit-value
+          map-options
+          outlined
+          rounded
+        />
+
         <q-toggle
           label="Play sounds"
           v-model="quizSettings.playSounds"
@@ -100,8 +110,7 @@ import { BuzzerButton } from 'src/plugins/buzzer/types';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent();
+const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 
 const { quizSettings } = useQuestionSettingsStore();
 
@@ -117,6 +126,17 @@ const changeModeOptions = [
   {
     label: 'Confirm',
     value: 'confirm',
+  },
+];
+
+const resultOption = [
+  {
+    label: 'Table',
+    value: 'table',
+  },
+  {
+    label: 'Bar Cart',
+    value: 'bar',
   },
 ];
 

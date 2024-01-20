@@ -43,15 +43,15 @@ $pulseMax: 1;
 
 @keyframes pulse-inverse {
   0% {
-    transform: scale(1 / $pulseMin);
+    transform: scale(calc(1 / $pulseMin));
   }
 
   70% {
-    transform: scale(1 / $pulseMax);
+    transform: scale(calc(1 / $pulseMax));
   }
 
   100% {
-    transform: scale(1 / $pulseMin);
+    transform: scale(calc(1 / $pulseMin));
   }
 }
 

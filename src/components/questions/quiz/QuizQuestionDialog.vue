@@ -63,7 +63,7 @@
         </q-input>
 
         <q-select
-          v-model="quizSettings.changeMode"
+          v-model="quizSettings.resultMode"
           label="Result Mode"
           :options="resultOption"
           emit-value

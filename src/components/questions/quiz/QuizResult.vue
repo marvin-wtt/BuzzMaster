@@ -135,7 +135,7 @@ const buttonsByResult = computed(() => {
 });
 
 const mode = computed<string>(() => {
-  return 'table';
+  return quizSettings.resultMode;
 });
 
 const resultItemClass = {

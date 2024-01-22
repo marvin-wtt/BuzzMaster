@@ -104,7 +104,7 @@ const start = () => {
   const interval = 1 / props.updateRate;
 
   intervalId = setInterval(() => {
-    if (time.value <= 0) {
+    if (time.value <= 0 && !props.reverse) {
       stop();
 
       if (props.beep) {

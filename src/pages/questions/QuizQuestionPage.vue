@@ -7,56 +7,14 @@
       <!-- Content -->
       <div class="col-grow row justify-center">
         <div
-          v-if="showResults"
+          v-if="completed"
           class="column q-mb-sm"
         >
-          <q-tabs
+          <quiz-result
             v-model="activeResult"
-            class="col-shrink"
-            dense
-          >
-            <q-tab
-              v-for="button in resultOptions"
-              :key="button"
-              :name="button"
-              :class="resultItemClass[button]"
-            >
-              <div
-                :class="
-                  activeResult === button
-                    ? 'result-tab-active-content'
-                    : 'result-tab-content'
-                "
-              >
-                {{ buttonsByResult[button]?.length ?? 0 }}
-              </div>
-            </q-tab>
-          </q-tabs>
-          <q-tab-panels
-            v-model="activeResult"
-            class="col-grow column"
-            animated
-          >
-            <q-tab-panel
-              v-for="button in resultOptions"
-              :key="button"
-              :name="button"
-              class="col-grow absolute"
-            >
-              <q-virtual-scroll
-                :items="buttonsByResult[button]"
-                separator
-                v-slot="{ item }"
-                style="height: 100%"
-              >
-                <q-item>
-                  <q-item-section>
-                    {{ item }}
-                  </q-item-section>
-                </q-item>
-              </q-virtual-scroll>
-            </q-tab-panel>
-          </q-tab-panels>
+            :confirmed-controllers="confirmedControllers"
+            :pressed-buttons="pressedButtons"
+          />
         </div>
 
         <div
@@ -111,7 +69,7 @@
 
             <!-- Waiting for answers -->
             <circle-timer
-              v-else-if="!showResults"
+              v-else-if="!completed"
               v-model="countDownTime"
               :max="quizSettings.answerTime"
             >
@@ -150,7 +108,7 @@
 
           <div
             class="column q-gutter-sm"
-            v-if="done && showResults"
+            v-if="done && completed"
           >
             <q-btn
               label="Quick Play"
@@ -187,7 +145,8 @@ import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import NavigationBar from 'components/PageNavigation.vue';
-import QuizQuestionDialog from 'components/questions/QuizQuestionDialog.vue';
+import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue';
+import QuizResult from 'components/questions/quiz/QuizResult.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -209,7 +168,7 @@ const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
 const countDownTime = ref<number>(0);
-const showResults = ref<boolean>(false);
+const completed = ref<boolean>(false);
 const activeResult = ref<BuzzerButton>();
 const pressedButtons = ref<Map<string, BuzzerButton>>(
   new Map<string, BuzzerButton>()
@@ -226,32 +185,9 @@ onUnmounted(() => {
   reset();
 });
 
-const resultOptions = computed(() => {
-  // Red button as equivalent for not pressed
-  return [...quizSettings.activeButtons, BuzzerButton.RED];
-});
-
-const buttonsByResult = computed(() => {
-  return controllers.value.reduce((acc, controller) => {
-    const hasConfirmed =
-      quizSettings.changeMode === 'always' ||
-      confirmedControllers.value.includes(controller.id);
-    // Mo input is default button
-    const pressedButton =
-      pressedButtons.value.get(controller.id) ?? BuzzerButton.RED;
-    // Ignore input if user has not confirmed the button selection
-    const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
-
-    acc[button] ??= [];
-    acc[button].push(controller.name);
-
-    return acc;
-  }, {} as Record<BuzzerButton, string[]>);
-});
-
 const confirmedControllers = ref<string[]>([]);
 const listener = (event: ButtonPressEvent) => {
-  if (!started.value) {
+  if (!started.value || completed.value) {
     return;
   }
 
@@ -315,13 +251,13 @@ watch(done, (val) => {
   if (val) {
     if (countDownTime.value <= 0) {
       setTimeout(() => {
-        showResults.value = true;
+        completed.value = true;
       }, 1000);
     } else {
-      showResults.value = true;
+      completed.value = true;
     }
   } else {
-    showResults.value = false;
+    completed.value = false;
   }
 });
 
@@ -352,14 +288,6 @@ const restart = () => {
 const quickPlay = () => {
   restart();
   start();
-};
-
-const resultItemClass = {
-  [BuzzerButton.BLUE]: 'bg-blue',
-  [BuzzerButton.ORANGE]: 'bg-orange',
-  [BuzzerButton.GREEN]: 'bg-green',
-  [BuzzerButton.YELLOW]: 'bg-yellow',
-  [BuzzerButton.RED]: 'bg-grey',
 };
 </script>
 

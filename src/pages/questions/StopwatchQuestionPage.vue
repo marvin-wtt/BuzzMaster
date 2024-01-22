@@ -119,7 +119,7 @@ import {
 } from 'src/plugins/buzzer/types';
 const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
 
-const counter = ref<number>(0.0001);
+const counter = ref<number>(0);
 const started = ref<boolean>(false);
 const startTime = ref<number>(0);
 const pressedControllers = ref<Map<IController, number>>(
@@ -166,7 +166,7 @@ const restart = () => {
 
   pressedControllers.value = new Map<IController, number>();
   started.value = false;
-  counter.value = 0.0001;
+  counter.value = 0;
 };
 
 const quickPlay = () => {

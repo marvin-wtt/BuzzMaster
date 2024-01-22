@@ -15,6 +15,7 @@ interface QuizSettings {
   changeMode: 'never' | 'always' | 'confirm';
   playSounds: boolean;
   countDownBeepStartAt: number;
+  resultMode: 'table' | 'bar';
 }
 
 export const useQuestionSettingsStore = defineStore('questionSettings', () => {
@@ -36,6 +37,7 @@ export const useQuestionSettingsStore = defineStore('questionSettings', () => {
     changeMode: 'never',
     playSounds: true,
     countDownBeepStartAt: 10,
+    resultMode: 'table',
   };
 
   const buzzerSettings = reactive<BuzzerSettings>({

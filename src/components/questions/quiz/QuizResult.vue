@@ -18,7 +18,7 @@
               : 'result-tab-content'
           "
         >
-          {{ buttonsByResult[button]?.length ?? 0 }}
+          {{ buttonOccurrences[button] }}
         </div>
       </q-tab>
     </q-tabs>
@@ -48,17 +48,35 @@
       </q-tab-panel>
     </q-tab-panels>
   </template>
-  <template v-if="mode === 'bars'">
-    <div class="bar-chart-container flex">
+  <template v-else-if="mode === 'bar'">
+    <div class="bar-chart-container col-grow row q-pb-sm">
+      <div class="column justify-between reverse q-py-md text-grey">
+        <div>0 %</div>
+        <div>25 %</div>
+        <div>50 %</div>
+        <div>75 %</div>
+        <div>100 %</div>
+      </div>
       <div
         v-for="button in resultOptions"
         :key="button"
-        class="bar"
-        :style="{
-          height: `${barHeightPercentages[button]}%`,
-          backgroundColor: resultItemClass[button],
-        }"
-      />
+        class="column justify-between no-wrap text-center"
+      >
+        <div class="q-pb-sm">{{ buttonPercentage[button] }} %</div>
+
+        <div class="col-grow column justify-end">
+          <div
+            class="bar text-center"
+            :class="resultItemClass[button]"
+            :style="{
+              height: `${barHeightPercentages[button]}%`,
+            }"
+          />
+        </div>
+        <div>
+          {{ buttonOccurrences[button] }}
+        </div>
+      </div>
     </div>
   </template>
 </template>
@@ -94,18 +112,40 @@ const activeResult = computed<BuzzerButton>({
 });
 
 type BuzzerMap = Record<BuzzerButton, number>;
-const barHeightPercentages = computed<BuzzerMap>(() => {
-  const buttonOccurrences: BuzzerMap = {} as BuzzerMap;
 
-  props.pressedButtons.forEach((button) => {
-    buttonOccurrences[button] = (buttonOccurrences[button] || 0) + 1;
-  });
+const buttonOccurrences = computed<BuzzerMap>(() => {
+  return {
+    [BuzzerButton.BLUE]: buttonsByResult.value[BuzzerButton.BLUE]?.length ?? 0,
+    [BuzzerButton.ORANGE]:
+      buttonsByResult.value[BuzzerButton.ORANGE]?.length ?? 0,
+    [BuzzerButton.GREEN]:
+      buttonsByResult.value[BuzzerButton.GREEN]?.length ?? 0,
+    [BuzzerButton.YELLOW]:
+      buttonsByResult.value[BuzzerButton.YELLOW]?.length ?? 0,
+    [BuzzerButton.RED]: buttonsByResult.value[BuzzerButton.RED]?.length ?? 0,
+  };
+});
 
-  const max = Math.max(...Object.values(buttonOccurrences));
+const buttonPercentage = computed<BuzzerMap>(() => {
+  const total = controllers.value.length;
   const buttonPercentage: Record<BuzzerButton, number> = {} as BuzzerMap;
   Object.keys(BuzzerButton).map((value) => {
     const button = BuzzerButton[value as keyof typeof BuzzerButton];
-    buttonPercentage[button] = buttonOccurrences[button] / max;
+    const val = (buttonOccurrences.value[button] / total) * 100;
+    buttonPercentage[button] = Math.round(val * 10) / 10;
+  });
+
+  return buttonPercentage;
+});
+
+const barHeightPercentages = computed<BuzzerMap>(() => {
+  const total = controllers.value.length;
+  const buttonPercentage: Record<BuzzerButton, number> = {} as BuzzerMap;
+  Object.keys(BuzzerButton).map((value) => {
+    const button = BuzzerButton[value as keyof typeof BuzzerButton];
+    const oVal = buttonOccurrences.value[button];
+    const val = oVal === 0 ? 0.01 : oVal;
+    buttonPercentage[button] = (val / total) * 100;
   });
 
   return buttonPercentage;
@@ -113,7 +153,9 @@ const barHeightPercentages = computed<BuzzerMap>(() => {
 
 const resultOptions = computed<BuzzerButton[]>(() => {
   // Red button as equivalent for not pressed
-  return [...quizSettings.activeButtons, BuzzerButton.RED];
+  return buttonOccurrences.value[BuzzerButton.RED] === 0
+    ? quizSettings.activeButtons
+    : [...quizSettings.activeButtons, BuzzerButton.RED];
 });
 
 const buttonsByResult = computed(() => {
@@ -148,6 +190,20 @@ const resultItemClass = {
 </script>
 
 <style scoped>
+.result-tab-content {
+  background-color: black;
+  color: white;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+
+.result-tab-active-content {
+  background-color: white;
+  color: black;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+
 .bar {
   width: 50px;
   margin: 0 10px;
@@ -155,6 +211,6 @@ const resultItemClass = {
 }
 
 .bar-chart-container {
-  transition: height 1s;
+  transition: height 10s;
 }
 </style>

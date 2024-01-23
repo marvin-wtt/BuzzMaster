@@ -291,18 +291,4 @@ const quickPlay = () => {
 };
 </script>
 
-<style scoped>
-.result-tab-content {
-  background-color: black;
-  color: white;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-}
-
-.result-tab-active-content {
-  background-color: white;
-  color: black;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-}
-</style>
+<style scoped></style>

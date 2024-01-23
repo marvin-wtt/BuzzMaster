@@ -135,7 +135,7 @@ const resultOption = [
     value: 'table',
   },
   {
-    label: 'Bar Cart',
+    label: 'Bar chart',
     value: 'bar',
   },
 ];

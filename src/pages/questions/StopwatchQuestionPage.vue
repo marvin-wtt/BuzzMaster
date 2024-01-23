@@ -44,6 +44,19 @@
               <q-item-section side>
                 {{ formatTime(entry[1]) }}
               </q-item-section>
+
+              <q-item-section
+                side
+                v-if="!completed"
+              >
+                <q-btn
+                  icon="close"
+                  size="sm"
+                  rounded
+                  dense
+                  @click="removeController(entry[0])"
+                />
+              </q-item-section>
             </q-item>
           </q-list>
         </div>
@@ -189,6 +202,11 @@ const formatTime = (time: number) => {
     .slice(0, 2);
 
   return `${minutes}:${seconds}.${milliseconds}`;
+};
+
+const removeController = (controller: IController) => {
+  pressedControllers.value.delete(controller);
+  controller.setLight(false);
 };
 
 const avatarColor = (index: number) => {

@@ -126,34 +126,34 @@ import NavigationBar from 'components/PageNavigation.vue';
 import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
-  ButtonPressEvent,
+  ButtonEvent,
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
-const { controllers, reset, on, removeListener } = useBuzzer();
+const { controllers, buzzer } = useBuzzer();
 
 const counter = ref<number>(0);
 const started = ref<boolean>(false);
 const startTime = ref<number>(0);
 const pressedControllers = ref<Map<IController, number>>(
-  new Map<IController, number>()
+  new Map<IController, number>(),
 );
 
 onBeforeMount(() => {
-  reset();
-  on('press', listener);
+  buzzer.reset();
+  buzzer.on('press', listener);
 });
 
 onUnmounted(() => {
-  removeListener('press', listener);
-  reset();
+  buzzer.removeListener('press', listener);
+  buzzer.reset();
 });
 
 const completed = computed<boolean>(() => {
   return controllers.value.length === pressedControllers.value.size;
 });
 
-const listener = (event: ButtonPressEvent) => {
+const listener = (event: ButtonEvent) => {
   if (!started.value) {
     return;
   }
@@ -175,7 +175,7 @@ const listener = (event: ButtonPressEvent) => {
 };
 
 const restart = () => {
-  reset();
+  buzzer.reset();
 
   pressedControllers.value = new Map<IController, number>();
   started.value = false;

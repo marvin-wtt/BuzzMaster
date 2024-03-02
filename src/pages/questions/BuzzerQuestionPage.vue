@@ -117,7 +117,7 @@ import NavigationBar from 'components/PageNavigation.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
-  ButtonPressEvent,
+  ButtonEvent,
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
@@ -138,7 +138,7 @@ interface Size {
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
-const { controllers, reset, on, removeListener } = useBuzzer();
+const { controllers, buzzer } = useBuzzer();
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
 const countDownStyle = ref<string | { fontSize: string }>('');
@@ -152,15 +152,15 @@ const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const audio = new Audio('sounds/buzzer.mp3');
 
 onBeforeMount(() => {
-  reset();
-  on('press', listener);
+  buzzer.reset();
+  buzzer.on('press', listener);
 
   audio.load();
 });
 
 onUnmounted(() => {
-  removeListener('press', listener);
-  reset();
+  buzzer.removeListener('press', listener);
+  buzzer.reset();
 });
 
 const soundsEnabled = computed<boolean>(() => {
@@ -226,11 +226,11 @@ const pulse = computed<boolean>(() => {
 
 const allControllersPressed = computed<boolean>(() => {
   return !controllers.value.some(
-    (controller) => !pressedControllers.value.includes(controller.id)
+    (controller) => !pressedControllers.value.includes(controller.id),
   );
 });
 
-const listener = (event: ButtonPressEvent) => {
+const listener = (event: ButtonEvent) => {
   if (!started.value) {
     return;
   }
@@ -262,13 +262,13 @@ const listener = (event: ButtonPressEvent) => {
 };
 
 const continueQuestion = () => {
-  reset();
+  buzzer.reset();
 
   pressedController.value = undefined;
 };
 
 const restart = () => {
-  reset();
+  buzzer.reset();
 
   pressedControllers.value = [];
   pressedController.value = undefined;

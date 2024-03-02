@@ -88,7 +88,6 @@ import { computed } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 
 const { quizSettings } = useQuestionSettingsStore();
-
 const { controllers } = useBuzzer();
 
 interface Props {
@@ -159,21 +158,24 @@ const resultOptions = computed<BuzzerButton[]>(() => {
 });
 
 const buttonsByResult = computed(() => {
-  return controllers.value.reduce((acc, controller) => {
-    const hasConfirmed =
-      quizSettings.changeMode === 'always' ||
-      props.confirmedControllers.includes(controller.id);
-    // Mo input is default button
-    const pressedButton =
-      props.pressedButtons.get(controller.id) ?? BuzzerButton.RED;
-    // Ignore input if user has not confirmed the button selection
-    const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
+  return controllers.value.reduce(
+    (acc, controller) => {
+      const hasConfirmed =
+        quizSettings.changeMode === 'always' ||
+        props.confirmedControllers.includes(controller.id);
+      // Mo input is default button
+      const pressedButton =
+        props.pressedButtons.get(controller.id) ?? BuzzerButton.RED;
+      // Ignore input if user has not confirmed the button selection
+      const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
 
-    acc[button] ??= [];
-    acc[button].push(controller.name);
+      acc[button] ??= [];
+      acc[button].push(controller.name);
 
-    return acc;
-  }, {} as Record<BuzzerButton, string[]>);
+      return acc;
+    },
+    {} as Record<BuzzerButton, string[]>,
+  );
 });
 
 const mode = computed<string>(() => {

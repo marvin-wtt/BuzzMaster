@@ -122,7 +122,7 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
-import { ButtonPressEvent, BuzzerButton } from 'src/plugins/buzzer/types';
+import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { computed, onMounted, onUnmounted, reactive } from 'vue';
 
@@ -137,21 +137,21 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 //                    example: onDialogOK({ /*...*/ }) - with payload
 // onDialogCancel - Function to call to settle dialog with "cancel" outcome
 
-const { controllers, reset, on, removeListener } = useBuzzer();
+const { controllers, buzzer } = useBuzzer();
 
 onMounted(() => {
-  reset();
+  buzzer.reset();
 
-  on('press', listener);
+  buzzer.on('press', listener);
 });
 
 onUnmounted(() => {
-  removeListener('press', listener);
+  buzzer.removeListener('press', listener);
 });
 
 const pressedButtons: Record<string, BuzzerButton[]> = reactive({});
 
-const listener = (event: ButtonPressEvent) => {
+const listener = (event: ButtonEvent) => {
   if (!pressedButtons[event.controller.id]) {
     pressedButtons[event.controller.id] = [];
   }

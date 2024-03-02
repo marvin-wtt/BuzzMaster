@@ -96,7 +96,7 @@ import { useI18n } from 'vue-i18n';
 
 const quasar = useQuasar();
 const { t } = useI18n();
-const { dongles, reset } = useBuzzer();
+const { dongles, buzzer } = useBuzzer();
 
 let findTimerId:
   | {
@@ -135,7 +135,7 @@ const cancelFindDevice = () => {
 
   clearInterval(findTimerId.intervalId);
   clearTimeout(findTimerId.timeoutId);
-  reset();
+  buzzer.reset();
 };
 
 const hasEnabledController = computed<boolean>(() => {
@@ -197,13 +197,13 @@ const startBuzzerTest = () => {
       component: BuzzerTestDialog,
     })
     .onOk(() => {
-      reset();
+      buzzer.reset();
     })
     .onCancel(() => {
-      reset();
+      buzzer.reset();
     })
     .onDismiss(() => {
-      reset();
+      buzzer.reset();
     });
 };
 </script>

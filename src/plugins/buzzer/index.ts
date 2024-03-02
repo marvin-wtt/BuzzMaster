@@ -10,7 +10,11 @@ export const useBuzzer = () => {
     throw 'Buzzer Api not installed.';
   }
 
-  return buzzerApi;
+  return {
+    dongles: buzzerApi.dongles,
+    controllers: buzzerApi.controllers,
+    buzzer: buzzerApi,
+  };
 };
 
 const deviceManagers: IBuzzerPlugin[] = [initHidDeviceManager];

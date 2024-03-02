@@ -163,7 +163,7 @@ import TransitionFade from 'components/TransitionFade.vue';
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
-const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
+const { controllers, reset, on, removeListener } = useBuzzer();
 
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
@@ -177,7 +177,7 @@ const pressedButtons = ref<Map<string, BuzzerButton>>(
 onBeforeMount(() => {
   reset();
 
-  onButtonPressed(listener);
+  on('press', listener);
 });
 
 onUnmounted(() => {

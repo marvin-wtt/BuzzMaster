@@ -138,7 +138,7 @@ interface Size {
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
-const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
+const { controllers, reset, on, removeListener } = useBuzzer();
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
 const countDownStyle = ref<string | { fontSize: string }>('');
@@ -153,7 +153,7 @@ const audio = new Audio('sounds/buzzer.mp3');
 
 onBeforeMount(() => {
   reset();
-  onButtonPressed(listener);
+  on('press', listener);
 
   audio.load();
 });

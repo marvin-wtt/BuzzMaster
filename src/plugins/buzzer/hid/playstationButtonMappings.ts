@@ -1,4 +1,11 @@
-import { ButtonMapping, BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton } from 'src/plugins/buzzer/types';
+
+export type ButtonMapping = {
+  controller: number;
+  button: BuzzerButton;
+  byte: number;
+  mask: number;
+};
 
 /**
  * 20 mappings: 5 buttons x 4 buzzers

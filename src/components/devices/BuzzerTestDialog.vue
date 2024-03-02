@@ -137,12 +137,12 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 //                    example: onDialogOK({ /*...*/ }) - with payload
 // onDialogCancel - Function to call to settle dialog with "cancel" outcome
 
-const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
+const { controllers, reset, on, removeListener } = useBuzzer();
 
 onMounted(() => {
   reset();
 
-  onButtonPressed(listener);
+  on('press', listener);
 });
 
 onUnmounted(() => {

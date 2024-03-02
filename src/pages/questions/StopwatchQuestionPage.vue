@@ -130,7 +130,7 @@ import {
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
-const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
+const { controllers, reset, on, removeListener } = useBuzzer();
 
 const counter = ref<number>(0);
 const started = ref<boolean>(false);
@@ -141,7 +141,7 @@ const pressedControllers = ref<Map<IController, number>>(
 
 onBeforeMount(() => {
   reset();
-  onButtonPressed(listener);
+  on('press', listener);
 });
 
 onUnmounted(() => {

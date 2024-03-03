@@ -20,9 +20,6 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
   navigator.hid.addEventListener('connect', async (event) => {
     const { device: hidDevice } = event;
     const device = findHidDevice(hidDevice);
-    if (!device) {
-      throw new Error('');
-    }
 
     deviceMap.set(hidDevice, device);
     await api.addDevice(device);

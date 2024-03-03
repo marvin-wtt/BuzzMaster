@@ -17,7 +17,10 @@ export class Controller implements IController {
   });
   disabled = false;
 
-  constructor(private lightApi: LightApi, public name: string) {}
+  constructor(
+    private lightApi: LightApi,
+    public name: string,
+  ) {}
 
   update(state: ButtonState): void {
     this.buttons[state.button] = state.pressed;

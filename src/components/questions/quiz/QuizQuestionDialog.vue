@@ -17,7 +17,8 @@
           :options="activeBuzzerOptions"
           label="Active buttons"
           :rules="[
-            (val: unknown[]) => val.length >= 2 || 'Activate at least two buttons'
+            (val: unknown[]) =>
+              val.length >= 2 || 'Activate at least two buttons',
           ]"
           multiple
           emit-value

@@ -26,7 +26,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
 
       return new Controller(
         lightApi,
-        `Controller ${Dongle.dongleCount}-${i + 1}`
+        `Controller ${Dongle.dongleCount}-${i + 1}`,
       );
     });
 
@@ -45,7 +45,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
         (state) =>
           // Compare new state with current state. Only accept updates.
           this.controllers[state.controller].buttons[state.button] !==
-          state.pressed
+          state.pressed,
       );
 
     // Update all controllers and fire events

@@ -1,11 +1,10 @@
-import { ComputedRef, Ref } from 'vue';
 import TypedEmitter from 'typed-emitter';
 
 export type IBuzzerApi = IButtonEventEmitter & {
-  dongles: Ref<IDongle[]>;
-  controllers: ComputedRef<IController[]>;
+  dongles: IDongle[];
   reset: () => void;
   addDevice: (device: IDevice) => Promise<void>;
+  removeDevice: (device: IDevice) => void;
 };
 
 export type IBuzzerPlugin = (api: IBuzzerApi) => void;

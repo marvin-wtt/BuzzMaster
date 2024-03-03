@@ -12,6 +12,9 @@ export class PlayStationDevice implements IDevice {
       await this.device.open();
     }
 
+    // Always reset device first to ensure all lights are off
+    await this.reset();
+
     this.device.addEventListener('inputreport', this.deviceInputListener);
   }
 

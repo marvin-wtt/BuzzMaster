@@ -1,5 +1,9 @@
-import { inject } from 'vue';
-import { IBuzzerApi, IBuzzerPlugin } from 'src/plugins/buzzer/types';
+import { computed, inject } from 'vue';
+import {
+  IBuzzerApi,
+  IBuzzerPlugin,
+  IController,
+} from 'src/plugins/buzzer/types';
 import { initHidDeviceManager } from 'src/plugins/buzzer/hid';
 import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 
@@ -10,9 +14,15 @@ export const useBuzzer = () => {
     throw 'Buzzer Api not installed.';
   }
 
+  const controllers = computed<IController[]>(() => {
+    return buzzerApi.dongles
+      .flatMap((dongle) => dongle.controllers)
+      .filter((controller) => !controller.disabled);
+  });
+
   return {
+    controllers,
     dongles: buzzerApi.dongles,
-    controllers: buzzerApi.controllers,
     buzzer: buzzerApi,
   };
 };

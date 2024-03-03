@@ -1,26 +1,14 @@
-import {
-  IBuzzerApi,
-  IController,
-  IDevice,
-  IDongle,
-} from 'src/plugins/buzzer/types';
-import { ref, computed } from 'vue';
+import { IBuzzerApi, IDevice, IDongle } from 'src/plugins/buzzer/types';
+import { reactive } from 'vue';
 import { Dongle } from 'src/plugins/buzzer/Dongle';
 import { ButtonEventEmitter } from 'src/plugins/buzzer/ButtonEventEmitter';
 
 export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
-  dongles = ref<IDongle[]>([]);
-  controllers = computed<IController[]>(() => {
-    return this.dongles.value
-      .flatMap((dongle) => dongle.controllers)
-      .filter((controller) => !controller.disabled);
-  });
+  dongles = reactive<IDongle[]>([]);
 
   async addDevice(device: IDevice): Promise<void> {
     // Prepare the device, so it's ready to accept commands and emit events
     await device.prepare();
-    // Always reset on connection to ensure all lights are off
-    await device.reset();
 
     const dongle = new Dongle(device);
     // Register all event listeners
@@ -28,10 +16,19 @@ export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
     dongle.on('press', (e) => this.emit('press', e));
     dongle.on('release', (e) => this.emit('release', e));
 
-    this.dongles.value.push(dongle);
+    this.dongles.push(dongle);
+  }
+
+  removeDevice(device: IDevice): void {
+    const index = this.dongles.findIndex((dongle) => dongle.device === device);
+    if (index === -1) {
+      return;
+    }
+
+    this.dongles.splice(index, 1);
   }
 
   reset() {
-    this.dongles.value.forEach((dongle) => dongle.reset());
+    this.dongles.forEach((dongle) => dongle.reset());
   }
 }

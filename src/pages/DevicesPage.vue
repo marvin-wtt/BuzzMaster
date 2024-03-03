@@ -139,7 +139,7 @@ const cancelFindDevice = () => {
 };
 
 const hasEnabledController = computed<boolean>(() => {
-  return dongles.value.some((dongle) => {
+  return dongles.some((dongle) => {
     return dongle.controllers.some((controller) => {
       return !controller.disabled;
     });

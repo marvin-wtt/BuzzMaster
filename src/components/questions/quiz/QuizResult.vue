@@ -90,15 +90,11 @@ import { useBuzzer } from 'src/plugins/buzzer';
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();
 
-interface Props {
-  modelValue: BuzzerButton | undefined;
+const activeResult = defineModel<BuzzerButton | undefined>();
+const props = defineProps<{
   confirmedControllers: string[];
   pressedButtons: Map<string, BuzzerButton>;
-}
-
-const props = defineProps<Props>();
-
-const activeResult = defineModel<BuzzerButton>();
+}>();
 
 type BuzzerMap = Record<BuzzerButton, number>;
 

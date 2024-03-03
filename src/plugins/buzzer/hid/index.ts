@@ -34,14 +34,7 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
       return;
     }
 
-    const index = api.dongles.value.findIndex(
-      (dongle) => dongle.device === device,
-    );
-    if (index === -1) {
-      return;
-    }
-
-    api.dongles.value.splice(index, 1);
+    api.removeDevice(device);
   });
 };
 
@@ -54,17 +47,25 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
  */
 const findHidDevice = (hidDevice: HIDDevice): IDevice => {
   // NOTE: Devices need to be added at src-electron/electron-amin.ts too.
+  if (matchHidDevice(hidDevice, 0x054c, 0x02)) {
+    return new PlayStationDevice(hidDevice);
+  }
 
-  // Sony corp
-  if (hidDevice.vendorId === 0x054c) {
-    // Sony has two different models for PlayStation Buzz controllers
-    if (hidDevice.productId === 0x02) {
-      return new PlayStationDevice(hidDevice);
-    }
-    if (hidDevice.productId === 0x1000) {
-      return new PlayStationDevice(hidDevice);
-    }
+  if (matchHidDevice(hidDevice, 0x054c, 0x1000)) {
+    return new PlayStationDevice(hidDevice);
   }
 
   throw `Unknown HID device. ProductName: ${hidDevice.productName}, ProductId: ${hidDevice.productId}, VendorId: ${hidDevice.vendorId}.`;
+};
+
+const matchHidDevice = (
+  hidDevice: HIDDevice,
+  vendorId: number,
+  productId: number,
+): boolean => {
+  if (hidDevice.vendorId !== vendorId) {
+    return false;
+  }
+
+  return productId === undefined || hidDevice.productId === productId;
 };

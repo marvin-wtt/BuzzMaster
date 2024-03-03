@@ -34,10 +34,26 @@ function createWindow() {
    * Set permissions for buzzer devices
    */
   mainWindow.webContents.session.setDevicePermissionHandler((details) => {
-    // TODO Filter devices here
-    if (details.deviceType === 'hid' && details.device.vendorId === 0x054c) {
+    if (details.deviceType !== 'hid') {
+      return false;
+    }
+
+    // NOTE: Devices need to be added in src/plugins/buzzer/hid/index.ts too.
+    if (
+      details.device.vendorId === 0x054c &&
+      details.device.productId === 0x02
+    ) {
       return true;
     }
+
+    if (
+      details.device.vendorId === 0x054c &&
+      details.device.productId === 0x1000
+    ) {
+      return true;
+    }
+
+    // Add other devices here
 
     return false;
   });

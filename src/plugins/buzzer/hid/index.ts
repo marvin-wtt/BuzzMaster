@@ -38,7 +38,7 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
     }
 
     const index = api.dongles.value.findIndex(
-      (dongle) => dongle.device === device
+      (dongle) => dongle.device === device,
     );
     if (index === -1) {
       return;
@@ -56,6 +56,8 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
  * @throws Error When device is unknown
  */
 const findHidDevice = (hidDevice: HIDDevice): IDevice => {
+  // NOTE: Devices need to be added at src-electron/electron-amin.ts too.
+
   // Sony corp
   if (hidDevice.vendorId === 0x054c) {
     // Sony has two different models for PlayStation Buzz controllers
@@ -67,5 +69,5 @@ const findHidDevice = (hidDevice: HIDDevice): IDevice => {
     }
   }
 
-  throw `Unknown HID device. VendorId: ${hidDevice.vendorId}, ProductId: ${hidDevice.productId}`;
+  throw `Unknown HID device. ProductName: ${hidDevice.productName}, ProductId: ${hidDevice.productId}, VendorId: ${hidDevice.vendorId}.`;
 };

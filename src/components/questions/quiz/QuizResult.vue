@@ -91,24 +91,14 @@ const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();
 
 interface Props {
-  modelValue: BuzzerButton;
+  modelValue: BuzzerButton | undefined;
   confirmedControllers: string[];
   pressedButtons: Map<string, BuzzerButton>;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: BuzzerButton): void;
-}>();
 
-const activeResult = computed<BuzzerButton>({
-  get() {
-    return props.modelValue;
-  },
-  set(value: BuzzerButton) {
-    emit('update:modelValue', value);
-  },
-});
+const activeResult = defineModel<BuzzerButton>();
 
 type BuzzerMap = Record<BuzzerButton, number>;
 

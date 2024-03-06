@@ -2,6 +2,7 @@ import { ButtonState, IDevice } from 'src/plugins/buzzer/types';
 import { buttonMapping } from 'src/plugins/buzzer/hid/playstationButtonMappings';
 
 export class PlayStationDevice implements IDevice {
+  readonly controllers = 4;
   buttonUpdateHandler: (states: ButtonState[]) => void = () => undefined;
   private lights: boolean[] = [false, false, false, false];
 

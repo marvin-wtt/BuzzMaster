@@ -19,7 +19,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
     super();
 
     this.name = `Dongle ${++Dongle.dongleCount}`;
-    this.controllers = Array.from({ length: 4 }, (_, i) => {
+    this.controllers = Array.from({ length: device.controllers }, (_, i) => {
       const lightApi: LightApi = {
         updateLight: this.updateControllerLight(i),
       };

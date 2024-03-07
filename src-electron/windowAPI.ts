@@ -22,4 +22,17 @@ export const windowAPI = {
   close() {
     BrowserWindow.getFocusedWindow()?.close();
   },
+
+  pin() {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+      window.setAlwaysOnTop(true, 'screen-saver', 1);
+    });
+  },
+
+  unpin() {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.setAlwaysOnTop(false);
+    });
+  },
 };

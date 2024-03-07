@@ -23,6 +23,13 @@
         <q-btn
           dense
           flat
+          :icon="pinned ? 'lock_open' : 'push_pin'"
+          @click="togglePin"
+        />
+
+        <q-btn
+          dense
+          flat
           :icon="muted ? 'volume_off' : 'volume_up'"
           @click="toggleMute"
         />
@@ -70,7 +77,7 @@
 
 <script lang="ts" setup>
 import { useQuasar } from 'quasar';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRouter } from 'vue-router';
@@ -85,6 +92,7 @@ const applicationStore = useAppSettingsStore();
 
 const { muted } = storeToRefs(applicationStore);
 const toggleDarkMode = quasar.dark.toggle;
+const pinned = ref<boolean>(false);
 
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;
@@ -104,6 +112,16 @@ function minimize() {
 
 function toggleMaximize() {
   window.windowAPI?.toggleMaximize();
+}
+
+function togglePin() {
+  if (pinned.value) {
+    window.windowAPI.unpin();
+  } else {
+    window.windowAPI.pin();
+  }
+
+  pinned.value = !pinned.value;
 }
 
 function closeApp() {

@@ -152,7 +152,7 @@ import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import {
-  ButtonPressEvent,
+  ButtonEvent,
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
@@ -163,7 +163,7 @@ import TransitionFade from 'components/TransitionFade.vue';
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
-const { controllers, reset, onButtonPressed, removeListener } = useBuzzer();
+const { controllers, buzzer } = useBuzzer();
 
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
@@ -171,22 +171,21 @@ const countDownTime = ref<number>(0);
 const completed = ref<boolean>(false);
 const activeResult = ref<BuzzerButton>();
 const pressedButtons = ref<Map<string, BuzzerButton>>(
-  new Map<string, BuzzerButton>()
+  new Map<string, BuzzerButton>(),
 );
 
 onBeforeMount(() => {
-  reset();
-
-  onButtonPressed(listener);
+  buzzer.reset();
+  buzzer.on('press', listener);
 });
 
 onUnmounted(() => {
-  removeListener('press', listener);
-  reset();
+  buzzer.removeListener('press', listener);
+  buzzer.reset();
 });
 
 const confirmedControllers = ref<string[]>([]);
-const listener = (event: ButtonPressEvent) => {
+const listener = (event: ButtonEvent) => {
   if (!started.value || completed.value) {
     return;
   }
@@ -233,15 +232,11 @@ const done = computed<boolean>(() => {
     return true;
   }
 
-  if (
+  return (
     (quizSettings.changeMode === 'confirm' ||
       quizSettings.changeMode === 'never') &&
     controllers.value.length === confirmedControllers.value.length
-  ) {
-    return true;
-  }
-
-  return false;
+  );
 });
 
 let showTimeoutId: NodeJS.Timeout | undefined;
@@ -280,7 +275,7 @@ const restart = () => {
   pressedButtons.value = new Map<string, BuzzerButton>();
   confirmedControllers.value = [];
   activeResult.value = undefined;
-  reset();
+  buzzer.reset();
 
   started.value = false;
 };

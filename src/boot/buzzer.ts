@@ -1,6 +1,7 @@
 import { boot } from 'quasar/wrappers';
-import Buzzer from 'src/plugins/buzzer';
+import { initBuzzerApi } from 'src/plugins/buzzer';
 
-export default boot(({ app }) => {
-  app.provide('buzzer', Buzzer());
+export default boot(async ({ app }) => {
+  const buzzerApi = await initBuzzerApi();
+  app.provide('buzzer', buzzerApi);
 });

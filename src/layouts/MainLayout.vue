@@ -80,7 +80,7 @@ import { storeToRefs } from 'pinia';
 const router = useRouter();
 const quasar = useQuasar();
 const { t } = useI18n();
-const { reset } = useBuzzer();
+const { buzzer } = useBuzzer();
 const applicationStore = useAppSettingsStore();
 
 const { muted } = storeToRefs(applicationStore);
@@ -98,7 +98,6 @@ const goToHome = () => {
   router.push('/');
 };
 
-// TODO Add typescript support
 function minimize() {
   window.windowAPI?.minimize();
 }
@@ -108,7 +107,7 @@ function toggleMaximize() {
 }
 
 function closeApp() {
-  reset();
+  buzzer.reset();
   window.windowAPI?.close();
 }
 </script>

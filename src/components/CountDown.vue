@@ -53,7 +53,7 @@ watch(
     if (!paused) {
       start();
     }
-  }
+  },
 );
 
 onBeforeMount(() => {

@@ -14,6 +14,7 @@ export type LightApi = {
 };
 
 export type IDevice = {
+  readonly id: string;
   readonly controllers: number;
   prepare: () => Promise<void> | void;
   updateLight: (controller: number, value: boolean) => Promise<void> | void;

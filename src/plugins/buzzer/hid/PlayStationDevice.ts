@@ -2,6 +2,7 @@ import { ButtonState, IDevice } from 'src/plugins/buzzer/types';
 import { buttonMapping } from 'src/plugins/buzzer/hid/playstationButtonMappings';
 
 export class PlayStationDevice implements IDevice {
+  readonly id = crypto.randomUUID();
   readonly controllers = 4;
   buttonUpdateHandler: (states: ButtonState[]) => void = () => undefined;
   private lights: boolean[] = [false, false, false, false];
@@ -16,7 +17,10 @@ export class PlayStationDevice implements IDevice {
     // Always reset device first to ensure all lights are off
     await this.reset();
 
-    this.device.addEventListener('inputreport', this.deviceInputListener);
+    this.device.addEventListener(
+      'inputreport',
+      this.deviceInputListener.bind(this),
+    );
   }
 
   async updateLight(controllerIndex: number, value: boolean): Promise<void> {

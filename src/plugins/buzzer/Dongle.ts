@@ -31,7 +31,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
     });
 
     // Listen for device updates
-    device.buttonUpdateHandler = this.onButtonUpdate;
+    device.buttonUpdateHandler = this.onButtonUpdate.bind(this);
   }
 
   async reset(): Promise<void> {
@@ -40,7 +40,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
 
   private onButtonUpdate(states: ButtonState[]): void {
     const changedStates = states
-      .filter((state) => this.controllers[state.controller].disabled)
+      .filter((state) => !this.controllers[state.controller].disabled)
       .filter(
         (state) =>
           // Compare new state with current state. Only accept updates.

@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import { initialize, enable } from '@electron/remote/main/index.js';
+import { initWindowApiHandler } from 'app/src-electron/windowAPI';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
@@ -9,15 +9,11 @@ const platform = process.platform || os.platform();
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
-let mainWindow: BrowserWindow | undefined;
-
-initialize();
-
 function createWindow() {
   /**
    * Initial window options
    */
-  mainWindow = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 500,
     height: 800,
@@ -37,7 +33,7 @@ function createWindow() {
     },
   });
 
-  enable(mainWindow.webContents);
+  initWindowApiHandler();
 
   /**
    * Set permissions for buzzer devices
@@ -82,10 +78,6 @@ function createWindow() {
       mainWindow?.webContents.closeDevTools();
     });
   }
-
-  mainWindow.on('closed', () => {
-    mainWindow = undefined;
-  });
 }
 
 app.whenReady().then(createWindow);
@@ -97,7 +89,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (mainWindow === undefined) {
+  if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });

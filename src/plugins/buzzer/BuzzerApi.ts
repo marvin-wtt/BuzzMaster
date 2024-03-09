@@ -19,9 +19,9 @@ export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
     this.dongles.push(dongle);
   }
 
-  removeDevice(device: IDevice): void {
+  removeDevice(deviceId: string): void {
     const index = this.dongles.findIndex(
-      (dongle) => dongle.device.id === device.id,
+      (dongle) => dongle.device.id === deviceId,
     );
     if (index === -1) {
       return;
@@ -30,7 +30,7 @@ export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
     this.dongles.splice(index, 1);
   }
 
-  reset() {
+  reset(): void {
     this.dongles.forEach((dongle) => dongle.reset());
   }
 }

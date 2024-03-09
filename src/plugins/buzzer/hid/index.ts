@@ -3,7 +3,7 @@ import { PlayStationDevice } from 'src/plugins/buzzer/hid/PlayStationDevice';
 
 // Maps all hidDevices to the corresponding buzzer devices to, so we can remove
 //  the dongle once the device disconnects
-const deviceMap: Map<HIDDevice, IDevice> = new Map<HIDDevice, IDevice>();
+const deviceMap: Map<HIDDevice, string> = new Map<HIDDevice, string>();
 
 export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
   const hidDevices = await navigator.hid.getDevices();
@@ -12,7 +12,7 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
   for (const hidDevice of hidDevices) {
     const device = findHidDevice(hidDevice);
 
-    deviceMap.set(hidDevice, device);
+    deviceMap.set(hidDevice, device.id);
     await api.addDevice(device);
   }
 
@@ -21,7 +21,7 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
     const { device: hidDevice } = event;
     const device = findHidDevice(hidDevice);
 
-    deviceMap.set(hidDevice, device);
+    deviceMap.set(hidDevice, device.id);
     await api.addDevice(device);
   });
 
@@ -29,12 +29,12 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
   navigator.hid.addEventListener('disconnect', (event) => {
     const { device: hidDevice } = event;
 
-    const device = deviceMap.get(hidDevice);
-    if (!device) {
+    const deviceId = deviceMap.get(hidDevice);
+    if (!deviceId) {
       return;
     }
 
-    api.removeDevice(device);
+    api.removeDevice(deviceId);
   });
 };
 

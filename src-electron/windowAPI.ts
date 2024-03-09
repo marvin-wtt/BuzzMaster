@@ -27,7 +27,7 @@ export const windowAPI = {
     const window = BrowserWindow.getFocusedWindow();
 
     window?.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-    window?.setAlwaysOnTop(true, 'screen-saver', 1);
+    window?.setAlwaysOnTop(true, 'pop-up-menu', 1);
   },
 
   unpin() {

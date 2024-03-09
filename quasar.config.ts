@@ -8,20 +8,11 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
-const { configure } = require('quasar/wrappers');
-const path = require('path');
+import { configure } from 'quasar/wrappers';
+import { fileURLToPath } from 'node:url';
 
-module.exports = configure(function (/* ctx */) {
+export default configure((ctx) => {
   return {
-    eslint: {
-      // fix: true,
-      // include: [],
-      // exclude: [],
-      // rawOptions: {},
-      warnings: true,
-      errors: true,
-    },
-
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
 
@@ -59,11 +50,11 @@ module.exports = configure(function (/* ctx */) {
       // vueDevtools,
       // vueOptionsAPI: false,
 
-      // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
-
       // publicPath: '/',
       // analyze: true,
       // env: {},
+      // envFolder: ''
+      // envFiles: []
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
@@ -75,17 +66,27 @@ module.exports = configure(function (/* ctx */) {
 
       vitePlugins: [
         [
-          '@intlify/vite-plugin-vue-i18n',
+          'vite-plugin-checker',
           {
-            // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
-            // compositionOnly: false,
-
+            vueTsc: {
+              tsconfigPath: 'tsconfig.vue-tsc.json',
+            },
+            eslint: {
+              lintCommand: 'eslint "./**/*.{js,ts,mjs,cjs,vue}"',
+            },
+          },
+          { server: false },
+        ],
+        [
+          '@intlify/unplugin-vue-i18n/vite',
+          {
             // if you want to use named tokens in your Vue I18n messages, such as 'Hello {name}',
             // you need to set `runtimeOnly: false`
             // runtimeOnly: false,
 
             // you need to set i18n resource including paths !
-            include: path.resolve(__dirname, './src/i18n/**'),
+            include: [fileURLToPath(new URL('./src/i18n', import.meta.url))],
+            ssr: ctx.modeName === 'ssr',
           },
         ],
       ],
@@ -129,13 +130,11 @@ module.exports = configure(function (/* ctx */) {
     //   registerServiceWorker: 'src-pwa/register-service-worker',
     //   serviceWorker: 'src-pwa/custom-service-worker',
     //   pwaManifestFile: 'src-pwa/manifest.json',
-    //   electronMain: 'src-electron/electron-main',
-    //   electronPreload: 'src-electron/electron-preload'
     // },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-ssr/configuring-ssr
     ssr: {
-      // ssrPwaHtmlFilename: 'offline.html', // do NOT use index.html as name!
+      // pwaOfflineHtmlFilename: 'offline.html', // do NOT use index.html as name!
       // will mess up SSR
 
       // extendSSRWebserverConf (esbuildConf) {},
@@ -186,6 +185,8 @@ module.exports = configure(function (/* ctx */) {
       inspectPort: 5858,
 
       bundler: 'builder', // 'packager' or 'builder'
+
+      preloadScripts: ['electron-preload'],
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options

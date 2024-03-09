@@ -5,6 +5,7 @@
   "productName": "BuzzMaster",
   "author": "marvin-wtt <31454580+marvin-wtt@users.noreply.github.com>",
   "private": true,
+  "type": "module",
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
@@ -23,8 +24,9 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "@intlify/unplugin-vue-i18n": "^3.0.1",
     "@intlify/vite-plugin-vue-i18n": "^3.3.1",
-    "@quasar/app-vite": "^1.7.3",
+    "@quasar/app-vite": "^2.0.0-beta.5",
     "@quasar/cli": "^2.4.0",
     "@types/node": "^20.11.24",
     "@types/w3c-web-hid": "^1.0.6",
@@ -38,7 +40,9 @@
     "eslint-plugin-vue": "^9.22.0",
     "prettier": "^3.2.5",
     "typed-emitter": "^2.1.0",
-    "typescript": "^5.4.2"
+    "typescript": "~5.3.0",
+    "vite-plugin-checker": "^0.6.4",
+    "vue-tsc": "^2.0.6"
   },
   "engines": {
     "node": "^20 || ^18",

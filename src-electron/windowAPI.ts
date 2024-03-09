@@ -24,15 +24,13 @@ export const windowAPI = {
   },
 
   pin() {
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-      window.setAlwaysOnTop(true, 'screen-saver', 1);
-    });
+    const window = BrowserWindow.getFocusedWindow();
+
+    window?.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    window?.setAlwaysOnTop(true, 'screen-saver', 1);
   },
 
   unpin() {
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.setAlwaysOnTop(false);
-    });
+    BrowserWindow.getFocusedWindow()?.setAlwaysOnTop(false);
   },
 };

@@ -28,7 +28,12 @@
  * }
  */
 
-import { contextBridge } from 'electron';
-import { windowAPI } from 'app/src-electron/windowAPI';
+import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('windowAPI', windowAPI);
+contextBridge.exposeInMainWorld('windowAPI', {
+  minimize: () => ipcRenderer.send('minimize'),
+  toggleMaximize: () => ipcRenderer.send('toggle-maximize'),
+  close: () => ipcRenderer.send('close'),
+  pin: () => ipcRenderer.send('pin'),
+  unpin: () => ipcRenderer.send('unpin'),
+});

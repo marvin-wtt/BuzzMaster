@@ -1,11 +1,11 @@
-import { ipcMain, ipcRenderer, IpcMainEvent, BrowserWindow } from 'electron';
+import { IpcMainEvent, BrowserWindow, ipcMain } from 'electron';
 
-export const windowAPI = {
-  minimize: () => ipcRenderer.invoke('minimize'),
-  toggleMaximize: () => ipcRenderer.invoke('toggle-maximise'),
-  close: () => ipcRenderer.invoke('close'),
-  pin: () => ipcRenderer.invoke('pin'),
-  unpin: () => ipcRenderer.invoke('unpin'),
+export type WindowAPI = {
+  minimize: () => void;
+  toggleMaximize: () => void;
+  close: () => void;
+  pin: () => void;
+  unpin: () => void;
 };
 
 export const initWindowApiHandler = () => {

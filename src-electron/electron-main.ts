@@ -33,8 +33,6 @@ function createWindow() {
     },
   });
 
-  initWindowApiHandler();
-
   /**
    * Set permissions for buzzer devices
    */
@@ -80,7 +78,10 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  initWindowApiHandler();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (platform !== 'darwin') {

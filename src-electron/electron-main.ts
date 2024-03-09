@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import { initialize, enable } from '@electron/remote/main';
+import { initialize, enable } from '@electron/remote/main/index.js';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';

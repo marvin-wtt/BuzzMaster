@@ -3,7 +3,7 @@
     title="Buzzer"
     padding
   >
-    <div class="col-12 column justify-between no-wrap">
+    <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
       <div class="col-7 row justify-center">
         <div class="col-1 self-center text-center justify-center">
@@ -43,7 +43,7 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-5 column">
+      <div class="col-shrink column">
         <div class="row no-wrap justify-center">
           <!-- Start menu -->
           <div
@@ -122,7 +122,10 @@
           </div>
         </div>
 
-        <div v-if="started && !pressedController">
+        <div
+          v-if="started && !pressedController"
+          class="row justify-center"
+        >
           <q-btn
             label="Cancel"
             outline

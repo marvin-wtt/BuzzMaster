@@ -3,12 +3,10 @@
     title="Buzzer"
     padding
   >
-    <div class="col-12 column justify-around">
+    <div class="col-12 column justify-between no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
-        <div
-          class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
-        >
+      <div class="col-7 row justify-center">
+        <div class="col-1 self-center text-center justify-center">
           <!-- Result -->
           <circle-timer
             v-if="started && pressedController"
@@ -45,57 +43,82 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-2 column content-center">
-        <div
-          v-if="!started"
-          class="column q-gutter-sm"
-        >
-          <q-btn
-            label="Start"
-            color="primary"
-            rounded
-            @click="start()"
-          />
-          <q-btn
-            label="Settings"
-            outline
-            rounded
-            @click="settings"
-          />
-        </div>
-
-        <div
-          class="col-12"
-          v-if="pressedController"
-        >
-          <!-- First row -->
-          <div class="row q-gutter-sm">
+      <div class="col-5 column">
+        <div class="row no-wrap justify-center">
+          <!-- Start menu -->
+          <div
+            v-if="!started"
+            class="column q-gutter-sm"
+          >
             <q-btn
-              label="Re-open"
-              icon="loop"
+              label="Start"
               color="primary"
               rounded
-              :outline="allControllersPressed"
-              :disable="allControllersPressed"
-              @click="continueQuestion()"
+              @click="start()"
             />
             <q-btn
-              label="Quick Play"
-              icon="fast_forward"
-              color="primary"
-              rounded
-              @click="quickPlay()"
-            />
-          </div>
-          <!-- Second row -->
-          <div class="row justify-center q-mt-md">
-            <q-btn
-              label="Reset"
-              icon="replay"
+              label="Settings"
               outline
               rounded
-              @click="restart()"
+              @click="settings"
             />
+          </div>
+
+          <!-- Result menu -->
+          <div
+            class="column col-xs-12 col-sm-8 col-md-5 col-lg-3 col-xl-2 q-gutter-md"
+            v-if="pressedController"
+          >
+            <!-- Scoreboard -->
+            <div class="row q-gutter-lg justify-center reverse">
+              <q-btn
+                icon="check"
+                color="positive"
+                rounded
+                outline
+                @click="onAnswerCorrect"
+              />
+
+              <q-btn
+                icon="clear"
+                color="negative"
+                rounded
+                outline
+                @click="onAnswerWrong"
+              />
+            </div>
+
+            <q-separator />
+
+            <!-- First row -->
+            <div class="row justify-evenly">
+              <q-btn
+                label="Re-open"
+                icon="loop"
+                color="primary"
+                rounded
+                :outline="allControllersPressed"
+                :disable="allControllersPressed"
+                @click="continueQuestion()"
+              />
+              <q-btn
+                label="Quick Play"
+                icon="fast_forward"
+                color="primary"
+                rounded
+                @click="quickPlay()"
+              />
+            </div>
+            <!-- Second row -->
+            <div class="row justify-center">
+              <q-btn
+                label="Reset"
+                icon="replay"
+                outline
+                rounded
+                @click="restart()"
+              />
+            </div>
           </div>
         </div>
 
@@ -129,6 +152,7 @@ import CircleTimer from 'components/CircleTimer.vue';
 import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
 import PulseCircle from 'components/PulseCircle.vue';
+import { useScoreboardStore } from 'stores/scoreboard-store';
 
 interface Size {
   width: number;
@@ -138,6 +162,7 @@ interface Size {
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
+const scoreBoardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
@@ -288,6 +313,24 @@ const settings = () => {
   quasar.dialog({
     component: BuzzerQuestionDialog,
   });
+};
+
+const onAnswerCorrect = () => {
+  updateScoreboard(buzzerSettings.pointsCorrect);
+};
+
+const onAnswerWrong = () => {
+  updateScoreboard(buzzerSettings.pointsWrong);
+};
+
+const updateScoreboard = (points: number) => {
+  const controllerId = pressedController.value?.id;
+
+  if (!controllerId) {
+    return;
+  }
+
+  scoreBoardStore.addPoints(controllerId, points);
 };
 </script>
 

@@ -23,22 +23,42 @@
         <q-btn
           dense
           flat
-          :icon="pinned ? 'lock_open' : 'push_pin'"
-          @click="togglePin"
+          icon="leaderboard"
+          @click="showScoreboard"
         />
 
-        <q-btn
-          dense
-          flat
-          :icon="muted ? 'volume_off' : 'volume_up'"
-          @click="toggleMute"
-        />
+        <transition name="slide-fade">
+          <!-- TODO Add bg color -->
+          <div v-if="expandSettings">
+            <q-btn
+              dense
+              flat
+              :icon="pinned ? 'lock_open' : 'push_pin'"
+              @click="togglePin"
+            />
+
+            <q-btn
+              dense
+              flat
+              :icon="muted ? 'volume_off' : 'volume_up'"
+              @click="toggleMute"
+            />
+
+            <q-btn
+              dense
+              flat
+              :icon="darkMode ? 'light_mode' : 'dark_mode'"
+              @click="toggleDarkMode"
+            />
+          </div>
+        </transition>
 
         <q-btn
+          icon="settings"
+          round
           dense
           flat
-          :icon="darkMode ? 'light_mode' : 'dark_mode'"
-          @click="toggleDarkMode"
+          @click="expandSettings = !expandSettings"
         />
 
         <q-separator
@@ -83,6 +103,7 @@ import { useBuzzer } from 'src/plugins/buzzer';
 import { useRouter } from 'vue-router';
 import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
+import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
 
 const router = useRouter();
 const quasar = useQuasar();
@@ -93,6 +114,7 @@ const applicationStore = useAppSettingsStore();
 const { muted } = storeToRefs(applicationStore);
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
+const expandSettings = ref<boolean>(false);
 
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;
@@ -122,6 +144,12 @@ function togglePin() {
   }
 
   pinned.value = !pinned.value;
+}
+
+function showScoreboard() {
+  quasar.dialog({
+    component: ScoreboardDialog,
+  });
 }
 
 function closeApp() {
@@ -166,5 +194,20 @@ function closeApp() {
 }
 
 ::-webkit-scrollbar-corner {
+}
+
+/* Transitions */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
 }
 </style>

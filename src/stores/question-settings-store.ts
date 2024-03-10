@@ -7,6 +7,8 @@ interface BuzzerSettings {
   multipleAttempts: boolean;
   playSounds: boolean;
   countDownBeepStartAt: number;
+  pointsCorrect: number;
+  pointsWrong: number;
 }
 
 interface QuizSettings {
@@ -16,6 +18,8 @@ interface QuizSettings {
   playSounds: boolean;
   countDownBeepStartAt: number;
   resultMode: 'table' | 'bar';
+  pointsCorrect: number;
+  pointsWrong: number;
 }
 
 export const useQuestionSettingsStore = defineStore('questionSettings', () => {
@@ -24,6 +28,8 @@ export const useQuestionSettingsStore = defineStore('questionSettings', () => {
     multipleAttempts: false,
     playSounds: true,
     countDownBeepStartAt: 10,
+    pointsCorrect: 0,
+    pointsWrong: 0,
   };
 
   const defaultQuizSettings: QuizSettings = {
@@ -38,6 +44,8 @@ export const useQuestionSettingsStore = defineStore('questionSettings', () => {
     playSounds: true,
     countDownBeepStartAt: 10,
     resultMode: 'table',
+    pointsCorrect: 0,
+    pointsWrong: 0,
   };
 
   const buzzerSettings = reactive<BuzzerSettings>({

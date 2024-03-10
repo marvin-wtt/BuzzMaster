@@ -6,7 +6,9 @@
     <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
       <div class="col-7 row justify-center">
-        <div class="col-1 self-center text-center justify-center">
+        <div
+          class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
+        >
           <!-- Result -->
           <circle-timer
             v-if="started && pressedController"
@@ -43,82 +45,90 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-shrink column">
-        <div class="row no-wrap justify-center">
-          <!-- Start menu -->
-          <div
-            v-if="!started"
-            class="column q-gutter-sm"
-          >
+      <div class="col-5 row justify-center no-wrap">
+        <!-- Start menu -->
+        <div
+          v-if="!started"
+          class="column q-gutter-sm justify-center"
+        >
+          <q-btn
+            label="Start"
+            color="primary"
+            rounded
+            @click="start()"
+          />
+          <q-btn
+            label="Settings"
+            outline
+            rounded
+            @click="settings"
+          />
+        </div>
+
+        <!-- Result menu -->
+        <div
+          class="column col-xs-12 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
+          v-if="pressedController"
+        >
+          <!-- Scoreboard -->
+          <div class="row justify-center reverse">
             <q-btn
-              label="Start"
-              color="primary"
+              icon="check"
+              color="positive"
+              class="q-mx-sm"
               rounded
-              @click="start()"
-            />
-            <q-btn
-              label="Settings"
               outline
+              @click="onAnswerCorrect"
+            />
+
+            <q-btn
+              icon="clear"
+              color="negative"
+              class="q-mx-sm"
               rounded
-              @click="settings"
+              outline
+              @click="onAnswerWrong"
             />
           </div>
 
-          <!-- Result menu -->
-          <div
-            class="column col-xs-12 col-sm-8 col-md-5 col-lg-3 col-xl-2 q-gutter-md"
-            v-if="pressedController"
-          >
-            <!-- Scoreboard -->
-            <div class="row q-gutter-lg justify-center reverse">
-              <q-btn
-                icon="check"
-                color="positive"
-                rounded
-                outline
-                @click="onAnswerCorrect"
-              />
-
-              <q-btn
-                icon="clear"
-                color="negative"
-                rounded
-                outline
-                @click="onAnswerWrong"
-              />
-            </div>
-
+          <div class="q-pt-md">
             <q-separator />
+          </div>
 
-            <!-- First row -->
-            <div class="row justify-evenly">
+          <!-- First row -->
+          <div class="row">
+            <div class="col-6 column justify-center content-end">
               <q-btn
                 label="Re-open"
                 icon="loop"
                 color="primary"
+                class="q-mx-sm"
                 rounded
                 :outline="allControllersPressed"
                 :disable="allControllersPressed"
                 @click="continueQuestion()"
               />
+            </div>
+            <div class="col-6 column justify-center content-start">
               <q-btn
                 label="Quick Play"
                 icon="fast_forward"
                 color="primary"
+                class="q-mx-sm"
                 rounded
                 @click="quickPlay()"
               />
             </div>
-            <!-- Second row -->
-            <div class="row justify-center">
-              <q-btn
-                label="Reset"
-                icon="replay"
-                outline
-                rounded
-                @click="restart()"
-              />
-            </div>
+          </div>
+          <!-- Second row -->
+          <div class="row justify-center">
+            <q-btn
+              label="Reset"
+              icon="replay"
+              outline
+              rounded
+              @click="restart()"
+            />
           </div>
         </div>
 
@@ -126,12 +136,14 @@
           v-if="started && !pressedController"
           class="row justify-center"
         >
-          <q-btn
-            label="Cancel"
-            outline
-            rounded
-            @click="restart()"
-          />
+          <div class="column justify-center">
+            <q-btn
+              label="Cancel"
+              outline
+              rounded
+              @click="restart()"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -77,7 +77,7 @@
               color="positive"
               class="q-mx-sm"
               rounded
-              outline
+              :outline="answerCorrect !== true"
               @click="onAnswerCorrect"
             />
 
@@ -86,7 +86,7 @@
               color="negative"
               class="q-mx-sm"
               rounded
-              outline
+              :outline="answerCorrect !== false"
               @click="onAnswerWrong"
             />
           </div>
@@ -188,6 +188,7 @@ const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
 const countDownTime = ref<number>(0);
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
+const answerCorrect = ref<boolean>();
 
 const audio = new Audio('sounds/buzzer.mp3');
 
@@ -313,6 +314,7 @@ const restart = () => {
   pressedControllers.value = [];
   pressedController.value = undefined;
   started.value = false;
+  answerCorrect.value = undefined;
 };
 
 const quickPlay = () => {
@@ -331,10 +333,36 @@ const settings = () => {
 };
 
 const onAnswerCorrect = () => {
+  // Take back points if button is pressed again
+  if (answerCorrect.value === true) {
+    answerCorrect.value = undefined;
+    updateScoreboard(buzzerSettings.pointsCorrect * -1);
+    return;
+  }
+
+  // Take back negative points if selection was switched
+  if (answerCorrect.value === false) {
+    updateScoreboard(buzzerSettings.pointsWrong * -1);
+  }
+
+  answerCorrect.value = true;
   updateScoreboard(buzzerSettings.pointsCorrect);
 };
 
 const onAnswerWrong = () => {
+  // Take back points if button is pressed again
+  if (answerCorrect.value === false) {
+    answerCorrect.value = undefined;
+    updateScoreboard(buzzerSettings.pointsWrong * -1);
+    return;
+  }
+
+  // Take back positive points if selection was switched
+  if (answerCorrect.value === true) {
+    updateScoreboard(buzzerSettings.pointsCorrect * -1);
+  }
+
+  answerCorrect.value = false;
   updateScoreboard(buzzerSettings.pointsWrong);
 };
 

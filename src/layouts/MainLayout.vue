@@ -25,7 +25,8 @@
           type="animation"
         >
           <q-btn
-            key="leaderboard"
+            aria-label="Show scoreboard"
+            key="scoreboard"
             dense
             flat
             rounded
@@ -41,6 +42,7 @@
           >
             <!-- Pin -->
             <q-btn
+              aria-label="Pin window"
               dense
               flat
               rounded
@@ -50,19 +52,9 @@
               @click="togglePin"
             />
 
-            <!-- Mute -->
-            <q-btn
-              dense
-              flat
-              rounded
-              size="sm"
-              class="settings-button bg-primary"
-              :icon="muted ? 'volume_off' : 'volume_up'"
-              @click="toggleMute"
-            />
-
             <!-- Dark mode -->
             <q-btn
+              aria-label="Toggle dark mode"
               dense
               flat
               rounded
@@ -71,10 +63,53 @@
               :icon="darkMode ? 'light_mode' : 'dark_mode'"
               @click="toggleDarkMode"
             />
+
+            <!-- Change locale -->
+            <q-btn
+              v-if="supportedLanguages.length > 1"
+              aria-label="Language"
+              dense
+              flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
+              icon="language"
+            >
+              <q-menu
+                anchor="bottom middle"
+                self="top middle"
+              >
+                <q-list>
+                  <q-item
+                    v-for="lang in supportedLanguages"
+                    :key="lang.value"
+                    clickable
+                    v-close-popup
+                    @click="updateLocale(lang.value)"
+                  >
+                    <q-item-section>{{ lang.label }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+
+            <!-- Mute -->
+            <q-btn
+              aria-label="Mute audio"
+              dense
+              flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
+              :icon="muted ? 'volume_off' : 'volume_up'"
+              @click="toggleMute"
+            />
           </div>
         </transition-group>
 
         <q-btn
+          aria-label="Settings"
+          :aria-expanded="expandSettings"
           icon="settings"
           round
           dense
@@ -117,7 +152,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useQuasar } from 'quasar';
+import { QSelectOption, useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -128,7 +163,7 @@ import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
 
 const router = useRouter();
 const quasar = useQuasar();
-const { t } = useI18n();
+const { t, locale, availableLocales } = useI18n();
 const { buzzer } = useBuzzer();
 const applicationStore = useAppSettingsStore();
 
@@ -140,6 +175,25 @@ const expandSettings = ref<boolean>(false);
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;
 });
+
+const supportedLanguages = ref<QSelectOption[]>([
+  {
+    value: 'en-US',
+    label: 'English',
+  },
+  {
+    value: 'de-DE',
+    label: 'Deutsch',
+  },
+]);
+
+const updateLocale = (l: string) => {
+  if (!availableLocales.includes(l)) {
+    return;
+  }
+
+  locale.value = l;
+};
 
 const toggleMute = () => {
   muted.value = !muted.value;

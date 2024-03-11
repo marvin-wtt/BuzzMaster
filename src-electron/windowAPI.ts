@@ -6,6 +6,7 @@ export type WindowAPI = {
   close: () => void;
   pin: () => void;
   unpin: () => void;
+  openDevTools: () => void;
 };
 
 export const initWindowApiHandler = () => {
@@ -14,6 +15,7 @@ export const initWindowApiHandler = () => {
   ipcMain.on('toggle-maximize', windowApiHandler.toggleMaximize);
   ipcMain.on('pin', windowApiHandler.pin);
   ipcMain.on('unpin', windowApiHandler.unpin);
+  ipcMain.on('open-dev-tools', windowApiHandler.openDevTools);
 };
 
 const windowEventWrapper = (next: (window: BrowserWindow) => void) => {

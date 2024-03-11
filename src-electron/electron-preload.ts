@@ -36,4 +36,5 @@ contextBridge.exposeInMainWorld('windowAPI', {
   close: () => ipcRenderer.send('close'),
   pin: () => ipcRenderer.send('pin'),
   unpin: () => ipcRenderer.send('unpin'),
+  openDevTools: () => ipcRenderer.send('open-dev-tools'),
 });

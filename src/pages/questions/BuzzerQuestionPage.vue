@@ -3,9 +3,9 @@
     title="Buzzer"
     padding
   >
-    <div class="col-12 column justify-around">
+    <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
+      <div class="col-7 row justify-center">
         <div
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
         >
@@ -45,10 +45,11 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-2 column content-center">
+      <div class="col-5 row justify-center no-wrap">
+        <!-- Start menu -->
         <div
           v-if="!started"
-          class="column q-gutter-sm"
+          class="column q-gutter-sm justify-center"
         >
           <q-btn
             label="Start"
@@ -64,31 +65,66 @@
           />
         </div>
 
+        <!-- Result menu -->
         <div
-          class="col-12"
+          class="column col-xs-12 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
           v-if="pressedController"
         >
-          <!-- First row -->
-          <div class="row q-gutter-sm">
+          <!-- Scoreboard -->
+          <div
+            v-if="showScoreboardActions"
+            class="row justify-center reverse"
+          >
             <q-btn
-              label="Re-open"
-              icon="loop"
-              color="primary"
+              icon="check"
+              color="positive"
+              class="q-mx-sm"
               rounded
-              :outline="allControllersPressed"
-              :disable="allControllersPressed"
-              @click="continueQuestion()"
+              :outline="answerCorrect !== true"
+              @click="onAnswerCorrect"
             />
+
             <q-btn
-              label="Quick Play"
-              icon="fast_forward"
-              color="primary"
+              icon="clear"
+              color="negative"
+              class="q-mx-sm"
               rounded
-              @click="quickPlay()"
+              :outline="answerCorrect !== false"
+              @click="onAnswerWrong"
             />
           </div>
+
+          <div class="q-pt-md">
+            <q-separator />
+          </div>
+
+          <!-- First row -->
+          <div class="row">
+            <div class="col-6 column justify-center content-end">
+              <q-btn
+                label="Re-open"
+                icon="loop"
+                color="primary"
+                class="q-mx-sm"
+                rounded
+                :outline="allControllersPressed"
+                :disable="allControllersPressed"
+                @click="continueQuestion()"
+              />
+            </div>
+            <div class="col-6 column justify-center content-start">
+              <q-btn
+                label="Quick Play"
+                icon="fast_forward"
+                color="primary"
+                class="q-mx-sm"
+                rounded
+                @click="quickPlay()"
+              />
+            </div>
+          </div>
           <!-- Second row -->
-          <div class="row justify-center q-mt-md">
+          <div class="row justify-center">
             <q-btn
               label="Reset"
               icon="replay"
@@ -99,13 +135,18 @@
           </div>
         </div>
 
-        <div v-if="started && !pressedController">
-          <q-btn
-            label="Cancel"
-            outline
-            rounded
-            @click="restart()"
-          />
+        <div
+          v-if="started && !pressedController"
+          class="row justify-center"
+        >
+          <div class="column justify-center">
+            <q-btn
+              label="Cancel"
+              outline
+              rounded
+              @click="restart()"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -129,6 +170,7 @@ import CircleTimer from 'components/CircleTimer.vue';
 import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
 import PulseCircle from 'components/PulseCircle.vue';
+import { useScoreboardStore } from 'stores/scoreboard-store';
 
 interface Size {
   width: number;
@@ -138,6 +180,7 @@ interface Size {
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
+const scoreBoardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
@@ -148,6 +191,7 @@ const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
 const countDownTime = ref<number>(0);
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
+const answerCorrect = ref<boolean>();
 
 const audio = new Audio('sounds/buzzer.mp3');
 
@@ -230,6 +274,10 @@ const allControllersPressed = computed<boolean>(() => {
   );
 });
 
+const showScoreboardActions = computed<boolean>(() => {
+  return buzzerSettings.pointsCorrect !== 0 || buzzerSettings.pointsWrong !== 0;
+});
+
 const listener = (event: ButtonEvent) => {
   if (!started.value) {
     return;
@@ -273,6 +321,7 @@ const restart = () => {
   pressedControllers.value = [];
   pressedController.value = undefined;
   started.value = false;
+  answerCorrect.value = undefined;
 };
 
 const quickPlay = () => {
@@ -288,6 +337,50 @@ const settings = () => {
   quasar.dialog({
     component: BuzzerQuestionDialog,
   });
+};
+
+const onAnswerCorrect = () => {
+  // Take back points if button is pressed again
+  if (answerCorrect.value === true) {
+    answerCorrect.value = undefined;
+    updateScoreboard(buzzerSettings.pointsCorrect * -1);
+    return;
+  }
+
+  // Take back negative points if selection was switched
+  if (answerCorrect.value === false) {
+    updateScoreboard(buzzerSettings.pointsWrong * -1);
+  }
+
+  answerCorrect.value = true;
+  updateScoreboard(buzzerSettings.pointsCorrect);
+};
+
+const onAnswerWrong = () => {
+  // Take back points if button is pressed again
+  if (answerCorrect.value === false) {
+    answerCorrect.value = undefined;
+    updateScoreboard(buzzerSettings.pointsWrong * -1);
+    return;
+  }
+
+  // Take back positive points if selection was switched
+  if (answerCorrect.value === true) {
+    updateScoreboard(buzzerSettings.pointsCorrect * -1);
+  }
+
+  answerCorrect.value = false;
+  updateScoreboard(buzzerSettings.pointsWrong);
+};
+
+const updateScoreboard = (points: number) => {
+  const controllerId = pressedController.value?.id;
+
+  if (!controllerId) {
+    return;
+  }
+
+  scoreBoardStore.addPoints(controllerId, points);
 };
 </script>
 

@@ -54,4 +54,8 @@ const windowApiHandler = {
   unpin: windowEventWrapper((win: BrowserWindow) => {
     win.setAlwaysOnTop(false);
   }),
+
+  openDevTools: windowEventWrapper((win: BrowserWindow) => {
+    win.webContents.openDevTools();
+  }),
 };

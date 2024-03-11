@@ -71,7 +71,10 @@
           v-if="pressedController"
         >
           <!-- Scoreboard -->
-          <div class="row justify-center reverse">
+          <div
+            v-if="showScoreboardActions"
+            class="row justify-center reverse"
+          >
             <q-btn
               icon="check"
               color="positive"
@@ -269,6 +272,10 @@ const allControllersPressed = computed<boolean>(() => {
   return !controllers.value.some(
     (controller) => !pressedControllers.value.includes(controller.id),
   );
+});
+
+const showScoreboardActions = computed<boolean>(() => {
+  return buzzerSettings.pointsCorrect !== 0 || buzzerSettings.pointsWrong !== 0;
 });
 
 const listener = (event: ButtonEvent) => {

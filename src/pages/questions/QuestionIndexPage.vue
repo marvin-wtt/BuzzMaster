@@ -5,24 +5,14 @@
   >
     <div class="col-10 column justify-center q-gutter-md">
       <q-btn
-        :to="{ name: 'buzzer-question' }"
-        label="Buzzer"
+        v-for="item in items"
+        :key="item.routeName"
+        :to="{ name: item.routeName }"
+        :label="item.label"
+        :icon="item.icon"
         color="primary"
         rounded
-      />
-
-      <q-btn
-        :to="{ name: 'quiz-question' }"
-        label="Quiz"
-        color="primary"
-        rounded
-      />
-
-      <q-btn
-        :to="{ name: 'stopwatch-question' }"
-        label="Stopwatch"
-        color="primary"
-        rounded
+        stack
       />
     </div>
 
@@ -32,4 +22,28 @@
 
 <script lang="ts" setup>
 import NavigationBar from 'components/PageNavigation.vue';
+
+type MenuItem = {
+  routeName: string;
+  label: string;
+  icon?: string;
+};
+
+const items: MenuItem[] = [
+  {
+    routeName: 'buzzer-question',
+    label: 'Buzzer',
+    icon: 'radio_button_checked',
+  },
+  {
+    routeName: 'quiz-question',
+    label: 'Quiz',
+    icon: 'format_list_numbered',
+  },
+  {
+    routeName: 'stopwatch-question',
+    label: 'Stopwatch',
+    icon: 'timer',
+  },
+];
 </script>

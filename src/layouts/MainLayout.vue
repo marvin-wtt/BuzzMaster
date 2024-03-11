@@ -12,11 +12,18 @@
         >
           <div class="row q-gutter-sm">
             <q-icon name="cast" />
-            <div class="text-body2">
+            <div class="text-body2 gt-xs">
               {{ t('app_name') }}
             </div>
           </div>
         </q-btn>
+
+        <q-separator
+          class="lt-sm"
+          vertical
+          spaced
+          inset
+        />
 
         <q-space />
 
@@ -38,7 +45,7 @@
           <div
             v-if="expandSettings"
             key="settings"
-            class="settings-container bg-white"
+            class="settings-container bg-white row no-wrap"
           >
             <!-- Pin -->
             <q-btn
@@ -50,6 +57,19 @@
               class="settings-button bg-primary"
               :icon="pinned ? 'lock_open' : 'push_pin'"
               @click="togglePin"
+            />
+
+            <!-- Dev tools -->
+            <q-btn
+              v-if="devMode"
+              aria-label="DevTools"
+              dense
+              flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
+              icon="developer_mode"
+              @click="openDevTools"
             />
 
             <!-- Dark mode -->
@@ -172,6 +192,8 @@ const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
 const expandSettings = ref<boolean>(false);
 
+const devMode = process?.env?.DEV ?? false;
+
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;
 });
@@ -225,6 +247,10 @@ function showScoreboard() {
   quasar.dialog({
     component: ScoreboardDialog,
   });
+}
+
+function openDevTools() {
+  window.windowAPI.openDevTools();
 }
 
 function closeApp() {

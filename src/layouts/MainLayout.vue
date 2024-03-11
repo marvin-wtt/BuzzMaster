@@ -20,38 +20,59 @@
 
         <q-space />
 
-        <q-btn
-          dense
-          flat
-          icon="leaderboard"
-          @click="showScoreboard"
-        />
+        <transition-group
+          name="list"
+          type="animation"
+        >
+          <q-btn
+            key="leaderboard"
+            dense
+            flat
+            rounded
+            icon="leaderboard"
+            @click="showScoreboard"
+          />
 
-        <transition name="slide-fade">
-          <!-- TODO Add bg color -->
-          <div v-if="expandSettings">
+          <!-- Settings -->
+          <div
+            v-if="expandSettings"
+            key="settings"
+            class="settings-container bg-white"
+          >
+            <!-- Pin -->
             <q-btn
               dense
               flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
               :icon="pinned ? 'lock_open' : 'push_pin'"
               @click="togglePin"
             />
 
+            <!-- Mute -->
             <q-btn
               dense
               flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
               :icon="muted ? 'volume_off' : 'volume_up'"
               @click="toggleMute"
             />
 
+            <!-- Dark mode -->
             <q-btn
               dense
               flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
               :icon="darkMode ? 'light_mode' : 'dark_mode'"
               @click="toggleDarkMode"
             />
           </div>
-        </transition>
+        </transition-group>
 
         <q-btn
           icon="settings"
@@ -165,16 +186,6 @@ function closeApp() {
   height: 0.5rem;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.1s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
 /* Scrollbar */
 /* Track */
 ::-webkit-scrollbar-track {
@@ -196,18 +207,26 @@ function closeApp() {
 ::-webkit-scrollbar-corner {
 }
 
-/* Transitions */
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+/* Settings menu */
+.settings-container {
+  padding: 2px;
+  border-radius: 20px;
 }
 
-.slide-fade-leave-active {
-  transition: all 0.2s ease-in;
+.settings-button {
+  margin: 0 2px;
 }
 
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
+/* Animations */
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.1s ease;
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>

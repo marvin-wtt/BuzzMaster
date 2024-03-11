@@ -7,11 +7,9 @@
       class="q-dialog-plugin"
       style="max-width: 350px"
     >
-      <q-card-section>
-        <a class="text-h5">Leaderboard</a>
-      </q-card-section>
+      <q-card-section class="text-center text-h5"> Leaderboard </q-card-section>
 
-      <q-card-section>
+      <q-card-section v-if="scores.length > 0">
         <q-list>
           <q-item
             v-for="score in scores"
@@ -40,6 +38,8 @@
           </q-item>
         </q-list>
       </q-card-section>
+
+      <q-card-section v-else> No active buzzer available! </q-card-section>
 
       <q-card-actions align="center">
         <q-btn

@@ -4,7 +4,7 @@ export type IBuzzerApi = IButtonEventEmitter & {
   dongles: IDongle[];
   reset: () => void;
   addDevice: (device: IDevice) => Promise<void>;
-  removeDevice: (device: IDevice) => void;
+  removeDevice: (deviceId: string) => void;
 };
 
 export type IBuzzerPlugin = (api: IBuzzerApi) => void;

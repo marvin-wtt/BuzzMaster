@@ -34,7 +34,7 @@
         class="col-grow absolute"
       >
         <q-virtual-scroll
-          :items="buttonsByResult[button]"
+          :items="controllerNames(props.controllersByButton[button])"
           separator
           v-slot="{ item }"
           style="height: 100%"
@@ -83,7 +83,7 @@
 
 <script lang="ts" setup>
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { computed } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 
@@ -94,20 +94,23 @@ const activeResult = defineModel<BuzzerButton | undefined>();
 const props = defineProps<{
   confirmedControllers: string[];
   pressedButtons: Map<string, BuzzerButton>;
+  controllersByButton: Record<BuzzerButton, IController[] | undefined>;
 }>();
 
 type BuzzerMap = Record<BuzzerButton, number>;
 
 const buttonOccurrences = computed<BuzzerMap>(() => {
   return {
-    [BuzzerButton.BLUE]: buttonsByResult.value[BuzzerButton.BLUE]?.length ?? 0,
+    [BuzzerButton.BLUE]:
+      props.controllersByButton[BuzzerButton.BLUE]?.length ?? 0,
     [BuzzerButton.ORANGE]:
-      buttonsByResult.value[BuzzerButton.ORANGE]?.length ?? 0,
+      props.controllersByButton[BuzzerButton.ORANGE]?.length ?? 0,
     [BuzzerButton.GREEN]:
-      buttonsByResult.value[BuzzerButton.GREEN]?.length ?? 0,
+      props.controllersByButton[BuzzerButton.GREEN]?.length ?? 0,
     [BuzzerButton.YELLOW]:
-      buttonsByResult.value[BuzzerButton.YELLOW]?.length ?? 0,
-    [BuzzerButton.RED]: buttonsByResult.value[BuzzerButton.RED]?.length ?? 0,
+      props.controllersByButton[BuzzerButton.YELLOW]?.length ?? 0,
+    [BuzzerButton.RED]:
+      props.controllersByButton[BuzzerButton.RED]?.length ?? 0,
   };
 });
 
@@ -143,30 +146,13 @@ const resultOptions = computed<BuzzerButton[]>(() => {
     : [...quizSettings.activeButtons, BuzzerButton.RED];
 });
 
-const buttonsByResult = computed(() => {
-  return controllers.value.reduce(
-    (acc, controller) => {
-      const hasConfirmed =
-        quizSettings.changeMode === 'always' ||
-        props.confirmedControllers.includes(controller.id);
-      // Mo input is default button
-      const pressedButton =
-        props.pressedButtons.get(controller.id) ?? BuzzerButton.RED;
-      // Ignore input if user has not confirmed the button selection
-      const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
-
-      acc[button] ??= [];
-      acc[button].push(controller.name);
-
-      return acc;
-    },
-    {} as Record<BuzzerButton, string[]>,
-  );
-});
-
 const mode = computed<string>(() => {
   return quizSettings.resultMode;
 });
+
+function controllerNames(controllers: IController[]): string[] {
+  return controllers?.map((controller) => controller.name);
+}
 
 const resultItemClass = {
   [BuzzerButton.BLUE]: 'bg-blue',

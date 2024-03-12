@@ -45,8 +45,8 @@
         <q-btn
           label="Ok"
           color="primary"
-          @click="onDialogOK"
           rounded
+          @click="onDialogOK"
         />
       </q-card-actions>
     </q-card>

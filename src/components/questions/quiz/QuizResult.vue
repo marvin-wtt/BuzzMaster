@@ -150,8 +150,8 @@ const mode = computed<string>(() => {
   return quizSettings.resultMode;
 });
 
-function controllerNames(controllers: IController[]): string[] {
-  return controllers?.map((controller) => controller.name);
+function controllerNames(controllers?: IController[]): string[] {
+  return controllers?.map((controller) => controller.name) ?? [];
 }
 
 const resultItemClass = {

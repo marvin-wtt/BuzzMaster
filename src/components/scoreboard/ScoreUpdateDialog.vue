@@ -58,12 +58,12 @@ const error = computed<boolean>(() => {
   return !Number.isInteger(updatedValue.value);
 });
 
-const errorMessage = computed<string | null>(() => {
+const errorMessage = computed<string | undefined>(() => {
   if (!error.value) {
     return 'Value must be an integer';
   }
 
-  return null;
+  return undefined;
 });
 
 const submit = () => {

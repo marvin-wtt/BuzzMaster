@@ -90,6 +90,33 @@
             <q-icon name="timer" />
           </template>
         </q-input>
+
+        <div class="text-body1">Scores</div>
+
+        <q-input
+          label="Correct answer"
+          v-model.number="quizSettings.pointsCorrect"
+          type="number"
+          rounded
+          outlined
+        >
+          <template #prepend>
+            <q-icon name="check" />
+          </template>
+        </q-input>
+
+        <q-input
+          label="Wrong answer"
+          hint="Enter a negative number to subtract points"
+          v-model.number="quizSettings.pointsWrong"
+          type="number"
+          rounded
+          outlined
+        >
+          <template #prepend>
+            <q-icon name="close" />
+          </template>
+        </q-input>
       </q-card-section>
 
       <q-card-actions align="center">

@@ -1,6 +1,6 @@
 <template>
   <template v-if="mode === 'table'">
-    <div class="column justify-around">
+    <div class="column justify-around q-pr-sm">
       <q-btn
         v-for="button in resultOptions"
         :key="button"
@@ -11,8 +11,7 @@
         rounded
         :outline="activeResult !== button"
         @click="activeResult = button"
-      >
-      </q-btn>
+      />
     </div>
     <q-tab-panels
       v-model="activeResult"
@@ -60,7 +59,7 @@
         <div class="col-grow column justify-end">
           <div
             class="bar text-center"
-            :class="resultItemClass[button]"
+            :class="buttonBgColor[button]"
             :style="{
               height: `${barHeightPercentages[button]}%`,
             }"
@@ -79,6 +78,7 @@ import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { computed } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
+import { buttonBgColor, buttonColor } from 'components/buttonColors';
 
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();
@@ -146,22 +146,6 @@ const mode = computed<string>(() => {
 function controllerNames(controllers?: IController[]): string[] {
   return controllers?.map((controller) => controller.name) ?? [];
 }
-
-const buttonColor = {
-  [BuzzerButton.BLUE]: 'blue',
-  [BuzzerButton.ORANGE]: 'orange',
-  [BuzzerButton.GREEN]: 'green',
-  [BuzzerButton.YELLOW]: 'yellow',
-  [BuzzerButton.RED]: ' grey',
-};
-
-const resultItemClass = {
-  [BuzzerButton.BLUE]: 'bg-blue',
-  [BuzzerButton.ORANGE]: 'bg-orange',
-  [BuzzerButton.GREEN]: 'bg-green',
-  [BuzzerButton.YELLOW]: 'bg-yellow',
-  [BuzzerButton.RED]: 'bg-grey',
-};
 </script>
 
 <style scoped>

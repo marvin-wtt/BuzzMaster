@@ -5,7 +5,7 @@
   >
     <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
+      <div class="col-grow row justify-center no-wrap">
         <quiz-result
           v-if="completed"
           v-model="activeResult"
@@ -33,7 +33,7 @@
                   :key="button"
                   :color="
                     quizSettings.activeButtons.includes(button)
-                      ? buttonColor(button)
+                      ? buttonColor[button]
                       : 'grey'
                   "
                   name="circle"
@@ -91,7 +91,7 @@
               <q-btn
                 v-for="button in quizSettings.activeButtons"
                 :key="button"
-                :color="buttonColor(button)"
+                :color="buttonColor[button]"
                 size="sm"
                 round
                 class="scoreboard-btm"
@@ -155,6 +155,7 @@ import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
 import TransitionFade from 'components/TransitionFade.vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
+import { buttonColor } from 'components/buttonColors';
 
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
@@ -351,21 +352,6 @@ const buttons: BuzzerButton[] = [
   BuzzerButton.GREEN,
   BuzzerButton.YELLOW,
 ];
-
-const buttonColor = (button: BuzzerButton): string => {
-  switch (button) {
-    case BuzzerButton.BLUE:
-      return 'blue';
-    case BuzzerButton.GREEN:
-      return 'green';
-    case BuzzerButton.ORANGE:
-      return 'orange';
-    case BuzzerButton.YELLOW:
-      return 'yellow';
-    case BuzzerButton.RED:
-      return 'red';
-  }
-};
 </script>
 
 <style scoped></style>

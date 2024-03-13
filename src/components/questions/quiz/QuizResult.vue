@@ -2,7 +2,6 @@
   <template v-if="mode === 'table'">
     <q-tabs
       v-model="activeResult"
-      class="col-shrink"
       dense
     >
       <q-tab

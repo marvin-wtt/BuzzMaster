@@ -6,18 +6,13 @@
     <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center">
-        <div
+        <quiz-result
           v-if="completed"
-          class="column q-mb-sm"
-        >
-          <quiz-result
-            v-model="activeResult"
-            :confirmed-controllers="confirmedControllers"
-            :pressed-buttons="pressedButtons"
-            :controllers-by-button="controllersByButton"
-          />
-        </div>
-
+          v-model="activeResult"
+          :confirmed-controllers="confirmedControllers"
+          :pressed-buttons="pressedButtons"
+          :controllers-by-button="controllersByButton"
+        />
         <div
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"

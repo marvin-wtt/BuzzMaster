@@ -1,29 +1,23 @@
 <template>
   <template v-if="mode === 'table'">
-    <q-tabs
-      v-model="activeResult"
-      dense
-    >
-      <q-tab
+    <div class="column justify-around">
+      <q-btn
         v-for="button in resultOptions"
         :key="button"
-        :name="button"
-        :class="resultItemClass[button]"
+        :label="buttonOccurrences[button]"
+        :color="buttonColor[button]"
+        class="col-grow q-my-xs text-bold text-h5"
+        :class="activeResult === button ? 'col-2' : ''"
+        rounded
+        :outline="activeResult !== button"
+        @click="activeResult = button"
       >
-        <div
-          :class="
-            activeResult === button
-              ? 'result-tab-active-content'
-              : 'result-tab-content'
-          "
-        >
-          {{ buttonOccurrences[button] }}
-        </div>
-      </q-tab>
-    </q-tabs>
+      </q-btn>
+    </div>
     <q-tab-panels
       v-model="activeResult"
-      class="col-grow column"
+      class="col-10 row"
+      vertical
       animated
     >
       <q-tab-panel
@@ -152,6 +146,14 @@ const mode = computed<string>(() => {
 function controllerNames(controllers?: IController[]): string[] {
   return controllers?.map((controller) => controller.name) ?? [];
 }
+
+const buttonColor = {
+  [BuzzerButton.BLUE]: 'blue',
+  [BuzzerButton.ORANGE]: 'orange',
+  [BuzzerButton.GREEN]: 'green',
+  [BuzzerButton.YELLOW]: 'yellow',
+  [BuzzerButton.RED]: ' grey',
+};
 
 const resultItemClass = {
   [BuzzerButton.BLUE]: 'bg-blue',

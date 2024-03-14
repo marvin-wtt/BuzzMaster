@@ -7,14 +7,14 @@ type Handler = Record<
 >;
 
 export const initWindowApiHandler = () => {
-  ipcMain.on('close', windowApiHandler.close);
-  ipcMain.on('minimize', windowApiHandler.minimize);
-  ipcMain.on('toggle-maximize', windowApiHandler.toggleMaximize);
-  ipcMain.on('pin', windowApiHandler.pin);
-  ipcMain.on('unpin', windowApiHandler.unpin);
-  ipcMain.on('mute', windowApiHandler.mute);
-  ipcMain.on('unmute', windowApiHandler.unmute);
-  ipcMain.on('open-dev-tools', windowApiHandler.openDevTools);
+  ipcMain.on('window:close', windowApiHandler.close);
+  ipcMain.on('window:minimize', windowApiHandler.minimize);
+  ipcMain.on('window:toggle-maximize', windowApiHandler.toggleMaximize);
+  ipcMain.on('window:pin', windowApiHandler.pin);
+  ipcMain.on('window:unpin', windowApiHandler.unpin);
+  ipcMain.on('window:mute', windowApiHandler.mute);
+  ipcMain.on('window:unmute', windowApiHandler.unmute);
+  ipcMain.on('window:open-dev-tools', windowApiHandler.openDevTools);
 };
 
 const windowEventWrapper = (next: (window: BrowserWindow) => void) => {

@@ -2,14 +2,14 @@ import { WindowAPI } from 'src-electron/windowAPI';
 import { ipcRenderer } from 'electron';
 
 const api: WindowAPI = {
-  minimize: () => ipcRenderer.send('minimize'),
-  toggleMaximize: () => ipcRenderer.send('toggle-maximize'),
-  close: () => ipcRenderer.send('close'),
-  pin: () => ipcRenderer.send('pin'),
-  unpin: () => ipcRenderer.send('unpin'),
-  mute: () => ipcRenderer.send('unpin'),
-  unmute: () => ipcRenderer.send('unmute'),
-  openDevTools: () => ipcRenderer.send('open-dev-tools'),
+  minimize: () => ipcRenderer.send('window:minimize'),
+  toggleMaximize: () => ipcRenderer.send('window:toggle-maximize'),
+  close: () => ipcRenderer.send('window:close'),
+  pin: () => ipcRenderer.send('window:pin'),
+  unpin: () => ipcRenderer.send('window:unpin'),
+  mute: () => ipcRenderer.send('window:mute'),
+  unmute: () => ipcRenderer.send('window:unmute'),
+  openDevTools: () => ipcRenderer.send('window:open-dev-tools'),
 };
 
 export default api;

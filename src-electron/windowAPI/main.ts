@@ -6,7 +6,7 @@ type Handler = Record<
   (e: IpcMainEvent, ...args: unknown[]) => void
 >;
 
-export const initWindowApiHandler = () => {
+export default () => {
   ipcMain.on('window:close', windowApiHandler.close);
   ipcMain.on('window:minimize', windowApiHandler.minimize);
   ipcMain.on('window:toggle-maximize', windowApiHandler.toggleMaximize);

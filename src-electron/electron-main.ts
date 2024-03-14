@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
-import { initWindowApiHandler } from 'app/src-electron/windowAPI/main';
+import initWindowApiHandler from 'app/src-electron/windowAPI/main';
+import initAppApiHandler from 'app/src-electron/appAPI/main';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
@@ -95,6 +96,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  initAppApiHandler();
   initWindowApiHandler();
   createWindow();
 });

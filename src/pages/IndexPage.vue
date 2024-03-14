@@ -21,11 +21,18 @@
         rounded
       />
     </div>
+
+    <div>v{{ version }}</div>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { ref } from 'vue';
+
+const version = ref<string>();
 
 const { t } = useI18n();
+
+window.appAPI.getVersion().then((value) => (version.value = value));
 </script>

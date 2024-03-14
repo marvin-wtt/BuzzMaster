@@ -9,6 +9,8 @@ export default {
     devices: 'Devices',
   },
 
+  // TODO Scoreboard
+
   devices,
   question,
 };

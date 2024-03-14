@@ -8,6 +8,8 @@ export default {
     },
   },
 
+  // TODO Add edit dialog translations
+
   test: {
     title: 'Test Controllers',
 

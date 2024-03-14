@@ -7,11 +7,3 @@ export const buzzerButtonColor = {
   [BuzzerButton.YELLOW]: 'yellow-6',
   [BuzzerButton.RED]: 'grey',
 };
-
-export const buzzerButtonBgColor = {
-  [BuzzerButton.BLUE]: 'bg-blue',
-  [BuzzerButton.ORANGE]: 'bg-orange',
-  [BuzzerButton.GREEN]: 'bg-green',
-  [BuzzerButton.YELLOW]: 'bg-yellow',
-  [BuzzerButton.RED]: 'bg-grey',
-};

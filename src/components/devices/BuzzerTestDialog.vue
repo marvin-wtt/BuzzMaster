@@ -169,6 +169,7 @@ const buttonColorClass = (controller: IController, button: BuzzerButton) => {
 
 // Order of buttons
 const buttons: BuzzerButton[] = [
+  BuzzerButton.RED,
   BuzzerButton.BLUE,
   BuzzerButton.ORANGE,
   BuzzerButton.GREEN,

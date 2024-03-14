@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import { initWindowApiHandler } from 'app/src-electron/windowAPI';
+import { initWindowApiHandler } from 'app/src-electron/windowAPI/main';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';

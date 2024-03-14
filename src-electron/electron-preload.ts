@@ -28,15 +28,7 @@
  * }
  */
 
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge } from 'electron';
+import WindowAPI from './windowAPI/preload';
 
-contextBridge.exposeInMainWorld('windowAPI', {
-  minimize: () => ipcRenderer.send('minimize'),
-  toggleMaximize: () => ipcRenderer.send('toggle-maximize'),
-  close: () => ipcRenderer.send('close'),
-  pin: () => ipcRenderer.send('pin'),
-  unpin: () => ipcRenderer.send('unpin'),
-  mute: () => ipcRenderer.send('unpin'),
-  unmute: () => ipcRenderer.send('unmute'),
-  openDevTools: () => ipcRenderer.send('open-dev-tools'),
-});
+contextBridge.exposeInMainWorld('windowAPI', WindowAPI);

@@ -1,15 +1,10 @@
 import { IpcMainEvent, BrowserWindow, ipcMain } from 'electron';
+import { WindowAPI } from 'src-electron/windowAPI';
 
-export type WindowAPI = {
-  minimize: () => void;
-  toggleMaximize: () => void;
-  close: () => void;
-  pin: () => void;
-  unpin: () => void;
-  mute: () => void;
-  unmute: () => void;
-  openDevTools: () => void;
-};
+type Handler = Record<
+  keyof WindowAPI,
+  (e: IpcMainEvent, ...args: unknown[]) => void
+>;
 
 export const initWindowApiHandler = () => {
   ipcMain.on('close', windowApiHandler.close);
@@ -35,7 +30,7 @@ const windowEventWrapper = (next: (window: BrowserWindow) => void) => {
   };
 };
 
-const windowApiHandler = {
+const windowApiHandler: Handler = {
   minimize: windowEventWrapper((win: BrowserWindow) => {
     win.minimize();
   }),

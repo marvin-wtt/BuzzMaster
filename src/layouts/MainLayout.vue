@@ -189,7 +189,7 @@ const pinned = ref<boolean>(false);
 const muted = ref<boolean>(false);
 const expandSettings = ref<boolean>(false);
 
-const devMode = process?.env?.DEV ?? false;
+const devMode = process.env.DEV ?? false;
 
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;

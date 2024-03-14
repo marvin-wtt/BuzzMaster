@@ -20,6 +20,12 @@
         color="primary"
         rounded
       />
+
+      <q-btn
+        color="primary"
+        rounded
+        @click="test"
+      />
     </div>
   </q-page>
 </template>
@@ -28,4 +34,8 @@
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
+
+function test() {
+  window.open('/devices/');
+}
 </script>

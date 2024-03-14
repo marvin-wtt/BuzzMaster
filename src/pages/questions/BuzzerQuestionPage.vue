@@ -167,8 +167,6 @@ import BuzzerQuestionDialog from 'components/questions/BuzzerQuestionDialog.vue'
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
-import { useAppSettingsStore } from 'stores/application-settings-store';
-import { storeToRefs } from 'pinia';
 import PulseCircle from 'components/PulseCircle.vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
 
@@ -179,7 +177,6 @@ interface Size {
 
 const quasar = useQuasar();
 const { buzzerSettings } = useQuestionSettingsStore();
-const appSettingsStore = useAppSettingsStore();
 const scoreBoardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
@@ -190,7 +187,6 @@ const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
 const countDownTime = ref<number>(0);
-const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const answerCorrect = ref<boolean>();
 
 const audio = new Audio('sounds/buzzer.mp3');
@@ -208,7 +204,7 @@ onUnmounted(() => {
 });
 
 const soundsEnabled = computed<boolean>(() => {
-  return buzzerSettings.playSounds && !globalMuted.value;
+  return buzzerSettings.playSounds;
 });
 
 const onCircleTimerResize = (size?: { width: number; height: number }) => {

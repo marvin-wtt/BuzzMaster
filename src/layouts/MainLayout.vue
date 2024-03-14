@@ -177,19 +177,16 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRouter } from 'vue-router';
-import { useAppSettingsStore } from 'stores/application-settings-store';
-import { storeToRefs } from 'pinia';
 import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
 
 const router = useRouter();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
 const { buzzer } = useBuzzer();
-const applicationStore = useAppSettingsStore();
 
-const { muted } = storeToRefs(applicationStore);
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
+const muted = ref<boolean>(false);
 const expandSettings = ref<boolean>(false);
 
 const devMode = process?.env?.DEV ?? false;
@@ -218,6 +215,12 @@ const updateLocale = (l: string) => {
 };
 
 const toggleMute = () => {
+  if (muted.value) {
+    window.windowAPI.unmute();
+  } else {
+    window.windowAPI.mute();
+  }
+
   muted.value = !muted.value;
 };
 

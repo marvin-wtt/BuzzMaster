@@ -6,6 +6,8 @@ export type WindowAPI = {
   close: () => void;
   pin: () => void;
   unpin: () => void;
+  mute: () => void;
+  unmute: () => void;
   openDevTools: () => void;
 };
 
@@ -15,6 +17,8 @@ export const initWindowApiHandler = () => {
   ipcMain.on('toggle-maximize', windowApiHandler.toggleMaximize);
   ipcMain.on('pin', windowApiHandler.pin);
   ipcMain.on('unpin', windowApiHandler.unpin);
+  ipcMain.on('mute', windowApiHandler.mute);
+  ipcMain.on('unmute', windowApiHandler.unmute);
   ipcMain.on('open-dev-tools', windowApiHandler.openDevTools);
 };
 
@@ -55,6 +59,14 @@ const windowApiHandler = {
 
   unpin: windowEventWrapper((win: BrowserWindow) => {
     win.setAlwaysOnTop(false);
+  }),
+
+  mute: windowEventWrapper((win: BrowserWindow) => {
+    win.webContents.setAudioMuted(true);
+  }),
+
+  unmute: windowEventWrapper((win: BrowserWindow) => {
+    win.webContents.setAudioMuted(false);
   }),
 
   openDevTools: windowEventWrapper((win: BrowserWindow) => {

@@ -9,7 +9,18 @@ const platform = process.platform || os.platform();
 
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
+function getPreloadPath(name: string): string {
+  return path.resolve(
+    currentDir,
+    path.join(
+      process.env.QUASAR_ELECTRON_PRELOAD_FOLDER!,
+      name + process.env.QUASAR_ELECTRON_PRELOAD_EXTENSION,
+    ),
+  );
+}
+
 function createWindow() {
+  const electronPreload = getPreloadPath('electron-preload');
   /**
    * Initial window options
    */
@@ -22,14 +33,7 @@ function createWindow() {
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
-      // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
-      preload: path.resolve(
-        currentDir,
-        path.join(
-          process.env.QUASAR_ELECTRON_PRELOAD_FOLDER!,
-          'electron-preload' + process.env.QUASAR_ELECTRON_PRELOAD_EXTENSION,
-        ),
-      ),
+      preload: electronPreload,
     },
   });
 
@@ -76,6 +80,18 @@ function createWindow() {
       mainWindow?.webContents.closeDevTools();
     });
   }
+
+  mainWindow.webContents.setWindowOpenHandler((/* details */) => {
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        frame: false,
+        webPreferences: {
+          preload: electronPreload,
+        },
+      },
+    };
+  });
 }
 
 app.whenReady().then(() => {

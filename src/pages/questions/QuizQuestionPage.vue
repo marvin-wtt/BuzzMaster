@@ -5,19 +5,14 @@
   >
     <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
-        <div
+      <div class="col-grow row justify-center no-wrap">
+        <quiz-result
           v-if="completed"
-          class="column q-mb-sm"
-        >
-          <quiz-result
-            v-model="activeResult"
-            :confirmed-controllers="confirmedControllers"
-            :pressed-buttons="pressedButtons"
-            :controllers-by-button="controllersByButton"
-          />
-        </div>
-
+          v-model="activeResult"
+          :confirmed-controllers="confirmedControllers"
+          :pressed-buttons="pressedButtons"
+          :controllers-by-button="controllersByButton"
+        />
         <div
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
@@ -34,36 +29,14 @@
               </div>
               <div>
                 <q-icon
-                  name="circle"
+                  v-for="button in buttons"
+                  :key="button"
                   :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.BLUE)
-                      ? 'blue'
+                    quizSettings.activeButtons.includes(button)
+                      ? buttonColor[button]
                       : 'grey'
                   "
-                />
-                <q-icon
                   name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.ORANGE)
-                      ? 'orange'
-                      : 'grey'
-                  "
-                />
-                <q-icon
-                  name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.GREEN)
-                      ? 'green'
-                      : 'grey'
-                  "
-                />
-                <q-icon
-                  name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.YELLOW)
-                      ? 'yellow'
-                      : 'grey'
-                  "
                 />
               </div>
             </pulse-circle>
@@ -108,17 +81,17 @@
           </div>
 
           <div
-            class="column q-gutter-sm"
             v-if="done && completed"
+            class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <div
               v-if="showScoreboardActions"
-              class="row q-gutter-sm"
+              class="row justify-center q-gutter-sm"
             >
               <q-btn
                 v-for="button in quizSettings.activeButtons"
                 :key="button"
-                :color="buttonColor(button)"
+                :color="buttonColor[button]"
                 size="sm"
                 round
                 class="scoreboard-btm"
@@ -134,12 +107,14 @@
               label="Quick Play"
               icon="fast_forward"
               color="primary"
+              class="self-center"
               rounded
               @click="quickPlay()"
             />
             <q-btn
               label="Reset"
               icon="replay"
+              class="self-center"
               outline
               rounded
               @click="restart()"
@@ -178,6 +153,7 @@ import {
 } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
+import { buttonColor } from 'components/buttonColors';
 
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
@@ -365,20 +341,13 @@ const showScoreboardActions = computed<boolean>(() => {
   return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;
 });
 
-const buttonColor = (button: BuzzerButton): string => {
-  switch (button) {
-    case BuzzerButton.BLUE:
-      return 'blue';
-    case BuzzerButton.GREEN:
-      return 'green';
-    case BuzzerButton.ORANGE:
-      return 'orange';
-    case BuzzerButton.YELLOW:
-      return 'yellow';
-    case BuzzerButton.RED:
-      return 'red';
-  }
-};
+// Order of buttons
+const buttons: BuzzerButton[] = [
+  BuzzerButton.BLUE,
+  BuzzerButton.ORANGE,
+  BuzzerButton.GREEN,
+  BuzzerButton.YELLOW,
+];
 </script>
 
 <style scoped></style>

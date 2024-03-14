@@ -5,7 +5,7 @@
   >
     <q-card
       class="q-dialog-plugin"
-      style="max-width: 350px"
+      style="min-width: 350px; width: 400px"
     >
       <q-card-section class="text-center text-h5"> Leaderboard </q-card-section>
 
@@ -28,7 +28,7 @@
               </q-avatar>
             </q-item-section>
 
-            <q-item-section>
+            <q-item-section class="ellipsis">
               {{ score.name }}
             </q-item-section>
 

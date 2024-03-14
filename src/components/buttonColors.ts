@@ -1,6 +1,6 @@
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 
-export const buttonColor = {
+export const buzzerButtonColor = {
   [BuzzerButton.BLUE]: 'blue',
   [BuzzerButton.ORANGE]: 'orange',
   [BuzzerButton.GREEN]: 'green',
@@ -8,7 +8,7 @@ export const buttonColor = {
   [BuzzerButton.RED]: 'grey',
 };
 
-export const buttonBgColor = {
+export const buzzerButtonBgColor = {
   [BuzzerButton.BLUE]: 'bg-blue',
   [BuzzerButton.ORANGE]: 'bg-orange',
   [BuzzerButton.GREEN]: 'bg-green',

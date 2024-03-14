@@ -6,7 +6,7 @@ export default {
 
   action: {
     start: 'Start',
-    devices: 'Devices',
+    devices: 'Geräte',
   },
 
   devices,

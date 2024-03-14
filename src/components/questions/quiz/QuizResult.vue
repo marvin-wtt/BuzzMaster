@@ -5,7 +5,7 @@
         v-for="button in resultOptions"
         :key="button"
         :label="buttonOccurrences[button]"
-        :color="buttonColor[button]"
+        :color="buzzerButtonColor[button]"
         class="col-grow q-my-xs text-bold text-h5"
         :class="activeResult === button ? 'col-2' : ''"
         rounded
@@ -59,7 +59,7 @@
         <div class="col-grow column justify-end">
           <div
             class="bar text-center"
-            :class="buttonBgColor[button]"
+            :class="buzzerButtonBgColor[button]"
             :style="{
               height: `${barHeightPercentages[button]}%`,
             }"
@@ -78,7 +78,10 @@ import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { computed } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { buttonBgColor, buttonColor } from 'components/buttonColors';
+import {
+  buzzerButtonBgColor,
+  buzzerButtonColor,
+} from 'components/buttonColors';
 
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();

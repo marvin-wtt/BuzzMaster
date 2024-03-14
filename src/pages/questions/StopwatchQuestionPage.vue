@@ -1,6 +1,6 @@
 <template>
   <navigation-bar
-    title="Stopwatch"
+    :title="t('question.stopwatch.title')"
     padding
   >
     <div class="col-12 column justify-around no-wrap">
@@ -64,7 +64,11 @@
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center text-h5"
         >
-          {{ controllers.length }} controllers ready!
+          {{
+            t('question.stopwatch.controllersReady', {
+              count: controllers.length,
+            })
+          }}
         </div>
       </div>
       <!-- Actions -->
@@ -74,7 +78,7 @@
           class="column q-gutter-sm"
         >
           <q-btn
-            label="Start"
+            :label="t('question.stopwatch.action.start')"
             color="primary"
             rounded
             @click="start()"
@@ -88,7 +92,7 @@
           <!-- First row -->
           <div class="row q-gutter-sm">
             <q-btn
-              label="Quick Play"
+              :label="t('question.stopwatch.action.quickPlay')"
               icon="fast_forward"
               color="primary"
               rounded
@@ -98,7 +102,7 @@
           <!-- Second row -->
           <div class="row justify-center q-mt-md">
             <q-btn
-              label="Reset"
+              :label="t('question.stopwatch.action.reset')"
               icon="replay"
               outline
               rounded
@@ -109,7 +113,7 @@
 
         <div v-else>
           <q-btn
-            label="Cancel"
+            :label="t('question.stopwatch.action.cancel')"
             outline
             rounded
             @click="restart()"
@@ -130,6 +134,9 @@ import {
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
 
 const counter = ref<number>(0);

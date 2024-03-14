@@ -1,6 +1,6 @@
 <template>
   <navigation-bar
-    title="Quiz"
+    :title="t('question.quiz.title')"
     padding
   >
     <div class="col-12 column justify-around no-wrap">
@@ -25,17 +25,17 @@
               class="column justify-center q-col-gutter-sm text-h5"
             >
               <div>
-                {{ controllers.length + ' controllers ready!' }}
+                {{
+                  t('question.quiz.controllersReady', {
+                    count: controllers.length,
+                  })
+                }}
               </div>
               <div>
                 <q-icon
                   v-for="button in buttons"
                   :key="button"
-                  :color="
-                    quizSettings.activeButtons.includes(button)
-                      ? buttonColor[button]
-                      : 'grey'
-                  "
+                  :color="buttonColorClass(button)"
                   name="circle"
                 />
               </div>
@@ -67,13 +67,13 @@
             class="column q-gutter-sm"
           >
             <q-btn
-              label="Start"
+              :label="t('question.quiz.action.start')"
               color="primary"
               rounded
               @click="start()"
             />
             <q-btn
-              label="Settings"
+              :label="t('question.quiz.action.settings')"
               outline
               rounded
               @click="openSettings"
@@ -91,7 +91,7 @@
               <q-btn
                 v-for="button in quizSettings.activeButtons"
                 :key="button"
-                :color="buttonColor[button]"
+                :color="buzzerButtonColor[button]"
                 size="sm"
                 round
                 class="scoreboard-btm"
@@ -104,7 +104,7 @@
             <q-separator />
 
             <q-btn
-              label="Quick Play"
+              :label="t('question.quiz.action.quickPlay')"
               icon="fast_forward"
               color="primary"
               class="self-center"
@@ -112,7 +112,7 @@
               @click="quickPlay()"
             />
             <q-btn
-              label="Reset"
+              :label="t('question.quiz.action.reset')"
               icon="replay"
               class="self-center"
               outline
@@ -123,7 +123,7 @@
 
           <div v-if="started && !done">
             <q-btn
-              label="Cancel"
+              :label="t('question.quiz.action.cancel')"
               outline
               rounded
               @click="restart()"
@@ -155,8 +155,10 @@ import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
 import TransitionFade from 'components/TransitionFade.vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
-import { buttonColor } from 'components/buttonColors';
+import { buzzerButtonColor } from 'components/buttonColors';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
@@ -352,6 +354,12 @@ const buttons: BuzzerButton[] = [
   BuzzerButton.GREEN,
   BuzzerButton.YELLOW,
 ];
+
+const buttonColorClass = (button: BuzzerButton) => {
+  return quizSettings.activeButtons?.includes(button)
+    ? buzzerButtonColor[button]
+    : 'grey';
+};
 </script>
 
 <style scoped></style>

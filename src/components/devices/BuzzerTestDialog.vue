@@ -8,7 +8,9 @@
       style="width: 80vw"
     >
       <q-card-section>
-        <div class="text-h6 text-center">Test Controllers</div>
+        <div class="text-h6 text-center">
+          {{ t('devices.title') }}
+        </div>
       </q-card-section>
 
       <q-card-section
@@ -22,72 +24,23 @@
           >
             <q-item-section>
               <q-item-label
+                class="ellipsis text-body1"
                 :class="
                   pressedButtons[controller.id]?.length === 5 ? 'text-grey' : ''
                 "
               >
-                <a
-                  :class="
-                    controller.name.length > 15 ? 'text-body2' : 'text-body1'
-                  "
-                >
-                  {{ controller.name }}
-                </a>
+                {{ controller.name }}
               </q-item-label>
             </q-item-section>
 
-            <q-item-section side>
+            <q-item-section
+              v-for="button in buttons"
+              :key="button"
+              side
+            >
               <q-icon
+                :color="buttonColorClass(controller, button)"
                 name="circle"
-                :color="
-                  pressedButtons[controller.id]?.includes(BuzzerButton.RED)
-                    ? 'red'
-                    : 'grey'
-                "
-                size="xs"
-              />
-            </q-item-section>
-            <q-item-section side>
-              <q-icon
-                name="circle"
-                :color="
-                  pressedButtons[controller.id]?.includes(BuzzerButton.BLUE)
-                    ? 'blue'
-                    : 'grey'
-                "
-                size="xs"
-              />
-            </q-item-section>
-            <q-item-section side>
-              <q-icon
-                name="circle"
-                :color="
-                  pressedButtons[controller.id]?.includes(BuzzerButton.ORANGE)
-                    ? 'orange'
-                    : 'grey'
-                "
-                size="xs"
-              />
-            </q-item-section>
-            <q-item-section side>
-              <q-icon
-                name="circle"
-                :color="
-                  pressedButtons[controller.id]?.includes(BuzzerButton.GREEN)
-                    ? 'green'
-                    : 'grey'
-                "
-                size="xs"
-              />
-            </q-item-section>
-            <q-item-section side>
-              <q-icon
-                name="circle"
-                :color="
-                  pressedButtons[controller.id]?.includes(BuzzerButton.YELLOW)
-                    ? 'yellow'
-                    : 'grey'
-                "
                 size="xs"
               />
             </q-item-section>
@@ -101,7 +54,7 @@
         <q-linear-progress
           rounded
           stripe
-          :color="done ? 'positive' : 'primary'"
+          :color="progressColor"
           size="10px"
           :value="buttonsDone"
         />
@@ -109,10 +62,10 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="done ? 'Done' : 'Cancel'"
+          :label="buttonLabel"
           :outline="!done"
           rounded
-          :color="done ? 'positive' : 'primary'"
+          :color="progressColor"
           @click="close"
         />
       </q-card-actions>
@@ -122,9 +75,15 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
-import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
+import {
+  ButtonEvent,
+  BuzzerButton,
+  IController,
+} from 'src/plugins/buzzer/types';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { computed, onMounted, onUnmounted, reactive } from 'vue';
+import { buzzerButtonColor } from 'components/buttonColors';
+import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
@@ -137,6 +96,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 //                    example: onDialogOK({ /*...*/ }) - with payload
 // onDialogCancel - Function to call to settle dialog with "cancel" outcome
 
+const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
 
 onMounted(() => {
@@ -150,6 +110,16 @@ onUnmounted(() => {
 });
 
 const pressedButtons: Record<string, BuzzerButton[]> = reactive({});
+
+const buttonLabel = computed<string>(() => {
+  return done.value
+    ? t('devices.test.action.complete')
+    : t('devices.test.action.cancel');
+});
+
+const progressColor = computed<string>(() => {
+  return done.value ? 'positive' : 'primary';
+});
 
 const listener = (event: ButtonEvent) => {
   if (!pressedButtons[event.controller.id]) {
@@ -190,6 +160,20 @@ const buttonsDone = computed<number>(() => {
 const done = computed<boolean>(() => {
   return buttonsDone.value === 1;
 });
+
+const buttonColorClass = (controller: IController, button: BuzzerButton) => {
+  return pressedButtons[controller.id]?.includes(button)
+    ? buzzerButtonColor[button]
+    : 'grey';
+};
+
+// Order of buttons
+const buttons: BuzzerButton[] = [
+  BuzzerButton.BLUE,
+  BuzzerButton.ORANGE,
+  BuzzerButton.GREEN,
+  BuzzerButton.YELLOW,
+];
 </script>
 
 <style scoped></style>

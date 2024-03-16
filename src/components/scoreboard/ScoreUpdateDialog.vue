@@ -15,7 +15,6 @@
         <q-input
           v-model.number="updatedValue"
           :error
-          :error-message="errorMessage"
         />
       </q-card-section>
 
@@ -55,15 +54,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const updatedValue = ref<number>(props.score.value);
 
 const error = computed<boolean>(() => {
-  return !Number.isInteger(updatedValue.value);
-});
-
-const errorMessage = computed<string | undefined>(() => {
-  if (!error.value) {
-    return 'Value must be an integer';
-  }
-
-  return undefined;
+  return isNaN(updatedValue.value);
 });
 
 const submit = () => {

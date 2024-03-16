@@ -8,7 +8,7 @@
       <div class="col-grow row justify-center">
         <div
           v-if="started"
-          class="column q-mb-sm"
+          class="column col-xs-11 col-sm-7 col-md-5 col-lg-3 col-xl-2 q-mb-sm"
         >
           <!-- Result -->
           <count-down

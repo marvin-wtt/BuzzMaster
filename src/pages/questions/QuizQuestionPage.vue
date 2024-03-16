@@ -7,7 +7,7 @@
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
         <quiz-result
-          v-if="completed"
+          v-if="showResults"
           v-model="activeResult"
           :confirmed-controllers="confirmedControllers"
           :pressed-buttons="pressedButtons"
@@ -43,7 +43,7 @@
 
             <!-- Waiting for answers -->
             <circle-timer
-              v-else-if="!completed"
+              v-else-if="!showResults"
               v-model="countDownTime"
               :max="quizSettings.answerTime"
             >
@@ -81,7 +81,7 @@
           </div>
 
           <div
-            v-if="done && completed"
+            v-if="done && showResults"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <div
@@ -168,7 +168,7 @@ const { controllers, buzzer } = useBuzzer();
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
 const countDownTime = ref<number>(0);
-const completed = ref<boolean>(false);
+const showResults = ref<boolean>(false);
 const activeResult = ref<BuzzerButton>();
 const pressedButtons = ref<Map<string, BuzzerButton>>(
   new Map<string, BuzzerButton>(),
@@ -186,7 +186,7 @@ onUnmounted(() => {
   buzzer.reset();
 });
 const listener = (event: ButtonEvent) => {
-  if (!started.value || completed.value) {
+  if (!started.value || done.value) {
     return;
   }
 
@@ -239,20 +239,17 @@ const done = computed<boolean>(() => {
   );
 });
 
-let showTimeoutId: NodeJS.Timeout | undefined;
 watch(done, (val) => {
-  clearTimeout(showTimeoutId);
-
   if (val) {
     if (countDownTime.value <= 0) {
       setTimeout(() => {
-        completed.value = true;
+        showResults.value = true;
       }, 1000);
     } else {
-      completed.value = true;
+      showResults.value = true;
     }
   } else {
-    completed.value = false;
+    showResults.value = false;
   }
 });
 

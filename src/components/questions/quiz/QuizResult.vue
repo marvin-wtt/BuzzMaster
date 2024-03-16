@@ -41,7 +41,7 @@
     </q-tab-panels>
   </template>
   <template v-else-if="mode === 'bar'">
-    <div class="bar-chart-container col-grow row q-pb-sm">
+    <div class="bar-chart-container col-grow row justify-center q-pb-sm">
       <div class="column justify-between reverse q-py-md text-grey">
         <div>0 %</div>
         <div>25 %</div>

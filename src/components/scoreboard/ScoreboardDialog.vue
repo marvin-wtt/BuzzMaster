@@ -7,7 +7,9 @@
       class="q-dialog-plugin"
       style="min-width: 350px; width: 400px"
     >
-      <q-card-section class="text-center text-h5"> Leaderboard </q-card-section>
+      <q-card-section class="text-center text-h5">
+        {{ t('scoreboard.title') }}
+      </q-card-section>
 
       <q-card-section v-if="scores.length > 0">
         <q-list>
@@ -39,7 +41,9 @@
         </q-list>
       </q-card-section>
 
-      <q-card-section v-else> No active buzzer available! </q-card-section>
+      <q-card-section v-else>
+        {{ t('scoreboard.noEntries') }}
+      </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
@@ -58,11 +62,12 @@ import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { Score, useScoreboardStore } from 'stores/scoreboard-store';
 import { storeToRefs } from 'pinia';
 import ScoreUpdateDialog from 'components/scoreboard/ScoreUpdateDialog.vue';
+import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
-
+const { t } = useI18n();
 const quasar = useQuasar();
 const scoreboardStore = useScoreboardStore();
 const { scores } = storeToRefs(scoreboardStore);

@@ -124,7 +124,7 @@ const start = () => {
     }
 
     const now = new Date().getTime();
-    const elapsedTime = now - startTimestamp;
+    const elapsedTime = (now - startTimestamp) / 1000;
 
     time.value = initialTime - elapsedTime * reverse;
   }, timeout);

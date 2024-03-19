@@ -27,6 +27,8 @@
   "dependencies": {
     "@electron/remote": "^2.1.2",
     "@quasar/extras": "^1.16.9",
+    "electron-log": "^5.1.2",
+    "electron-updater": "^6.1.8",
     "events": "^3.3.0",
     "pinia": "^2.1.7",
     "quasar": "^2.15.0",

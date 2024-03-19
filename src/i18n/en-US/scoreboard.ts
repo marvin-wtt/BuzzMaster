@@ -16,6 +16,12 @@ export default {
       hint: 'New score: {score}',
     },
 
+    rule: {
+      onlyNumbers: 'Only numerical characters are allowed',
+      missingOperand: 'Missing operand (e.g. +2)',
+      divZero: 'Cannot divide by zero',
+    },
+
     action: {
       submit: 'Update',
       cancel: 'Cancel',

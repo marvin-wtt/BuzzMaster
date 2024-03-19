@@ -13,7 +13,7 @@ export default {
 
     field: {
       label: 'Score',
-      hint: `New score: {score}`,
+      hint: 'New score: {score}',
     },
 
     action: {

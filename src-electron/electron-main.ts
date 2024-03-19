@@ -1,34 +1,42 @@
 import { app, BrowserWindow } from 'electron';
-import { initialize, enable } from '@electron/remote/main';
+import initWindowApiHandler from 'app/src-electron/windowAPI/main';
+import initAppApiHandler from 'app/src-electron/appAPI/main';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'node:url';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
 
-let mainWindow: BrowserWindow | undefined;
+const currentDir = fileURLToPath(new URL('.', import.meta.url));
 
-initialize();
+function getPreloadPath(name: string): string {
+  return path.resolve(
+    currentDir,
+    path.join(
+      process.env.QUASAR_ELECTRON_PRELOAD_FOLDER!,
+      name + process.env.QUASAR_ELECTRON_PRELOAD_EXTENSION,
+    ),
+  );
+}
 
 function createWindow() {
+  const electronPreload = getPreloadPath('electron-preload');
   /**
    * Initial window options
    */
-  mainWindow = new BrowserWindow({
-    icon: path.resolve(__dirname, 'icons/icon.png'), // tray icon
+  const mainWindow = new BrowserWindow({
+    icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 500,
     height: 800,
     useContentSize: true,
     frame: false,
     webPreferences: {
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true,
-      // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
-      preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
+      preload: electronPreload,
     },
   });
-
-  enable(mainWindow.webContents);
 
   /**
    * Set permissions for buzzer devices
@@ -58,7 +66,11 @@ function createWindow() {
     return false;
   });
 
-  mainWindow.loadURL(process.env.APP_URL);
+  if (process.env.DEV) {
+    mainWindow.loadURL(process.env.APP_URL);
+  } else {
+    mainWindow.loadFile('index.html');
+  }
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled
@@ -70,12 +82,24 @@ function createWindow() {
     });
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = undefined;
+  mainWindow.webContents.setWindowOpenHandler((/* details */) => {
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        frame: false,
+        webPreferences: {
+          preload: electronPreload,
+        },
+      },
+    };
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  initAppApiHandler();
+  initWindowApiHandler();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (platform !== 'darwin') {
@@ -84,7 +108,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (mainWindow === undefined) {
+  if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });

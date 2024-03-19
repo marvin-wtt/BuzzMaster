@@ -151,8 +151,6 @@ import {
   BuzzerButton,
   IController,
 } from 'src/plugins/buzzer/types';
-import { useAppSettingsStore } from 'stores/application-settings-store';
-import { storeToRefs } from 'pinia';
 import TransitionFade from 'components/TransitionFade.vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
 import { buzzerButtonColor } from 'components/buttonColors';
@@ -161,11 +159,9 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
-const appSettingsStore = useAppSettingsStore();
 const scoreboardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
-const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
 const countDownTime = ref<number>(0);
 const showResults = ref<boolean>(false);
@@ -254,7 +250,7 @@ watch(done, (val) => {
 });
 
 const soundsEnabled = computed<boolean>(() => {
-  return quizSettings.playSounds && !globalMuted.value;
+  return quizSettings.playSounds;
 });
 
 const openSettings = () => {

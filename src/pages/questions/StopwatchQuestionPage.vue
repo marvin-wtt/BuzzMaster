@@ -86,29 +86,37 @@
         </div>
 
         <div
-          class="col-12"
+          class="col-12 column q-gutter-y-sm no-wrap content-center justify-around"
           v-else-if="completed"
         >
+          <q-btn
+            :label="t('question.stopwatch.action.scores')"
+            icon="grade"
+            color="grey"
+            class="self-center"
+            rounded
+            @click="updateScores()"
+          />
+
+          <q-separator />
           <!-- First row -->
-          <div class="row q-gutter-sm">
-            <q-btn
-              :label="t('question.stopwatch.action.quickPlay')"
-              icon="fast_forward"
-              color="primary"
-              rounded
-              @click="quickPlay()"
-            />
-          </div>
+          <q-btn
+            :label="t('question.stopwatch.action.quickPlay')"
+            icon="fast_forward"
+            color="primary"
+            class="self-center"
+            rounded
+            @click="quickPlay()"
+          />
           <!-- Second row -->
-          <div class="row justify-center q-mt-md">
-            <q-btn
-              :label="t('question.stopwatch.action.reset')"
-              icon="replay"
-              outline
-              rounded
-              @click="restart()"
-            />
-          </div>
+          <q-btn
+            :label="t('question.stopwatch.action.reset')"
+            icon="replay"
+            class="self-center"
+            outline
+            rounded
+            @click="restart()"
+          />
         </div>
 
         <div v-else>
@@ -135,9 +143,14 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
+import StopwatchScoreDialog from 'components/questions/stopwatch/StopwatchScoreDialog.vue';
+import { useScoreboardStore } from 'stores/scoreboard-store';
 
+const quasar = useQuasar();
 const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
+const scoreboardStore = useScoreboardStore();
 
 const counter = ref<number>(0);
 const started = ref<boolean>(false);
@@ -145,6 +158,8 @@ const startTime = ref<number>(0);
 const pressedControllers = ref<Map<IController, number>>(
   new Map<IController, number>(),
 );
+
+let scores: Record<string, number | undefined> = {};
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -177,8 +192,6 @@ const listener = (event: ButtonEvent) => {
 
   pressedControllers.value.set(event.controller, time);
   event.controller.setLight(true);
-
-  counter.value = time / 1000;
 };
 
 const restart = () => {
@@ -197,6 +210,42 @@ const quickPlay = () => {
 const start = () => {
   started.value = true;
   startTime.value = new Date().getTime();
+};
+
+const updateScores = () => {
+  const controllers = Array.from(pressedControllers.value.keys());
+
+  quasar
+    .dialog({
+      component: StopwatchScoreDialog,
+      componentProps: {
+        controllers,
+        scores,
+      },
+    })
+    .onOk((updatedScores: Record<string, number | undefined>) => {
+      // Refund previous points
+      for (const controllerId in scores) {
+        const points = scores[controllerId];
+        if (points === undefined) {
+          continue;
+        }
+
+        scoreboardStore.addPoints(controllerId, points * -1);
+      }
+
+      // Update points
+      for (const controllerId in updatedScores) {
+        const points = updatedScores[controllerId];
+        if (points === undefined) {
+          continue;
+        }
+
+        scoreboardStore.addPoints(controllerId, points);
+      }
+
+      scores = updatedScores;
+    });
 };
 
 const formatTime = (time: number) => {

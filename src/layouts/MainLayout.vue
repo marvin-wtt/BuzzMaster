@@ -37,7 +37,7 @@
             dense
             flat
             rounded
-            icon="leaderboard"
+            icon="emoji_events"
             @click="showScoreboard"
           />
 
@@ -308,5 +308,13 @@ function closeApp() {
    animations can be calculated correctly. */
 .list-leave-active {
   position: absolute;
+}
+
+/* Remove arrows from numeric inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 </style>

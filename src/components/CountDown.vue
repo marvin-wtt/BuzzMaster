@@ -48,13 +48,26 @@ const shortBeep = new Audio('sounds/beep-sec.mp3');
 const longBeep = new Audio('sounds/beep-end.mp3');
 let intervalId: NodeJS.Timeout | undefined;
 
-watch([props.paused, props.reverse], ([paused]) => {
-  // Always stop to make sure only one countdown is running
-  stop();
-  if (!paused) {
-    start();
-  }
-});
+watch(
+  () => props.paused,
+  (paused) => {
+    // Always stop to make sure only one countdown is running
+    stop();
+    if (!paused) {
+      start();
+    }
+  },
+);
+
+watch(
+  () => props.reverse,
+  () => {
+    stop();
+    if (!props.paused) {
+      start();
+    }
+  },
+);
 
 onBeforeMount(() => {
   loadAudio();

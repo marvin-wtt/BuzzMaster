@@ -5,9 +5,11 @@
   >
     <q-card
       class="q-dialog-plugin"
-      style="max-width: 350px"
+      style="min-width: 350px; width: 400px"
     >
-      <q-card-section class="text-center text-h5"> Leaderboard </q-card-section>
+      <q-card-section class="text-center text-h5">
+        {{ t('scoreboard.title') }}
+      </q-card-section>
 
       <q-card-section v-if="scores.length > 0">
         <q-list>
@@ -28,7 +30,7 @@
               </q-avatar>
             </q-item-section>
 
-            <q-item-section>
+            <q-item-section class="ellipsis">
               {{ score.name }}
             </q-item-section>
 
@@ -39,11 +41,20 @@
         </q-list>
       </q-card-section>
 
-      <q-card-section v-else> No active buzzer available! </q-card-section>
+      <q-card-section v-else>
+        {{ t('scoreboard.noEntries') }}
+      </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
-          label="Ok"
+          :label="t('scoreboard.action.reset')"
+          color="primary"
+          rounded
+          outline
+          @click="onResetPoints"
+        />
+        <q-btn
+          :label="t('scoreboard.action.ok')"
           color="primary"
           rounded
           @click="onDialogOK"
@@ -58,11 +69,12 @@ import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { Score, useScoreboardStore } from 'stores/scoreboard-store';
 import { storeToRefs } from 'pinia';
 import ScoreUpdateDialog from 'components/scoreboard/ScoreUpdateDialog.vue';
+import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
-
+const { t } = useI18n();
 const quasar = useQuasar();
 const scoreboardStore = useScoreboardStore();
 const { scores } = storeToRefs(scoreboardStore);
@@ -77,6 +89,28 @@ const updateScore = (score: Score) => {
     })
     .onOk((payload) => {
       scoreboardStore.updatePoints(score.id, payload);
+    });
+};
+
+const onResetPoints = () => {
+  quasar
+    .dialog({
+      title: t('scoreboard.reset.title'),
+      message: t('scoreboard.reset.message'),
+      ok: {
+        label: t('scoreboard.reset.action.ok'),
+        color: 'negative',
+        rounded: true,
+      },
+      cancel: {
+        label: t('scoreboard.reset.action.cancel'),
+        color: 'primary',
+        rounded: true,
+        outline: true,
+      },
+    })
+    .onOk(() => {
+      scoreboardStore.resetPoints();
     });
 };
 

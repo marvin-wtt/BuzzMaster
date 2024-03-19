@@ -1,13 +1,13 @@
 <template>
   <navigation-bar
-    title="Quiz"
+    :title="t('question.quiz.title')"
     padding
   >
     <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
         <quiz-result
-          v-if="completed"
+          v-if="showResults"
           v-model="activeResult"
           :confirmed-controllers="confirmedControllers"
           :pressed-buttons="pressedButtons"
@@ -25,17 +25,17 @@
               class="column justify-center q-col-gutter-sm text-h5"
             >
               <div>
-                {{ controllers.length + ' controllers ready!' }}
+                {{
+                  t('question.quiz.controllersReady', {
+                    count: controllers.length,
+                  })
+                }}
               </div>
               <div>
                 <q-icon
                   v-for="button in buttons"
                   :key="button"
-                  :color="
-                    quizSettings.activeButtons.includes(button)
-                      ? buttonColor[button]
-                      : 'grey'
-                  "
+                  :color="buttonColorClass(button)"
                   name="circle"
                 />
               </div>
@@ -43,7 +43,7 @@
 
             <!-- Waiting for answers -->
             <circle-timer
-              v-else-if="!completed"
+              v-else-if="!showResults"
               v-model="countDownTime"
               :max="quizSettings.answerTime"
             >
@@ -67,13 +67,13 @@
             class="column q-gutter-sm"
           >
             <q-btn
-              label="Start"
+              :label="t('question.quiz.action.start')"
               color="primary"
               rounded
               @click="start()"
             />
             <q-btn
-              label="Settings"
+              :label="t('question.quiz.action.settings')"
               outline
               rounded
               @click="openSettings"
@@ -81,7 +81,7 @@
           </div>
 
           <div
-            v-if="done && completed"
+            v-if="done && showResults"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <div
@@ -91,7 +91,7 @@
               <q-btn
                 v-for="button in quizSettings.activeButtons"
                 :key="button"
-                :color="buttonColor[button]"
+                :color="buzzerButtonColor[button]"
                 size="sm"
                 round
                 class="scoreboard-btm"
@@ -104,7 +104,7 @@
             <q-separator />
 
             <q-btn
-              label="Quick Play"
+              :label="t('question.quiz.action.quickPlay')"
               icon="fast_forward"
               color="primary"
               class="self-center"
@@ -112,7 +112,7 @@
               @click="quickPlay()"
             />
             <q-btn
-              label="Reset"
+              :label="t('question.quiz.action.reset')"
               icon="replay"
               class="self-center"
               outline
@@ -123,7 +123,7 @@
 
           <div v-if="started && !done">
             <q-btn
-              label="Cancel"
+              :label="t('question.quiz.action.cancel')"
               outline
               rounded
               @click="restart()"
@@ -153,8 +153,10 @@ import {
 } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
-import { buttonColor } from 'components/buttonColors';
+import { buzzerButtonColor } from 'components/buttonColors';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const scoreboardStore = useScoreboardStore();
@@ -162,7 +164,7 @@ const { controllers, buzzer } = useBuzzer();
 
 const started = ref<boolean>(false);
 const countDownTime = ref<number>(0);
-const completed = ref<boolean>(false);
+const showResults = ref<boolean>(false);
 const activeResult = ref<BuzzerButton>();
 const pressedButtons = ref<Map<string, BuzzerButton>>(
   new Map<string, BuzzerButton>(),
@@ -180,7 +182,7 @@ onUnmounted(() => {
   buzzer.reset();
 });
 const listener = (event: ButtonEvent) => {
-  if (!started.value || completed.value) {
+  if (!started.value || done.value) {
     return;
   }
 
@@ -233,20 +235,17 @@ const done = computed<boolean>(() => {
   );
 });
 
-let showTimeoutId: NodeJS.Timeout | undefined;
 watch(done, (val) => {
-  clearTimeout(showTimeoutId);
-
   if (val) {
     if (countDownTime.value <= 0) {
       setTimeout(() => {
-        completed.value = true;
+        showResults.value = true;
       }, 1000);
     } else {
-      completed.value = true;
+      showResults.value = true;
     }
   } else {
-    completed.value = false;
+    showResults.value = false;
   }
 });
 
@@ -348,6 +347,12 @@ const buttons: BuzzerButton[] = [
   BuzzerButton.GREEN,
   BuzzerButton.YELLOW,
 ];
+
+const buttonColorClass = (button: BuzzerButton) => {
+  return quizSettings.activeButtons?.includes(button)
+    ? buzzerButtonColor[button]
+    : 'grey';
+};
 </script>
 
 <style scoped></style>

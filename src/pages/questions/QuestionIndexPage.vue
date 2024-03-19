@@ -1,6 +1,6 @@
 <template>
   <navigation-bar
-    title="Questions"
+    :title="t('question.title')"
     padding
   >
     <div class="col-10 column justify-center q-gutter-md">
@@ -22,6 +22,9 @@
 
 <script lang="ts" setup>
 import NavigationBar from 'components/PageNavigation.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 type MenuItem = {
   routeName: string;
@@ -32,17 +35,17 @@ type MenuItem = {
 const items: MenuItem[] = [
   {
     routeName: 'buzzer-question',
-    label: 'Buzzer',
+    label: t('question.action.buzzer'),
     icon: 'radio_button_checked',
   },
   {
     routeName: 'quiz-question',
-    label: 'Quiz',
+    label: t('question.action.quiz'),
     icon: 'format_list_numbered',
   },
   {
     routeName: 'stopwatch-question',
-    label: 'Stopwatch',
+    label: t('question.action.stopwatch'),
     icon: 'timer',
   },
 ];

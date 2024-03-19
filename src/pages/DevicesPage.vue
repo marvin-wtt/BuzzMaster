@@ -69,10 +69,10 @@
         </q-expansion-item>
         <!-- Buzzer Test -->
         <q-item>
-          <q-item-section>Test All Buzzers</q-item-section>
+          <q-item-section>{{ t('devices.item.test.label') }}</q-item-section>
           <q-item-section side>
             <q-btn
-              label="Start"
+              :label="t('devices.item.test.button')"
               outline
               rounded
               :disable="!hasEnabledController"

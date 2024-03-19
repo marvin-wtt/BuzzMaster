@@ -4,9 +4,15 @@
       {{ t('app_name') }}
     </a>
 
+    <q-img
+      src="logo.png"
+      alt="logo"
+      style="width: 250px"
+    />
+
     <div class="column q-gutter-lg">
       <q-btn
-        label="Start"
+        :label="t('action.start')"
         icon="play_arrow"
         to="questions"
         color="primary"
@@ -14,7 +20,7 @@
       />
 
       <q-btn
-        label="Devices"
+        :label="t('action.devices')"
         icon="sports_esports"
         to="devices"
         color="primary"

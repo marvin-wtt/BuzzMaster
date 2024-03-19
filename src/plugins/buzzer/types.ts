@@ -2,7 +2,7 @@ import TypedEmitter from 'typed-emitter';
 
 export type IBuzzerApi = IButtonEventEmitter & {
   dongles: IDongle[];
-  reset: () => void;
+  reset: () => Promise<void>;
   addDevice: (device: IDevice) => Promise<void>;
   removeDevice: (deviceId: string) => void;
 };

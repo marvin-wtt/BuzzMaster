@@ -5,7 +5,7 @@
         v-for="button in resultOptions"
         :key="button"
         :label="buttonOccurrences[button]"
-        :color="buttonColor[button]"
+        :color="menuButtonColor(button)"
         class="col-grow q-my-xs text-bold text-h5"
         :class="activeResult === button ? 'col-2' : ''"
         rounded
@@ -59,7 +59,7 @@
         <div class="col-grow column justify-end">
           <div
             class="bar text-center"
-            :class="buttonBgColor[button]"
+            :class="buzzerButtonBgColor[button]"
             :style="{
               height: `${barHeightPercentages[button]}%`,
             }"
@@ -78,7 +78,7 @@ import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { computed } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { buttonBgColor, buttonColor } from 'components/buttonColors';
+import { buzzerButtonColor } from 'components/buttonColors';
 
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();
@@ -146,6 +146,22 @@ const mode = computed<string>(() => {
 function controllerNames(controllers?: IController[]): string[] {
   return controllers?.map((controller) => controller.name) ?? [];
 }
+
+function menuButtonColor(button: BuzzerButton) {
+  if (button === BuzzerButton.RED) {
+    return 'grey';
+  }
+
+  return buzzerButtonColor[button];
+}
+
+const buzzerButtonBgColor = {
+  [BuzzerButton.BLUE]: 'bg-blue',
+  [BuzzerButton.ORANGE]: 'bg-orange',
+  [BuzzerButton.GREEN]: 'bg-green',
+  [BuzzerButton.YELLOW]: 'bg-yellow',
+  [BuzzerButton.RED]: 'bg-grey',
+};
 </script>
 
 <style scoped>

@@ -30,7 +30,7 @@ export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
     this.dongles.splice(index, 1);
   }
 
-  reset(): void {
-    this.dongles.forEach((dongle) => dongle.reset());
+  async reset(): Promise<void> {
+    await Promise.all(this.dongles.map(async (dongle) => dongle.reset()));
   }
 }

@@ -33,4 +33,8 @@ export const windowAPI = {
   unpin() {
     BrowserWindow.getFocusedWindow()?.setAlwaysOnTop(false);
   },
+
+  openDevTools() {
+    BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
+  },
 };

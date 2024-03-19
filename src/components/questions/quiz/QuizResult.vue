@@ -1,30 +1,22 @@
 <template>
   <template v-if="mode === 'table'">
-    <q-tabs
-      v-model="activeResult"
-      class="col-shrink"
-      dense
-    >
-      <q-tab
+    <div class="column justify-around q-pr-sm">
+      <q-btn
         v-for="button in resultOptions"
         :key="button"
-        :name="button"
-        :class="resultItemClass[button]"
-      >
-        <div
-          :class="
-            activeResult === button
-              ? 'result-tab-active-content'
-              : 'result-tab-content'
-          "
-        >
-          {{ buttonOccurrences[button] }}
-        </div>
-      </q-tab>
-    </q-tabs>
+        :label="buttonOccurrences[button]"
+        :color="menuButtonColor(button)"
+        class="col-grow q-my-xs text-bold text-h5"
+        :class="activeResult === button ? 'col-2' : ''"
+        rounded
+        :outline="activeResult !== button"
+        @click="activeResult = button"
+      />
+    </div>
     <q-tab-panels
       v-model="activeResult"
-      class="col-grow column"
+      class="col-10 row"
+      vertical
       animated
     >
       <q-tab-panel
@@ -34,7 +26,7 @@
         class="col-grow absolute"
       >
         <q-virtual-scroll
-          :items="buttonsByResult[button]"
+          :items="controllerNames(props.controllersByButton[button])"
           separator
           v-slot="{ item }"
           style="height: 100%"
@@ -49,7 +41,7 @@
     </q-tab-panels>
   </template>
   <template v-else-if="mode === 'bar'">
-    <div class="bar-chart-container col-grow row q-pb-sm">
+    <div class="bar-chart-container col-grow row justify-center q-pb-sm">
       <div class="column justify-between reverse q-py-md text-grey">
         <div>0 %</div>
         <div>25 %</div>
@@ -67,7 +59,7 @@
         <div class="col-grow column justify-end">
           <div
             class="bar text-center"
-            :class="resultItemClass[button]"
+            :class="buzzerButtonBgColor[button]"
             :style="{
               height: `${barHeightPercentages[button]}%`,
             }"
@@ -83,9 +75,10 @@
 
 <script lang="ts" setup>
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { computed } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
+import { buzzerButtonColor } from 'components/buttonColors';
 
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();
@@ -94,20 +87,23 @@ const activeResult = defineModel<BuzzerButton | undefined>();
 const props = defineProps<{
   confirmedControllers: string[];
   pressedButtons: Map<string, BuzzerButton>;
+  controllersByButton: Record<BuzzerButton, IController[] | undefined>;
 }>();
 
 type BuzzerMap = Record<BuzzerButton, number>;
 
 const buttonOccurrences = computed<BuzzerMap>(() => {
   return {
-    [BuzzerButton.BLUE]: buttonsByResult.value[BuzzerButton.BLUE]?.length ?? 0,
+    [BuzzerButton.BLUE]:
+      props.controllersByButton[BuzzerButton.BLUE]?.length ?? 0,
     [BuzzerButton.ORANGE]:
-      buttonsByResult.value[BuzzerButton.ORANGE]?.length ?? 0,
+      props.controllersByButton[BuzzerButton.ORANGE]?.length ?? 0,
     [BuzzerButton.GREEN]:
-      buttonsByResult.value[BuzzerButton.GREEN]?.length ?? 0,
+      props.controllersByButton[BuzzerButton.GREEN]?.length ?? 0,
     [BuzzerButton.YELLOW]:
-      buttonsByResult.value[BuzzerButton.YELLOW]?.length ?? 0,
-    [BuzzerButton.RED]: buttonsByResult.value[BuzzerButton.RED]?.length ?? 0,
+      props.controllersByButton[BuzzerButton.YELLOW]?.length ?? 0,
+    [BuzzerButton.RED]:
+      props.controllersByButton[BuzzerButton.RED]?.length ?? 0,
   };
 });
 
@@ -143,32 +139,23 @@ const resultOptions = computed<BuzzerButton[]>(() => {
     : [...quizSettings.activeButtons, BuzzerButton.RED];
 });
 
-const buttonsByResult = computed(() => {
-  return controllers.value.reduce(
-    (acc, controller) => {
-      const hasConfirmed =
-        quizSettings.changeMode === 'always' ||
-        props.confirmedControllers.includes(controller.id);
-      // Mo input is default button
-      const pressedButton =
-        props.pressedButtons.get(controller.id) ?? BuzzerButton.RED;
-      // Ignore input if user has not confirmed the button selection
-      const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
-
-      acc[button] ??= [];
-      acc[button].push(controller.name);
-
-      return acc;
-    },
-    {} as Record<BuzzerButton, string[]>,
-  );
-});
-
 const mode = computed<string>(() => {
   return quizSettings.resultMode;
 });
 
-const resultItemClass = {
+function controllerNames(controllers?: IController[]): string[] {
+  return controllers?.map((controller) => controller.name) ?? [];
+}
+
+function menuButtonColor(button: BuzzerButton) {
+  if (button === BuzzerButton.RED) {
+    return 'grey';
+  }
+
+  return buzzerButtonColor[button];
+}
+
+const buzzerButtonBgColor = {
   [BuzzerButton.BLUE]: 'bg-blue',
   [BuzzerButton.ORANGE]: 'bg-orange',
   [BuzzerButton.GREEN]: 'bg-green',

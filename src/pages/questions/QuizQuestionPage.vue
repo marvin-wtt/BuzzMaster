@@ -1,22 +1,18 @@
 <template>
   <navigation-bar
-    title="Quiz"
+    :title="t('question.quiz.title')"
     padding
   >
     <div class="col-12 column justify-around no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
-        <div
-          v-if="completed"
-          class="column q-mb-sm"
-        >
-          <quiz-result
-            v-model="activeResult"
-            :confirmed-controllers="confirmedControllers"
-            :pressed-buttons="pressedButtons"
-          />
-        </div>
-
+      <div class="col-grow row justify-center no-wrap">
+        <quiz-result
+          v-if="showResults"
+          v-model="activeResult"
+          :confirmed-controllers="confirmedControllers"
+          :pressed-buttons="pressedButtons"
+          :controllers-by-button="controllersByButton"
+        />
         <div
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
@@ -29,47 +25,25 @@
               class="column justify-center q-col-gutter-sm text-h5"
             >
               <div>
-                {{ controllers.length + ' controllers ready!' }}
+                {{
+                  t('question.quiz.controllersReady', {
+                    count: controllers.length,
+                  })
+                }}
               </div>
               <div>
                 <q-icon
+                  v-for="button in buttons"
+                  :key="button"
+                  :color="buttonColorClass(button)"
                   name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.BLUE)
-                      ? 'blue'
-                      : 'grey'
-                  "
-                />
-                <q-icon
-                  name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.ORANGE)
-                      ? 'orange'
-                      : 'grey'
-                  "
-                />
-                <q-icon
-                  name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.GREEN)
-                      ? 'green'
-                      : 'grey'
-                  "
-                />
-                <q-icon
-                  name="circle"
-                  :color="
-                    quizSettings.activeButtons.includes(BuzzerButton.YELLOW)
-                      ? 'yellow'
-                      : 'grey'
-                  "
                 />
               </div>
             </pulse-circle>
 
             <!-- Waiting for answers -->
             <circle-timer
-              v-else-if="!completed"
+              v-else-if="!showResults"
               v-model="countDownTime"
               :max="quizSettings.answerTime"
             >
@@ -86,20 +60,20 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-2 column content-center">
+      <div class="col-3 row justify-center">
         <transition-fade>
           <div
             v-if="!started"
             class="column q-gutter-sm"
           >
             <q-btn
-              label="Start"
+              :label="t('question.quiz.action.start')"
               color="primary"
               rounded
               @click="start()"
             />
             <q-btn
-              label="Settings"
+              :label="t('question.quiz.action.settings')"
               outline
               rounded
               @click="openSettings"
@@ -107,19 +81,40 @@
           </div>
 
           <div
-            class="column q-gutter-sm"
-            v-if="done && completed"
+            v-if="done && showResults"
+            class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
+            <div
+              v-if="showScoreboardActions"
+              class="row justify-center q-gutter-sm"
+            >
+              <q-btn
+                v-for="button in quizSettings.activeButtons"
+                :key="button"
+                :color="buzzerButtonColor[button]"
+                size="sm"
+                round
+                class="scoreboard-btm"
+                style="border-width: 20px"
+                :outline="!correctAnswers.has(button)"
+                @click="updateButtonScore(button)"
+              />
+            </div>
+
+            <q-separator />
+
             <q-btn
-              label="Quick Play"
+              :label="t('question.quiz.action.quickPlay')"
               icon="fast_forward"
               color="primary"
+              class="self-center"
               rounded
               @click="quickPlay()"
             />
             <q-btn
-              label="Reset"
+              :label="t('question.quiz.action.reset')"
               icon="replay"
+              class="self-center"
               outline
               rounded
               @click="restart()"
@@ -128,7 +123,7 @@
 
           <div v-if="started && !done">
             <q-btn
-              label="Cancel"
+              :label="t('question.quiz.action.cancel')"
               outline
               rounded
               @click="restart()"
@@ -159,20 +154,27 @@ import {
 import { useAppSettingsStore } from 'stores/application-settings-store';
 import { storeToRefs } from 'pinia';
 import TransitionFade from 'components/TransitionFade.vue';
+import { useScoreboardStore } from 'stores/scoreboard-store';
+import { buzzerButtonColor } from 'components/buttonColors';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const appSettingsStore = useAppSettingsStore();
+const scoreboardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
 const { muted: globalMuted } = storeToRefs(appSettingsStore);
 const started = ref<boolean>(false);
 const countDownTime = ref<number>(0);
-const completed = ref<boolean>(false);
+const showResults = ref<boolean>(false);
 const activeResult = ref<BuzzerButton>();
 const pressedButtons = ref<Map<string, BuzzerButton>>(
   new Map<string, BuzzerButton>(),
 );
+const confirmedControllers = ref<string[]>([]);
+const correctAnswers = ref<Set<BuzzerButton>>(new Set());
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -183,10 +185,8 @@ onUnmounted(() => {
   buzzer.removeListener('press', listener);
   buzzer.reset();
 });
-
-const confirmedControllers = ref<string[]>([]);
 const listener = (event: ButtonEvent) => {
-  if (!started.value || completed.value) {
+  if (!started.value || done.value) {
     return;
   }
 
@@ -239,20 +239,17 @@ const done = computed<boolean>(() => {
   );
 });
 
-let showTimeoutId: NodeJS.Timeout | undefined;
 watch(done, (val) => {
-  clearTimeout(showTimeoutId);
-
   if (val) {
     if (countDownTime.value <= 0) {
       setTimeout(() => {
-        completed.value = true;
+        showResults.value = true;
       }, 1000);
     } else {
-      completed.value = true;
+      showResults.value = true;
     }
   } else {
-    completed.value = false;
+    showResults.value = false;
   }
 });
 
@@ -283,6 +280,82 @@ const restart = () => {
 const quickPlay = () => {
   restart();
   start();
+};
+
+const controllersByButton = computed<
+  Record<BuzzerButton, IController[] | undefined>
+>(() => {
+  return controllers.value.reduce(
+    (acc, controller) => {
+      const hasConfirmed =
+        quizSettings.changeMode === 'always' ||
+        confirmedControllers.value.includes(controller.id);
+      // Mo input is default button
+      const pressedButton =
+        pressedButtons.value.get(controller.id) ?? BuzzerButton.RED;
+      // Ignore input if user has not confirmed the button selection
+      const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
+
+      acc[button] ??= [];
+      acc[button].push(controller);
+
+      return acc;
+    },
+    {} as Record<BuzzerButton, IController[]>,
+  );
+});
+
+const updateButtonScore = (button: BuzzerButton): void => {
+  // No button was preciously pressed, so we assume all answers are wrong.
+  // Points for correct answers are refunded later
+  if (correctAnswers.value.size === 0) {
+    confirmedControllers.value.forEach((controllerId) => {
+      scoreboardStore.addPoints(controllerId, quizSettings.pointsWrong);
+    });
+  }
+
+  if (correctAnswers.value.has(button)) {
+    // Add wrong point and refund correct points
+    controllersByButton.value[button]?.forEach((controller) => {
+      scoreboardStore.addPoints(controller.id, quizSettings.pointsCorrect * -1);
+      scoreboardStore.addPoints(controller.id, quizSettings.pointsWrong);
+    });
+
+    correctAnswers.value.delete(button);
+  } else {
+    // Add correct point and refund wrong points
+    controllersByButton.value[button]?.forEach((controller) => {
+      scoreboardStore.addPoints(controller.id, quizSettings.pointsWrong * -1);
+      scoreboardStore.addPoints(controller.id, quizSettings.pointsCorrect);
+    });
+
+    correctAnswers.value.add(button);
+  }
+
+  // If all buzzers are unselected, no points are granted
+  if (correctAnswers.value.size === 0) {
+    confirmedControllers.value.forEach((controllerId) => {
+      scoreboardStore.addPoints(controllerId, quizSettings.pointsWrong * -1);
+    });
+  }
+};
+
+const showScoreboardActions = computed<boolean>(() => {
+  return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;
+});
+
+// Order of buttons
+const buttons: BuzzerButton[] = [
+  BuzzerButton.BLUE,
+  BuzzerButton.ORANGE,
+  BuzzerButton.GREEN,
+  BuzzerButton.YELLOW,
+];
+
+const buttonColorClass = (button: BuzzerButton) => {
+  return quizSettings.activeButtons?.includes(button)
+    ? buzzerButtonColor[button]
+    : 'grey';
 };
 </script>
 

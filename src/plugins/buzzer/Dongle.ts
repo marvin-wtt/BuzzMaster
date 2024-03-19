@@ -35,7 +35,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
   }
 
   async reset(): Promise<void> {
-    this.device.reset();
+    await this.device.reset();
   }
 
   private onButtonUpdate(states: ButtonState[]): void {

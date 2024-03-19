@@ -8,17 +8,18 @@
       style="max-width: 20rem"
     >
       <q-card-section>
-        <a class="text-h5">Quiz Question Settings </a>
+        <a class="text-h5">{{ t('question.quiz.settings.title') }}</a>
       </q-card-section>
 
       <q-card-section class="q-gutter-y-sm">
         <q-select
           v-model="quizSettings.activeButtons"
           :options="activeBuzzerOptions"
-          label="Active buttons"
+          :label="t('question.quiz.settings.field.activeButtons.label')"
           :rules="[
             (val: unknown[]) =>
-              val.length >= 2 || 'Activate at least two buttons',
+              val.length >= 2 ||
+              t('question.quiz.settings.field.activeButtons.rules.maxLength'),
           ]"
           multiple
           emit-value
@@ -29,7 +30,7 @@
           <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
             <q-item v-bind="itemProps">
               <q-item-section>
-                <q-item-label>{{ opt.label }}</q-item-label>
+                <q-item-label>{{ (opt as QSelectOption).label }}</q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-toggle
@@ -43,7 +44,7 @@
 
         <q-select
           v-model="quizSettings.changeMode"
-          label="Allow answer change"
+          :label="t('question.quiz.settings.field.changeMode.label')"
           :options="changeModeOptions"
           emit-value
           map-options
@@ -52,8 +53,8 @@
         />
 
         <q-input
-          label="Answer time"
           v-model.number="quizSettings.answerTime"
+          :label="t('question.quiz.settings.field.answerTime')"
           type="number"
           rounded
           outlined
@@ -65,7 +66,7 @@
 
         <q-select
           v-model="quizSettings.resultMode"
-          label="Result Mode"
+          :label="t('question.quiz.settings.field.resultMode.label')"
           :options="resultOption"
           emit-value
           map-options
@@ -74,13 +75,13 @@
         />
 
         <q-toggle
-          label="Play sounds"
           v-model="quizSettings.playSounds"
+          :label="t('question.quiz.settings.field.playSounds')"
         />
 
         <q-input
           v-if="quizSettings.playSounds"
-          label="Start countdown beep at"
+          :label="t('question.quiz.settings.field.beepAt')"
           v-model.number="quizSettings.countDownBeepStartAt"
           type="number"
           rounded
@@ -90,14 +91,43 @@
             <q-icon name="timer" />
           </template>
         </q-input>
+
+        <div class="text-body1">
+          {{ t('question.quiz.settings.field.points') }}
+        </div>
+
+        <q-input
+          v-model.number="quizSettings.pointsCorrect"
+          :label="t('question.quiz.settings.field.pointsCorrect')"
+          type="number"
+          rounded
+          outlined
+        >
+          <template #prepend>
+            <q-icon name="check" />
+          </template>
+        </q-input>
+
+        <q-input
+          v-model.number="quizSettings.pointsWrong"
+          :label="t('question.quiz.settings.field.pointsWrong.label')"
+          :hint="t('question.quiz.settings.field.pointsWrong.hint')"
+          type="number"
+          rounded
+          outlined
+        >
+          <template #prepend>
+            <q-icon name="close" />
+          </template>
+        </q-input>
       </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
-          label="Ok"
+          :label="t('question.quiz.settings.action.ok')"
           color="primary"
-          @click="onDialogOK"
           rounded
+          @click="onDialogOK"
         />
       </q-card-actions>
     </q-card>
@@ -105,57 +135,58 @@
 </template>
 
 <script lang="ts" setup>
-import { useDialogPluginComponent } from 'quasar';
+import { useDialogPluginComponent, QSelectOption } from 'quasar';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
-
+const { t } = useI18n();
 const { quizSettings } = useQuestionSettingsStore();
 
 const changeModeOptions = [
   {
-    label: 'Never',
+    label: t('question.quiz.settings.field.changeMode.option.never'),
     value: 'never',
   },
   {
-    label: 'Always',
+    label: t('question.quiz.settings.field.changeMode.option.always'),
     value: 'always',
   },
   {
-    label: 'Confirm',
+    label: t('question.quiz.settings.field.changeMode.option.confirm'),
     value: 'confirm',
   },
 ];
 
 const resultOption = [
   {
-    label: 'Table',
+    label: t('question.quiz.settings.field.resultMode.option.table'),
     value: 'table',
   },
   {
-    label: 'Bar chart',
+    label: t('question.quiz.settings.field.resultMode.option.bar'),
     value: 'bar',
   },
 ];
 
 const activeBuzzerOptions = [
   {
-    label: 'Blue',
+    label: t('question.quiz.settings.field.activeButtons.option.blue'),
     value: BuzzerButton.BLUE,
   },
   {
-    label: 'Orange',
+    label: t('question.quiz.settings.field.activeButtons.option.orange'),
     value: BuzzerButton.ORANGE,
   },
   {
-    label: 'Green',
+    label: t('question.quiz.settings.field.activeButtons.option.green'),
     value: BuzzerButton.GREEN,
   },
   {
-    label: 'Yellow',
+    label: t('question.quiz.settings.field.activeButtons.option.yellow'),
     value: BuzzerButton.YELLOW,
   },
 ];

@@ -47,7 +47,14 @@
 
       <q-card-actions align="center">
         <q-btn
-          label="Ok"
+          :label="t('scoreboard.action.reset')"
+          color="primary"
+          rounded
+          outline
+          @click="onResetPoints"
+        />
+        <q-btn
+          :label="t('scoreboard.action.ok')"
           color="primary"
           rounded
           @click="onDialogOK"
@@ -82,6 +89,28 @@ const updateScore = (score: Score) => {
     })
     .onOk((payload) => {
       scoreboardStore.updatePoints(score.id, payload);
+    });
+};
+
+const onResetPoints = () => {
+  quasar
+    .dialog({
+      title: t('scoreboard.reset.title'),
+      message: t('scoreboard.reset.message'),
+      ok: {
+        label: t('scoreboard.reset.action.ok'),
+        color: 'negative',
+        rounded: true,
+      },
+      cancel: {
+        label: t('scoreboard.reset.action.cancel'),
+        color: 'primary',
+        rounded: true,
+        outline: true,
+      },
+    })
+    .onOk(() => {
+      scoreboardStore.resetPoints();
     });
 };
 

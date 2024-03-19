@@ -8,7 +8,7 @@
       style="max-width: 350px"
     >
       <q-card-section>
-        <a class="text-h5">
+        <a class="text-h5 ellipsis">
           {{
             t('scoreboard.update.title', {
               name: props.score.name,
@@ -19,9 +19,21 @@
 
       <q-card-section>
         <q-input
-          v-model.number="updatedValue"
+          v-model="inputValue"
+          :label="t('scoreboard.update.field.label')"
+          :hint="t('scoreboard.update.field.hint', { score: roundedScore })"
+          outlined
+          rounded
           :error
-        />
+        >
+          <template #prepend>
+            <q-icon
+              :name="iconName"
+              class="cursor-pointer"
+              @click="toggleUpdateMode"
+            />
+          </template>
+        </q-input>
       </q-card-section>
 
       <q-card-actions align="center">
@@ -60,14 +72,83 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 const { t } = useI18n();
 
-const updatedValue = ref<number>(props.score.value);
+const inputValue = ref<string>();
+const replaceMode = ref<boolean>(false);
 
 const error = computed<boolean>(() => {
-  return isNaN(updatedValue.value);
+  return (
+    numericInput.value === undefined ||
+    (!!replaceMode.value && !!operand.value) ||
+    (operand.value === '/' && numericInput.value === 0)
+  );
 });
 
+const numericInput = computed<number | undefined>(() => {
+  const n = operand.value ? inputValue.value?.substring(1) : inputValue.value;
+  if (n === undefined) {
+    return undefined;
+  }
+
+  const number = parseFloat(n);
+
+  return isNaN(number) ? undefined : number;
+});
+
+const operand = computed<'*' | '/' | undefined>(() => {
+  const str = inputValue.value;
+  if (!str || str.length === 0) {
+    return undefined;
+  }
+
+  const op = str.charAt(0);
+  if (op === '*' || op === '/') {
+    return op;
+  }
+
+  return undefined;
+});
+
+const iconName = computed<string>(() => {
+  return replaceMode.value ? 'edit' : 'o_calculate';
+});
+
+const resultingScore = computed<number | undefined>(() => {
+  const n = numericInput.value;
+  if (n === undefined) {
+    return undefined;
+  }
+
+  if (replaceMode.value) {
+    return n;
+  }
+
+  const op = operand.value;
+  if (op === '*') {
+    return props.score.value * n;
+  }
+
+  if (op === '/') {
+    return props.score.value / n;
+  }
+
+  return props.score.value + n;
+});
+
+const roundedScore = computed<number | undefined>(() => {
+  return resultingScore.value !== undefined
+    ? round(resultingScore.value)
+    : undefined;
+});
+const toggleUpdateMode = () => {
+  replaceMode.value = !replaceMode.value;
+};
+
+const round = (n: number): number => {
+  return Math.round(n * 1e3) / 1e3;
+};
+
 const submit = () => {
-  onDialogOK(updatedValue.value);
+  onDialogOK(roundedScore.value ?? props.score.value);
 };
 </script>
 

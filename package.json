@@ -4,6 +4,16 @@
   "description": "A buzzer application for quiz shows",
   "productName": "BuzzMaster",
   "author": "marvin-wtt <31454580+marvin-wtt@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marvin-wtt/BuzzMaster"
+  },
+  "keywords": [
+    "playstation",
+    "buzz",
+    "buzzer",
+    "quiz"
+  ],
   "private": true,
   "type": "module",
   "scripts": {

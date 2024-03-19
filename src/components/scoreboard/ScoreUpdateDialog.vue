@@ -74,7 +74,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 const { t } = useI18n();
 
-const inputValue = ref<string>();
+const inputValue = ref<string>(' ');
 const replaceMode = ref<boolean>(false);
 
 const error = computed<boolean>(() => {
@@ -98,7 +98,7 @@ const errorMessage = computed<string | undefined>(() => {
 });
 
 const inputPrefix = computed<string | undefined>(() => {
-  return replaceMode.value ? undefined : props.score.value.toString() + ' ';
+  return replaceMode.value ? undefined : props.score.value + ' ';
 });
 
 const iconName = computed<string>(() => {

@@ -16,6 +16,12 @@ export default {
       hint: 'Neuer Punktestand: {score}',
     },
 
+    rule: {
+      onlyNumbers: 'Nur Ziffern sind erlaubt',
+      missingOperand: 'Fehlender Operator (z.B. +2)',
+      divZero: 'Division durch null nicht möglich',
+    },
+
     action: {
       submit: 'Aktualisieren',
       cancel: 'Abbrechen',

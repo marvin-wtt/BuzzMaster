@@ -22,9 +22,11 @@
           v-model="inputValue"
           :label="t('scoreboard.update.field.label')"
           :hint="t('scoreboard.update.field.hint', { score: roundedScore })"
+          :prefix="inputPrefix"
           outlined
           rounded
           :error
+          :errorMessage
         >
           <template #prepend>
             <q-icon
@@ -72,15 +74,35 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 const { t } = useI18n();
 
-const inputValue = ref<string>();
+const inputValue = ref<string>(' ');
 const replaceMode = ref<boolean>(false);
 
 const error = computed<boolean>(() => {
-  return (
-    numericInput.value === undefined ||
-    (!!replaceMode.value && !!operand.value) ||
-    (operand.value === '/' && numericInput.value === 0)
-  );
+  return errorMessage.value !== undefined;
+});
+
+const errorMessage = computed<string | undefined>(() => {
+  if (numericInput.value === undefined) {
+    return t('scoreboard.update.rule.onlyNumbers');
+  }
+
+  if (!replaceMode.value && operand.value === undefined) {
+    return t('scoreboard.update.rule.missingOperand');
+  }
+
+  if (operand.value === '/' && numericInput.value === 0) {
+    return t('scoreboard.update.rule.divZero');
+  }
+
+  return undefined;
+});
+
+const inputPrefix = computed<string | undefined>(() => {
+  return replaceMode.value ? undefined : props.score.value + ' ';
+});
+
+const iconName = computed<string>(() => {
+  return replaceMode.value ? 'edit' : 'o_calculate';
 });
 
 const numericInput = computed<number | undefined>(() => {
@@ -94,44 +116,43 @@ const numericInput = computed<number | undefined>(() => {
   return isNaN(number) ? undefined : number;
 });
 
-const operand = computed<'*' | '/' | undefined>(() => {
+type Operand = '*' | '/' | '+' | '-';
+const operand = computed<Operand | undefined>(() => {
   const str = inputValue.value;
-  if (!str || str.length === 0) {
+  if (str === undefined || str.length === 0) {
     return undefined;
   }
 
   const op = str.charAt(0);
-  if (op === '*' || op === '/') {
-    return op;
-  }
-
-  return undefined;
-});
-
-const iconName = computed<string>(() => {
-  return replaceMode.value ? 'edit' : 'o_calculate';
-});
-
-const resultingScore = computed<number | undefined>(() => {
-  const n = numericInput.value;
-  if (n === undefined) {
+  if (!['*', '/', '+', '-'].includes(op)) {
     return undefined;
   }
 
+  return op as Operand;
+});
+
+const resultingScore = computed<number | undefined>(() => {
   if (replaceMode.value) {
-    return n;
+    return numericInput.value;
+  }
+
+  if (numericInput.value === undefined) {
+    return undefined;
   }
 
   const op = operand.value;
-  if (op === '*') {
-    return props.score.value * n;
+  switch (op) {
+    case '+':
+      return props.score.value + numericInput.value;
+    case '-':
+      return props.score.value - numericInput.value;
+    case '*':
+      return props.score.value * numericInput.value;
+    case '/':
+      return props.score.value / numericInput.value;
+    default:
+      return undefined;
   }
-
-  if (op === '/') {
-    return props.score.value / n;
-  }
-
-  return props.score.value + n;
 });
 
 const roundedScore = computed<number | undefined>(() => {

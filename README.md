@@ -1,30 +1,59 @@
-# BuzzMaster (buzzmaster)
+# BuzzMaster
 
-A buzzer application for quiz shows
+BuzzMaster is a user-friendly application for hosting quiz shows with physical input devices, such as PlayStation buzzers.
 
-## Install the dependencies
+## Key Features
 
-```bash
-yarn
-# or
+- **Buzzer Questions**: Participants compete to be the first to press the red buzzer and answer the question.
+- **Quiz Questions**: Participants select one of four options within a given time frame.
+- **Stopwatch Mode**: Tracks the time taken for each participant to press the red button.
+- **Scoreboard**: Keeps track of points gained or lost throughout the quiz show.
+
+## Installation
+
+Download the installer from the latest release and follow the installation steps.
+
+Please note that there might be a security warning due to the lack of code signing for the executables.
+This is because obtaining a certificate for code signing can be prohibitively expensive.
+
+## Troubleshooting
+
+Playstation 2 Buzz devices are recognised as a malfunctioning USB-hub instead of a HID-Device on windows.
+Follow these steps to update the driver manually:
+
+1. Open the device-manager
+2. Right-click the USB-Hub and select `update-driver`
+3. Select `Search for driver software on the computer`
+4. Select `Select from a list of device drivers on the computer`
+   5.From the list, select the entry `USB Input Device` or `USB HID Device`
+
+## Development
+
+```sh
+git clode https://github.com/marvin-wtt/BuzzMaster
+cd buzzmaster
 npm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+Run in development mode:
 
-```bash
-quasar dev
+```sh
+npm run dev
 ```
 
-### Build the app for production
+Build executable for production:
 
-```bash
-quasar build -m electron
+```sh
+npm run build
 ```
 
-### Customize the configuration
+## Contributing
 
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+Contributions are welcome! Feel free to submit pull requests with new features, bug fixes, or improvements.
+
+## License
+
+Please refer to the [LICENCE](LICENCE) file for licensing information.
 
 ## Credits
 

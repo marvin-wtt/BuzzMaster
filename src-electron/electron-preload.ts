@@ -30,7 +30,7 @@
 
 import { contextBridge } from 'electron';
 import windowAPI from './windowAPI/preload';
-import appApi from './appAPI/preload';
+import appAPI from './appAPI/preload';
 
 contextBridge.exposeInMainWorld('windowAPI', windowAPI);
-contextBridge.exposeInMainWorld('appAPI', appApi);
+contextBridge.exposeInMainWorld('appAPI', appAPI);

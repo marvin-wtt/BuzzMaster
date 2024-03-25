@@ -89,13 +89,9 @@
           class="col-12 column q-gutter-y-sm no-wrap content-center justify-around"
           v-else-if="completed"
         >
-          <q-btn
+          <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
-            icon="grade"
-            color="grey"
-            class="self-center"
-            rounded
-            @click="updateScores()"
+            :controllers="Array.from(pressedControllers.keys())"
           />
 
           <q-separator />
@@ -143,14 +139,10 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
-import { useQuasar } from 'quasar';
-import StopwatchScoreDialog from 'components/questions/stopwatch/StopwatchScoreDialog.vue';
-import { useScoreboardStore } from 'stores/scoreboard-store';
+import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
 
-const quasar = useQuasar();
 const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
-const scoreboardStore = useScoreboardStore();
 
 const counter = ref<number>(0);
 const started = ref<boolean>(false);
@@ -158,8 +150,6 @@ const startTime = ref<number>(0);
 const pressedControllers = ref<Map<IController, number>>(
   new Map<IController, number>(),
 );
-
-let scores: Record<string, number | undefined> = {};
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -210,42 +200,6 @@ const quickPlay = () => {
 const start = () => {
   started.value = true;
   startTime.value = new Date().getTime();
-};
-
-const updateScores = () => {
-  const controllers = Array.from(pressedControllers.value.keys());
-
-  quasar
-    .dialog({
-      component: StopwatchScoreDialog,
-      componentProps: {
-        controllers,
-        scores,
-      },
-    })
-    .onOk((updatedScores: Record<string, number | undefined>) => {
-      // Refund previous points
-      for (const controllerId in scores) {
-        const points = scores[controllerId];
-        if (points === undefined) {
-          continue;
-        }
-
-        scoreboardStore.addPoints(controllerId, points * -1);
-      }
-
-      // Update points
-      for (const controllerId in updatedScores) {
-        const points = updatedScores[controllerId];
-        if (points === undefined) {
-          continue;
-        }
-
-        scoreboardStore.addPoints(controllerId, points);
-      }
-
-      scores = updatedScores;
-    });
 };
 
 const formatTime = (time: number) => {

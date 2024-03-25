@@ -84,22 +84,10 @@
             v-if="done && showResults"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
-            <div
+            <quiz-scoreboard-buttons
               v-if="showScoreboardActions"
-              class="row justify-center q-gutter-sm"
-            >
-              <q-btn
-                v-for="button in quizSettings.activeButtons"
-                :key="button"
-                :color="buzzerButtonColor[button]"
-                size="sm"
-                round
-                class="scoreboard-btm"
-                style="border-width: 20px"
-                :outline="!correctAnswers.has(button)"
-                @click="updateButtonScore(button)"
-              />
-            </div>
+              :controller-values="controllersByButton"
+            />
 
             <q-separator />
 
@@ -142,6 +130,7 @@ import PulseCircle from 'components/PulseCircle.vue';
 import NavigationBar from 'components/PageNavigation.vue';
 import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue';
 import QuizResult from 'components/questions/quiz/QuizResult.vue';
+import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -152,14 +141,12 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
-import { useScoreboardStore } from 'stores/scoreboard-store';
 import { buzzerButtonColor } from 'components/buttonColors';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
-const scoreboardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
 const started = ref<boolean>(false);
@@ -170,7 +157,6 @@ const pressedButtons = ref<Map<string, BuzzerButton>>(
   new Map<string, BuzzerButton>(),
 );
 const confirmedControllers = ref<string[]>([]);
-const correctAnswers = ref<Set<BuzzerButton>>(new Set());
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -300,41 +286,6 @@ const controllersByButton = computed<
     {} as Record<BuzzerButton, IController[]>,
   );
 });
-
-const updateButtonScore = (button: BuzzerButton): void => {
-  // No button was preciously pressed, so we assume all answers are wrong.
-  // Points for correct answers are refunded later
-  if (correctAnswers.value.size === 0) {
-    confirmedControllers.value.forEach((controllerId) => {
-      scoreboardStore.addPoints(controllerId, quizSettings.pointsWrong);
-    });
-  }
-
-  if (correctAnswers.value.has(button)) {
-    // Add wrong point and refund correct points
-    controllersByButton.value[button]?.forEach((controller) => {
-      scoreboardStore.addPoints(controller.id, quizSettings.pointsCorrect * -1);
-      scoreboardStore.addPoints(controller.id, quizSettings.pointsWrong);
-    });
-
-    correctAnswers.value.delete(button);
-  } else {
-    // Add correct point and refund wrong points
-    controllersByButton.value[button]?.forEach((controller) => {
-      scoreboardStore.addPoints(controller.id, quizSettings.pointsWrong * -1);
-      scoreboardStore.addPoints(controller.id, quizSettings.pointsCorrect);
-    });
-
-    correctAnswers.value.add(button);
-  }
-
-  // If all buzzers are unselected, no points are granted
-  if (correctAnswers.value.size === 0) {
-    confirmedControllers.value.forEach((controllerId) => {
-      scoreboardStore.addPoints(controllerId, quizSettings.pointsWrong * -1);
-    });
-  }
-};
 
 const showScoreboardActions = computed<boolean>(() => {
   return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;

@@ -35,7 +35,7 @@
           <pulse-circle
             v-else
             class="column justify-center q-col-gutter-sm text-h5"
-            :pulse="pulse"
+            :pulse="started"
           >
             <div v-if="!started">
               {{
@@ -77,30 +77,10 @@
           v-if="pressedController"
         >
           <!-- Scoreboard -->
-          <div
+          <buzzer-scoreboard-buttons
             v-if="showScoreboardActions"
-            class="row justify-center reverse"
-          >
-            <q-btn
-              aria-label="correct"
-              icon="check"
-              color="positive"
-              class="q-mx-sm"
-              rounded
-              :outline="answerCorrect !== true"
-              @click="onAnswerCorrect"
-            />
-
-            <q-btn
-              aria-label="wrong"
-              icon="clear"
-              color="negative"
-              class="q-mx-sm"
-              rounded
-              :outline="answerCorrect !== false"
-              @click="onAnswerWrong"
-            />
-          </div>
+            :controller="pressedController"
+          />
 
           <div class="q-pt-md">
             <q-separator />
@@ -163,6 +143,11 @@
 
 <script lang="ts" setup>
 import NavigationBar from 'components/PageNavigation.vue';
+import BuzzerScoreboardButtons from 'components/questions/buzzer/BuzzerScoreboardButtons.vue';
+import BuzzerQuestionDialog from 'components/questions/buzzer/BuzzerQuestionDialog.vue';
+import CountDown from 'components/CountDown.vue';
+import CircleTimer from 'components/CircleTimer.vue';
+import PulseCircle from 'components/PulseCircle.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
@@ -171,12 +156,7 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
-import BuzzerQuestionDialog from 'components/questions/BuzzerQuestionDialog.vue';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
-import CountDown from 'components/CountDown.vue';
-import CircleTimer from 'components/CircleTimer.vue';
-import PulseCircle from 'components/PulseCircle.vue';
-import { useScoreboardStore } from 'stores/scoreboard-store';
 import { useI18n } from 'vue-i18n';
 
 interface Size {
@@ -187,7 +167,6 @@ interface Size {
 const quasar = useQuasar();
 const { t } = useI18n();
 const { buzzerSettings } = useQuestionSettingsStore();
-const scoreBoardStore = useScoreboardStore();
 const { controllers, buzzer } = useBuzzer();
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
@@ -197,7 +176,6 @@ const pressedController = ref<IController>();
 const started = ref<boolean>(false);
 const pressedControllers = ref<string[]>([]);
 const countDownTime = ref<number>(0);
-const answerCorrect = ref<boolean>();
 
 const audio = new Audio('sounds/buzzer.mp3');
 
@@ -270,10 +248,6 @@ const textMetrics = (text: string) => {
   };
 };
 
-const pulse = computed<boolean>(() => {
-  return !pressedController.value && started.value;
-});
-
 const allControllersPressed = computed<boolean>(() => {
   return !controllers.value.some(
     (controller) => !pressedControllers.value.includes(controller.id),
@@ -327,7 +301,6 @@ const restart = () => {
   pressedControllers.value = [];
   pressedController.value = undefined;
   started.value = false;
-  answerCorrect.value = undefined;
 };
 
 const quickPlay = () => {
@@ -343,50 +316,6 @@ const settings = () => {
   quasar.dialog({
     component: BuzzerQuestionDialog,
   });
-};
-
-const onAnswerCorrect = () => {
-  // Take back points if button is pressed again
-  if (answerCorrect.value === true) {
-    answerCorrect.value = undefined;
-    updateScoreboard(buzzerSettings.pointsCorrect * -1);
-    return;
-  }
-
-  // Take back negative points if selection was switched
-  if (answerCorrect.value === false) {
-    updateScoreboard(buzzerSettings.pointsWrong * -1);
-  }
-
-  answerCorrect.value = true;
-  updateScoreboard(buzzerSettings.pointsCorrect);
-};
-
-const onAnswerWrong = () => {
-  // Take back points if button is pressed again
-  if (answerCorrect.value === false) {
-    answerCorrect.value = undefined;
-    updateScoreboard(buzzerSettings.pointsWrong * -1);
-    return;
-  }
-
-  // Take back positive points if selection was switched
-  if (answerCorrect.value === true) {
-    updateScoreboard(buzzerSettings.pointsCorrect * -1);
-  }
-
-  answerCorrect.value = false;
-  updateScoreboard(buzzerSettings.pointsWrong);
-};
-
-const updateScoreboard = (points: number) => {
-  const controllerId = pressedController.value?.id;
-
-  if (!controllerId) {
-    return;
-  }
-
-  scoreBoardStore.addPoints(controllerId, points);
 };
 </script>
 

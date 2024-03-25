@@ -149,7 +149,7 @@ const hasEnabledController = computed<boolean>(() => {
 const editControllerName = (controller: IController) => {
   quasar
     .dialog({
-      title: 'Controller name',
+      title: t('devices.edit.title'),
       color: 'primary',
       // message: 'Maximum 20 characters',
       prompt: {
@@ -157,8 +157,12 @@ const editControllerName = (controller: IController) => {
         isValid: (val) => val.length > 0 && val.length <= 20,
         type: 'text',
       },
-      cancel: true,
-      persistent: true,
+      ok: {
+        label: t('devices.edit.action.ok'),
+      },
+      cancel: {
+        label: t('devices.edit.action.cancel'),
+      },
     })
     .onOk((name: string) => {
       controller.name = name;

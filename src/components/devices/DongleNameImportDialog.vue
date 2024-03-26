@@ -81,10 +81,15 @@ const readNames = async (file: File): Promise<string[]> => {
     throw 'Unexpected file content';
   }
 
+  const maxLength = 20;
+
   return content
     .split('\n')
     .map((value) => value.trim())
-    .filter((value) => value.length > 0);
+    .filter((value) => value.length > 0)
+    .map((value) =>
+      value.length > maxLength ? value.slice(0, maxLength) : value,
+    );
 };
 
 const onDialogSave = async () => {

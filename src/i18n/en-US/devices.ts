@@ -8,7 +8,14 @@ export default {
     },
   },
 
-  // TODO Add edit dialog translations
+  edit: {
+    title: 'Controller name',
+
+    action: {
+      ok: 'Update',
+      cancel: 'Cancel',
+    },
+  },
 
   test: {
     title: 'Test Controllers',

@@ -16,4 +16,13 @@ export default {
       cancel: 'Abbrechen',
     },
   },
+
+  edit: {
+    title: 'Controller Name',
+
+    action: {
+      ok: 'Aktualisieren',
+      cancel: 'Abbrechen',
+    },
+  },
 };

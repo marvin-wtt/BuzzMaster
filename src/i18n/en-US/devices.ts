@@ -34,12 +34,12 @@ export default {
   names: {
     title: 'Update controller names',
     description:
-      'All newly connected controllers will be named according to the names in the given list. ' +
-      'When a controller is disconnected and reconnected at a later stage, new names might be assigned to the controllers. ' +
-      'This is because the app cannot uniquely identify some dongles due to hardware limitations.',
+      'All newly connected controllers will adopt names listed here. ' +
+      'Upon reconnection, controllers may receive new names due to hardware limitations preventing unique ' +
+      'identification of some dongles.',
 
     field: {
-      label: 'Controller naming list',
+      label: 'Controller Naming List',
       hint: 'A .txt files with names separated by a new line',
     },
 

@@ -11,10 +11,13 @@ BuzzMaster is a user-friendly application for hosting quiz shows with physical i
 
 ## Installation
 
+> [!Note]
+> Please note that there might be a security warning when downloading and executing the installer due to the lack of code signing.
+> This is because obtaining a certificate for code signing is prohibitively expensive.
+
 Download the installer from the latest release and follow the installation steps.
 
-Please note that there might be a security warning due to the lack of code signing for the executables.
-This is because obtaining a certificate for code signing can be prohibitively expensive.
+Once the application is started, it will check for new versions. Once a new version is available, it will be installed on the next launch automatically.
 
 ## Troubleshooting
 

@@ -53,6 +53,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
+import { config } from 'src/config';
 
 const file = ref<File>();
 const error = ref<string>();
@@ -81,15 +82,18 @@ const readNames = async (file: File): Promise<string[]> => {
     throw 'Unexpected file content';
   }
 
-  const maxLength = 20;
+  const maxLength = config.controllerNameMaxLength;
 
+  // Split content by new line and shorten long names.
+  // List is revered to improve performance when assigning names (pop).
   return content
     .split('\n')
     .map((value) => value.trim())
     .filter((value) => value.length > 0)
     .map((value) =>
       value.length > maxLength ? value.slice(0, maxLength) : value,
-    );
+    )
+    .reverse();
 };
 
 const onDialogSave = async () => {

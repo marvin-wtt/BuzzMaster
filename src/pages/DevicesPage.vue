@@ -111,6 +111,7 @@ import NavigationBar from 'components/PageNavigation.vue';
 import { useI18n } from 'vue-i18n';
 import DongleNameImportDialog from 'components/devices/DongleNameImportDialog.vue';
 import { Dongle } from 'src/plugins/buzzer/Dongle';
+import { config } from 'src/config';
 
 const quasar = useQuasar();
 const { t } = useI18n();
@@ -165,6 +166,7 @@ const hasEnabledController = computed<boolean>(() => {
 });
 
 const editControllerName = (controller: IController) => {
+  const maxLength = config.controllerNameMaxLength;
   quasar
     .dialog({
       title: t('devices.edit.title'),
@@ -172,7 +174,7 @@ const editControllerName = (controller: IController) => {
       // message: 'Maximum 20 characters',
       prompt: {
         model: controller.name,
-        isValid: (val) => val.length > 0 && val.length <= 20,
+        isValid: (val) => val.length > 0 && val.length <= maxLength,
         type: 'text',
       },
       ok: {

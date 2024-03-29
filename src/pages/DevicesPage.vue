@@ -1,88 +1,81 @@
 <template>
-  <navigation-bar
-    @back="cancelFindDevice()"
-    :title="t('devices.title')"
-  >
-    <div class="col row justify-center">
-      <q-list
-        class="col-10"
-        separator
+  <q-page class="row justify-center">
+    <q-list
+      class="col-10"
+      separator
+    >
+      <!-- Dongles -->
+      <q-expansion-item
+        v-for="dongle in dongles"
+        :key="dongle.name"
+        group="dongles"
+        :label="dongle.name"
+        expand-separator
       >
-        <!-- Dongles -->
-        <q-expansion-item
-          v-for="dongle in dongles"
-          :key="dongle.name"
-          group="dongles"
-          :label="dongle.name"
-          expand-separator
-        >
-          <q-list>
-            <q-item
-              v-for="controller in dongle.controllers"
-              :key="controller.name"
-            >
-              <q-item-section class="col col-shrink">
-                <q-icon
-                  name="circle"
-                  :color="getButtonColor(controller)"
-                  size="xs"
-                />
-              </q-item-section>
+        <q-list>
+          <q-item
+            v-for="controller in dongle.controllers"
+            :key="controller.name"
+          >
+            <q-item-section class="col col-shrink">
+              <q-icon
+                name="circle"
+                :color="getButtonColor(controller)"
+                size="xs"
+              />
+            </q-item-section>
 
-              <q-item-section class="col col-grow">
-                {{ controller.name }}
-              </q-item-section>
+            <q-item-section class="col col-grow">
+              {{ controller.name }}
+            </q-item-section>
 
-              <q-item-section side>
-                <q-btn
-                  icon="search"
-                  size="xs"
-                  flat
-                  round
-                  @click="findDevice(controller)"
-                />
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  icon="edit"
-                  size="xs"
-                  flat
-                  round
-                  @click="editControllerName(controller)"
-                />
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  :icon="
-                    controller.disabled
-                      ? 'play_circle'
-                      : 'remove_circle_outline'
-                  "
-                  size="xs"
-                  flat
-                  round
-                  @click="controller.disabled = !controller.disabled"
-                />
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-expansion-item>
-        <!-- Buzzer Test -->
-        <q-item>
-          <q-item-section>{{ t('devices.item.test.label') }}</q-item-section>
-          <q-item-section side>
-            <q-btn
-              :label="t('devices.item.test.button')"
-              outline
-              rounded
-              :disable="!hasEnabledController"
-              @click="startBuzzerTest"
-            />
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </div>
-  </navigation-bar>
+            <q-item-section side>
+              <q-btn
+                icon="search"
+                size="xs"
+                flat
+                round
+                @click="findDevice(controller)"
+              />
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                icon="edit"
+                size="xs"
+                flat
+                round
+                @click="editControllerName(controller)"
+              />
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                :icon="
+                  controller.disabled ? 'play_circle' : 'remove_circle_outline'
+                "
+                size="xs"
+                flat
+                round
+                @click="controller.disabled = !controller.disabled"
+              />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-expansion-item>
+      <!-- Buzzer Test -->
+      <q-item>
+        <q-item-section>{{ t('devices.item.test.label') }}</q-item-section>
+        <q-item-section side>
+          <q-btn
+            :label="t('devices.item.test.button')"
+            outline
+            rounded
+            :disable="!hasEnabledController"
+            @click="startBuzzerTest"
+          />
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
@@ -90,13 +83,16 @@ import { useBuzzer } from 'src/plugins/buzzer';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { NamedColor, useQuasar } from 'quasar';
 import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
-import { computed } from 'vue';
-import NavigationBar from 'components/PageNavigation.vue';
+import { computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const quasar = useQuasar();
 const { t } = useI18n();
 const { dongles, buzzer } = useBuzzer();
+
+onUnmounted(() => {
+  cancelFindDevice();
+});
 
 let findTimerId:
   | {

@@ -1,9 +1,9 @@
 <template>
-  <navigation-bar
-    :title="t('question.quiz.title')"
+  <q-page
+    class="row"
     padding
   >
-    <div class="col-12 column justify-around no-wrap">
+    <div class="col-12 column no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
         <quiz-result
@@ -119,14 +119,13 @@
         </transition-fade>
       </div>
     </div>
-  </navigation-bar>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
 import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
-import NavigationBar from 'components/PageNavigation.vue';
 import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue';
 import QuizResult from 'components/questions/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';

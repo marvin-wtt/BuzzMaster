@@ -31,7 +31,7 @@
     "electron-updater": "^6.1.8",
     "events": "^3.3.0",
     "pinia": "^2.1.7",
-    "quasar": "^2.15.1",
+    "quasar": "^2.15.2",
     "vue": "^3.4.21",
     "vue-i18n": "^9.10.2",
     "vue-router": "^4.3.0"

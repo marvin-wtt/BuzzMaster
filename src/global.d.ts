@@ -1,5 +1,4 @@
-import { WindowAPI } from 'app/src-electron/windowAPI';
-import { AppAPI } from 'app/src-electron/appAPI';
+import { AppAPI, WindowAPI } from 'app/common';
 
 export {};
 

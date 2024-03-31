@@ -1,9 +1,9 @@
 <template>
-  <navigation-bar
-    :title="t('question.stopwatch.title')"
+  <q-page
+    class="row"
     padding
   >
-    <div class="col-12 column justify-around no-wrap">
+    <div class="col-12 column no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center">
         <div
@@ -125,12 +125,11 @@
         </div>
       </div>
     </div>
-  </navigation-bar>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
 import CountDown from 'components/CountDown.vue';
-import NavigationBar from 'components/PageNavigation.vue';
 import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {

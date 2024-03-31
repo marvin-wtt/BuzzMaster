@@ -43,7 +43,7 @@ export const useQuestionSettingsStore = defineStore('questionSettings', () => {
     changeMode: 'never',
     playSounds: true,
     countDownBeepStartAt: 10,
-    resultMode: 'table',
+    resultMode: 'bar',
     pointsCorrect: 0,
     pointsWrong: 0,
   };

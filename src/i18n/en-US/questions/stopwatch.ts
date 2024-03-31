@@ -19,4 +19,16 @@ export default {
       ok: 'Save',
     },
   },
+
+  settings: {
+    title: 'Settings',
+
+    field: {
+      playSounds: 'Play sounds',
+    },
+
+    action: {
+      ok: 'Ok',
+    },
+  },
 };

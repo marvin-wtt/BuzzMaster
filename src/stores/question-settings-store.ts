@@ -22,6 +22,10 @@ interface QuizSettings {
   pointsWrong: number;
 }
 
+interface StopwatchSettings {
+  playSounds: boolean;
+}
+
 export const useQuestionSettingsStore = defineStore('questionSettings', () => {
   const defaultBuzzerSettings: BuzzerSettings = {
     answerTime: 10,
@@ -48,6 +52,10 @@ export const useQuestionSettingsStore = defineStore('questionSettings', () => {
     pointsWrong: 0,
   };
 
+  const defaultStopwatchSettings: StopwatchSettings = {
+    playSounds: true,
+  };
+
   const buzzerSettings = reactive<BuzzerSettings>({
     ...defaultBuzzerSettings,
   });
@@ -56,8 +64,13 @@ export const useQuestionSettingsStore = defineStore('questionSettings', () => {
     ...defaultQuizSettings,
   });
 
+  const stopwatchSettings = reactive<StopwatchSettings>({
+    ...defaultStopwatchSettings,
+  });
+
   return {
     buzzerSettings,
     quizSettings,
+    stopwatchSettings,
   };
 });

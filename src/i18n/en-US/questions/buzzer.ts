@@ -14,7 +14,7 @@ export default {
   },
 
   settings: {
-    title: 'Buzzer Question Settings',
+    title: 'Settings',
 
     field: {
       answerTime: 'Answer time',

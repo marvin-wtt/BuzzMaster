@@ -1,11 +1,11 @@
 <template>
-  <navigation-bar
-    :title="t('question.stopwatch.title')"
+  <q-page
+    class="row"
     padding
   >
-    <div class="col-12 column justify-around no-wrap">
+    <div class="col-12 column no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
+      <div class="col-8 row justify-center">
         <div
           v-if="started"
           class="column col-xs-11 col-sm-7 col-md-5 col-lg-3 col-xl-2 q-mb-sm"
@@ -22,43 +22,49 @@
 
           <q-separator />
 
-          <q-list dense>
-            <q-item
-              v-for="(entry, index) in Array.from(pressedControllers)"
-              :key="entry[0].id"
+          <div class="col-grow relative-position">
+            <q-virtual-scroll
+              :items="Array.from(pressedControllers)"
+              class="absolute fit"
+              v-slot="{ item, index }"
             >
-              <q-item-section avatar>
-                <q-avatar
-                  :color="avatarColor(index)"
-                  text-color="white"
-                  size="sm"
-                >
-                  {{ index + 1 }}
-                </q-avatar>
-              </q-item-section>
-
-              <q-item-section>
-                {{ entry[0].name }}
-              </q-item-section>
-
-              <q-item-section side>
-                {{ formatTime(entry[1]) }}
-              </q-item-section>
-
-              <q-item-section
-                side
-                v-if="!completed"
+              <q-item
+                :key="item[0].id"
+                dense
               >
-                <q-btn
-                  icon="close"
-                  size="sm"
-                  rounded
-                  dense
-                  @click="removeController(entry[0])"
-                />
-              </q-item-section>
-            </q-item>
-          </q-list>
+                <q-item-section avatar>
+                  <q-avatar
+                    :color="avatarColor(index)"
+                    text-color="white"
+                    size="sm"
+                  >
+                    {{ index + 1 }}
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  {{ item[0].name }}
+                </q-item-section>
+
+                <q-item-section side>
+                  {{ formatTime(item[1]) }}
+                </q-item-section>
+
+                <q-item-section
+                  side
+                  v-if="!completed"
+                >
+                  <q-btn
+                    icon="close"
+                    size="sm"
+                    rounded
+                    dense
+                    @click="removeController(item[0])"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-virtual-scroll>
+          </div>
         </div>
         <div
           v-else
@@ -72,30 +78,19 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-2 column content-center">
-        <div
+      <div class="col-4 column q-gutter-y-sm justify-center content-center">
+        <q-btn
           v-if="!started"
-          class="column q-gutter-sm"
-        >
-          <q-btn
-            :label="t('question.stopwatch.action.start')"
-            color="primary"
-            rounded
-            @click="start()"
-          />
-        </div>
+          :label="t('question.stopwatch.action.start')"
+          color="primary"
+          rounded
+          @click="start()"
+        />
 
-        <div
-          class="col-12 column q-gutter-y-sm no-wrap content-center justify-around"
-          v-else-if="completed"
-        >
-          <q-btn
+        <template v-else-if="completed">
+          <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
-            icon="grade"
-            color="grey"
-            class="self-center"
-            rounded
-            @click="updateScores()"
+            :controllers="Array.from(pressedControllers.keys())"
           />
 
           <q-separator />
@@ -117,24 +112,22 @@
             rounded
             @click="restart()"
           />
-        </div>
+        </template>
 
-        <div v-else>
-          <q-btn
-            :label="t('question.stopwatch.action.cancel')"
-            outline
-            rounded
-            @click="restart()"
-          />
-        </div>
+        <q-btn
+          v-else
+          :label="t('question.stopwatch.action.cancel')"
+          outline
+          rounded
+          @click="restart()"
+        />
       </div>
     </div>
-  </navigation-bar>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
 import CountDown from 'components/CountDown.vue';
-import NavigationBar from 'components/PageNavigation.vue';
 import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
@@ -143,14 +136,10 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
-import { useQuasar } from 'quasar';
-import StopwatchScoreDialog from 'components/questions/stopwatch/StopwatchScoreDialog.vue';
-import { useScoreboardStore } from 'stores/scoreboard-store';
+import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
 
-const quasar = useQuasar();
 const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
-const scoreboardStore = useScoreboardStore();
 
 const counter = ref<number>(0);
 const started = ref<boolean>(false);
@@ -158,8 +147,6 @@ const startTime = ref<number>(0);
 const pressedControllers = ref<Map<IController, number>>(
   new Map<IController, number>(),
 );
-
-let scores: Record<string, number | undefined> = {};
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -210,42 +197,6 @@ const quickPlay = () => {
 const start = () => {
   started.value = true;
   startTime.value = new Date().getTime();
-};
-
-const updateScores = () => {
-  const controllers = Array.from(pressedControllers.value.keys());
-
-  quasar
-    .dialog({
-      component: StopwatchScoreDialog,
-      componentProps: {
-        controllers,
-        scores,
-      },
-    })
-    .onOk((updatedScores: Record<string, number | undefined>) => {
-      // Refund previous points
-      for (const controllerId in scores) {
-        const points = scores[controllerId];
-        if (points === undefined) {
-          continue;
-        }
-
-        scoreboardStore.addPoints(controllerId, points * -1);
-      }
-
-      // Update points
-      for (const controllerId in updatedScores) {
-        const points = updatedScores[controllerId];
-        if (points === undefined) {
-          continue;
-        }
-
-        scoreboardStore.addPoints(controllerId, points);
-      }
-
-      scores = updatedScores;
-    });
 };
 
 const formatTime = (time: number) => {

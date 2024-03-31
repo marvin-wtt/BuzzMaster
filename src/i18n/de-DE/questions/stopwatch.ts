@@ -1,5 +1,5 @@
 export default {
-  title: 'Stopuhr',
+  title: 'Stoppuhr',
 
   controllersReady: '{count} Controller bereit!',
 

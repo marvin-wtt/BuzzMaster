@@ -1,9 +1,11 @@
 <template>
-  <navigation-bar
-    :title="t('question.title')"
+  <q-page
+    class="row justify-center content-center"
     padding
   >
-    <div class="col-10 column justify-center q-gutter-md">
+    <div
+      class="col-xs-10 col-sm-8 col-md-4 col-lg-3 col-xl-2 column q-gutter-y-md"
+    >
       <q-btn
         v-for="item in items"
         :key="item.routeName"
@@ -15,14 +17,12 @@
         stack
       />
     </div>
-
-    <!-- content -->
-  </navigation-bar>
+  </q-page>
 </template>
 
 <script lang="ts" setup>
-import NavigationBar from 'components/PageNavigation.vue';
 import { useI18n } from 'vue-i18n';
+import { reactive } from 'vue';
 
 const { t } = useI18n();
 
@@ -32,7 +32,7 @@ type MenuItem = {
   icon?: string;
 };
 
-const items: MenuItem[] = [
+const items: MenuItem[] = reactive([
   {
     routeName: 'buzzer-question',
     label: t('question.action.buzzer'),
@@ -48,5 +48,5 @@ const items: MenuItem[] = [
     label: t('question.action.stopwatch'),
     icon: 'timer',
   },
-];
+]);
 </script>

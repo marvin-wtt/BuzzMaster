@@ -76,14 +76,14 @@
 <script lang="ts" setup>
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { buzzerButtonColor } from 'components/buttonColors';
 
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers } = useBuzzer();
 
-const activeResult = defineModel<BuzzerButton | undefined>();
+const activeResult = ref<BuzzerButton>();
 const props = defineProps<{
   confirmedControllers: string[];
   pressedButtons: Map<string, BuzzerButton>;

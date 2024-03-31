@@ -163,6 +163,32 @@
           @click="closeApp"
         />
       </q-bar>
+
+      <div
+        v-if="title"
+        class="row col-shrink justify-between bg-primary text-white"
+      >
+        <div class="col-2 row justify-start">
+          <q-btn
+            icon="arrow_back"
+            size="md"
+            rounded
+            dense
+            flat
+            @click="navigateBack()"
+          />
+        </div>
+
+        <div class="col text-h5 text-center self-center">
+          {{ t(title) }}
+        </div>
+
+        <!-- Teleport target for page actions -->
+        <div
+          id="navbar-action"
+          class="col-2 row justify-end"
+        />
+      </div>
     </q-header>
 
     <q-page-container>
@@ -176,10 +202,11 @@ import { QSelectOption, useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
 
 const router = useRouter();
+const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
 const { buzzer } = useBuzzer();
@@ -195,7 +222,13 @@ const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;
 });
 
-const supportedLanguages = ref<QSelectOption[]>([
+const title = computed<string | undefined>(() => {
+  return 'title' in route.meta && typeof route.meta.title === 'string'
+    ? route.meta.title
+    : undefined;
+});
+
+const supportedLanguages: QSelectOption[] = [
   {
     value: 'en-US',
     label: 'English',
@@ -204,7 +237,7 @@ const supportedLanguages = ref<QSelectOption[]>([
     value: 'de-DE',
     label: 'Deutsch',
   },
-]);
+];
 
 const updateLocale = (l: string) => {
   if (!availableLocales.includes(l)) {
@@ -226,6 +259,10 @@ const toggleMute = () => {
 
 const goToHome = () => {
   router.push('/');
+};
+
+const navigateBack = () => {
+  router.back();
 };
 
 function minimize() {

@@ -5,7 +5,7 @@
   >
     <div class="col-12 column no-wrap">
       <!-- Content -->
-      <div class="col-grow row justify-center">
+      <div class="col-8 row justify-center">
         <div
           v-if="started"
           class="column col-xs-11 col-sm-7 col-md-5 col-lg-3 col-xl-2 q-mb-sm"
@@ -22,43 +22,49 @@
 
           <q-separator />
 
-          <q-list dense>
-            <q-item
-              v-for="(entry, index) in Array.from(pressedControllers)"
-              :key="entry[0].id"
+          <div class="col-grow relative-position">
+            <q-virtual-scroll
+              :items="Array.from(pressedControllers)"
+              class="absolute fit"
+              v-slot="{ item, index }"
             >
-              <q-item-section avatar>
-                <q-avatar
-                  :color="avatarColor(index)"
-                  text-color="white"
-                  size="sm"
-                >
-                  {{ index + 1 }}
-                </q-avatar>
-              </q-item-section>
-
-              <q-item-section>
-                {{ entry[0].name }}
-              </q-item-section>
-
-              <q-item-section side>
-                {{ formatTime(entry[1]) }}
-              </q-item-section>
-
-              <q-item-section
-                side
-                v-if="!completed"
+              <q-item
+                :key="item[0].id"
+                dense
               >
-                <q-btn
-                  icon="close"
-                  size="sm"
-                  rounded
-                  dense
-                  @click="removeController(entry[0])"
-                />
-              </q-item-section>
-            </q-item>
-          </q-list>
+                <q-item-section avatar>
+                  <q-avatar
+                    :color="avatarColor(index)"
+                    text-color="white"
+                    size="sm"
+                  >
+                    {{ index + 1 }}
+                  </q-avatar>
+                </q-item-section>
+
+                <q-item-section>
+                  {{ item[0].name }}
+                </q-item-section>
+
+                <q-item-section side>
+                  {{ formatTime(item[1]) }}
+                </q-item-section>
+
+                <q-item-section
+                  side
+                  v-if="!completed"
+                >
+                  <q-btn
+                    icon="close"
+                    size="sm"
+                    rounded
+                    dense
+                    @click="removeController(item[0])"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-virtual-scroll>
+          </div>
         </div>
         <div
           v-else
@@ -72,23 +78,16 @@
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-2 column content-center">
-        <div
+      <div class="col-4 column q-gutter-y-sm justify-center content-center">
+        <q-btn
           v-if="!started"
-          class="column q-gutter-sm"
-        >
-          <q-btn
-            :label="t('question.stopwatch.action.start')"
-            color="primary"
-            rounded
-            @click="start()"
-          />
-        </div>
+          :label="t('question.stopwatch.action.start')"
+          color="primary"
+          rounded
+          @click="start()"
+        />
 
-        <div
-          class="col-12 column q-gutter-y-sm no-wrap content-center justify-around"
-          v-else-if="completed"
-        >
+        <template v-else-if="completed">
           <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
             :controllers="Array.from(pressedControllers.keys())"
@@ -113,16 +112,15 @@
             rounded
             @click="restart()"
           />
-        </div>
+        </template>
 
-        <div v-else>
-          <q-btn
-            :label="t('question.stopwatch.action.cancel')"
-            outline
-            rounded
-            @click="restart()"
-          />
-        </div>
+        <q-btn
+          v-else
+          :label="t('question.stopwatch.action.cancel')"
+          outline
+          rounded
+          @click="restart()"
+        />
       </div>
     </div>
   </q-page>

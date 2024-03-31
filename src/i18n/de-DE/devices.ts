@@ -6,6 +6,11 @@ export default {
       label: 'Alle Buzzer testen',
       button: 'Start',
     },
+
+    names: {
+      label: 'Controller-Namensliste',
+      button: 'Aktualisieren',
+    },
   },
 
   test: {

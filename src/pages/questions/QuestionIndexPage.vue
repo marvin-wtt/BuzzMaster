@@ -22,6 +22,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
+import { reactive } from 'vue';
 
 const { t } = useI18n();
 
@@ -31,7 +32,7 @@ type MenuItem = {
   icon?: string;
 };
 
-const items: MenuItem[] = [
+const items: MenuItem[] = reactive([
   {
     routeName: 'buzzer-question',
     label: t('question.action.buzzer'),
@@ -47,5 +48,5 @@ const items: MenuItem[] = [
     label: t('question.action.stopwatch'),
     icon: 'timer',
   },
-];
+]);
 </script>

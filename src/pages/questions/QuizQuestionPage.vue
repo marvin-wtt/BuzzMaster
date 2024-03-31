@@ -132,6 +132,7 @@ import PulseCircle from 'components/PulseCircle.vue';
 import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue';
 import QuizResult from 'components/questions/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';
+import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';

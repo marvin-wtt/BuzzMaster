@@ -168,19 +168,26 @@
         v-if="title"
         class="row col-shrink justify-between bg-primary text-white"
       >
-        <q-btn
-          class="col-1"
-          icon="arrow_back"
-          size="md"
-          rounded
-          dense
-          flat
-          @click="navigateBack()"
-        />
+        <div class="col-2 row justify-start">
+          <q-btn
+            icon="arrow_back"
+            size="md"
+            rounded
+            dense
+            flat
+            @click="navigateBack()"
+          />
+        </div>
+
         <div class="col text-h5 text-center self-center">
           {{ t(title) }}
         </div>
-        <div class="col-1" />
+
+        <!-- Teleport target for page actions -->
+        <div
+          id="navbar-action"
+          class="col-2 row justify-end"
+        />
       </div>
     </q-header>
 

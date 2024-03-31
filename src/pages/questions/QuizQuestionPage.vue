@@ -120,6 +120,9 @@
       </div>
     </div>
   </q-page>
+
+  <!-- Actions -->
+  <quiz-result-mode-toggle v-if="state === 'completed'" />
 </template>
 
 <script lang="ts" setup>

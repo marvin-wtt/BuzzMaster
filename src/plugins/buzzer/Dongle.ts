@@ -10,7 +10,8 @@ import { ButtonEventEmitter } from 'src/plugins/buzzer/ButtonEventEmitter';
 
 export class Dongle extends ButtonEventEmitter implements IDongle {
   // Keep track of the total dongle count to give each dongle a unique name
-  private static dongleCount = 0;
+  private static DONGLE_COUNT = 0;
+  public static CONTROLLER_NAMES: string[] = [];
 
   name: string;
   controllers: IController[];
@@ -18,20 +19,24 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
   constructor(public device: IDevice) {
     super();
 
-    this.name = `Dongle ${++Dongle.dongleCount}`;
+    this.name = `Dongle ${++Dongle.DONGLE_COUNT}`;
     this.controllers = Array.from({ length: device.controllers }, (_, i) => {
       const lightApi: LightApi = {
         updateLight: this.updateControllerLight(i),
       };
+      const controllerName = Dongle.controllerName(i);
 
-      return new Controller(
-        lightApi,
-        `Controller ${Dongle.dongleCount}-${i + 1}`,
-      );
+      return new Controller(lightApi, controllerName);
     });
 
     // Listen for device updates
     device.buttonUpdateHandler = this.onButtonUpdate.bind(this);
+  }
+
+  static controllerName(controllerIndex: number): string {
+    const name = Dongle.CONTROLLER_NAMES.pop();
+
+    return name ?? `Controller ${Dongle.DONGLE_COUNT}-${controllerIndex + 1}`;
   }
 
   async reset(): Promise<void> {

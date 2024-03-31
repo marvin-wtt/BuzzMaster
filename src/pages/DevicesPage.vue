@@ -68,8 +68,10 @@
           </q-list>
         </q-expansion-item>
         <!-- Buzzer Test -->
-        <q-item>
-          <q-item-section>{{ t('devices.item.test.label') }}</q-item-section>
+        <q-item v-if="dongles.length > 0">
+          <q-item-section>
+            {{ t('devices.item.test.label') }}
+          </q-item-section>
           <q-item-section side>
             <q-btn
               :label="t('devices.item.test.button')"
@@ -77,6 +79,20 @@
               rounded
               :disable="!hasEnabledController"
               @click="startBuzzerTest"
+            />
+          </q-item-section>
+        </q-item>
+        <!-- Dongle naming -->
+        <q-item v-else>
+          <q-item-section>
+            {{ t('devices.item.names.label') }}
+          </q-item-section>
+          <q-item-section side>
+            <q-btn
+              :label="t('devices.item.names.button')"
+              outline
+              rounded
+              @click="updateDongleNamingList"
             />
           </q-item-section>
         </q-item>
@@ -93,6 +109,9 @@ import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
 import { computed } from 'vue';
 import NavigationBar from 'components/PageNavigation.vue';
 import { useI18n } from 'vue-i18n';
+import DongleNameImportDialog from 'components/devices/DongleNameImportDialog.vue';
+import { Dongle } from 'src/plugins/buzzer/Dongle';
+import { config } from 'src/config';
 
 const quasar = useQuasar();
 const { t } = useI18n();
@@ -147,18 +166,23 @@ const hasEnabledController = computed<boolean>(() => {
 });
 
 const editControllerName = (controller: IController) => {
+  const maxLength = config.controllerNameMaxLength;
   quasar
     .dialog({
-      title: 'Controller name',
+      title: t('devices.edit.title'),
       color: 'primary',
       // message: 'Maximum 20 characters',
       prompt: {
         model: controller.name,
-        isValid: (val) => val.length > 0 && val.length <= 20,
+        isValid: (val) => val.length > 0 && val.length <= maxLength,
         type: 'text',
       },
-      cancel: true,
-      persistent: true,
+      ok: {
+        label: t('devices.edit.action.ok'),
+      },
+      cancel: {
+        label: t('devices.edit.action.cancel'),
+      },
     })
     .onOk((name: string) => {
       controller.name = name;
@@ -204,6 +228,16 @@ const startBuzzerTest = () => {
     })
     .onDismiss(() => {
       buzzer.reset();
+    });
+};
+
+const updateDongleNamingList = () => {
+  quasar
+    .dialog({
+      component: DongleNameImportDialog,
+    })
+    .onOk((names: string[]) => {
+      Dongle.CONTROLLER_NAMES = names;
     });
 };
 </script>

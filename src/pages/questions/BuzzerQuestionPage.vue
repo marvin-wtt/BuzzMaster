@@ -1,138 +1,140 @@
 <template>
   <q-page
-    class="column justify-around"
+    class="row"
     padding
   >
-    <!-- Content -->
-    <div class="col-7 row justify-center">
-      <div
-        class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
-      >
-        <!-- Result -->
-        <circle-timer
-          v-if="started && pressedController"
-          v-model="countDownTime"
-          :max="buzzerSettings.answerTime"
+    <div class="col-12 column no-wrap">
+      <!-- Content -->
+      <div class="col-7 row justify-center">
+        <div
+          class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
         >
-          <q-resize-observer @resize="onCircleTimerResize" />
+          <!-- Result -->
+          <circle-timer
+            v-if="started && pressedController"
+            v-model="countDownTime"
+            :max="buzzerSettings.answerTime"
+          >
+            <q-resize-observer @resize="onCircleTimerResize" />
 
-          <div class="column justify-center q-col-gutter-xs">
-            <div :style="controllerNameStyle">
-              {{ pressedController.name }}
+            <div class="column justify-center q-col-gutter-xs">
+              <div :style="controllerNameStyle">
+                {{ pressedController.name }}
+              </div>
+              <count-down
+                v-if="buzzerSettings.answerTime > 0"
+                v-model="countDownTime"
+                :beep="soundsEnabled"
+                :beep-start-time="buzzerSettings.countDownBeepStartAt"
+                :style="countDownStyle"
+                animated
+              />
             </div>
-            <count-down
-              v-if="buzzerSettings.answerTime > 0"
-              v-model="countDownTime"
-              :beep="soundsEnabled"
-              :beep-start-time="buzzerSettings.countDownBeepStartAt"
-              :style="countDownStyle"
-              animated
-            />
-          </div>
-        </circle-timer>
-        <!-- Waiting -->
-        <pulse-circle
-          v-else
-          class="column justify-center q-col-gutter-sm text-h5"
-          :pulse="started"
+          </circle-timer>
+          <!-- Waiting -->
+          <pulse-circle
+            v-else
+            class="column justify-center q-col-gutter-sm text-h5"
+            :pulse="started"
+          >
+            <div v-if="!started">
+              {{
+                t('question.buzzer.controllersReady', {
+                  count: controllers.length,
+                })
+              }}
+            </div>
+            <div v-else>
+              {{ t('question.buzzer.waitingForBuzzer') }}
+            </div>
+          </pulse-circle>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div class="col-5 row justify-center no-wrap">
+        <!-- Start menu -->
+        <div
+          v-if="!started"
+          class="column q-gutter-sm justify-center"
         >
-          <div v-if="!started">
-            {{
-              t('question.buzzer.controllersReady', {
-                count: controllers.length,
-              })
-            }}
-          </div>
-          <div v-else>
-            {{ t('question.buzzer.waitingForBuzzer') }}
-          </div>
-        </pulse-circle>
-      </div>
-    </div>
-    <!-- Actions -->
-    <div class="col-5 row justify-center no-wrap">
-      <!-- Start menu -->
-      <div
-        v-if="!started"
-        class="column q-gutter-sm justify-center"
-      >
-        <q-btn
-          :label="t('question.buzzer.action.start')"
-          color="primary"
-          rounded
-          @click="start()"
-        />
-        <q-btn
-          :label="t('question.buzzer.action.settings')"
-          outline
-          rounded
-          @click="settings"
-        />
-      </div>
-
-      <!-- Result menu -->
-      <div
-        class="column col-xs-12 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
-        v-if="pressedController"
-      >
-        <!-- Scoreboard -->
-        <buzzer-scoreboard-buttons
-          v-if="showScoreboardActions"
-          :controller="pressedController"
-        />
-
-        <div class="q-pt-md">
-          <q-separator />
+          <q-btn
+            :label="t('question.buzzer.action.start')"
+            color="primary"
+            rounded
+            @click="start()"
+          />
+          <q-btn
+            :label="t('question.buzzer.action.settings')"
+            outline
+            rounded
+            @click="settings"
+          />
         </div>
 
-        <!-- First row -->
-        <div class="row">
-          <div class="col-6 column justify-center content-end">
-            <q-btn
-              :label="t('question.buzzer.action.reOpen')"
-              icon="loop"
-              color="primary"
-              class="q-mx-sm"
-              rounded
-              :outline="allControllersPressed"
-              :disable="allControllersPressed"
-              @click="continueQuestion()"
-            />
+        <!-- Result menu -->
+        <div
+          class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
+          v-if="pressedController"
+        >
+          <!-- Scoreboard -->
+          <buzzer-scoreboard-buttons
+            v-if="showScoreboardActions"
+            :controller="pressedController"
+          />
+
+          <div class="q-pt-md">
+            <q-separator />
           </div>
-          <div class="col-6 column justify-center content-start">
+
+          <!-- First row -->
+          <div class="row">
+            <div class="col-6 column justify-center content-end">
+              <q-btn
+                :label="t('question.buzzer.action.reOpen')"
+                icon="loop"
+                color="primary"
+                class="q-mx-sm"
+                rounded
+                :outline="allControllersPressed"
+                :disable="allControllersPressed"
+                @click="continueQuestion()"
+              />
+            </div>
+            <div class="col-6 column justify-center content-start">
+              <q-btn
+                :label="t('question.buzzer.action.quickPlay')"
+                icon="fast_forward"
+                color="primary"
+                class="q-mx-sm"
+                rounded
+                @click="quickPlay()"
+              />
+            </div>
+          </div>
+          <!-- Second row -->
+          <div class="row justify-center">
             <q-btn
-              :label="t('question.buzzer.action.quickPlay')"
-              icon="fast_forward"
-              color="primary"
-              class="q-mx-sm"
+              :label="t('question.buzzer.action.reset')"
+              icon="replay"
+              outline
               rounded
-              @click="quickPlay()"
+              @click="restart()"
             />
           </div>
         </div>
-        <!-- Second row -->
-        <div class="row justify-center">
-          <q-btn
-            :label="t('question.buzzer.action.reset')"
-            icon="replay"
-            outline
-            rounded
-            @click="restart()"
-          />
-        </div>
-      </div>
 
-      <div
-        v-if="started && !pressedController"
-        class="row justify-center"
-      >
-        <div class="column justify-center">
-          <q-btn
-            :label="t('question.buzzer.action.cancel')"
-            outline
-            rounded
-            @click="restart()"
-          />
+        <div
+          v-if="started && !pressedController"
+          class="row justify-center"
+        >
+          <div class="column justify-center">
+            <q-btn
+              :label="t('question.buzzer.action.cancel')"
+              outline
+              rounded
+              @click="restart()"
+            />
+          </div>
         </div>
       </div>
     </div>

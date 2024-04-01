@@ -19,4 +19,16 @@ export default {
       ok: 'Speichern',
     },
   },
+
+  settings: {
+    title: 'Einstellungen',
+
+    field: {
+      playSounds: 'Ton abspielen',
+    },
+
+    action: {
+      ok: 'Ok',
+    },
+  },
 };

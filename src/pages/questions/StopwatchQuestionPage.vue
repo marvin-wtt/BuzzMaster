@@ -79,13 +79,23 @@
       </div>
       <!-- Actions -->
       <div class="col-4 column q-gutter-y-sm justify-center content-center">
-        <q-btn
+        <div
           v-if="!started"
-          :label="t('question.stopwatch.action.start')"
-          color="primary"
-          rounded
-          @click="start()"
-        />
+          class="column q-gutter-sm"
+        >
+          <q-btn
+            :label="t('question.stopwatch.action.start')"
+            color="primary"
+            rounded
+            @click="start()"
+          />
+          <q-btn
+            :label="t('question.quiz.action.settings')"
+            outline
+            rounded
+            @click="openSettings"
+          />
+        </div>
 
         <template v-else-if="completed">
           <stopwatch-scoreboard-button
@@ -127,6 +137,7 @@
 </template>
 
 <script lang="ts" setup>
+import StopwatchQuestionDialog from 'components/questions/stopwatch/StopwatchQuestionDialog.vue';
 import CountDown from 'components/CountDown.vue';
 import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -137,8 +148,12 @@ import {
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
+import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useQuasar } from 'quasar';
 
 const { t } = useI18n();
+const quasar = useQuasar();
+const { stopwatchSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 
 const counter = ref<number>(0);
@@ -148,9 +163,13 @@ const pressedControllers = ref<Map<IController, number>>(
   new Map<IController, number>(),
 );
 
+const audio = new Audio('sounds/stopwatch-ping.mp3');
+
 onBeforeMount(() => {
   buzzer.reset();
   buzzer.on('press', listener);
+
+  audio.load();
 });
 
 onUnmounted(() => {
@@ -160,6 +179,10 @@ onUnmounted(() => {
 
 const completed = computed<boolean>(() => {
   return controllers.value.length === pressedControllers.value.size;
+});
+
+const soundsEnabled = computed<boolean>(() => {
+  return stopwatchSettings.playSounds;
 });
 
 const listener = (event: ButtonEvent) => {
@@ -179,6 +202,17 @@ const listener = (event: ButtonEvent) => {
 
   pressedControllers.value.set(event.controller, time);
   event.controller.setLight(true);
+
+  if (soundsEnabled.value) {
+    const clonedAudio = audio.cloneNode() as typeof audio;
+    clonedAudio.play();
+  }
+};
+
+const openSettings = () => {
+  quasar.dialog({
+    component: StopwatchQuestionDialog,
+  });
 };
 
 const restart = () => {

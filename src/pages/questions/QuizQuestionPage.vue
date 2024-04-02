@@ -7,9 +7,7 @@
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
         <quiz-result
-          v-if="showResults"
-          :confirmed-controllers="confirmedControllers"
-          :pressed-buttons="pressedButtons"
+          v-if="gameState.name === 'completed'"
           :controllers-by-button="controllersByButton"
         />
         <div
@@ -19,7 +17,7 @@
           <transition-fade>
             <!-- Start -->
             <pulse-circle
-              v-if="state === 'preparing'"
+              v-if="gameState.name === 'preparing'"
               :pulse="false"
               class="column justify-center q-col-gutter-sm text-h5"
             >
@@ -41,13 +39,15 @@
             </pulse-circle>
 
             <!-- Waiting for answers -->
+            <!-- TODO This interrupts the last beep. How to prevent it?-->
             <circle-timer
-              v-model="countDownTime"
+              v-if="gameState.name === 'running'"
+              v-model="gameState.time"
               :max="quizSettings.answerTime"
             >
               <count-down
                 v-if="quizSettings.answerTime > 0"
-                v-model="countDownTime"
+                v-model="gameState.time"
                 :beep="soundsEnabled"
                 :beep-start-time="quizSettings.countDownBeepStartAt"
                 animated
@@ -62,7 +62,7 @@
       <div class="col-3 row justify-center">
         <transition-fade>
           <div
-            v-if="state === 'preparing'"
+            v-if="gameState.name === 'preparing'"
             class="column q-gutter-sm"
           >
             <q-btn
@@ -80,7 +80,7 @@
           </div>
 
           <div
-            v-if="state === 'completed'"
+            v-if="gameState.name === 'completed'"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <quiz-scoreboard-buttons
@@ -108,7 +108,7 @@
             />
           </div>
 
-          <div v-if="state === 'running'">
+          <div v-if="gameState.name === 'running'">
             <q-btn
               :label="t('question.quiz.action.cancel')"
               outline
@@ -122,7 +122,7 @@
   </q-page>
 
   <!-- Actions -->
-  <quiz-result-mode-toggle v-if="state === 'completed'" />
+  <quiz-result-mode-toggle v-if="gameState.name === 'completed'" />
 </template>
 
 <script lang="ts" setup>
@@ -133,7 +133,7 @@ import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue
 import QuizResult from 'components/questions/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';
 import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
@@ -143,6 +143,12 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
+import {
+  QuizRunningChangeAlwaysState,
+  QuizRunningChangeConfirmState,
+  QuizRunningChangeNeverState,
+  QuizState,
+} from 'app/common/GameState';
 import { buzzerButtonColor } from 'components/buttonColors';
 import { useI18n } from 'vue-i18n';
 
@@ -151,13 +157,10 @@ const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 
-const state = ref<'preparing' | 'running' | 'completed'>('preparing');
-const countDownTime = ref<number>(0);
-const showResults = ref<boolean>(false);
-const pressedButtons = ref<Map<string, BuzzerButton>>(
-  new Map<string, BuzzerButton>(),
-);
-const confirmedControllers = ref<string[]>([]);
+const gameState = ref<QuizState>({
+  game: 'quiz',
+  name: 'preparing',
+});
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -168,25 +171,129 @@ onUnmounted(() => {
   buzzer.removeListener('press', listener);
   buzzer.reset();
 });
-const listener = (event: ButtonEvent) => {
-  if (state.value !== 'running') {
+
+const onComplete = () => {
+  if (gameState.value.name !== 'running') {
     return;
   }
 
-  if (confirmedControllers.value.includes(event.controller.id)) {
+  gameState.value = {
+    game: 'quiz',
+    name: 'completed',
+    result: gameState.value.result,
+  };
+};
+
+const onStart = () => {
+  if (quizSettings.changeMode === 'confirm') {
+    gameState.value = {
+      game: 'quiz',
+      name: 'running',
+      time: quizSettings.answerTime,
+      answerChangeAllowed: quizSettings.changeMode,
+      result: {},
+      unconfirmed: {},
+    };
+  } else {
+    gameState.value = {
+      game: 'quiz',
+      name: 'running',
+      time: quizSettings.answerTime,
+      answerChangeAllowed: quizSettings.changeMode,
+      result: {},
+    };
+  }
+};
+
+const onReset = () => {
+  gameState.value = {
+    game: 'quiz',
+    name: 'preparing',
+  };
+};
+
+const buttonPressedAnswerChangeAlways = (
+  event: ButtonEvent,
+  state: QuizRunningChangeAlwaysState,
+) => {
+  if (!quizSettings.activeButtons.includes(event.button)) {
+    return;
+  }
+
+  gameState.value = {
+    game: 'quiz',
+    name: 'running',
+    answerChangeAllowed: 'always',
+    time: state.time,
+    result: {
+      ...state.result,
+      [event.controller.id]: event.button,
+    },
+  };
+};
+
+const buttonPressedAnswerChangeNever = (
+  event: ButtonEvent,
+  state: QuizRunningChangeNeverState,
+) => {
+  if (!quizSettings.activeButtons.includes(event.button)) {
+    return;
+  }
+
+  // Guard already answered
+  if (event.controller.id in state.result) {
+    return;
+  }
+
+  // Update state
+  gameState.value = {
+    game: 'quiz',
+    name: 'running',
+    answerChangeAllowed: 'never',
+    time: state.time,
+    result: {
+      ...state.result,
+      [event.controller.id]: event.button,
+    },
+  };
+
+  // Transition to completed if all controllers answered
+  if (Object.keys(state.result).length + 1 >= controllers.value.length) {
+    onComplete();
+  }
+};
+
+const buttonPressedAnswerChangeConfirm = (
+  event: ButtonEvent,
+  state: QuizRunningChangeConfirmState,
+) => {
+  // Guard already confirmed
+  if (event.controller.id in state.result) {
     return;
   }
 
   if (event.button === BuzzerButton.RED) {
-    if (quizSettings.changeMode !== 'confirm') {
+    if (!(event.controller.id in state.unconfirmed)) {
       return;
     }
 
-    if (!pressedButtons.value.has(event.controller.id)) {
-      return;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { [event.controller.id]: _, ...unconfirmed } = state.unconfirmed;
 
-    confirmButton(event.controller);
+    // Update state
+    gameState.value = {
+      game: 'quiz',
+      name: 'running',
+      answerChangeAllowed: 'confirm',
+      time: state.time,
+      result: {
+        ...state.result,
+        [event.controller.id]: event.button,
+      },
+      unconfirmed,
+    };
+
+    event.controller.setLight(true);
     return;
   }
 
@@ -194,44 +301,43 @@ const listener = (event: ButtonEvent) => {
     return;
   }
 
-  pressedButtons.value.set(event.controller.id, event.button);
+  // Update state
+  gameState.value = {
+    game: 'quiz',
+    name: 'running',
+    answerChangeAllowed: 'confirm',
+    time: state.time,
+    result: state.result,
+    unconfirmed: {
+      ...state.unconfirmed,
+      [event.controller.id]: event.button,
+    },
+  };
 
-  if (quizSettings.changeMode === 'never') {
-    confirmButton(event.controller);
-  }
-
-  // Complete the question if all controllers are confirmed and change is not permitted
-  if (
-    quizSettings.changeMode !== 'always' &&
-    controllers.value.length === confirmedControllers.value.length
-  ) {
-    state.value = 'completed';
+  // Transition to completed if all controllers confirmed
+  if (Object.keys(state.result).length + 1 >= controllers.value.length) {
+    onComplete();
   }
 };
 
-const confirmButton = (controller: IController) => {
-  confirmedControllers.value.push(controller.id);
-  controller.setLight(true);
+const listener = (event: ButtonEvent) => {
+  if (gameState.value.name !== 'running') {
+    return;
+  }
+
+  if (gameState.value.answerChangeAllowed === 'confirm') {
+    return buttonPressedAnswerChangeConfirm(event, gameState.value);
+  }
+  if (gameState.value.answerChangeAllowed === 'never') {
+    return buttonPressedAnswerChangeNever(event, gameState.value);
+  }
+
+  buttonPressedAnswerChangeAlways(event, gameState.value);
 };
 
 const onCountdownStop = () => {
-  state.value = 'completed';
+  onComplete();
 };
-
-watch(state, (value) => {
-  // If component leaves too early, timer sound is interrupted
-  if (value === 'completed') {
-    if (countDownTime.value <= 0) {
-      setTimeout(() => {
-        showResults.value = true;
-      }, 1000);
-    } else {
-      showResults.value = true;
-    }
-  } else {
-    showResults.value = false;
-  }
-});
 
 const soundsEnabled = computed<boolean>(() => {
   return quizSettings.playSounds;
@@ -244,16 +350,13 @@ const openSettings = () => {
 };
 
 const start = () => {
-  countDownTime.value = quizSettings.answerTime;
-  state.value = 'running';
+  onStart();
 };
 
 const restart = () => {
-  pressedButtons.value = new Map<string, BuzzerButton>();
-  confirmedControllers.value = [];
   buzzer.reset();
 
-  state.value = 'preparing';
+  onReset();
 };
 
 const quickPlay = () => {
@@ -264,16 +367,18 @@ const quickPlay = () => {
 const controllersByButton = computed<
   Record<BuzzerButton, IController[] | undefined>
 >(() => {
+  const state = gameState.value;
+  if (state.name !== 'completed') {
+    return {} as Record<BuzzerButton, IController[] | undefined>;
+  }
+
   return controllers.value.reduce(
     (acc, controller) => {
-      const hasConfirmed =
-        quizSettings.changeMode === 'always' ||
-        confirmedControllers.value.includes(controller.id);
       // Mo input is default button
       const pressedButton =
-        pressedButtons.value.get(controller.id) ?? BuzzerButton.RED;
+        controller.id in state.result ? state.result[controller.id] : undefined;
       // Ignore input if user has not confirmed the button selection
-      const button = hasConfirmed ? pressedButton : BuzzerButton.RED;
+      const button = pressedButton ?? BuzzerButton.RED;
 
       acc[button] ??= [];
       acc[button].push(controller);

@@ -133,7 +133,7 @@ import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue
 import QuizResult from 'components/questions/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';
 import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
-import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
@@ -172,6 +172,43 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
+const controllersByButton = computed<
+  Record<BuzzerButton, IController[] | undefined>
+>(() => {
+  const state = gameState.value;
+  if (state.name !== 'completed') {
+    return {} as Record<BuzzerButton, IController[] | undefined>;
+  }
+
+  return controllers.value.reduce(
+    (acc, controller) => {
+      // Mo input is default button
+      const pressedButton =
+        controller.id in state.result ? state.result[controller.id] : undefined;
+      // Ignore input if user has not confirmed the button selection
+      const button = pressedButton ?? BuzzerButton.RED;
+
+      acc[button] ??= [];
+      acc[button].push(controller);
+
+      return acc;
+    },
+    {} as Record<BuzzerButton, IController[]>,
+  );
+});
+
+const showScoreboardActions = computed<boolean>(() => {
+  return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;
+});
+
+// Order of buttons
+const buttons: BuzzerButton[] = [
+  BuzzerButton.BLUE,
+  BuzzerButton.ORANGE,
+  BuzzerButton.GREEN,
+  BuzzerButton.YELLOW,
+];
+
 const onComplete = () => {
   if (gameState.value.name !== 'running') {
     return;
@@ -181,34 +218,6 @@ const onComplete = () => {
     game: 'quiz',
     name: 'completed',
     result: gameState.value.result,
-  };
-};
-
-const onStart = () => {
-  if (quizSettings.changeMode === 'confirm') {
-    gameState.value = {
-      game: 'quiz',
-      name: 'running',
-      time: quizSettings.answerTime,
-      answerChangeAllowed: quizSettings.changeMode,
-      result: {},
-      unconfirmed: {},
-    };
-  } else {
-    gameState.value = {
-      game: 'quiz',
-      name: 'running',
-      time: quizSettings.answerTime,
-      answerChangeAllowed: quizSettings.changeMode,
-      result: {},
-    };
-  }
-};
-
-const onReset = () => {
-  gameState.value = {
-    game: 'quiz',
-    name: 'preparing',
   };
 };
 
@@ -350,56 +359,43 @@ const openSettings = () => {
 };
 
 const start = () => {
-  onStart();
+  if (gameState.value.name !== 'preparing') {
+    return;
+  }
+
+  if (quizSettings.changeMode === 'confirm') {
+    gameState.value = {
+      game: 'quiz',
+      name: 'running',
+      time: quizSettings.answerTime,
+      answerChangeAllowed: 'confirm',
+      result: {},
+      unconfirmed: {},
+    };
+  } else {
+    gameState.value = {
+      game: 'quiz',
+      name: 'running',
+      time: quizSettings.answerTime,
+      answerChangeAllowed: quizSettings.changeMode,
+      result: {},
+    };
+  }
 };
 
 const restart = () => {
   buzzer.reset();
 
-  onReset();
+  gameState.value = {
+    game: 'quiz',
+    name: 'preparing',
+  };
 };
 
 const quickPlay = () => {
   restart();
   start();
 };
-
-const controllersByButton = computed<
-  Record<BuzzerButton, IController[] | undefined>
->(() => {
-  const state = gameState.value;
-  if (state.name !== 'completed') {
-    return {} as Record<BuzzerButton, IController[] | undefined>;
-  }
-
-  return controllers.value.reduce(
-    (acc, controller) => {
-      // Mo input is default button
-      const pressedButton =
-        controller.id in state.result ? state.result[controller.id] : undefined;
-      // Ignore input if user has not confirmed the button selection
-      const button = pressedButton ?? BuzzerButton.RED;
-
-      acc[button] ??= [];
-      acc[button].push(controller);
-
-      return acc;
-    },
-    {} as Record<BuzzerButton, IController[]>,
-  );
-});
-
-const showScoreboardActions = computed<boolean>(() => {
-  return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;
-});
-
-// Order of buttons
-const buttons: BuzzerButton[] = [
-  BuzzerButton.BLUE,
-  BuzzerButton.ORANGE,
-  BuzzerButton.GREEN,
-  BuzzerButton.YELLOW,
-];
 
 const buttonColorClass = (button: BuzzerButton) => {
   return quizSettings.activeButtons?.includes(button)

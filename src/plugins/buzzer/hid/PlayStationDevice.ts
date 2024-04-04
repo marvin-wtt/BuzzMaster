@@ -4,6 +4,7 @@ import { buttonMapping } from 'src/plugins/buzzer/hid/playstationButtonMappings'
 export class PlayStationDevice implements IDevice {
   readonly id = crypto.randomUUID();
   readonly controllers = 4;
+  readonly energySavingDelay = 15 * 60 * 1000;
   buttonUpdateHandler: (states: ButtonState[]) => void = () => undefined;
   private lights: boolean[] = [false, false, false, false];
 

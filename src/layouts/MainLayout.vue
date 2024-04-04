@@ -209,7 +209,7 @@ const router = useRouter();
 const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
-const { buzzer } = useBuzzer();
+const { buzzer, controllers } = useBuzzer();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
@@ -297,6 +297,21 @@ function closeApp() {
   buzzer.reset();
   window.windowAPI?.close();
 }
+
+setInterval(() => {
+  const warningTime = new Date().getTime() + 3 * 10e4;
+
+  const c = controllers.value.filter(
+    (controller) =>
+      controller.energySavingAt && controller.energySavingAt < warningTime,
+  );
+
+  quasar.notify({
+    type: 'warning',
+    timeout: 0,
+    message: 'Test',
+  });
+}, 1000);
 </script>
 
 <style lang="scss">

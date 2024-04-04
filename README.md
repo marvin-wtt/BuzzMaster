@@ -4,10 +4,28 @@ BuzzMaster is a user-friendly application for hosting quiz shows with physical i
 
 ## Key Features
 
-- **Buzzer Questions**: Participants compete to be the first to press the red buzzer and answer the question.
-- **Quiz Questions**: Participants select one of four options within a given time frame.
-- **Stopwatch Mode**: Tracks the time taken for each participant to press the red button.
-- **Scoreboard**: Keeps track of points gained or lost throughout the quiz show.
+### Buzzer Questions
+
+Participants compete to be the first to press the red buzzer and answer the question.
+
+### Quiz Questions
+
+Participants select one of four options within a given time frame.
+
+### Stopwatch Mode
+
+Tracks the time taken for each participant to press the red button.
+
+### Scoreboard
+
+Keeps track of points gained or lost throughout the quiz show.
+Points can be updated either directly after a question / game or manually in the scoreboard.
+When choosing to update the points manually, either new points can be set or the current points can be updated using simple algebra.
+
+### Energy Saving Notification
+
+Shows a notification when a controller is about to go into energy saving mode.
+The feature is available for a controller after the first button press.
 
 ## Installation
 

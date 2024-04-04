@@ -15,6 +15,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
 
   name: string;
   controllers: IController[];
+  energySavingAt: number | null | undefined = undefined;
 
   constructor(public device: IDevice) {
     super();
@@ -26,7 +27,7 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
       };
       const controllerName = Dongle.controllerName(i);
 
-      return new Controller(lightApi, controllerName);
+      return new Controller(lightApi, controllerName, device.energySavingDelay);
     });
 
     // Listen for device updates
@@ -44,29 +45,30 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
   }
 
   private onButtonUpdate(states: ButtonState[]): void {
-    const changedStates = states
-      .filter((state) => !this.controllers[state.controller].disabled)
-      .filter(
-        (state) =>
-          // Compare new state with current state. Only accept updates.
-          this.controllers[state.controller].buttons[state.button] !==
-          state.pressed,
-      );
+    const changedStates = states.filter(
+      (state) =>
+        // Compare new state with current state. Only accept updates.
+        this.controllers[state.controller].buttons[state.button] !==
+        state.pressed,
+    );
 
-    // Update all controllers and fire events
+    // Send changes to all updated controllers
     changedStates.forEach((state) => {
-      const controller = this.controllers[state.controller];
-      controller.update(state);
-
-      // Emit changes to all listeners
-      const event = {
-        button: state.button,
-        controller,
-      };
-
-      this.emit('change', event);
-      this.emit(state.pressed ? 'press' : 'release', event);
+      this.controllers[state.controller].update(state);
     });
+
+    // Emit changes to all listeners
+    changedStates
+      .filter((state) => !this.controllers[state.controller].disabled)
+      .forEach((state) => {
+        const event = {
+          button: state.button,
+          controller: this.controllers[state.controller],
+        };
+
+        this.emit('change', event);
+        this.emit(state.pressed ? 'press' : 'release', event);
+      });
   }
 
   private updateControllerLight(controllerIndex: number) {

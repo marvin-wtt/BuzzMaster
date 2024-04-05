@@ -72,6 +72,20 @@
               @click="openDevTools"
             />
 
+            <!-- Battery Saving -->
+            <q-btn
+              aria-label="Battery saving"
+              dense
+              flat
+              rounded
+              size="sm"
+              key="battery-saving"
+              icon="battery_saver"
+              class="settings-button bg-primary"
+              :color="showBatterySavingButton ? 'warning' : undefined"
+              @click="showBatterySavingDialog"
+            />
+
             <!-- Dark mode -->
             <q-btn
               aria-label="Toggle dark mode"
@@ -204,12 +218,15 @@ import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
 import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
+import { useBatterySavingStore } from 'stores/battery-saving-store';
+import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
-const { buzzer, controllers } = useBuzzer();
+const { buzzer } = useBuzzer();
+const batterySavingStore = useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
@@ -289,6 +306,16 @@ function showScoreboard() {
   });
 }
 
+const showBatterySavingButton = computed<boolean>(() => {
+  return batterySavingStore.criticalBatterySavingTimes.length > 0;
+});
+
+function showBatterySavingDialog() {
+  quasar.dialog({
+    component: BatterySavingDialog,
+  });
+}
+
 function openDevTools() {
   window.windowAPI.openDevTools();
 }
@@ -297,21 +324,6 @@ function closeApp() {
   buzzer.reset();
   window.windowAPI?.close();
 }
-
-setInterval(() => {
-  const warningTime = new Date().getTime() + 3 * 10e4;
-
-  const c = controllers.value.filter(
-    (controller) =>
-      controller.energySavingAt && controller.energySavingAt < warningTime,
-  );
-
-  quasar.notify({
-    type: 'warning',
-    timeout: 0,
-    message: 'Test',
-  });
-}, 1000);
 </script>
 
 <style lang="scss">

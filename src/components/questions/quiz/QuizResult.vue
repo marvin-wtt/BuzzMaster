@@ -85,8 +85,6 @@ const { controllers } = useBuzzer();
 
 const activeResult = ref<BuzzerButton>();
 const props = defineProps<{
-  confirmedControllers: string[];
-  pressedButtons: Map<string, BuzzerButton>;
   controllersByButton: Record<BuzzerButton, IController[] | undefined>;
 }>();
 

@@ -11,19 +11,19 @@
         >
           <!-- Result -->
           <circle-timer
-            v-if="started && pressedController"
-            v-model="countDownTime"
+            v-if="gameState.name === 'answering'"
+            v-model="gameState.time"
             :max="buzzerSettings.answerTime"
           >
             <q-resize-observer @resize="onCircleTimerResize" />
 
             <div class="column justify-center q-col-gutter-xs">
               <div :style="controllerNameStyle">
-                {{ pressedController.name }}
+                {{ gameState.controller.name }}
               </div>
               <count-down
                 v-if="buzzerSettings.answerTime > 0"
-                v-model="countDownTime"
+                v-model="gameState.time"
                 :beep="soundsEnabled"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
@@ -35,9 +35,9 @@
           <pulse-circle
             v-else
             class="column justify-center q-col-gutter-sm text-h5"
-            :pulse="started"
+            :pulse="gameState.name === 'running'"
           >
-            <div v-if="!started">
+            <div v-if="gameState.name === 'preparing'">
               {{
                 t('question.buzzer.controllersReady', {
                   count: controllers.length,
@@ -54,7 +54,7 @@
       <div class="col-5 row justify-center no-wrap">
         <!-- Start menu -->
         <div
-          v-if="!started"
+          v-if="gameState.name === 'preparing'"
           class="column q-gutter-sm justify-center"
         >
           <q-btn
@@ -73,13 +73,13 @@
 
         <!-- Result menu -->
         <div
+          v-else-if="gameState.name === 'answering'"
           class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
-          v-if="pressedController"
         >
           <!-- Scoreboard -->
           <buzzer-scoreboard-buttons
             v-if="showScoreboardActions"
-            :controller="pressedController"
+            :controller="gameState.controller"
           />
 
           <div class="q-pt-md">
@@ -124,7 +124,7 @@
         </div>
 
         <div
-          v-if="started && !pressedController"
+          v-if="gameState.name === 'running'"
           class="row justify-center"
         >
           <div class="column justify-center">
@@ -149,14 +149,11 @@ import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-import {
-  ButtonEvent,
-  BuzzerButton,
-  IController,
-} from 'src/plugins/buzzer/types';
+import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useI18n } from 'vue-i18n';
+import { BuzzerState } from 'app/common/GameState';
 
 interface Size {
   width: number;
@@ -168,13 +165,14 @@ const { t } = useI18n();
 const { buzzerSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 
+const gameState = ref<BuzzerState>({
+  game: 'buzzer',
+  name: 'preparing',
+});
+
 const controllerNameStyle = ref<string | { fontSize: string }>('');
 const countDownStyle = ref<string | { fontSize: string }>('');
 const circleSize = ref<Size>();
-const pressedController = ref<IController>();
-const started = ref<boolean>(false);
-const pressedControllers = ref<string[]>([]);
-const countDownTime = ref<number>(0);
 
 const audio = new Audio('sounds/buzzer.mp3');
 
@@ -197,14 +195,18 @@ const soundsEnabled = computed<boolean>(() => {
 const onCircleTimerResize = (size?: { width: number; height: number }) => {
   size ??= circleSize.value ?? { width: 0, height: 0 };
   const elementWidth = size.width;
+  const pressedController =
+    gameState.value.name === 'answering'
+      ? gameState.value.controller
+      : undefined;
 
   // Magical numbers so that the font size stays within the circle with padding
   const scaleFactor = 8.5;
   const heightFactor = 3;
   const countDownScale = 0.75;
 
-  const { width, height } = textMetrics(pressedController.value?.name ?? '');
-  if (!elementWidth || !pressedController.value) {
+  const { width, height } = textMetrics(pressedController?.name ?? '');
+  if (!elementWidth || !pressedController) {
     return;
   }
 
@@ -225,7 +227,7 @@ const onCircleTimerResize = (size?: { width: number; height: number }) => {
   };
 };
 
-watch([pressedController], () => {
+watch(gameState, () => {
   onCircleTimerResize();
 });
 
@@ -248,8 +250,14 @@ const textMetrics = (text: string) => {
 };
 
 const allControllersPressed = computed<boolean>(() => {
+  if (gameState.value.name !== 'answering') {
+    return false;
+  }
+
+  const disabledControllerIds = gameState.value.disabledControllerIds;
+
   return !controllers.value.some(
-    (controller) => !pressedControllers.value.includes(controller.id),
+    (controller) => !disabledControllerIds.includes(controller.id),
   );
 });
 
@@ -258,11 +266,7 @@ const showScoreboardActions = computed<boolean>(() => {
 });
 
 const listener = (event: ButtonEvent) => {
-  if (!started.value) {
-    return;
-  }
-
-  if (pressedController.value !== undefined) {
+  if (gameState.value.name !== 'running') {
     return;
   }
 
@@ -272,7 +276,7 @@ const listener = (event: ButtonEvent) => {
 
   if (
     !buzzerSettings.multipleAttempts &&
-    pressedControllers.value.includes(event.controller.id)
+    gameState.value.disabledControllerIds.includes(event.controller.id)
   ) {
     return;
   }
@@ -281,25 +285,41 @@ const listener = (event: ButtonEvent) => {
     audio.play();
   }
 
-  countDownTime.value = buzzerSettings.answerTime;
-  pressedController.value = event.controller;
-  pressedControllers.value.push(event.controller.id);
+  const disabledControllerIds = gameState.value.disabledControllerIds;
+  disabledControllerIds.push(event.controller.id);
+
+  gameState.value = {
+    game: 'buzzer',
+    name: 'answering',
+    time: buzzerSettings.answerTime,
+    controller: event.controller,
+    disabledControllerIds,
+  };
 
   event.controller.setLight(true);
 };
 
 const continueQuestion = () => {
+  if (gameState.value.name !== 'answering') {
+    return;
+  }
+
   buzzer.reset();
 
-  pressedController.value = undefined;
+  gameState.value = {
+    game: 'buzzer',
+    name: 'running',
+    disabledControllerIds: gameState.value.disabledControllerIds,
+  };
 };
 
 const restart = () => {
   buzzer.reset();
 
-  pressedControllers.value = [];
-  pressedController.value = undefined;
-  started.value = false;
+  gameState.value = {
+    game: 'buzzer',
+    name: 'preparing',
+  };
 };
 
 const quickPlay = () => {
@@ -308,7 +328,11 @@ const quickPlay = () => {
 };
 
 const start = () => {
-  started.value = true;
+  gameState.value = {
+    game: 'buzzer',
+    name: 'running',
+    disabledControllerIds: [],
+  };
 };
 
 const settings = () => {

@@ -7,13 +7,13 @@
       <!-- Content -->
       <div class="col-8 row justify-center">
         <div
-          v-if="started"
+          v-if="gameState.name !== 'preparing'"
           class="column col-xs-11 col-sm-7 col-md-5 col-lg-3 col-xl-2 q-mb-sm"
         >
           <!-- Result -->
           <count-down
-            v-model="counter"
-            :paused="completed"
+            v-model="gameState.time"
+            :paused="gameState.name === 'completed'"
             :precision="2"
             :update-rate="100"
             reverse
@@ -24,7 +24,7 @@
 
           <div class="col-grow relative-position">
             <q-virtual-scroll
-              :items="Array.from(pressedControllers)"
+              :items="Array.from(gameState.pressedControllers)"
               class="absolute fit"
               v-slot="{ item, index }"
             >
@@ -52,7 +52,7 @@
 
                 <q-item-section
                   side
-                  v-if="!completed"
+                  v-if="gameState.name !== 'completed'"
                 >
                   <q-btn
                     icon="close"
@@ -80,7 +80,7 @@
       <!-- Actions -->
       <div class="col-4 column q-gutter-y-sm justify-center content-center">
         <div
-          v-if="!started"
+          v-if="gameState.name === 'preparing'"
           class="column q-gutter-sm"
         >
           <q-btn
@@ -97,10 +97,10 @@
           />
         </div>
 
-        <template v-else-if="completed">
+        <template v-else-if="gameState.name === 'completed'">
           <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
-            :controllers="Array.from(pressedControllers.keys())"
+            :controllers="Array.from(gameState.pressedControllers.keys())"
           />
 
           <q-separator />
@@ -150,18 +150,18 @@ import { useI18n } from 'vue-i18n';
 import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useQuasar } from 'quasar';
+import { StopwatchState } from 'app/common/GameState';
 
 const { t } = useI18n();
 const quasar = useQuasar();
 const { stopwatchSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 
-const counter = ref<number>(0);
-const started = ref<boolean>(false);
+const gameState = ref<StopwatchState>({
+  game: 'stopwatch',
+  name: 'preparing',
+});
 const startTime = ref<number>(0);
-const pressedControllers = ref<Map<IController, number>>(
-  new Map<IController, number>(),
-);
 
 const audio = new Audio('sounds/stopwatch-ping.mp3');
 
@@ -177,16 +177,12 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
-const completed = computed<boolean>(() => {
-  return controllers.value.length === pressedControllers.value.size;
-});
-
 const soundsEnabled = computed<boolean>(() => {
   return stopwatchSettings.playSounds;
 });
 
 const listener = (event: ButtonEvent) => {
-  if (!started.value) {
+  if (gameState.value.name !== 'running') {
     return;
   }
 
@@ -194,19 +190,38 @@ const listener = (event: ButtonEvent) => {
     return;
   }
 
-  if (pressedControllers.value.has(event.controller)) {
+  if (gameState.value.pressedControllers.has(event.controller)) {
     return;
   }
 
+  // Calculate exact time so that timer interval does not affect precision
   const time = new Date().getTime() - startTime.value;
 
-  pressedControllers.value.set(event.controller, time);
+  // TODO Is a state change needed as transition here?
+  gameState.value.pressedControllers.set(event.controller, time);
   event.controller.setLight(true);
+
+  if (gameState.value.pressedControllers.size === controllers.value.length) {
+    onComplete();
+  }
 
   if (soundsEnabled.value) {
     const clonedAudio = audio.cloneNode() as typeof audio;
     clonedAudio.play();
   }
+};
+
+const onComplete = () => {
+  if (gameState.value.name !== 'running') {
+    return;
+  }
+
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'completed',
+    time: gameState.value.time,
+    pressedControllers: gameState.value.pressedControllers,
+  };
 };
 
 const openSettings = () => {
@@ -218,9 +233,10 @@ const openSettings = () => {
 const restart = () => {
   buzzer.reset();
 
-  pressedControllers.value = new Map<IController, number>();
-  started.value = false;
-  counter.value = 0;
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'preparing',
+  };
 };
 
 const quickPlay = () => {
@@ -229,7 +245,13 @@ const quickPlay = () => {
 };
 
 const start = () => {
-  started.value = true;
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'running',
+    time: 0,
+    pressedControllers: new Map(),
+  };
+
   startTime.value = new Date().getTime();
 };
 
@@ -246,7 +268,11 @@ const formatTime = (time: number) => {
 };
 
 const removeController = (controller: IController) => {
-  pressedControllers.value.delete(controller);
+  if (gameState.value.name === 'preparing') {
+    return;
+  }
+  // TODO Is a state change needed as transition here?
+  gameState.value.pressedControllers.delete(controller);
   controller.setLight(false);
 };
 

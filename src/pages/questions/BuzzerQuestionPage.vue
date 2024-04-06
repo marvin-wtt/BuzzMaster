@@ -24,6 +24,7 @@
               <count-down
                 v-if="buzzerSettings.answerTime > 0"
                 v-model="gameState.time"
+                :paused="gameState.correct !== undefined"
                 :beep="soundsEnabled"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
@@ -80,6 +81,7 @@
           <buzzer-scoreboard-buttons
             v-if="showScoreboardActions"
             :controller="gameState.controller"
+            @update="onScored"
           />
 
           <div class="q-pt-md">
@@ -297,6 +299,22 @@ const listener = (event: ButtonEvent) => {
   };
 
   event.controller.setLight(true);
+};
+
+const onScored = (correct: boolean | undefined, points: number | undefined) => {
+  if (gameState.value.name !== 'answering') {
+    return;
+  }
+
+  gameState.value = {
+    game: 'buzzer',
+    name: 'answering',
+    time: gameState.value.time,
+    controller: gameState.value.controller,
+    disabledControllerIds: gameState.value.disabledControllerIds,
+    correct,
+    points,
+  };
 };
 
 const continueQuestion = () => {

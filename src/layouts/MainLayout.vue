@@ -82,7 +82,7 @@
               key="battery-saving"
               icon="battery_saver"
               class="settings-button bg-primary"
-              :color="showBatterySavingButton ? 'warning' : undefined"
+              :color="batterySavingColor"
               @click="showBatterySavingDialog"
             />
 
@@ -306,8 +306,10 @@ function showScoreboard() {
   });
 }
 
-const showBatterySavingButton = computed<boolean>(() => {
-  return batterySavingStore.criticalBatterySavingTimes.length > 0;
+const batterySavingColor = computed<string | undefined>(() => {
+  return batterySavingStore.criticalBatterySavingTimes.length > 0
+    ? 'warning'
+    : undefined;
 });
 
 function showBatterySavingDialog() {

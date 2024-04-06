@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { IController } from 'src/plugins/buzzer/types';
@@ -34,6 +34,14 @@ const { buzzerSettings } = useQuestionSettingsStore();
 const props = defineProps<{
   controller: IController;
 }>();
+
+const audioCorrect = new Audio('sounds/answer-correct.mp3');
+const audioWrong = new Audio('sounds/answer-wrong.mp3');
+
+onBeforeMount(() => {
+  audioCorrect.load();
+  audioWrong.load();
+});
 
 const answerCorrect = ref<boolean>();
 
@@ -59,6 +67,16 @@ const onAnswerChange = (answer: boolean) => {
 
   answerCorrect.value = answer;
   updateScoreboard(points);
+
+  playAudio(answer);
+};
+
+const playAudio = (answer: boolean) => {
+  if (answer) {
+    audioCorrect.play();
+  } else {
+    audioWrong.play();
+  }
 };
 
 const updateScoreboard = (points: number) => {

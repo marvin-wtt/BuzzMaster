@@ -35,6 +35,10 @@ const props = defineProps<{
   controller: IController;
 }>();
 
+const emit = defineEmits<{
+  (e: 'update', correct: boolean | undefined, points: number | undefined): void;
+}>();
+
 const audioCorrect = new Audio('sounds/answer-correct.mp3');
 const audioWrong = new Audio('sounds/answer-wrong.mp3');
 
@@ -54,6 +58,7 @@ const onAnswerChange = (answer: boolean) => {
   if (answerCorrect.value === answer) {
     answerCorrect.value = undefined;
     updateScoreboard(points * -1);
+    emit('update', undefined, undefined);
     return;
   }
 
@@ -67,6 +72,7 @@ const onAnswerChange = (answer: boolean) => {
 
   answerCorrect.value = answer;
   updateScoreboard(points);
+  emit('update', answer, points);
 
   playAudio(answer);
 };

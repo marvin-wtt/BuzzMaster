@@ -194,17 +194,34 @@ const listener = (event: ButtonEvent) => {
     return;
   }
 
-  // Calculate exact time so that timer interval does not effect precision
+  // Calculate exact time so that timer interval does not affect precision
   const time = new Date().getTime() - startTime.value;
 
   // TODO Is a state change needed as transition here?
   gameState.value.pressedControllers.set(event.controller, time);
   event.controller.setLight(true);
 
+  if (gameState.value.pressedControllers.size === controllers.value.length) {
+    onComplete();
+  }
+
   if (soundsEnabled.value) {
     const clonedAudio = audio.cloneNode() as typeof audio;
     clonedAudio.play();
   }
+};
+
+const onComplete = () => {
+  if (gameState.value.name !== 'running') {
+    return;
+  }
+
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'completed',
+    time: gameState.value.time,
+    pressedControllers: gameState.value.pressedControllers,
+  };
 };
 
 const openSettings = () => {

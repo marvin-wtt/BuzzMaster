@@ -283,13 +283,11 @@ const buttonPressedAnswerChangeConfirm = (
     return;
   }
 
-  if (event.button === BuzzerButton.RED) {
-    if (!(event.controller.id in state.unconfirmed)) {
+  // Change answer
+  if (event.button !== BuzzerButton.RED) {
+    if (!quizSettings.activeButtons.includes(event.button)) {
       return;
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { [event.controller.id]: _, ...unconfirmed } = state.unconfirmed;
 
     // Update state
     gameState.value = {
@@ -297,20 +295,22 @@ const buttonPressedAnswerChangeConfirm = (
       name: 'running',
       answerChangeAllowed: 'confirm',
       time: state.time,
-      result: {
-        ...state.result,
+      result: state.result,
+      unconfirmed: {
+        ...state.unconfirmed,
         [event.controller.id]: event.button,
       },
-      unconfirmed,
     };
-
-    event.controller.setLight(true);
     return;
   }
 
-  if (!quizSettings.activeButtons.includes(event.button)) {
+  // Don't allow confirmation without answer
+  if (!(event.controller.id in state.unconfirmed)) {
     return;
   }
+
+  // Extract precious pressed button and unconfirmed list
+  const { [event.controller.id]: button, ...unconfirmed } = state.unconfirmed;
 
   // Update state
   gameState.value = {
@@ -318,15 +318,17 @@ const buttonPressedAnswerChangeConfirm = (
     name: 'running',
     answerChangeAllowed: 'confirm',
     time: state.time,
-    result: state.result,
-    unconfirmed: {
-      ...state.unconfirmed,
-      [event.controller.id]: event.button,
+    result: {
+      ...state.result,
+      [event.controller.id]: button,
     },
+    unconfirmed,
   };
 
+  event.controller.setLight(true);
+
   // Transition to completed if all controllers confirmed
-  if (Object.keys(state.result).length + 1 >= controllers.value.length) {
+  if (Object.keys(gameState.value.result).length >= controllers.value.length) {
     onComplete();
   }
 };

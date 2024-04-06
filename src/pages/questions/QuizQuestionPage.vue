@@ -39,15 +39,14 @@
             </pulse-circle>
 
             <!-- Waiting for answers -->
-            <!-- TODO This interrupts the last beep. How to prevent it?-->
             <circle-timer
-              v-if="gameState.name === 'running'"
-              v-model="gameState.time"
+              v-if="gameState.name === 'running' || keepCountDown"
+              v-model="countDownTime"
               :max="quizSettings.answerTime"
             >
               <count-down
                 v-if="quizSettings.answerTime > 0"
-                v-model="gameState.time"
+                v-model="countDownTime"
                 :beep="soundsEnabled"
                 :beep-start-time="quizSettings.countDownBeepStartAt"
                 animated
@@ -405,6 +404,39 @@ const buttonColorClass = (button: BuzzerButton) => {
     ? buzzerButtonColor[button]
     : 'grey';
 };
+
+// Workaround to keep the countdown alive and wait for the last beep to finish
+const countDownTime = computed<number>({
+  get() {
+    return gameState.value.name === 'running' ? gameState.value.time : 0;
+  },
+  set(value: number) {
+    if (gameState.value.name === 'running') {
+      gameState.value.time = value;
+    }
+  },
+});
+const keepCountDown = ref<boolean>(false);
+let keepCountDownTimeout: NodeJS.Timeout | undefined = undefined;
+watch(gameState, (value, oldValue) => {
+  // Only capture transitions from running to completed
+  if (oldValue.name !== 'running' || value.name !== 'completed') {
+    clearTimeout(keepCountDownTimeout);
+    keepCountDown.value = false;
+
+    return;
+  }
+
+  if (oldValue.time > 0) {
+    keepCountDown.value = false;
+    return;
+  }
+
+  keepCountDown.value = true;
+  keepCountDownTimeout = setTimeout(() => {
+    keepCountDown.value = false;
+  }, 1000);
+});
 </script>
 
 <style scoped></style>

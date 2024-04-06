@@ -72,6 +72,20 @@
               @click="openDevTools"
             />
 
+            <!-- Battery Saving -->
+            <q-btn
+              aria-label="Battery saving"
+              dense
+              flat
+              rounded
+              size="sm"
+              key="battery-saving"
+              icon="battery_saver"
+              class="settings-button bg-primary"
+              :color="batterySavingColor"
+              @click="showBatterySavingDialog"
+            />
+
             <!-- Dark mode -->
             <q-btn
               aria-label="Toggle dark mode"
@@ -204,12 +218,15 @@ import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
 import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
+import { useBatterySavingStore } from 'stores/battery-saving-store';
+import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
 const { buzzer } = useBuzzer();
+const batterySavingStore = useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
@@ -286,6 +303,18 @@ function togglePin() {
 function showScoreboard() {
   quasar.dialog({
     component: ScoreboardDialog,
+  });
+}
+
+const batterySavingColor = computed<string | undefined>(() => {
+  return batterySavingStore.criticalBatterySavingTimes.length > 0
+    ? 'warning'
+    : undefined;
+});
+
+function showBatterySavingDialog() {
+  quasar.dialog({
+    component: BatterySavingDialog,
   });
 }
 

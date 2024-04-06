@@ -16,6 +16,7 @@ export type LightApi = {
 export type IDevice = {
   readonly id: string;
   readonly controllers: number;
+  readonly energySavingDelay: number | undefined;
   prepare: () => Promise<void> | void;
   updateLight: (controller: number, value: boolean) => Promise<void> | void;
   buttonUpdateHandler: (states: ButtonState[]) => void;
@@ -34,6 +35,7 @@ export type IController = {
   id: string;
   name: string;
   disabled: boolean;
+  energySavingAt: number | undefined;
   setLight: (value: boolean) => Promise<void>;
   buttons: Record<BuzzerButton, boolean>;
   update: (value: ButtonState) => void;

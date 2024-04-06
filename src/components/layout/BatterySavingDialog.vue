@@ -53,7 +53,7 @@
               v-else
               side
             >
-              {{ formatTime(item.time) }} s
+              {{ formatTime(item.time) }}
             </q-item-section>
           </q-item>
         </q-virtual-scroll>

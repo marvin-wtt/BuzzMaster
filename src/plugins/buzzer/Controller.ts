@@ -16,13 +16,20 @@ export class Controller implements IController {
     [BuzzerButton.YELLOW]: false,
   });
   disabled = false;
+  energySavingAt: number | undefined = undefined;
 
   constructor(
     private lightApi: LightApi,
     public name: string,
+    private energySavingDelay: number | undefined,
   ) {}
 
   update(state: ButtonState): void {
+    this.energySavingAt =
+      this.energySavingDelay !== undefined
+        ? new Date().getTime() + this.energySavingDelay
+        : undefined;
+
     this.buttons[state.button] = state.pressed;
   }
 

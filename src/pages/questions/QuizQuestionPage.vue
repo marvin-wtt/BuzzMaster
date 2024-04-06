@@ -215,6 +215,9 @@ const confirmButton = (controller: IController) => {
 };
 
 const onCountdownStop = () => {
+  if (state.value !== 'running') {
+    return;
+  }
   state.value = 'completed';
 };
 

@@ -1,6 +1,7 @@
 import question from './questions';
 import devices from './devices';
 import scoreboard from './scoreboard';
+import batterySaving from './batterySaving';
 
 export default {
   app_name: 'Buzz Master',
@@ -10,6 +11,7 @@ export default {
     devices: 'Devices',
   },
 
+  batterySaving,
   devices,
   question,
   scoreboard,

@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { buzzerButtonColor } from 'components/buttonColors';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
-import { ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -30,6 +30,13 @@ const correctAnswers = ref<Set<BuzzerButton>>(new Set());
 const props = defineProps<{
   controllerValues: Record<BuzzerButton, IController[] | undefined>;
 }>();
+
+let audioPlayed = false;
+const audioCorrect = new Audio('sounds/answer-correct.mp3');
+
+onBeforeMount(() => {
+  audioCorrect.load();
+});
 
 const updateButtonScore = (button: BuzzerButton): void => {
   // No button was preciously pressed, so we assume all answers are wrong.
@@ -64,6 +71,18 @@ const updateButtonScore = (button: BuzzerButton): void => {
       scoreboardStore.addPoints(controller.id, quizSettings.pointsWrong * -1);
     });
   }
+
+  playAudio();
+};
+
+const playAudio = () => {
+  // Only play sound once as multiple answers can be selected
+  if (audioPlayed) {
+    return;
+  }
+
+  audioPlayed = true;
+  audioCorrect.play();
 };
 </script>
 

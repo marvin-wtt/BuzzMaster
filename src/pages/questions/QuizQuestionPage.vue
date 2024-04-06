@@ -266,6 +266,9 @@ const buttonPressedAnswerChangeNever = (
     },
   };
 
+  // Update controller
+  event.controller.setLight(true);
+
   // Transition to completed if all controllers answered
   if (Object.keys(state.result).length + 1 >= controllers.value.length) {
     onComplete();

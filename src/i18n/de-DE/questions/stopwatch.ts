@@ -2,10 +2,12 @@ export default {
   title: 'Stoppuhr',
 
   controllersReady: '{count} Controller bereit!',
+  disqualified: 'DSQ',
 
   action: {
     scores: 'Punkte',
     start: 'Start',
+    stop: 'Stop',
     cancel: 'Abbrechen',
     quickPlay: 'Schnellstart',
     reset: 'Zurücksetzen',

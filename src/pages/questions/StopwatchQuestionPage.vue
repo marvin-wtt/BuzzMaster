@@ -34,11 +34,20 @@
               >
                 <q-item-section avatar>
                   <q-avatar
+                    v-if="Number.isFinite(item[1])"
                     :color="avatarColor(index)"
                     text-color="white"
                     size="sm"
                   >
                     {{ index + 1 }}
+                  </q-avatar>
+                  <q-avatar
+                    v-else
+                    :color="avatarColor(-1)"
+                    text-color="white"
+                    size="sm"
+                  >
+                    -
                   </q-avatar>
                 </q-item-section>
 
@@ -50,15 +59,13 @@
                   {{ formatTime(item[1]) }}
                 </q-item-section>
 
-                <q-item-section
-                  side
-                  v-if="gameState.name !== 'completed'"
-                >
+                <q-item-section side>
                   <q-btn
                     icon="close"
                     size="sm"
                     rounded
                     dense
+                    :disable="!Number.isFinite(item[1])"
                     @click="removeController(item[0])"
                   />
                 </q-item-section>
@@ -97,6 +104,24 @@
           />
         </div>
 
+        <div
+          v-else-if="gameState.name === 'running'"
+          class="column q-gutter-sm"
+        >
+          <q-btn
+            :label="t('question.stopwatch.action.stop')"
+            outline
+            rounded
+            @click="stop()"
+          />
+          <q-btn
+            :label="t('question.stopwatch.action.cancel')"
+            outline
+            rounded
+            @click="restart()"
+          />
+        </div>
+
         <template v-else-if="gameState.name === 'completed'">
           <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
@@ -123,14 +148,6 @@
             @click="restart()"
           />
         </template>
-
-        <q-btn
-          v-else
-          :label="t('question.stopwatch.action.cancel')"
-          outline
-          rounded
-          @click="restart()"
-        />
       </div>
     </div>
   </q-page>
@@ -230,6 +247,28 @@ const openSettings = () => {
   });
 };
 
+const stop = () => {
+  if (gameState.value.name !== 'running') {
+    return;
+  }
+
+  const pressedControllers = gameState.value.pressedControllers;
+  for (const controller of controllers.value) {
+    if (pressedControllers.has(controller)) {
+      continue;
+    }
+
+    pressedControllers.set(controller, Number.POSITIVE_INFINITY);
+  }
+
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'completed',
+    time: gameState.value.time,
+    pressedControllers,
+  };
+};
+
 const restart = () => {
   buzzer.reset();
 
@@ -256,6 +295,10 @@ const start = () => {
 };
 
 const formatTime = (time: number) => {
+  if (!Number.isFinite(time)) {
+    return t('question.stopwatch.disqualified');
+  }
+
   const date = new Date(time);
 
   const minutes = String(date.getUTCMinutes()).padStart(2, '0');
@@ -268,12 +311,38 @@ const formatTime = (time: number) => {
 };
 
 const removeController = (controller: IController) => {
-  if (gameState.value.name === 'preparing') {
+  if (gameState.value.name === 'completed') {
+    const pressedControllers = gameState.value.pressedControllers;
+    pressedControllers.delete(controller);
+    pressedControllers.set(controller, Number.POSITIVE_INFINITY);
+
+    gameState.value = {
+      game: 'stopwatch',
+      name: 'completed',
+      time: gameState.value.time,
+      pressedControllers,
+    };
+
+    controller.setLight(false);
+
     return;
   }
-  // TODO Is a state change needed as transition here?
-  gameState.value.pressedControllers.delete(controller);
-  controller.setLight(false);
+
+  if (gameState.value.name === 'running') {
+    const pressedControllers = gameState.value.pressedControllers;
+    pressedControllers.delete(controller);
+
+    gameState.value = {
+      game: 'stopwatch',
+      name: 'completed',
+      time: gameState.value.time,
+      pressedControllers,
+    };
+
+    controller.setLight(false);
+
+    return;
+  }
 };
 
 const avatarColor = (index: number) => {

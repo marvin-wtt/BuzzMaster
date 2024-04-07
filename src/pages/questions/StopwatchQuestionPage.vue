@@ -24,17 +24,17 @@
 
           <div class="col-grow relative-position">
             <q-virtual-scroll
-              :items="Array.from(gameState.pressedControllers)"
+              :items="result"
               class="absolute fit"
-              v-slot="{ item, index }"
+              v-slot="{ item, index }: { item: StopwatchEntry; index: number }"
             >
               <q-item
-                :key="item[0].id"
+                :key="item.controller.id"
                 dense
               >
                 <q-item-section avatar>
                   <q-avatar
-                    v-if="Number.isFinite(item[1])"
+                    v-if="item.time !== undefined"
                     :color="avatarColor(index)"
                     text-color="white"
                     size="sm"
@@ -52,22 +52,22 @@
                 </q-item-section>
 
                 <q-item-section>
-                  {{ item[0].name }}
+                  {{ item.controller.name }}
                 </q-item-section>
 
                 <q-item-section side>
-                  {{ formatTime(item[1]) }}
+                  {{ formatTime(item.time) }}
                 </q-item-section>
 
                 <q-item-section side>
-                  <!-- Disqualified buttons are infinite -->
+                  <!-- Disqualified buttons are undefined -->
                   <safe-delete-btn
-                    v-if="Number.isFinite(item[1])"
+                    v-if="item.time === undefined"
                     icon="close"
                     size="sm"
                     rounded
                     dense
-                    @click="removeController(item[0])"
+                    @click="removeController(item.controller)"
                   />
 
                   <q-btn
@@ -135,7 +135,7 @@
         <template v-else-if="gameState.name === 'completed'">
           <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
-            :controllers="Array.from(gameState.pressedControllers.keys())"
+            :controllers="controllers"
           />
 
           <q-separator />
@@ -209,6 +209,44 @@ const soundsEnabled = computed<boolean>(() => {
   return stopwatchSettings.playSounds;
 });
 
+type StopwatchEntry = {
+  controller: IController;
+  time: number | undefined;
+};
+
+const result = computed<StopwatchEntry[]>(() => {
+  const state = gameState.value;
+  if (state.name !== 'running' && state.name !== 'completed') {
+    return [];
+  }
+
+  return controllers.value
+    .map((controller): StopwatchEntry => {
+      const time =
+        controller.id in state.result ? state.result[controller.id] : undefined;
+
+      return {
+        controller,
+        time,
+      };
+    })
+    .sort((a, b) => {
+      if (a.time === undefined && b.time === undefined) {
+        return 0;
+      }
+
+      if (a.time === undefined) {
+        return 1;
+      }
+
+      if (b.time === undefined) {
+        return -1;
+      }
+
+      return a.time - b.time;
+    });
+});
+
 const listener = (event: ButtonEvent) => {
   if (gameState.value.name !== 'running') {
     return;
@@ -218,18 +256,26 @@ const listener = (event: ButtonEvent) => {
     return;
   }
 
-  if (gameState.value.pressedControllers.has(event.controller)) {
+  if (!(event.controller.id in gameState.value.result)) {
     return;
   }
 
   // Calculate exact time so that timer interval does not affect precision
   const time = new Date().getTime() - startTime.value;
 
-  // TODO Is a state change needed as transition here?
-  gameState.value.pressedControllers.set(event.controller, time);
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'running',
+    time: gameState.value.time,
+    result: {
+      ...gameState.value.result,
+      [event.controller.id]: time,
+    },
+  };
+
   event.controller.setLight(true);
 
-  if (gameState.value.pressedControllers.size === controllers.value.length) {
+  if (Object.keys(gameState.value.result).length === controllers.value.length) {
     onComplete();
   }
 
@@ -248,7 +294,7 @@ const onComplete = () => {
     game: 'stopwatch',
     name: 'completed',
     time: gameState.value.time,
-    pressedControllers: gameState.value.pressedControllers,
+    result: gameState.value.result,
   };
 };
 
@@ -263,20 +309,20 @@ const stop = () => {
     return;
   }
 
-  const pressedControllers = gameState.value.pressedControllers;
+  const result: Record<string, number | undefined> = gameState.value.result;
   for (const controller of controllers.value) {
-    if (pressedControllers.has(controller)) {
+    if (controller.id in result) {
       continue;
     }
 
-    pressedControllers.set(controller, Number.POSITIVE_INFINITY);
+    result[controller.id] = undefined;
   }
 
   gameState.value = {
     game: 'stopwatch',
     name: 'completed',
     time: gameState.value.time,
-    pressedControllers,
+    result,
   };
 };
 
@@ -299,14 +345,14 @@ const start = () => {
     game: 'stopwatch',
     name: 'running',
     time: 0,
-    pressedControllers: new Map(),
+    result: {},
   };
 
   startTime.value = new Date().getTime();
 };
 
-const formatTime = (time: number) => {
-  if (!Number.isFinite(time)) {
+const formatTime = (time: number | undefined) => {
+  if (time === undefined) {
     return t('question.stopwatch.disqualified');
   }
 
@@ -323,15 +369,14 @@ const formatTime = (time: number) => {
 
 const removeController = (controller: IController) => {
   if (gameState.value.name === 'completed') {
-    const pressedControllers = gameState.value.pressedControllers;
-    pressedControllers.delete(controller);
-    pressedControllers.set(controller, Number.POSITIVE_INFINITY);
-
     gameState.value = {
       game: 'stopwatch',
       name: 'completed',
       time: gameState.value.time,
-      pressedControllers,
+      result: {
+        ...gameState.value.result,
+        [controller.id]: undefined,
+      },
     };
 
     controller.setLight(false);
@@ -340,14 +385,14 @@ const removeController = (controller: IController) => {
   }
 
   if (gameState.value.name === 'running') {
-    const pressedControllers = gameState.value.pressedControllers;
-    pressedControllers.delete(controller);
+    const result = { ...gameState.value.result };
+    delete result[controller.id];
 
     gameState.value = {
       game: 'stopwatch',
       name: 'completed',
       time: gameState.value.time,
-      pressedControllers,
+      result,
     };
 
     controller.setLight(false);

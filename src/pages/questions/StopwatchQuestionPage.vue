@@ -60,13 +60,23 @@
                 </q-item-section>
 
                 <q-item-section side>
-                  <q-btn
+                  <!-- Disqualified buttons are infinite -->
+                  <safe-delete-btn
+                    v-if="Number.isFinite(item[1])"
                     icon="close"
                     size="sm"
                     rounded
                     dense
-                    :disable="!Number.isFinite(item[1])"
                     @click="removeController(item[0])"
+                  />
+
+                  <q-btn
+                    v-else
+                    icon="block"
+                    size="sm"
+                    rounded
+                    dense
+                    disable
                   />
                 </q-item-section>
               </q-item>
@@ -154,6 +164,7 @@
 </template>
 
 <script lang="ts" setup>
+import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 import StopwatchQuestionDialog from 'components/questions/stopwatch/StopwatchQuestionDialog.vue';
 import CountDown from 'components/CountDown.vue';
 import { computed, onBeforeMount, onUnmounted, ref } from 'vue';

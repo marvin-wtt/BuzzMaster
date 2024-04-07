@@ -2,10 +2,12 @@ export default {
   title: 'Stopwatch',
 
   controllersReady: '{count} controllers ready!',
+  disqualified: 'DSQ',
 
   action: {
     scores: 'Scores',
     start: 'Start',
+    stop: 'Stop',
     cancel: 'Cancel',
     quickPlay: 'Quick Play',
     reset: 'Reset',

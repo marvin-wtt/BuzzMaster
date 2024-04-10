@@ -9,10 +9,24 @@ import electronUpdater, { type AppUpdater } from 'electron-updater';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
-
 const currentDir = fileURLToPath(new URL('.', import.meta.url));
+const singleInstanceLock = app.requestSingleInstanceLock();
+let mainWindow: BrowserWindow | undefined;
 
 log.initialize();
+
+if (!singleInstanceLock) {
+  log.error(
+    'Failed to start application: Another instance seems to be already running.',
+  );
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    mainWindow?.restore();
+    mainWindow?.center();
+    mainWindow?.focus();
+  });
+}
 
 function getPreloadPath(name: string): string {
   return path.resolve(
@@ -29,7 +43,7 @@ function createWindow() {
   /**
    * Initial window options
    */
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 500,
     height: 800,

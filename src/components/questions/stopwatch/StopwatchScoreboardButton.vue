@@ -13,7 +13,7 @@
 import StopwatchScoreDialog from 'components/questions/stopwatch/StopwatchScoreDialog.vue';
 import { useQuasar } from 'quasar';
 import { useScoreboardStore } from 'stores/scoreboard-store';
-import { IController } from 'src/plugins/buzzer/types';
+import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
 
 const quasar = useQuasar();
 const scoreboardStore = useScoreboardStore();
@@ -22,17 +22,15 @@ let scores: Record<string, number | undefined> = {};
 
 const props = defineProps<{
   label: string | undefined;
-  controllers: IController[];
+  result: StopwatchEntry[];
 }>();
 
 const updateScores = () => {
-  const controllers = props.controllers;
-
   quasar
     .dialog({
       component: StopwatchScoreDialog,
       componentProps: {
-        controllers,
+        result: props.result,
         scores,
       },
     })

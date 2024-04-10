@@ -62,7 +62,7 @@
                 <q-item-section side>
                   <!-- Disqualified buttons are undefined -->
                   <safe-delete-btn
-                    v-if="item.time === undefined"
+                    v-if="item.time !== undefined"
                     icon="close"
                     size="sm"
                     rounded
@@ -135,7 +135,7 @@
         <template v-else-if="gameState.name === 'completed'">
           <stopwatch-scoreboard-button
             :label="t('question.stopwatch.action.scores')"
-            :controllers="controllers"
+            :result="result"
           />
 
           <q-separator />
@@ -179,6 +179,7 @@ import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchS
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useQuasar } from 'quasar';
 import { StopwatchState } from 'app/common/GameState';
+import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
 
 const { t } = useI18n();
 const quasar = useQuasar();
@@ -208,11 +209,6 @@ onUnmounted(() => {
 const soundsEnabled = computed<boolean>(() => {
   return stopwatchSettings.playSounds;
 });
-
-type StopwatchEntry = {
-  controller: IController;
-  time: number | undefined;
-};
 
 const result = computed<StopwatchEntry[]>(() => {
   const state = gameState.value;
@@ -256,7 +252,7 @@ const listener = (event: ButtonEvent) => {
     return;
   }
 
-  if (!(event.controller.id in gameState.value.result)) {
+  if (event.controller.id in gameState.value.result) {
     return;
   }
 
@@ -390,7 +386,7 @@ const removeController = (controller: IController) => {
 
     gameState.value = {
       game: 'stopwatch',
-      name: 'completed',
+      name: 'running',
       time: gameState.value.time,
       result,
     };

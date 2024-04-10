@@ -217,6 +217,9 @@ const result = computed<StopwatchEntry[]>(() => {
   }
 
   return controllers.value
+    .filter((controller) => {
+      return state.name === 'completed' || controller.id in state.result;
+    })
     .map((controller): StopwatchEntry => {
       const time =
         controller.id in state.result ? state.result[controller.id] : undefined;

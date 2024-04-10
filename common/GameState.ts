@@ -5,7 +5,7 @@ export type GameState = BuzzerState | QuizState | StopwatchState;
 export type StopwatchState =
   | StopwatchPreparationState
   | StopwatchRunningState
-  | StopwatchDoneState;
+  | StopwatchCompletedState;
 
 export type StopwatchPreparationState = {
   game: 'stopwatch';
@@ -16,20 +16,21 @@ export type StopwatchRunningState = {
   game: 'stopwatch';
   name: 'running';
   time: number;
-  pressedControllers: Map<IController, number>;
+  result: Record<string, number>;
 };
 
-export type StopwatchDoneState = {
+export type StopwatchCompletedState = {
   game: 'stopwatch';
   name: 'completed';
   time: number;
-  pressedControllers: Map<IController, number>;
+  result: Record<string, number | undefined>;
 };
 
 export type BuzzerState =
   | BuzzerPreparationState
   | BuzzerRunningState
   | BuzzerAnsweringState;
+
 export type BuzzerPreparationState = {
   game: 'buzzer';
   name: 'preparing';

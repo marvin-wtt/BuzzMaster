@@ -14,8 +14,8 @@
       <q-card-section>
         <q-list>
           <q-item
-            v-for="(controller, index) in props.controllers"
-            :key="controller.id"
+            v-for="(entry, index) in result"
+            :key="entry.controller.id"
           >
             <q-item-section avatar>
               <q-avatar
@@ -23,17 +23,20 @@
                 text-color="white"
                 size="sm"
               >
-                {{ index + 1 }}
+                <template v-if="entry.time !== undefined">
+                  {{ index + 1 }}
+                </template>
+                <template v-else> - </template>
               </q-avatar>
             </q-item-section>
 
             <q-item-section>
-              {{ controller.name }}
+              {{ entry.controller.name }}
             </q-item-section>
 
             <q-item-section side>
               <q-input
-                v-model.number="updatedScores[controller.id]"
+                v-model.number="updatedScores[entry.controller.id]"
                 :label="t('question.stopwatch.scores.field')"
                 type="number"
                 outlined
@@ -62,14 +65,14 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { IController } from 'src/plugins/buzzer/types';
 import { ref, toRaw } from 'vue';
+import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 
 const props = defineProps<{
-  controllers: IController[];
+  result: StopwatchEntry[];
   scores: Record<string, number | undefined>;
 }>();
 
@@ -81,11 +84,11 @@ defineEmits([...useDialogPluginComponent.emits]);
 
 const avatarColor = (index: number) => {
   switch (index) {
-    case 1:
+    case 0:
       return 'primary';
-    case 2:
+    case 1:
       return 'secondary';
-    case 3:
+    case 2:
       return 'info';
   }
 

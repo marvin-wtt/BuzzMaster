@@ -9,7 +9,7 @@
     >
       <q-card-section>
         <div class="text-h6 text-center">
-          {{ t('devices.title') }}
+          {{ t('devices.test.title') }}
         </div>
       </q-card-section>
 

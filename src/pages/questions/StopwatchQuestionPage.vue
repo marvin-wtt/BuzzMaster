@@ -186,7 +186,7 @@
 <script lang="ts" setup>
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 import StopwatchQuestionDialog from 'components/questions/stopwatch/StopwatchQuestionDialog.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
   ButtonEvent,
@@ -197,10 +197,11 @@ import { useI18n } from 'vue-i18n';
 import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useQuasar } from 'quasar';
-import { StopwatchState } from 'app/common/GameState';
+import { StopwatchRunningState, StopwatchState } from 'app/common/GameState';
 import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
 import BeepTimer from 'components/BeepTimer.vue';
 import { useTimer } from 'src/composables/timer';
+import { useGameState, useStateActions } from 'src/composables/gameState';
 
 const { t } = useI18n();
 const quasar = useQuasar();
@@ -209,11 +210,11 @@ const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,
 });
-
-const gameState = ref<StopwatchState>({
+const { gameState, transition, createEvent } = useGameState<StopwatchState>({
   game: 'stopwatch',
   name: 'preparing',
 });
+const { onStateEntry, onStateExit } = useStateActions(gameState);
 
 const audio = new Audio('sounds/stopwatch-ping.mp3');
 
@@ -230,39 +231,22 @@ onUnmounted(() => {
 });
 
 watch(time, (value) => {
-  if (gameState.value.name === 'preparing') {
-    return;
-  }
-
-  // Update state
-  transition({
+  transition('running', () => ({
     ...gameState.value,
     time: value,
-  });
+  }));
 });
 
-const transition = (state: StopwatchState) => {
-  if (gameState.value.name !== state.name) {
-    onStateEntry(state);
-  }
+onStateEntry('preparing', () => {
+  buzzer.reset();
+});
+onStateEntry('running', (state: StopwatchRunningState) => {
+  time.value = state.time;
+  startTimer();
+});
 
-  gameState.value = state;
-};
-
-const onStateEntry = (state: StopwatchState) => {
-  if (state.name === 'preparing') {
-    time.value = 0;
-  } else if (state.name === 'running') {
-    startTimer();
-  } else if (state.name === 'completed') {
-    stopTimer();
-  } else if (state.name === 'paused') {
-    stopTimer();
-  }
-};
-
-const soundsEnabled = computed<boolean>(() => {
-  return stopwatchSettings.playSounds;
+onStateExit('running', () => {
+  stopTimer();
 });
 
 const result = computed<StopwatchEntry[]>(() => {
@@ -305,48 +289,45 @@ const result = computed<StopwatchEntry[]>(() => {
     });
 });
 
-const listener = (event: ButtonEvent) => {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
-
+const listener = transition('running', (state, event: ButtonEvent) => {
   if (event.button !== BuzzerButton.RED) {
     return;
   }
 
-  if (event.controller.id in gameState.value.result) {
+  if (event.controller.id in state.result) {
     return;
+  }
+
+  event.controller.setLight(true);
+
+  if (stopwatchSettings.playSounds) {
+    const clonedAudio = audio.cloneNode() as typeof audio;
+    clonedAudio.play();
   }
 
   // Calculate exact time so that timer interval does not affect precision
   const time = exactTime();
+  const result = {
+    ...state.result,
+    [event.controller.id]: time,
+  };
 
-  transition({
-    game: 'stopwatch',
-    name: 'running',
-    time: gameState.value.time,
-    result: {
-      ...gameState.value.result,
-      [event.controller.id]: time,
-    },
-  });
-
-  event.controller.setLight(true);
-
-  if (Object.keys(gameState.value.result).length === controllers.value.length) {
-    transition({
+  if (Object.keys(result).length === controllers.value.length) {
+    return {
       game: 'stopwatch',
       name: 'completed',
-      time: gameState.value.time,
-      result: gameState.value.result,
-    });
+      time: state.time,
+      result,
+    };
   }
 
-  if (soundsEnabled.value) {
-    const clonedAudio = audio.cloneNode() as typeof audio;
-    clonedAudio.play();
-  }
-};
+  return {
+    game: 'stopwatch',
+    name: 'running',
+    time: state.time,
+    result,
+  };
+});
 
 const openSettings = () => {
   quasar.dialog({
@@ -354,40 +335,26 @@ const openSettings = () => {
   });
 };
 
-const pause = () => {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
-
-  stopTimer();
-
-  transition({
+const pause = transition('running', (state) => {
+  return {
     game: 'stopwatch',
     name: 'paused',
-    time: gameState.value.time,
-    result: gameState.value.result,
-  });
-};
+    time: state.time,
+    result: state.result,
+  };
+});
 
-const resume = () => {
-  if (gameState.value.name !== 'paused') {
-    return;
-  }
-
-  transition({
+const resume = transition('paused', (state) => {
+  return {
     game: 'stopwatch',
     name: 'running',
-    time: gameState.value.time,
-    result: gameState.value.result,
-  });
-};
+    time: state.time,
+    result: state.result,
+  };
+});
 
-const stop = () => {
-  if (gameState.value.name !== 'paused') {
-    return;
-  }
-
-  const result: Record<string, number | undefined> = gameState.value.result;
+const stop = transition('paused', (state) => {
+  const result: Record<string, number | undefined> = state.result;
   for (const controller of controllers.value) {
     if (controller.id in result) {
       continue;
@@ -396,39 +363,34 @@ const stop = () => {
     result[controller.id] = undefined;
   }
 
-  transition({
+  return {
     game: 'stopwatch',
     name: 'completed',
-    time: gameState.value.time,
+    time: state.time,
     result,
-  });
-};
+  };
+});
 
-const restart = () => {
-  stopTimer();
-  time.value = 0;
-
-  buzzer.reset();
-
-  transition({
+const restart = transition(['running', 'paused', 'completed'], () => {
+  return {
     game: 'stopwatch',
     name: 'preparing',
-  });
-};
+  };
+});
 
 const quickPlay = () => {
   restart();
   start();
 };
 
-const start = () => {
-  transition({
+const start = transition('preparing', () => {
+  return {
     game: 'stopwatch',
     name: 'running',
     time: 0,
     result: {},
-  });
-};
+  };
+});
 
 const formatTime = (time: number | undefined) => {
   if (time === undefined) {
@@ -446,39 +408,34 @@ const formatTime = (time: number | undefined) => {
   return `${minutes}:${seconds}.${milliseconds}`;
 };
 
-const removeController = (controller: IController) => {
-  if (gameState.value.name === 'completed') {
-    transition({
-      game: 'stopwatch',
-      name: 'completed',
-      time: gameState.value.time,
-      result: {
-        ...gameState.value.result,
-        [controller.id]: undefined,
-      },
-    });
-
+const removeController = createEvent([
+  transition(['running', 'paused'], (state, controller: IController) => {
     controller.setLight(false);
 
-    return;
-  }
-
-  if (gameState.value.name === 'running' || gameState.value.name === 'paused') {
-    const result = { ...gameState.value.result };
+    const result = { ...state.result };
     delete result[controller.id];
 
-    transition({
+    return {
       game: 'stopwatch',
-      name: gameState.value.name,
-      time: gameState.value.time,
+      name: state.name,
+      time: state.time,
       result,
-    });
-
+    };
+  }),
+  transition('completed', (state, controller: IController) => {
     controller.setLight(false);
 
-    return;
-  }
-};
+    return {
+      game: 'stopwatch',
+      name: 'completed',
+      time: state.time,
+      result: {
+        ...state.result,
+        [controller.id]: undefined,
+      },
+    };
+  }),
+]);
 
 const avatarColor = (index: number) => {
   switch (index) {

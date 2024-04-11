@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 
@@ -56,3 +56,7 @@ export const useScoreboardStore = defineStore('scoreboard', () => {
     resetPoints,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useScoreboardStore, import.meta.hot));
+}

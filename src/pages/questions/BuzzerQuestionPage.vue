@@ -21,14 +21,18 @@
               <div :style="controllerNameStyle">
                 {{ gameState.controller.name }}
               </div>
-              <count-down
+              <beep-timer
                 v-if="buzzerSettings.answerTime > 0"
-                v-model="gameState.time"
-                :paused="gameState.correct !== undefined"
-                :beep="soundsEnabled"
+                :time="gameState.time"
+                :beep="buzzerSettings.playSounds"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
                 animated
+              />
+
+              <count-down
+                v-model="gameState.time"
+                :paused="gameState.correct !== undefined"
               />
             </div>
           </circle-timer>
@@ -156,6 +160,8 @@ import { useQuasar } from 'quasar';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useI18n } from 'vue-i18n';
 import { BuzzerState } from 'app/common/GameState';
+import { useGameState, useStateActions } from 'src/composables/gameState';
+import BeepTimer from 'components/BeepTimer.vue';
 
 interface Size {
   width: number;
@@ -166,11 +172,11 @@ const quasar = useQuasar();
 const { t } = useI18n();
 const { buzzerSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
-
-const gameState = ref<BuzzerState>({
+const { gameState, transition } = useGameState<BuzzerState>({
   game: 'buzzer',
   name: 'preparing',
 });
+const { onStateEntry, onStateExit } = useStateActions(gameState);
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
 const countDownStyle = ref<string | { fontSize: string }>('');
@@ -188,10 +194,6 @@ onBeforeMount(() => {
 onUnmounted(() => {
   buzzer.removeListener('press', listener);
   buzzer.reset();
-});
-
-const soundsEnabled = computed<boolean>(() => {
-  return buzzerSettings.playSounds;
 });
 
 const onCircleTimerResize = (size?: { width: number; height: number }) => {
@@ -267,91 +269,85 @@ const showScoreboardActions = computed<boolean>(() => {
   return buzzerSettings.pointsCorrect !== 0 || buzzerSettings.pointsWrong !== 0;
 });
 
-const listener = (event: ButtonEvent) => {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
-
+const listener = transition('running', (state, event: ButtonEvent) => {
   if (event.button !== BuzzerButton.RED) {
     return;
   }
 
   if (
     !buzzerSettings.multipleAttempts &&
-    gameState.value.disabledControllerIds.includes(event.controller.id)
+    state.disabledControllerIds.includes(event.controller.id)
   ) {
     return;
   }
 
-  if (soundsEnabled.value) {
+  event.controller.setLight(true);
+
+  if (buzzerSettings.playSounds) {
     audio.play();
   }
 
-  const disabledControllerIds = gameState.value.disabledControllerIds;
+  const disabledControllerIds = state.disabledControllerIds;
   disabledControllerIds.push(event.controller.id);
 
-  gameState.value = {
+  return {
     game: 'buzzer',
     name: 'answering',
     time: buzzerSettings.answerTime,
     controller: event.controller,
     disabledControllerIds,
   };
+});
 
-  event.controller.setLight(true);
-};
-
-const onScored = (correct: boolean | undefined, points: number | undefined) => {
-  if (gameState.value.name !== 'answering') {
-    return;
-  }
-
-  gameState.value = {
-    game: 'buzzer',
-    name: 'answering',
-    time: gameState.value.time,
-    controller: gameState.value.controller,
-    disabledControllerIds: gameState.value.disabledControllerIds,
-    correct,
-    points,
-  };
-};
-
-const continueQuestion = () => {
-  if (gameState.value.name !== 'answering') {
-    return;
-  }
-
+onStateEntry('preparing', () => {
   buzzer.reset();
+});
+onStateExit('answering', () => {
+  buzzer.reset();
+});
 
-  gameState.value = {
+const onScored = transition(
+  'answering',
+  (state, correct: boolean | undefined, points: number | undefined) => {
+    return {
+      game: 'buzzer',
+      name: 'answering',
+      time: state.time,
+      controller: state.controller,
+      disabledControllerIds: state.disabledControllerIds,
+      correct,
+      points,
+    };
+  },
+);
+
+const continueQuestion = transition('answering', (state) => {
+  return {
     game: 'buzzer',
     name: 'running',
-    disabledControllerIds: gameState.value.disabledControllerIds,
+    disabledControllerIds: state.disabledControllerIds,
   };
-};
+});
 
-const restart = () => {
-  buzzer.reset();
-
-  gameState.value = {
+const restart = transition(['running', 'answering'], () => {
+  return {
     game: 'buzzer',
     name: 'preparing',
   };
-};
+});
 
 const quickPlay = () => {
   restart();
   start();
 };
 
-const start = () => {
-  gameState.value = {
+const start = transition('preparing', () => {
+  return {
     game: 'buzzer',
     name: 'running',
     disabledControllerIds: [],
   };
-};
+});
 
 const settings = () => {
   quasar.dialog({

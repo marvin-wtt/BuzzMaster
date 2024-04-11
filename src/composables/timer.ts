@@ -38,7 +38,6 @@ export function useTimer(options?: Partial<TimerOptions>) {
   const stopTimer = () => {
     if (intervalId) {
       clearInterval(intervalId);
-      time.value = exactTime();
     }
     intervalId = undefined;
   };

@@ -235,11 +235,31 @@ watch(time, (value) => {
   }
 
   // Update state
-  gameState.value = {
+  transition({
     ...gameState.value,
     time: value,
-  };
+  });
 });
+
+const transition = (state: StopwatchState) => {
+  if (gameState.value.name !== state.name) {
+    onStateEntry(state);
+  }
+
+  gameState.value = state;
+};
+
+const onStateEntry = (state: StopwatchState) => {
+  if (state.name === 'preparing') {
+    time.value = 0;
+  } else if (state.name === 'running') {
+    startTimer();
+  } else if (state.name === 'completed') {
+    stopTimer();
+  } else if (state.name === 'paused') {
+    stopTimer();
+  }
+};
 
 const soundsEnabled = computed<boolean>(() => {
   return stopwatchSettings.playSounds;
@@ -301,7 +321,7 @@ const listener = (event: ButtonEvent) => {
   // Calculate exact time so that timer interval does not affect precision
   const time = exactTime();
 
-  gameState.value = {
+  transition({
     game: 'stopwatch',
     name: 'running',
     time: gameState.value.time,
@@ -309,17 +329,17 @@ const listener = (event: ButtonEvent) => {
       ...gameState.value.result,
       [event.controller.id]: time,
     },
-  };
+  });
 
   event.controller.setLight(true);
 
   if (Object.keys(gameState.value.result).length === controllers.value.length) {
-    gameState.value = {
+    transition({
       game: 'stopwatch',
       name: 'completed',
       time: gameState.value.time,
       result: gameState.value.result,
-    };
+    });
   }
 
   if (soundsEnabled.value) {
@@ -341,12 +361,12 @@ const pause = () => {
 
   stopTimer();
 
-  gameState.value = {
+  transition({
     game: 'stopwatch',
     name: 'paused',
     time: gameState.value.time,
     result: gameState.value.result,
-  };
+  });
 };
 
 const resume = () => {
@@ -354,22 +374,18 @@ const resume = () => {
     return;
   }
 
-  startTimer();
-
-  gameState.value = {
+  transition({
     game: 'stopwatch',
     name: 'running',
     time: gameState.value.time,
     result: gameState.value.result,
-  };
+  });
 };
 
 const stop = () => {
   if (gameState.value.name !== 'paused') {
     return;
   }
-
-  stopTimer();
 
   const result: Record<string, number | undefined> = gameState.value.result;
   for (const controller of controllers.value) {
@@ -380,12 +396,12 @@ const stop = () => {
     result[controller.id] = undefined;
   }
 
-  gameState.value = {
+  transition({
     game: 'stopwatch',
     name: 'completed',
     time: gameState.value.time,
     result,
-  };
+  });
 };
 
 const restart = () => {
@@ -394,10 +410,10 @@ const restart = () => {
 
   buzzer.reset();
 
-  gameState.value = {
+  transition({
     game: 'stopwatch',
     name: 'preparing',
-  };
+  });
 };
 
 const quickPlay = () => {
@@ -406,14 +422,12 @@ const quickPlay = () => {
 };
 
 const start = () => {
-  startTimer();
-
-  gameState.value = {
+  transition({
     game: 'stopwatch',
     name: 'running',
     time: 0,
     result: {},
-  };
+  });
 };
 
 const formatTime = (time: number | undefined) => {
@@ -434,7 +448,7 @@ const formatTime = (time: number | undefined) => {
 
 const removeController = (controller: IController) => {
   if (gameState.value.name === 'completed') {
-    gameState.value = {
+    transition({
       game: 'stopwatch',
       name: 'completed',
       time: gameState.value.time,
@@ -442,7 +456,7 @@ const removeController = (controller: IController) => {
         ...gameState.value.result,
         [controller.id]: undefined,
       },
-    };
+    });
 
     controller.setLight(false);
 
@@ -453,12 +467,12 @@ const removeController = (controller: IController) => {
     const result = { ...gameState.value.result };
     delete result[controller.id];
 
-    gameState.value = {
+    transition({
       game: 'stopwatch',
       name: gameState.value.name,
       time: gameState.value.time,
       result,
-    };
+    });
 
     controller.setLight(false);
 

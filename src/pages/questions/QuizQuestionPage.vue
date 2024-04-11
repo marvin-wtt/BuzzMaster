@@ -66,6 +66,7 @@
               :label="t('question.quiz.action.start')"
               color="primary"
               rounded
+              data-testid="btn-game-start"
               @click="start()"
             />
             <q-btn

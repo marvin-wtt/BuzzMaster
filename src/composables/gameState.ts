@@ -1,6 +1,6 @@
 import { computed, onBeforeMount, onUnmounted, Ref, watch } from 'vue';
 import { GameState } from 'app/common/GameState';
-import { useGameStore } from 'stores/gameModes/game-store';
+import { useGameStore } from 'stores/game-store';
 
 export function useGameState<S extends GameState>(initialState: S) {
   const gameStore = useGameStore();

@@ -5,6 +5,7 @@ export type GameState = BuzzerState | QuizState | StopwatchState;
 export type StopwatchState =
   | StopwatchPreparationState
   | StopwatchRunningState
+  | StopwatchPausedState
   | StopwatchCompletedState;
 
 export type StopwatchPreparationState = {
@@ -15,6 +16,13 @@ export type StopwatchPreparationState = {
 export type StopwatchRunningState = {
   game: 'stopwatch';
   name: 'running';
+  time: number;
+  result: Record<string, number>;
+};
+
+export type StopwatchPausedState = {
+  game: 'stopwatch';
+  name: 'paused';
   time: number;
   result: Record<string, number>;
 };

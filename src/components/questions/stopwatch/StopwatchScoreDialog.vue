@@ -19,14 +19,20 @@
           >
             <q-item-section avatar>
               <q-avatar
+                v-if="entry.time !== undefined"
                 :color="avatarColor(index)"
                 text-color="white"
                 size="sm"
               >
-                <template v-if="entry.time !== undefined">
-                  {{ index + 1 }}
-                </template>
-                <template v-else> - </template>
+                {{ index + 1 }}
+              </q-avatar>
+              <q-avatar
+                v-else
+                color="grey"
+                text-color="white"
+                size="sm"
+              >
+                -
               </q-avatar>
             </q-item-section>
 

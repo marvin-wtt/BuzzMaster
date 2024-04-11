@@ -9,7 +9,7 @@ export default {
     start: 'Start',
     pause: 'Pause',
     resume: 'Resume',
-    stop: 'Stop',
+    stop: 'End',
     cancel: 'Cancel',
     quickPlay: 'Quick Play',
     reset: 'Reset',

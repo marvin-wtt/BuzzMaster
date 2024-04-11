@@ -11,12 +11,9 @@
           class="column col-xs-11 col-sm-7 col-md-5 col-lg-3 col-xl-2 q-mb-sm"
         >
           <!-- Result -->
-          <count-down
-            v-model="gameState.time"
-            :paused="gameState.name === 'completed'"
+          <beep-timer
+            :time="gameState.time"
             :precision="2"
-            :update-rate="100"
-            reverse
             class="text-center text-h6"
           />
 
@@ -96,10 +93,7 @@
       </div>
       <!-- Actions -->
       <div class="col-4 column q-gutter-y-sm justify-center content-center">
-        <div
-          v-if="gameState.name === 'preparing'"
-          class="column q-gutter-sm"
-        >
+        <template v-if="gameState.name === 'preparing'">
           <q-btn
             :label="t('question.stopwatch.action.start')"
             color="primary"
@@ -112,20 +106,46 @@
             rounded
             @click="openSettings"
           />
-        </div>
+        </template>
 
-        <div
-          v-else-if="gameState.name === 'running'"
-          class="column q-gutter-sm"
-        >
+        <template v-else-if="gameState.name === 'running'">
           <q-btn
-            :label="t('question.stopwatch.action.stop')"
+            :label="t('question.stopwatch.action.pause')"
+            class="self-center"
             outline
             rounded
-            @click="stop()"
+            @click="pause()"
           />
           <q-btn
             :label="t('question.stopwatch.action.cancel')"
+            class="self-center"
+            outline
+            rounded
+            @click="restart()"
+          />
+        </template>
+
+        <div
+          v-else-if="gameState.name === 'paused'"
+          class="column q-gutter-sm"
+        >
+          <div class="q-gutter-x-sm">
+            <q-btn
+              :label="t('question.stopwatch.action.resume')"
+              color="primary"
+              rounded
+              @click="resume()"
+            />
+            <q-btn
+              :label="t('question.stopwatch.action.stop')"
+              outline
+              rounded
+              @click="stop()"
+            />
+          </div>
+          <q-btn
+            :label="t('question.stopwatch.action.cancel')"
+            class="self-center"
             outline
             rounded
             @click="restart()"
@@ -166,8 +186,7 @@
 <script lang="ts" setup>
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 import StopwatchQuestionDialog from 'components/questions/stopwatch/StopwatchQuestionDialog.vue';
-import CountDown from 'components/CountDown.vue';
-import { computed, onBeforeMount, onUnmounted, ref } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
   ButtonEvent,
@@ -180,17 +199,21 @@ import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useQuasar } from 'quasar';
 import { StopwatchState } from 'app/common/GameState';
 import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
+import BeepTimer from 'components/BeepTimer.vue';
+import { useTimer } from 'src/composables/timer';
 
 const { t } = useI18n();
 const quasar = useQuasar();
 const { stopwatchSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
+const { time, stopTimer, startTimer, exactTime } = useTimer({
+  updateRate: 100,
+});
 
 const gameState = ref<StopwatchState>({
   game: 'stopwatch',
   name: 'preparing',
 });
-const startTime = ref<number>(0);
 
 const audio = new Audio('sounds/stopwatch-ping.mp3');
 
@@ -206,13 +229,29 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
+watch(time, (value) => {
+  if (gameState.value.name === 'preparing') {
+    return;
+  }
+
+  // Update state
+  gameState.value = {
+    ...gameState.value,
+    time: value,
+  };
+});
+
 const soundsEnabled = computed<boolean>(() => {
   return stopwatchSettings.playSounds;
 });
 
 const result = computed<StopwatchEntry[]>(() => {
   const state = gameState.value;
-  if (state.name !== 'running' && state.name !== 'completed') {
+  if (
+    state.name !== 'running' &&
+    state.name !== 'paused' &&
+    state.name !== 'completed'
+  ) {
     return [];
   }
 
@@ -260,7 +299,7 @@ const listener = (event: ButtonEvent) => {
   }
 
   // Calculate exact time so that timer interval does not affect precision
-  const time = new Date().getTime() - startTime.value;
+  const time = exactTime();
 
   gameState.value = {
     game: 'stopwatch',
@@ -275,7 +314,12 @@ const listener = (event: ButtonEvent) => {
   event.controller.setLight(true);
 
   if (Object.keys(gameState.value.result).length === controllers.value.length) {
-    onComplete();
+    gameState.value = {
+      game: 'stopwatch',
+      name: 'completed',
+      time: gameState.value.time,
+      result: gameState.value.result,
+    };
   }
 
   if (soundsEnabled.value) {
@@ -284,29 +328,48 @@ const listener = (event: ButtonEvent) => {
   }
 };
 
-const onComplete = () => {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
-
-  gameState.value = {
-    game: 'stopwatch',
-    name: 'completed',
-    time: gameState.value.time,
-    result: gameState.value.result,
-  };
-};
-
 const openSettings = () => {
   quasar.dialog({
     component: StopwatchQuestionDialog,
   });
 };
 
-const stop = () => {
+const pause = () => {
   if (gameState.value.name !== 'running') {
     return;
   }
+
+  stopTimer();
+
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'paused',
+    time: gameState.value.time,
+    result: gameState.value.result,
+  };
+};
+
+const resume = () => {
+  if (gameState.value.name !== 'paused') {
+    return;
+  }
+
+  startTimer();
+
+  gameState.value = {
+    game: 'stopwatch',
+    name: 'running',
+    time: gameState.value.time,
+    result: gameState.value.result,
+  };
+};
+
+const stop = () => {
+  if (gameState.value.name !== 'paused') {
+    return;
+  }
+
+  stopTimer();
 
   const result: Record<string, number | undefined> = gameState.value.result;
   for (const controller of controllers.value) {
@@ -326,6 +389,9 @@ const stop = () => {
 };
 
 const restart = () => {
+  stopTimer();
+  time.value = 0;
+
   buzzer.reset();
 
   gameState.value = {
@@ -340,14 +406,14 @@ const quickPlay = () => {
 };
 
 const start = () => {
+  startTimer();
+
   gameState.value = {
     game: 'stopwatch',
     name: 'running',
     time: 0,
     result: {},
   };
-
-  startTime.value = new Date().getTime();
 };
 
 const formatTime = (time: number | undefined) => {
@@ -355,7 +421,7 @@ const formatTime = (time: number | undefined) => {
     return t('question.stopwatch.disqualified');
   }
 
-  const date = new Date(time);
+  const date = new Date(time * 1000);
 
   const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   const seconds = String(date.getUTCSeconds()).padStart(2, '0');
@@ -383,13 +449,13 @@ const removeController = (controller: IController) => {
     return;
   }
 
-  if (gameState.value.name === 'running') {
+  if (gameState.value.name === 'running' || gameState.value.name === 'paused') {
     const result = { ...gameState.value.result };
     delete result[controller.id];
 
     gameState.value = {
       game: 'stopwatch',
-      name: 'running',
+      name: gameState.value.name,
       time: gameState.value.time,
       result,
     };

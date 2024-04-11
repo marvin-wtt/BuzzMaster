@@ -7,6 +7,8 @@ export default {
   action: {
     scores: 'Scores',
     start: 'Start',
+    pause: 'Pause',
+    resume: 'Resume',
     stop: 'Stop',
     cancel: 'Cancel',
     quickPlay: 'Quick Play',

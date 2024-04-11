@@ -41,17 +41,15 @@
             <!-- Waiting for answers -->
             <circle-timer
               v-if="gameState.name === 'running' || keepCountDown"
-              v-model="countDownTime"
+              v-model="time"
               :max="quizSettings.answerTime"
             >
-              <count-down
-                v-if="quizSettings.answerTime > 0"
-                v-model="countDownTime"
-                :beep="soundsEnabled"
+              <beep-timer
+                :time="time"
+                :beep="quizSettings.playSounds"
                 :beep-start-time="quizSettings.countDownBeepStartAt"
                 animated
                 class="text-h2"
-                @stop="onCountdownStop"
               />
             </circle-timer>
           </transition-fade>
@@ -125,7 +123,7 @@
 </template>
 
 <script lang="ts" setup>
-import CountDown from 'components/CountDown.vue';
+import BeepTimer from 'components/BeepTimer.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue';
@@ -142,24 +140,29 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
+import { buzzerButtonColor } from 'components/buttonColors';
+import { useI18n } from 'vue-i18n';
 import {
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
   QuizState,
 } from 'app/common/GameState';
-import { buzzerButtonColor } from 'components/buttonColors';
-import { useI18n } from 'vue-i18n';
+import { useGameState, useStateActions } from 'src/composables/gameState';
+import { useTimer } from 'src/composables/timer';
 
 const { t } = useI18n();
 const quasar = useQuasar();
 const { quizSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
-
-const gameState = ref<QuizState>({
+const { time, stopTimer, startTimer } = useTimer({
+  updateRate: 100,
+});
+const { gameState, transition } = useGameState<QuizState>({
   game: 'quiz',
   name: 'preparing',
 });
+const { onStateEntry, onStateExit } = useStateActions(gameState);
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -169,6 +172,38 @@ onBeforeMount(() => {
 onUnmounted(() => {
   buzzer.removeListener('press', listener);
   buzzer.reset();
+});
+
+watch(time, (time) => {
+  if (time >= 0) {
+    return transition('running', (state) => {
+      return {
+        game: 'quiz',
+        name: 'completed',
+        result: state.result,
+      };
+    });
+  }
+
+  // Update state
+  transition('running', (state) => {
+    return {
+      ...state,
+      time,
+    };
+  });
+});
+
+onStateEntry('preparing', () => {
+  buzzer.reset();
+});
+
+onStateEntry('running', (state) => {
+  time.value = state.time;
+  startTimer();
+});
+onStateExit('running', () => {
+  stopTimer();
 });
 
 const controllersByButton = computed<
@@ -208,42 +243,53 @@ const buttons: BuzzerButton[] = [
   BuzzerButton.YELLOW,
 ];
 
-const onComplete = () => {
-  if (gameState.value.name !== 'running') {
+const buttonColorClass = (button: BuzzerButton) => {
+  return quizSettings.activeButtons?.includes(button)
+    ? buzzerButtonColor[button]
+    : 'grey';
+};
+
+const listener = transition('running', (state, event: ButtonEvent) => {
+  if (state.name !== 'running') {
     return;
   }
 
-  gameState.value = {
-    game: 'quiz',
-    name: 'completed',
-    result: gameState.value.result,
-  };
-};
+  if (state.answerChangeAllowed === 'confirm') {
+    return buttonPressedAnswerChangeConfirm(event, state);
+  }
+  if (state.answerChangeAllowed === 'never') {
+    return buttonPressedAnswerChangeNever(event, state);
+  }
+
+  return buttonPressedAnswerChangeAlways(event, state);
+});
 
 const buttonPressedAnswerChangeAlways = (
   event: ButtonEvent,
   state: QuizRunningChangeAlwaysState,
-) => {
+): QuizState | undefined => {
   if (!quizSettings.activeButtons.includes(event.button)) {
     return;
   }
 
-  gameState.value = {
+  const result = {
+    ...state.result,
+    [event.controller.id]: event.button,
+  };
+
+  return {
     game: 'quiz',
     name: 'running',
     answerChangeAllowed: 'always',
     time: state.time,
-    result: {
-      ...state.result,
-      [event.controller.id]: event.button,
-    },
+    result,
   };
 };
 
 const buttonPressedAnswerChangeNever = (
   event: ButtonEvent,
   state: QuizRunningChangeNeverState,
-) => {
+): QuizState | undefined => {
   if (!quizSettings.activeButtons.includes(event.button)) {
     return;
   }
@@ -253,31 +299,36 @@ const buttonPressedAnswerChangeNever = (
     return;
   }
 
-  // Update state
-  gameState.value = {
+  // Update controller
+  event.controller.setLight(true);
+
+  const result = {
+    ...state.result,
+    [event.controller.id]: event.button,
+  };
+
+  // Transition to completed if all controllers answered
+  if (Object.keys(result).length >= controllers.value.length) {
+    return {
+      game: 'quiz',
+      name: 'completed',
+      result,
+    };
+  }
+
+  return {
     game: 'quiz',
     name: 'running',
     answerChangeAllowed: 'never',
     time: state.time,
-    result: {
-      ...state.result,
-      [event.controller.id]: event.button,
-    },
+    result,
   };
-
-  // Update controller
-  event.controller.setLight(true);
-
-  // Transition to completed if all controllers answered
-  if (Object.keys(state.result).length + 1 >= controllers.value.length) {
-    onComplete();
-  }
 };
 
 const buttonPressedAnswerChangeConfirm = (
   event: ButtonEvent,
   state: QuizRunningChangeConfirmState,
-) => {
+): QuizState | undefined => {
   // Guard already confirmed
   if (event.controller.id in state.result) {
     return;
@@ -290,7 +341,7 @@ const buttonPressedAnswerChangeConfirm = (
     }
 
     // Update state
-    gameState.value = {
+    return {
       game: 'quiz',
       name: 'running',
       answerChangeAllowed: 'confirm',
@@ -301,7 +352,6 @@ const buttonPressedAnswerChangeConfirm = (
         [event.controller.id]: event.button,
       },
     };
-    return;
   }
 
   // Don't allow confirmation without answer
@@ -309,52 +359,34 @@ const buttonPressedAnswerChangeConfirm = (
     return;
   }
 
+  // Selection confirmed
+  event.controller.setLight(true);
+
   // Extract precious pressed button and unconfirmed list
   const { [event.controller.id]: button, ...unconfirmed } = state.unconfirmed;
+  const result = {
+    ...state.result,
+    [event.controller.id]: button,
+  };
 
-  // Update state
-  gameState.value = {
+  // Transition to completed if all controllers confirmed
+  if (Object.keys(result).length >= controllers.value.length) {
+    return {
+      game: 'quiz',
+      name: 'completed',
+      result,
+    };
+  }
+
+  return {
     game: 'quiz',
     name: 'running',
     answerChangeAllowed: 'confirm',
     time: state.time,
-    result: {
-      ...state.result,
-      [event.controller.id]: button,
-    },
+    result,
     unconfirmed,
   };
-
-  event.controller.setLight(true);
-
-  // Transition to completed if all controllers confirmed
-  if (Object.keys(gameState.value.result).length >= controllers.value.length) {
-    onComplete();
-  }
 };
-
-const listener = (event: ButtonEvent) => {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
-
-  if (gameState.value.answerChangeAllowed === 'confirm') {
-    return buttonPressedAnswerChangeConfirm(event, gameState.value);
-  }
-  if (gameState.value.answerChangeAllowed === 'never') {
-    return buttonPressedAnswerChangeNever(event, gameState.value);
-  }
-
-  buttonPressedAnswerChangeAlways(event, gameState.value);
-};
-
-const onCountdownStop = () => {
-  onComplete();
-};
-
-const soundsEnabled = computed<boolean>(() => {
-  return quizSettings.playSounds;
-});
 
 const openSettings = () => {
   quasar.dialog({
@@ -362,13 +394,9 @@ const openSettings = () => {
   });
 };
 
-const start = () => {
-  if (gameState.value.name !== 'preparing') {
-    return;
-  }
-
+const start = transition('preparing', () => {
   if (quizSettings.changeMode === 'confirm') {
-    gameState.value = {
+    return {
       game: 'quiz',
       name: 'running',
       time: quizSettings.answerTime,
@@ -376,48 +404,30 @@ const start = () => {
       result: {},
       unconfirmed: {},
     };
-  } else {
-    gameState.value = {
-      game: 'quiz',
-      name: 'running',
-      time: quizSettings.answerTime,
-      answerChangeAllowed: quizSettings.changeMode,
-      result: {},
-    };
   }
-};
 
-const restart = () => {
-  buzzer.reset();
+  return {
+    game: 'quiz',
+    name: 'running',
+    time: quizSettings.answerTime,
+    answerChangeAllowed: quizSettings.changeMode,
+    result: {},
+  };
+});
 
-  gameState.value = {
+const restart = transition(['running', 'completed'], () => {
+  return {
     game: 'quiz',
     name: 'preparing',
   };
-};
+});
 
 const quickPlay = () => {
   restart();
   start();
 };
 
-const buttonColorClass = (button: BuzzerButton) => {
-  return quizSettings.activeButtons?.includes(button)
-    ? buzzerButtonColor[button]
-    : 'grey';
-};
-
 // Workaround to keep the countdown alive and wait for the last beep to finish
-const countDownTime = computed<number>({
-  get() {
-    return gameState.value.name === 'running' ? gameState.value.time : 0;
-  },
-  set(value: number) {
-    if (gameState.value.name === 'running') {
-      gameState.value.time = value;
-    }
-  },
-});
 const keepCountDown = ref<boolean>(false);
 let keepCountDownTimeout: NodeJS.Timeout | undefined = undefined;
 watch(gameState, (value, oldValue) => {

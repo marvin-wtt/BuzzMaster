@@ -1,6 +1,6 @@
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import QuizQuestionPage from 'pages/questions/QuizQuestionPage.vue';
 import { Dialog } from 'quasar';
 import { installPinia } from 'app/test/vitest/install-pinia';
@@ -59,5 +59,34 @@ describe('QuizPage', () => {
     await wrapper.find(selector('btn-game-start')).trigger('click');
 
     expect(gameStore.state?.name).toBe('running');
+  });
+
+  describe('running', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('should count down', async () => {
+      mockBuzzerApi();
+
+      const gameStore = useGameStore();
+      mount(QuizQuestionPage);
+
+      gameStore.transition({
+        game: 'quiz',
+        name: 'running',
+        time: 5,
+        answerChangeAllowed: 'always',
+        result: {},
+      });
+
+      await vi.advanceTimersByTimeAsync(2000);
+
+      expect(gameStore.state?.name).toBe('running');
+      expect(gameStore.state).toHaveProperty('time', 3);
+    });
   });
 });

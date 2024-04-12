@@ -1,5 +1,8 @@
 // This file will be run before each test file
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
+import { enableAutoUnmount } from '@vue/test-utils';
+
+enableAutoUnmount(afterEach);
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({

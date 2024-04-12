@@ -81,11 +81,18 @@ export function useStateActions<S extends GameState>(state: Ref<S>) {
     entryActions[name] = fn as (s: S) => void;
   };
 
-  const onStateExit = (name: S['name'], fn: (state: S) => void) => {
-    exitActions[name] = fn;
+  const onStateExit = <K extends StateName>(
+    name: K,
+    fn: (state: Extract<S, { name: K }>) => void,
+  ) => {
+    exitActions[name] = fn as (s: S) => void;
   };
-  const onStateDo = (name: S['name'], fn: (state: S) => void) => {
-    doActions[name] = fn;
+
+  const onStateDo = <K extends StateName>(
+    name: K,
+    fn: (state: Extract<S, { name: K }>) => void,
+  ) => {
+    doActions[name] = fn as (s: S) => void;
   };
 
   watch(state, (state, prevState) => {

@@ -153,7 +153,7 @@ import BuzzerQuestionDialog from 'components/questions/buzzer/BuzzerQuestionDial
 import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref, watchEffect } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
@@ -231,7 +231,7 @@ const onCircleTimerResize = (size?: { width: number; height: number }) => {
   };
 };
 
-watch(gameState, () => {
+watchEffect(() => {
   onCircleTimerResize();
 });
 

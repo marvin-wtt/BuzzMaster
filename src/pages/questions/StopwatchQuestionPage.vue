@@ -230,12 +230,15 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
-watch(time, (value) => {
-  transition('running', () => ({
-    ...gameState.value,
-    time: value,
-  }));
-});
+watch(
+  time,
+  transition('running', (state, time: number) => {
+    return {
+      ...gameState.value,
+      time,
+    };
+  }),
+);
 
 onStateEntry('preparing', () => {
   buzzer.reset();

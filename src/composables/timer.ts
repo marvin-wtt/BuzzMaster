@@ -12,7 +12,7 @@ export function useTimer(options?: Partial<TimerOptions>) {
 
   const time = ref<number>(0);
   const updateRate: number = options?.updateRate ?? 0;
-  const countDown: boolean = options?.direction === 'down' ?? false;
+  const countDown: boolean = options?.direction === 'down';
 
   onUnmounted(() => {
     stopTimer();

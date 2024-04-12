@@ -158,6 +158,7 @@ const { quizSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
+  direction: 'down',
 });
 const { gameState, transition } = useGameState<QuizState>({
   game: 'quiz',
@@ -175,25 +176,23 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
-watch(time, (time) => {
-  if (time >= 0) {
-    return transition('running', (state) => {
+watch(
+  time,
+  transition('running', (state, time: number) => {
+    if (time <= 0) {
       return {
         game: 'quiz',
         name: 'completed',
         result: state.result,
       };
-    });
-  }
+    }
 
-  // Update state
-  transition('running', (state) => {
     return {
       ...state,
       time,
     };
-  });
-});
+  }),
+);
 
 onStateEntry('preparing', () => {
   buzzer.reset();
@@ -251,18 +250,14 @@ const buttonColorClass = (button: BuzzerButton) => {
 };
 
 const listener = transition('running', (state, event: ButtonEvent) => {
-  if (state.name !== 'running') {
-    return;
+  switch (state.answerChangeAllowed) {
+    case 'always':
+      return buttonPressedAnswerChangeAlways(event, state);
+    case 'never':
+      return buttonPressedAnswerChangeNever(event, state);
+    case 'confirm':
+      return buttonPressedAnswerChangeConfirm(event, state);
   }
-
-  if (state.answerChangeAllowed === 'confirm') {
-    return buttonPressedAnswerChangeConfirm(event, state);
-  }
-  if (state.answerChangeAllowed === 'never') {
-    return buttonPressedAnswerChangeNever(event, state);
-  }
-
-  return buttonPressedAnswerChangeAlways(event, state);
 });
 
 const buttonPressedAnswerChangeAlways = (

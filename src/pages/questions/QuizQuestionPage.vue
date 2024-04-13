@@ -9,6 +9,7 @@
         <quiz-result
           v-if="gameState.name === 'completed'"
           :controllers-by-button="controllersByButton"
+          data-testid="result"
         />
         <div
           v-else
@@ -96,6 +97,7 @@
               color="primary"
               class="self-center"
               rounded
+              data-testid="btn-game-quick-play"
               @click="quickPlay()"
             />
             <q-btn
@@ -104,6 +106,7 @@
               class="self-center"
               outline
               rounded
+              data-testid="btn-game-restart"
               @click="restart()"
             />
           </div>

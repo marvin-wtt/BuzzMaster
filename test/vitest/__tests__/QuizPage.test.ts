@@ -478,15 +478,74 @@ describe('QuizPage', () => {
   });
 
   describe('completed', () => {
-    it.todo('should add unanswered controllers to result');
+    const initializeStore = async () => {
+      const gameStore = useGameStore();
+      gameStore.transition({
+        game: 'quiz',
+        name: 'completed',
+        result: {},
+      });
+      // Wait for changes to apply
+      await nextTick();
 
-    it.todo('should not accept a buzzer');
+      return gameStore;
+    };
 
-    it.todo('should transition to running on quick-play');
+    it('should not accept a buzzer', async () => {
+      const { buzzer } = mountQuizPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const controller0 = getController(0);
+      const controller1 = getController(1);
 
-    it.todo('should transition to preparing on reset');
+      const gameStore = useGameStore();
+      gameStore.transition({
+        game: 'quiz',
+        name: 'completed',
+        result: {
+          [controller0.id]: BuzzerButton.GREEN,
+        },
+      });
+      // Wait for changes to apply
+      await nextTick();
 
-    it.todo('should show the result');
+      pressAndRelease(0, BuzzerButton.BLUE);
+      pressAndRelease(1, BuzzerButton.BLUE);
+
+      const state = gameStore.state as QuizCompleteState;
+      expect(state.result).toHaveProperty(controller0.id, BuzzerButton.GREEN);
+      expect(state.result).not.toHaveProperty(controller1.id);
+    });
+
+    it('should show the result', async () => {
+      const { wrapper } = mountQuizPage();
+      await initializeStore();
+
+      expect(wrapper.find(selector('result')).exists()).to.be.true;
+    });
+
+    it('should transition to preparing on restart', async () => {
+      const { wrapper } = mountQuizPage();
+      const gameStore = await initializeStore();
+
+      expect(gameStore.state?.name).toBe('completed');
+
+      expect(wrapper.find(selector('btn-game-restart')).exists()).to.be.true;
+      await wrapper.find(selector('btn-game-restart')).trigger('click');
+
+      expect(gameStore.state?.name).toBe('preparing');
+    });
+
+    it('should transition to running on quick-play', async () => {
+      const { wrapper } = mountQuizPage();
+      const gameStore = await initializeStore();
+
+      expect(gameStore.state?.name).toBe('completed');
+
+      expect(wrapper.find(selector('btn-game-quick-play')).exists()).to.be.true;
+      await wrapper.find(selector('btn-game-quick-play')).trigger('click');
+
+      expect(gameStore.state?.name).toBe('running');
+    });
 
     describe.todo('score');
   });

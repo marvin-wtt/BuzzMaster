@@ -43,6 +43,11 @@ export const createDevice = async (
     device.buttonUpdateHandler(buttonStates);
   };
 
+  const pressAndRelease = (controller: number, button: BuzzerButton) => {
+    updateButton(controller, button, true);
+    updateButton(controller, button, false);
+  };
+
   const getControllerId = (index: number): string => {
     const dongle = plugin.dongles.find(
       (dongle) => dongle.device.id === device.id,
@@ -63,6 +68,7 @@ export const createDevice = async (
   return {
     device,
     updateButton,
+    pressAndRelease,
     getControllerId,
   };
 };

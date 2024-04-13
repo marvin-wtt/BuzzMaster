@@ -85,10 +85,7 @@ describe('QuizPage', () => {
     });
 
     describe('answer change never', () => {
-      it('should prevent answer changes', async () => {
-        const { buzzer } = mountQuizPage();
-        const { updateButton, getControllerId } = await createDevice(buzzer);
-
+      const initializeStore = () => {
         const gameStore = useGameStore();
         gameStore.transition({
           game: 'quiz',
@@ -98,19 +95,73 @@ describe('QuizPage', () => {
           result: {},
         });
 
-        // First button pressed
+        return gameStore;
+      };
+
+      it('should accept an answer', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getControllerId } = await createDevice(buzzer);
+        const gameStore = initializeStore();
+
         const controllerId = getControllerId(0);
 
-        updateButton(0, BuzzerButton.BLUE, true);
+        pressAndRelease(0, BuzzerButton.BLUE);
 
         expect(gameStore.state).toHaveProperty('result');
         expect((gameStore.state as QuizRunningState).result).toHaveProperty(
           controllerId,
           BuzzerButton.BLUE,
         );
+      });
 
-        // Second button pressed
-        updateButton(0, BuzzerButton.GREEN, true);
+      it.todo('should turn on the LED');
+
+      it('should accept an answer from multiple controllers', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getControllerId } = await createDevice(buzzer);
+        const gameStore = initializeStore();
+
+        const controller0Id = getControllerId(0);
+        pressAndRelease(0, BuzzerButton.BLUE);
+
+        expect(gameStore.state).toHaveProperty('result');
+        expect((gameStore.state as QuizRunningState).result).toHaveProperty(
+          controller0Id,
+          BuzzerButton.BLUE,
+        );
+
+        const controller1Id = getControllerId(1);
+        pressAndRelease(1, BuzzerButton.YELLOW);
+
+        expect((gameStore.state as QuizRunningState).result).toHaveProperty(
+          controller0Id,
+          BuzzerButton.BLUE,
+        );
+        expect((gameStore.state as QuizRunningState).result).toHaveProperty(
+          controller1Id,
+          BuzzerButton.YELLOW,
+        );
+      });
+
+      it('should not accept the red button', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease } = await createDevice(buzzer);
+        const gameStore = initializeStore();
+
+        pressAndRelease(0, BuzzerButton.RED);
+
+        expect(gameStore.state).toHaveProperty('result', {});
+      });
+
+      it('should prevent answer changes', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getControllerId } = await createDevice(buzzer);
+        const gameStore = initializeStore();
+
+        const controllerId = getControllerId(0);
+
+        pressAndRelease(0, BuzzerButton.BLUE);
+        pressAndRelease(0, BuzzerButton.GREEN);
 
         expect(gameStore.state).toHaveProperty('result', {
           [controllerId]: BuzzerButton.BLUE,
@@ -119,31 +170,73 @@ describe('QuizPage', () => {
 
       it('should transition to completed when all controllers are pressed', async () => {
         const { buzzer } = mountQuizPage();
+        const { pressAndRelease } = await createDevice(buzzer);
+        const gameStore = initializeStore();
 
-        const { updateButton } = await createDevice(buzzer);
+        // One button pressed
+        pressAndRelease(0, BuzzerButton.BLUE);
 
+        expect(gameStore.state?.name).toBe('running');
+
+        pressAndRelease(1, BuzzerButton.BLUE);
+
+        expect(gameStore.state?.name).toBe('completed');
+      });
+    });
+
+    describe('answer change always', () => {
+      const initializeStore = () => {
         const gameStore = useGameStore();
         gameStore.transition({
           game: 'quiz',
           name: 'running',
           time: 5,
-          answerChangeAllowed: 'never',
+          answerChangeAllowed: 'always',
           result: {},
         });
 
-        // One button pressed
-        updateButton(0, BuzzerButton.BLUE, true);
+        return gameStore;
+      };
 
-        expect(gameStore.state?.name).toBe('running');
+      it('should accept an answer', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getControllerId } = await createDevice(buzzer);
+        const gameStore = initializeStore();
 
-        updateButton(1, BuzzerButton.BLUE, true);
+        const controllerId = getControllerId(0);
 
-        expect(gameStore.state?.name).toBe('completed');
+        pressAndRelease(0, BuzzerButton.BLUE);
+
+        expect(gameStore.state).toHaveProperty('result');
+        expect((gameStore.state as QuizRunningState).result).toHaveProperty(
+          controllerId,
+          BuzzerButton.BLUE,
+        );
       });
+
+      it.todo('should accept an answer from multiple controllers');
+
+      it.todo('should allow answer change');
+
+      it.todo('should accept an answer from multiple controllers');
+
+      it.todo('should stay in running when all controllers are pressed');
+    });
+
+    describe('answer change confirm', () => {
+      it.todo('should accept a selection');
+
+      it.todo('should accept a red button with selection');
+
+      it.todo('should reject a red button without previous selection');
+
+      it.todo('should not accept an unconfirmed selection as result');
     });
   });
 
   describe('completed', () => {
     it.todo('should add unanswered controllers to result');
+
+    it.todo('should not accept a buzzer');
   });
 });

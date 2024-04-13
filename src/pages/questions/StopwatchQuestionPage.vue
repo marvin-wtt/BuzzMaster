@@ -15,6 +15,7 @@
             :time="gameState.time"
             :precision="2"
             class="text-center text-h6"
+            data-testid="timer"
           />
 
           <q-separator />
@@ -64,6 +65,7 @@
                     size="sm"
                     rounded
                     dense
+                    data-testid="btn-remove-result"
                     @click="removeController(item.controller)"
                   />
 
@@ -83,6 +85,7 @@
         <div
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center text-h5"
+          data-testid="controllers-ready"
         >
           {{
             t('question.stopwatch.controllersReady', {
@@ -98,6 +101,7 @@
             :label="t('question.stopwatch.action.start')"
             color="primary"
             rounded
+            data-testid="btn-game-start"
             @click="start()"
           />
           <q-btn
@@ -114,6 +118,7 @@
             class="self-center"
             outline
             rounded
+            data-testid="btn-game-pause"
             @click="pause()"
           />
           <q-btn
@@ -121,6 +126,7 @@
             class="self-center"
             outline
             rounded
+            data-testid="btn-game-cancel"
             @click="restart()"
           />
         </template>
@@ -134,12 +140,14 @@
               :label="t('question.stopwatch.action.resume')"
               color="primary"
               rounded
+              data-testid="btn-game-resume"
               @click="resume()"
             />
             <q-btn
               :label="t('question.stopwatch.action.stop')"
               outline
               rounded
+              data-testid="btn-game-stop"
               @click="stop()"
             />
           </div>
@@ -148,6 +156,7 @@
             class="self-center"
             outline
             rounded
+            data-testid="btn-game-cancel"
             @click="restart()"
           />
         </div>
@@ -166,6 +175,7 @@
             color="primary"
             class="self-center"
             rounded
+            data-testid="btn-game-quick-play"
             @click="quickPlay()"
           />
           <!-- Second row -->
@@ -175,6 +185,7 @@
             class="self-center"
             outline
             rounded
+            data-testid="btn-game-restart"
             @click="restart()"
           />
         </template>

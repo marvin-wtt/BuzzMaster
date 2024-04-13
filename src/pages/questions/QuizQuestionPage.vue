@@ -20,6 +20,7 @@
               v-if="gameState.name === 'preparing'"
               :pulse="false"
               class="column justify-center q-col-gutter-sm text-h5"
+              data-testid="preparing-circle"
             >
               <div>
                 {{
@@ -43,6 +44,7 @@
               v-if="gameState.name === 'running' || keepCountDown"
               v-model="time"
               :max="quizSettings.answerTime"
+              data-testid="answer-timer"
             >
               <beep-timer
                 :time="time"
@@ -111,6 +113,7 @@
               :label="t('question.quiz.action.cancel')"
               outline
               rounded
+              data-testid="btn-game-cancel"
               @click="restart()"
             />
           </div>

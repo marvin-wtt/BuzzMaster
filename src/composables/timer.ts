@@ -11,7 +11,7 @@ export function useTimer(options?: Partial<TimerOptions>) {
   let initialTime: number;
 
   const time = ref<number>(0);
-  const updateRate: number = options?.updateRate ?? 0;
+  const updateRate: number = options?.updateRate ?? 1;
   const countDown: boolean = options?.direction === 'down';
 
   onUnmounted(() => {

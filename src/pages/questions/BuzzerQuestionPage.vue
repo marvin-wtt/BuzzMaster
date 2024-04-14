@@ -161,7 +161,7 @@ import { useQuasar } from 'quasar';
 import { useQuestionSettingsStore } from 'stores/question-settings-store';
 import { useI18n } from 'vue-i18n';
 import { BuzzerState } from 'app/common/GameState';
-import { useGameState, useStateActions } from 'src/composables/gameState';
+import { useGameState } from 'src/composables/gameState';
 import BeepTimer from 'components/BeepTimer.vue';
 import { useTimer } from 'src/composables/timer';
 
@@ -178,11 +178,11 @@ const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
   direction: 'down',
 });
-const { gameState, transition } = useGameState<BuzzerState>({
-  game: 'buzzer',
-  name: 'preparing',
-});
-const { onStateEntry, onStateExit } = useStateActions(gameState);
+const { gameState, transition, onStateEntry, onStateExit } =
+  useGameState<BuzzerState>({
+    game: 'buzzer',
+    name: 'preparing',
+  });
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
 const countDownStyle = ref<string | { fontSize: string }>('');

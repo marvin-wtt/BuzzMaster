@@ -155,7 +155,7 @@ import {
   QuizRunningChangeNeverState,
   QuizState,
 } from 'app/common/GameState';
-import { useGameState, useStateActions } from 'src/composables/gameState';
+import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
 
 const { t } = useI18n();
@@ -166,11 +166,11 @@ const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
   direction: 'down',
 });
-const { gameState, transition } = useGameState<QuizState>({
-  game: 'quiz',
-  name: 'preparing',
-});
-const { onStateEntry, onStateExit } = useStateActions(gameState);
+const { gameState, transition, onStateEntry, onStateExit } =
+  useGameState<QuizState>({
+    game: 'quiz',
+    name: 'preparing',
+  });
 
 onBeforeMount(() => {
   buzzer.reset();

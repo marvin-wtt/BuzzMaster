@@ -212,7 +212,7 @@ import { StopwatchRunningState, StopwatchState } from 'app/common/GameState';
 import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
 import BeepTimer from 'components/BeepTimer.vue';
 import { useTimer } from 'src/composables/timer';
-import { useGameState, useStateActions } from 'src/composables/gameState';
+import { useGameState } from 'src/composables/gameState';
 
 const { t } = useI18n();
 const quasar = useQuasar();
@@ -221,11 +221,11 @@ const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,
 });
-const { gameState, transition, createEvent } = useGameState<StopwatchState>({
-  game: 'stopwatch',
-  name: 'preparing',
-});
-const { onStateEntry, onStateExit } = useStateActions(gameState);
+const { gameState, transition, createEvent, onStateEntry, onStateExit } =
+  useGameState<StopwatchState>({
+    game: 'stopwatch',
+    name: 'preparing',
+  });
 
 const audio = new Audio('sounds/stopwatch-ping.mp3');
 

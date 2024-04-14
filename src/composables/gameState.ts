@@ -1,4 +1,4 @@
-import { computed, onBeforeMount, onUnmounted, Ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted } from 'vue';
 import { GameState } from 'app/common/GameState';
 import { useGameStore } from 'stores/game-store';
 
@@ -58,14 +58,20 @@ export function useGameState<S extends GameState>(initialState: S) {
     };
   };
 
+  const stateActions = useStateActions<S>();
+
   return {
     gameState,
     transition,
     createEvent,
+
+    ...stateActions,
   };
 }
 
-export function useStateActions<S extends GameState>(state: Ref<S>) {
+export function useStateActions<S extends GameState>() {
+  const gameStore = useGameStore();
+
   type StateName = S['name'];
   type ActionHandler = (state: S) => void;
   type StateActionHandlers = Partial<Record<StateName, ActionHandler>>;
@@ -95,14 +101,47 @@ export function useStateActions<S extends GameState>(state: Ref<S>) {
     doActions[name] = fn as (s: S) => void;
   };
 
-  watch(state, (state, prevState) => {
-    if (state.name === prevState.name) {
-      callActionHandler(doActions, state);
-    } else {
-      callActionHandler(exitActions, prevState);
-      callActionHandler(entryActions, state);
-    }
-  });
+  const unsubscribe = gameStore.$onAction(
+    ({
+      name,
+      store,
+      args,
+      after,
+      //onError
+    }) => {
+      const prevState = store.state;
+      const state = args[0];
+
+      if (name === 'transition') {
+        return after(() => {
+          if (state?.name === prevState?.name) {
+            if (state === undefined) {
+              return;
+            }
+            return callActionHandler(doActions, state as S);
+          }
+
+          if (prevState !== undefined) {
+            callActionHandler(exitActions, prevState as S);
+          }
+
+          if (state !== undefined) {
+            callActionHandler(entryActions, state as S);
+          }
+        });
+      }
+
+      if (name === 'reset') {
+        return after(() => {
+          if (prevState !== undefined) {
+            callActionHandler(exitActions, prevState as S);
+          }
+        });
+      }
+    },
+  );
+
+  onUnmounted(unsubscribe);
 
   const callActionHandler = (handlers: StateActionHandlers, state: S) => {
     const handler = handlers[state.name as StateName];

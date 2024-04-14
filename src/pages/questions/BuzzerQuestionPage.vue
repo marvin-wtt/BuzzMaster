@@ -29,11 +29,6 @@
                 :style="countDownStyle"
                 animated
               />
-
-              <count-down
-                v-model="gameState.time"
-                :paused="gameState.correct !== undefined"
-              />
             </div>
           </circle-timer>
           <!-- Waiting -->
@@ -179,6 +174,10 @@ const quasar = useQuasar();
 const { t } = useI18n();
 const { buzzerSettings } = useQuestionSettingsStore();
 const { controllers, buzzer } = useBuzzer();
+const { time, stopTimer, startTimer } = useTimer({
+  updateRate: 100,
+  direction: 'down',
+});
 const { gameState, transition } = useGameState<BuzzerState>({
   game: 'buzzer',
   name: 'preparing',

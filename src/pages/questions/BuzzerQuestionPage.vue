@@ -150,10 +150,16 @@
 <script lang="ts" setup>
 import BuzzerScoreboardButtons from 'components/questions/buzzer/BuzzerScoreboardButtons.vue';
 import BuzzerQuestionDialog from 'components/questions/buzzer/BuzzerQuestionDialog.vue';
-import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watchEffect } from 'vue';
+import {
+  computed,
+  onBeforeMount,
+  onUnmounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
@@ -162,6 +168,7 @@ import { useI18n } from 'vue-i18n';
 import { BuzzerState } from 'app/common/GameState';
 import { useGameState, useStateActions } from 'src/composables/gameState';
 import BeepTimer from 'components/BeepTimer.vue';
+import { useTimer } from 'src/composables/timer';
 
 interface Size {
   width: number;

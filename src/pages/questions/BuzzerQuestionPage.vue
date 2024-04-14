@@ -299,8 +299,27 @@ const listener = transition('running', (state, event: ButtonEvent) => {
   };
 });
 
+watch(
+  time,
+  transition('answering', (state, time: number) => {
+    if (time <= 0) {
+      stopTimer();
+    }
+
+    return {
+      ...state,
+      time,
+    };
+  }),
+);
+
 onStateEntry('preparing', () => {
   buzzer.reset();
+});
+
+onStateEntry('answering', (state) => {
+  time.value = state.time;
+  startTimer();
 });
 onStateExit('answering', () => {
   buzzer.reset();

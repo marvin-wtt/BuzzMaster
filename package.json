@@ -43,7 +43,7 @@
     "@types/node": "^20.12.7",
     "@types/w3c-web-hid": "^1.0.6",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
-    "@typescript-eslint/parser": "^7.6.0",
+    "@typescript-eslint/parser": "^7.7.0",
     "autoprefixer": "^10.4.19",
     "electron": "^29.3.0",
     "electron-builder": "^24.13.3",

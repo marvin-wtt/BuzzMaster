@@ -40,14 +40,36 @@ describe('QuizPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
+    it('should reset all buzzers', async () => {
+      const { buzzer } = mountQuizPage();
+      await createDevice(buzzer);
+      const gameState = useGameStore();
+      // Force another transition as the initial transition already happened here
+      gameState.transition({
+        game: 'quiz',
+        name: 'completed',
+        result: {},
+      });
+
+      const spy = vi.spyOn(buzzer, 'reset');
+
+      gameState.transition({
+        game: 'quiz',
+        name: 'preparing',
+      });
+
+      expect(spy).toHaveBeenCalledOnce();
+    });
+
     it('should transition to running when start button is pressed', async () => {
       const { wrapper } = mountQuizPage();
       const gameStore = useGameStore();
 
       expect(gameStore.state?.name).toBe('preparing');
 
-      expect(wrapper.find(selector('btn-game-start')).exists()).to.be.true;
-      await wrapper.find(selector('btn-game-start')).trigger('click');
+      const btm = wrapper.find(selector('btn-game-start'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
     });
@@ -56,6 +78,18 @@ describe('QuizPage', () => {
       const { wrapper } = mountQuizPage();
 
       expect(wrapper.find(selector('preparing-circle')).exists()).to.be.true;
+    });
+
+    it.todo('should show the correct amount of controllers');
+
+    it.todo('should show all enabled buttons');
+
+    describe.todo('settings', () => {
+      it.todo('should state activated buttons');
+      it.todo('should state answer mode');
+      it.todo('should state result mode');
+      it.todo('should state points correct');
+      it.todo('should state points wrong');
     });
   });
 
@@ -95,6 +129,8 @@ describe('QuizPage', () => {
 
       expect(wrapper.find(selector('answer-timer')).exists()).to.be.true;
     });
+
+    it.todo('should set timer on correct time');
 
     it('should transition to completed when timer reaches zero', async () => {
       mountQuizPage();
@@ -164,6 +200,8 @@ describe('QuizPage', () => {
         expect(gameStore.state).toHaveProperty('result');
         expect(state.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
       });
+
+      it.todo('should only accept an answer from enabled buttons');
 
       it('should turn on the LED on answer', async () => {
         const { buzzer } = mountQuizPage();
@@ -263,6 +301,8 @@ describe('QuizPage', () => {
         expect(state.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
       });
 
+      it.todo('should only accept an answer from enabled buttons');
+
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
         const { pressAndRelease, getController } = await createDevice(buzzer);
@@ -346,12 +386,13 @@ describe('QuizPage', () => {
         pressAndRelease(0, BuzzerButton.BLUE);
 
         const state = gameStore.state as QuizRunningChangeConfirmState;
-        expect(state).toHaveProperty('result');
         expect(state.unconfirmed).toHaveProperty(
           controllerId,
           BuzzerButton.BLUE,
         );
       });
+
+      it.todo('should only accept an answer from enabled buttons');
 
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
@@ -475,6 +516,12 @@ describe('QuizPage', () => {
         expect(state.result).not.toHaveProperty(controller1Id);
       });
     });
+
+    describe.todo('sounds', () => {
+      it.todo('should play sounds if enabled');
+      it.todo('should not play sounds if disabled');
+      it.todo('should start countdown beep at right time');
+    });
   });
 
   describe('completed', () => {
@@ -545,6 +592,40 @@ describe('QuizPage', () => {
       await wrapper.find(selector('btn-game-quick-play')).trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
+    });
+
+    it.todo('should toggle the result component on action button');
+
+    describe('result', () => {
+      it.todo('should only show answers of active buttons');
+
+      describe('bar', () => {
+        it.todo('should show the result bar chart');
+
+        it.todo('should only show answers of active buttons');
+
+        it.todo('should group the tables correctly');
+
+        it.todo('should include unanswered controllers');
+
+        it.todo(
+          'should not show unanswered controllers section if none are present',
+        );
+      });
+
+      describe('table', () => {
+        it.todo('should show the result table');
+
+        it.todo('should only show answers of active buttons');
+
+        it.todo('should group the controllers correctly');
+
+        it.todo('should include unanswered controllers');
+
+        it.todo(
+          'should not show unanswered controllers section if none are present',
+        );
+      });
     });
 
     describe.todo('score');

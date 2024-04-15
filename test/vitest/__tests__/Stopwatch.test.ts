@@ -52,6 +52,8 @@ describe('StopwatchPage', () => {
 
       expect(wrapper.find(selector('controllers-ready')).exists()).to.be.true;
     });
+
+    it.todo('should show the correct amount of controllers');
   });
 
   describe('running', () => {
@@ -102,6 +104,14 @@ describe('StopwatchPage', () => {
       expect(state.result).toHaveProperty(controller.id, 2);
     });
 
+    it.todo('should turn on the LED on answer');
+
+    it.todo('should not accept other buttons');
+
+    it.todo('should show the pressed controllers');
+
+    it.todo('should show the correct controller time');
+
     it('should prevent multiple presses', async () => {
       const { buzzer } = mountStopwatchPage();
       const { pressAndRelease, getController } = await createDevice(buzzer);
@@ -123,8 +133,8 @@ describe('StopwatchPage', () => {
       expect(state.result).toHaveProperty(controller.id, 2);
     });
 
-    // FIXME Element seems to be missing im dom tree. Maybe no common root?
-    it.skip('it should remove a controller', async () => {
+    // TODO Stub compoennt
+    it.skip('should remove a controller', async () => {
       const { buzzer, wrapper } = mountStopwatchPage();
       const { pressAndRelease, getController } = await createDevice(buzzer, 3);
       const gameStore = await initializeStore(2);
@@ -142,6 +152,8 @@ describe('StopwatchPage', () => {
       const state = gameStore.state as StopwatchRunningState;
       expect(state.result).not.toHaveProperty(controller.id);
     });
+
+    it.todo('should turn of the LED for a removed controller');
 
     it.todo('should order the result after time');
 
@@ -203,6 +215,8 @@ describe('StopwatchPage', () => {
       return gameStore;
     };
 
+    it.todo('should prevent a button press');
+
     it('should transition to running when resume button is pressed', async () => {
       const { wrapper } = mountStopwatchPage();
       const gameStore = await initializeStore();
@@ -233,7 +247,11 @@ describe('StopwatchPage', () => {
       'should disqualify all unpressed controllers when stop button is pressed',
     );
 
-    it('should transition to preparing when cancel button is stop', async () => {
+    it.todo('should remove a controller');
+
+    it.todo('should turn of the LED for a removed controller');
+
+    it('should transition to preparing when cancel button is pressed', async () => {
       const { wrapper } = mountStopwatchPage();
       const gameStore = await initializeStore();
 
@@ -245,6 +263,8 @@ describe('StopwatchPage', () => {
 
       expect(gameStore.state?.name).toBe('preparing');
     });
+
+    it.todo('should resume the timer at the current time');
   });
 
   describe('completed', () => {
@@ -264,7 +284,9 @@ describe('StopwatchPage', () => {
 
     it.todo('should prevent a button press');
 
-    it.todo('it should remove a controller');
+    it.todo('should disqualify a controller');
+
+    it.todo('should turn of the LED for a disqualified controller');
 
     it('should transition to running when quick-play button is pressed', async () => {
       const { wrapper } = mountStopwatchPage();
@@ -291,5 +313,7 @@ describe('StopwatchPage', () => {
 
       expect(gameStore.state?.name).toBe('preparing');
     });
+
+    describe.todo('scores');
   });
 });

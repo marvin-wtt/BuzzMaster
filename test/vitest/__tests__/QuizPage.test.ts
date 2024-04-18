@@ -13,7 +13,7 @@ import {
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
   QuizRunningState,
-} from 'app/common/GameState';
+} from 'app/common/gameState/QuizState';
 import { mountPage } from 'app/test/vitest/utils/mount-page';
 import { installTeleportTarget } from 'app/test/vitest/install-teleport-target';
 import { installFakeTimer } from 'app/test/vitest/install-timer';

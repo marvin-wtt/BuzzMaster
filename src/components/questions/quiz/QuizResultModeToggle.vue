@@ -12,10 +12,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { computed } from 'vue';
 
-const { quizSettings } = useQuestionSettingsStore();
+const { quizSettings } = useGameSettingsStore();
 
 const icon = computed<string>(() => {
   return quizSettings.resultMode === 'bar' ? 'view_list' : 'bar_chart';

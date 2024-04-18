@@ -12,7 +12,7 @@ import {
   StopwatchCompletedState,
   StopwatchPausedState,
   StopwatchRunningState,
-} from 'app/common/GameState';
+} from 'app/common/gameState/StopwatchState';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';

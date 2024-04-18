@@ -74,13 +74,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { computed, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { buzzerButtonColor } from 'components/buttonColors';
 
-const { quizSettings } = useQuestionSettingsStore();
+const { quizSettings } = useGameSettingsStore();
 const { controllers } = useBuzzer();
 
 const activeResult = ref<BuzzerButton>();

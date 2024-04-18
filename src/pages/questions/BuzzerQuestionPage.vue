@@ -158,9 +158,9 @@ import {
 import { useBuzzer } from 'src/plugins/buzzer';
 import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
-import { BuzzerState } from 'app/common/GameState';
+import { BuzzerState } from 'app/common/gameState/BuzzerState';
 import { useGameState } from 'src/composables/gameState';
 import BeepTimer from 'components/BeepTimer.vue';
 import { useTimer } from 'src/composables/timer';
@@ -172,7 +172,7 @@ interface Size {
 
 const quasar = useQuasar();
 const { t } = useI18n();
-const { buzzerSettings } = useQuestionSettingsStore();
+const { buzzerSettings } = useGameSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,

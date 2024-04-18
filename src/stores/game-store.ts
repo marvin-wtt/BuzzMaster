@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
-import { GameState } from 'app/common/GameState';
+import { GameState } from 'app/common/gameState';
 
 export const useGameStore = defineStore('game-store', () => {
   const state = ref<GameState>();

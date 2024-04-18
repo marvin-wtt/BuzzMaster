@@ -210,9 +210,12 @@ import {
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useQuasar } from 'quasar';
-import { StopwatchRunningState, StopwatchState } from 'app/common/GameState';
+import {
+  StopwatchRunningState,
+  StopwatchState,
+} from 'app/common/gameState/StopwatchState';
 import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
 import BeepTimer from 'components/BeepTimer.vue';
 import { useTimer } from 'src/composables/timer';
@@ -220,7 +223,7 @@ import { useGameState } from 'src/composables/gameState';
 
 const { t } = useI18n();
 const quasar = useQuasar();
-const { stopwatchSettings } = useQuestionSettingsStore();
+const { stopwatchSettings } = useGameSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,

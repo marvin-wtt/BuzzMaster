@@ -140,7 +140,7 @@ import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import {
   ButtonEvent,
   BuzzerButton,
@@ -154,13 +154,13 @@ import {
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
   QuizState,
-} from 'app/common/GameState';
+} from 'app/common/gameState/QuizState';
 import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
 
 const { t } = useI18n();
 const quasar = useQuasar();
-const { quizSettings } = useQuestionSettingsStore();
+const { quizSettings } = useGameSettingsStore();
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,

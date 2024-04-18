@@ -136,7 +136,7 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent, QSelectOption } from 'quasar';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 
@@ -144,7 +144,7 @@ defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
-const { quizSettings } = useQuestionSettingsStore();
+const { quizSettings } = useGameSettingsStore();
 
 const changeModeOptions = [
   {

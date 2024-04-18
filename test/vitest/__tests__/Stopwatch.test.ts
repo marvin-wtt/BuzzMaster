@@ -9,11 +9,13 @@ import { selector } from 'app/test/vitest/utils/element-selector';
 import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
 import {
+  StopwatchCompletedState,
   StopwatchPausedState,
   StopwatchRunningState,
 } from 'app/common/GameState';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 
 const mountStopwatchPage = () => mountPage(StopwatchQuestionPage);
 
@@ -104,13 +106,91 @@ describe('StopwatchPage', () => {
       expect(state.result).toHaveProperty(controller.id, 2);
     });
 
-    it.todo('should turn on the LED on answer');
+    it('should turn on the LED on answer', async () => {
+      const { buzzer } = mountStopwatchPage();
+      const { pressAndRelease, device } = await createDevice(buzzer, 3);
+      await initializeStore(2);
+      const spy = vi.spyOn(device, 'updateLight');
 
-    it.todo('should not accept other buttons');
+      pressAndRelease(0, BuzzerButton.RED);
 
-    it.todo('should show the pressed controllers');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(0, true);
+    });
 
-    it.todo('should show the correct controller time');
+    it('should not accept other buttons', async () => {
+      const { buzzer } = mountStopwatchPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const gameStore = await initializeStore(2);
+
+      pressAndRelease(0, BuzzerButton.YELLOW);
+      pressAndRelease(0, BuzzerButton.GREEN);
+      pressAndRelease(0, BuzzerButton.ORANGE);
+      pressAndRelease(0, BuzzerButton.BLUE);
+
+      const controller = getController(0);
+      const state = gameStore.state as StopwatchRunningState;
+      expect(state.result).not.toHaveProperty(controller.id);
+    });
+
+    it('should show the pressed controllers', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer, 3);
+      await initializeStore(2);
+
+      pressAndRelease(0, BuzzerButton.RED);
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      const item = wrapper.find(selector('result-item'));
+      expect(item.exists()).to.be.true;
+
+      const name = item.find(selector('result-item-name'));
+      expect(name.exists()).to.be.true;
+      expect(name.text()).toBe(getController(0).name);
+    });
+
+    it('should show the correct controller time', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { pressAndRelease } = await createDevice(buzzer, 3);
+      await initializeStore(2);
+
+      pressAndRelease(0, BuzzerButton.RED);
+
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      const item = wrapper.find(selector('result-item'));
+      expect(item.exists()).to.be.true;
+
+      const time = item.find(selector('result-item-time'));
+      expect(time.exists()).to.be.true;
+      expect(time.text()).toBe('00:02.00');
+    });
+
+    it('should order the result after time', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { pressAndRelease } = await createDevice(buzzer, 3);
+      await initializeStore(2);
+
+      pressAndRelease(0, BuzzerButton.RED);
+      await vi.advanceTimersByTimeAsync(2100);
+      pressAndRelease(1, BuzzerButton.RED);
+
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      const items = wrapper.findAll(selector('result-item'));
+      expect(items.length).toBe(2);
+
+      const firstTime = items[0].find(selector('result-item-time'));
+      expect(firstTime.exists()).to.be.true;
+      expect(firstTime.text()).toBe('00:02.00');
+
+      const secondTime = items[1].find(selector('result-item-time'));
+      expect(secondTime.exists()).to.be.true;
+      expect(secondTime.text()).toBe('00:04.10');
+    });
 
     it('should prevent multiple presses', async () => {
       const { buzzer } = mountStopwatchPage();
@@ -133,29 +213,43 @@ describe('StopwatchPage', () => {
       expect(state.result).toHaveProperty(controller.id, 2);
     });
 
-    // TODO Stub compoennt
-    it.skip('should remove a controller', async () => {
+    it('should remove a controller', async () => {
       const { buzzer, wrapper } = mountStopwatchPage();
       const { pressAndRelease, getController } = await createDevice(buzzer, 3);
       const gameStore = await initializeStore(2);
 
       pressAndRelease(0, BuzzerButton.RED);
-      await nextTick();
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
 
-      const btm = wrapper.find(selector('btn-remove-result'));
-      expect(btm.exists()).to.be.true;
-
-      await btm.trigger('click');
-      await btm.trigger('click');
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+      // Click twice for confirmation
+      // Wrapper needs to be selected again as the element changes
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
 
       const controller = getController(0);
       const state = gameStore.state as StopwatchRunningState;
+
       expect(state.result).not.toHaveProperty(controller.id);
     });
 
-    it.todo('should turn of the LED for a removed controller');
+    it('should turn off the LED for a removed controller', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { pressAndRelease, device } = await createDevice(buzzer, 3);
+      await initializeStore(2);
+      const spy = vi.spyOn(device, 'updateLight');
 
-    it.todo('should order the result after time');
+      pressAndRelease(0, BuzzerButton.RED);
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+      // Click twice for confirmation
+      // Wrapper needs to be selected again as the element changes
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+
+      expect(spy).toHaveBeenLastCalledWith(0, false);
+    });
 
     it('should transition to completed when all controllers are pressed', async () => {
       const { buzzer } = mountStopwatchPage();
@@ -201,6 +295,8 @@ describe('StopwatchPage', () => {
   });
 
   describe('paused', () => {
+    installFakeTimer();
+
     const initializeStore = async () => {
       const gameStore = useGameStore();
 
@@ -215,11 +311,43 @@ describe('StopwatchPage', () => {
       return gameStore;
     };
 
-    it.todo('should prevent a button press');
+    const initializeStoreWithDevice = async (buzzer: BuzzerApi) => {
+      const gameStore = useGameStore();
+      const deviceApi = await createDevice(buzzer, 2);
+
+      gameStore.transition({
+        game: 'stopwatch',
+        name: 'paused',
+        time: 10.1,
+        result: {
+          [deviceApi.getController(0).id]: 5.2,
+        },
+      });
+      await nextTick();
+
+      return {
+        gameStore,
+        ...deviceApi,
+      };
+    };
+
+    it('should prevent a button press', async () => {
+      const { buzzer } = mountStopwatchPage();
+      const { gameStore, getController, pressAndRelease } =
+        await initializeStoreWithDevice(buzzer);
+
+      pressAndRelease(0, BuzzerButton.RED);
+      pressAndRelease(1, BuzzerButton.RED);
+
+      const state = gameStore.state as StopwatchCompletedState;
+      expect(state.result).toHaveProperty(getController(0).id, 5.2);
+      expect(state.result).not.toHaveProperty(getController(1).id);
+    });
 
     it('should transition to running when resume button is pressed', async () => {
-      const { wrapper } = mountStopwatchPage();
-      const gameStore = await initializeStore();
+      const { wrapper, buzzer } = mountStopwatchPage();
+      const { gameStore, getController } =
+        await initializeStoreWithDevice(buzzer);
 
       expect(gameStore.state?.name).toBe('paused');
 
@@ -227,12 +355,16 @@ describe('StopwatchPage', () => {
       expect(btn.exists()).to.be.true;
       await btn.trigger('click');
 
-      expect(gameStore.state?.name).toBe('running');
+      const state = gameStore.state as StopwatchRunningState;
+      expect(state.name).toBe('running');
+      expect(state.result).toHaveProperty(getController(0).id, 5.2);
+      expect(state.time).toBe(10.1);
     });
 
     it('should transition to completed when stop button is pressed', async () => {
-      const { wrapper } = mountStopwatchPage();
-      const gameStore = await initializeStore();
+      const { wrapper, buzzer } = mountStopwatchPage();
+      const { gameStore, getController } =
+        await initializeStoreWithDevice(buzzer);
 
       expect(gameStore.state?.name).toBe('paused');
 
@@ -240,16 +372,57 @@ describe('StopwatchPage', () => {
       expect(btn.exists()).to.be.true;
       await btn.trigger('click');
 
-      expect(gameStore.state?.name).toBe('completed');
+      const state = gameStore.state as StopwatchCompletedState;
+      expect(state.name).toBe('completed');
+      expect(state.result).toHaveProperty(getController(0).id, 5.2);
     });
 
-    it.todo(
-      'should disqualify all unpressed controllers when stop button is pressed',
-    );
+    it('should disqualify all unpressed controllers when stop button is pressed', async () => {
+      const { wrapper, buzzer } = mountStopwatchPage();
+      const { gameStore, getController } =
+        await initializeStoreWithDevice(buzzer);
 
-    it.todo('should remove a controller');
+      const btn = wrapper.find(selector('btn-game-stop'));
+      expect(btn.exists()).to.be.true;
+      await btn.trigger('click');
 
-    it.todo('should turn of the LED for a removed controller');
+      const state = gameStore.state as StopwatchCompletedState;
+      expect(state.result).toHaveProperty(getController(0).id, 5.2);
+      expect(state.result).toHaveProperty(getController(1).id, undefined);
+    });
+
+    it('should remove a controller', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { gameStore, getController } =
+        await initializeStoreWithDevice(buzzer);
+
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+      // Click twice for confirmation
+      // Wrapper needs to be selected again as the element changes
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+
+      const state = gameStore.state as StopwatchPausedState;
+      expect(state.result).not.toHaveProperty(getController(0).id);
+    });
+
+    it('should turn off the LED for a removed controller', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { device } = await initializeStoreWithDevice(buzzer);
+      const spy = vi.spyOn(device, 'updateLight');
+
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+      // Click twice for confirmation
+      // Wrapper needs to be selected again as the element changes
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+
+      expect(spy).toHaveBeenLastCalledWith(0, false);
+    });
 
     it('should transition to preparing when cancel button is pressed', async () => {
       const { wrapper } = mountStopwatchPage();
@@ -263,11 +436,11 @@ describe('StopwatchPage', () => {
 
       expect(gameStore.state?.name).toBe('preparing');
     });
-
-    it.todo('should resume the timer at the current time');
   });
 
   describe('completed', () => {
+    installFakeTimer();
+
     const initializeStore = async () => {
       const gameStore = useGameStore();
 
@@ -282,11 +455,73 @@ describe('StopwatchPage', () => {
       return gameStore;
     };
 
-    it.todo('should prevent a button press');
+    const initializeStoreWithDevice = async (buzzer: BuzzerApi) => {
+      const gameStore = useGameStore();
+      const deviceApi = await createDevice(buzzer, 2);
 
-    it.todo('should disqualify a controller');
+      gameStore.transition({
+        game: 'stopwatch',
+        name: 'completed',
+        time: 10.1,
+        result: {
+          [deviceApi.getController(0).id]: 5.2,
+          [deviceApi.getController(1).id]: undefined,
+        },
+      });
+      await nextTick();
 
-    it.todo('should turn of the LED for a disqualified controller');
+      return {
+        gameStore,
+        ...deviceApi,
+      };
+    };
+
+    it('should prevent a button press', async () => {
+      const { buzzer } = mountStopwatchPage();
+
+      const { gameStore, getController, pressAndRelease } =
+        await initializeStoreWithDevice(buzzer);
+
+      pressAndRelease(0, BuzzerButton.RED);
+      pressAndRelease(1, BuzzerButton.RED);
+
+      const state = gameStore.state as StopwatchCompletedState;
+      expect(state.result).toHaveProperty(getController(0).id, 5.2);
+      expect(state.result).toHaveProperty(getController(1).id, undefined);
+    });
+
+    it('should disqualify a controller', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { gameStore, getController } =
+        await initializeStoreWithDevice(buzzer);
+
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+      // Click twice for confirmation
+      // Wrapper needs to be selected again as the element changes
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+
+      const state = gameStore.state as StopwatchPausedState;
+      expect(state.result).toHaveProperty(getController(0).id, undefined);
+    });
+
+    it('should turn of the LED for a disqualified controller', async () => {
+      const { buzzer, wrapper } = mountStopwatchPage();
+      const { device } = await initializeStoreWithDevice(buzzer);
+      const spy = vi.spyOn(device, 'updateLight');
+
+      // Q-Virtual-Scroll uses timers for the animation, so we need to advance them first.
+      await vi.advanceTimersByTimeAsync(100);
+
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+      // Click twice for confirmation
+      // Wrapper needs to be selected again as the element changes
+      await wrapper.find(selector('btn-remove-result')).trigger('click');
+
+      expect(spy).toHaveBeenLastCalledWith(0, false);
+    });
 
     it('should transition to running when quick-play button is pressed', async () => {
       const { wrapper } = mountStopwatchPage();

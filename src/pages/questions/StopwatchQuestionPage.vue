@@ -29,6 +29,7 @@
               <q-item
                 :key="item.controller.id"
                 dense
+                data-testid="result-item"
               >
                 <q-item-section avatar>
                   <q-avatar
@@ -49,11 +50,14 @@
                   </q-avatar>
                 </q-item-section>
 
-                <q-item-section>
+                <q-item-section data-testid="result-item-name">
                   {{ item.controller.name }}
                 </q-item-section>
 
-                <q-item-section side>
+                <q-item-section
+                  data-testid="result-item-time"
+                  side
+                >
                   {{ formatTime(item.time) }}
                 </q-item-section>
 

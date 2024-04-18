@@ -13,7 +13,7 @@ export function useGameState<S extends GameState>(initialState: S) {
     gameStore.reset();
   });
 
-  const gameState = computed<S>(() => {
+  const gameState = computed<Readonly<S>>(() => {
     // When no state is given, return the initial state
     if (
       gameStore.state === undefined ||

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mountPage } from 'app/test/vitest/utils/mount';
 import BuzzerQuestionPage from 'pages/questions/BuzzerQuestionPage.vue';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
-import { Dialog, QBtn, QItem } from 'quasar';
+import { Dialog, QBtn } from 'quasar';
 import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';
 import { nextTick } from 'vue';

@@ -308,15 +308,12 @@ const listener = transition('running', (state, event: ButtonEvent) => {
     audio.play();
   }
 
-  const ignoredControllers = state.ignoredControllers;
-  ignoredControllers.push(event.controller.id);
-
   return {
     game: 'buzzer',
     name: 'answering',
     time: buzzerSettings.answerTime,
     controller: event.controller.id,
-    ignoredControllers,
+    ignoredControllers: [...state.ignoredControllers, event.controller.id],
   };
 });
 
@@ -341,6 +338,7 @@ onStateEntry('answering', (state) => {
   startTimer();
 });
 onStateExit('answering', () => {
+  stopTimer();
   buzzer.reset();
 });
 

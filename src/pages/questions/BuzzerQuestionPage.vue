@@ -19,7 +19,7 @@
 
             <div class="column justify-center q-col-gutter-xs">
               <div :style="controllerNameStyle">
-                {{ gameState.controller.name }}
+                {{ findControllerById(gameState.controller).name }}
               </div>
               <beep-timer
                 v-if="buzzerSettings.answerTime > 0"
@@ -81,7 +81,7 @@
           <!-- Scoreboard -->
           <buzzer-scoreboard-buttons
             v-if="showScoreboardActions"
-            :controller="gameState.controller"
+            :controller="findControllerById(gameState.controller)"
             @update="onScored"
           />
 
@@ -162,7 +162,11 @@ import {
   watchEffect,
 } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
+import {
+  ButtonEvent,
+  BuzzerButton,
+  IController,
+} from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
@@ -236,7 +240,7 @@ const onCircleTimerResize = (size?: { width: number; height: number }) => {
   const elementWidth = size.width;
   const pressedController =
     gameState.value.name === 'answering'
-      ? gameState.value.controller
+      ? findControllerById(gameState.value.controller)
       : undefined;
 
   // Magical numbers so that the font size stays within the circle with padding
@@ -275,7 +279,7 @@ const allControllersPressed = computed<boolean>(() => {
     return false;
   }
 
-  const disabledControllerIds = gameState.value.disabledControllerIds;
+  const disabledControllerIds = gameState.value.disabledControllers;
 
   return !controllers.value.some(
     (controller) => !disabledControllerIds.includes(controller.id),
@@ -293,7 +297,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   if (
     !buzzerSettings.multipleAttempts &&
-    state.disabledControllerIds.includes(event.controller.id)
+    state.disabledControllers.includes(event.controller.id)
   ) {
     return;
   }
@@ -304,15 +308,15 @@ const listener = transition('running', (state, event: ButtonEvent) => {
     audio.play();
   }
 
-  const disabledControllerIds = state.disabledControllerIds;
-  disabledControllerIds.push(event.controller.id);
+  const disabledControllers = state.disabledControllers;
+  disabledControllers.push(event.controller.id);
 
   return {
     game: 'buzzer',
     name: 'answering',
     time: buzzerSettings.answerTime,
-    controller: event.controller,
-    disabledControllerIds,
+    controller: event.controller.id,
+    disabledControllers,
   };
 });
 
@@ -350,7 +354,7 @@ const onScored = transition(
       name: 'answering',
       time: state.time,
       controller: state.controller,
-      disabledControllerIds: state.disabledControllerIds,
+      disabledControllers: state.disabledControllers,
       correct,
       points,
     };
@@ -361,7 +365,7 @@ const continueQuestion = transition('answering', (state) => {
   return {
     game: 'buzzer',
     name: 'running',
-    disabledControllerIds: state.disabledControllerIds,
+    disabledControllers: state.disabledControllers,
   };
 });
 
@@ -381,7 +385,7 @@ const start = transition('preparing', () => {
   return {
     game: 'buzzer',
     name: 'running',
-    disabledControllerIds: [],
+    disabledControllers: [],
   };
 });
 
@@ -389,6 +393,18 @@ const settings = () => {
   quasar.dialog({
     component: BuzzerQuestionDialog,
   });
+};
+
+const findControllerById = (id: string): IController => {
+  const controller = controllers.value.find(
+    (controller) => controller.id === id,
+  );
+
+  if (!controller) {
+    throw new Error('Cannot find controller with id ' + id);
+  }
+
+  return controller;
 };
 </script>
 

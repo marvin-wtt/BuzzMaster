@@ -1,5 +1,3 @@
-import { IController } from 'src/plugins/buzzer/types';
-
 export type BuzzerState =
   | BuzzerPreparationState
   | BuzzerRunningState
@@ -15,14 +13,13 @@ export interface BuzzerPreparationState extends BuzzerStateBase {
 
 export interface BuzzerRunningState extends BuzzerStateBase {
   name: 'running';
-  disabledControllerIds: string[];
+  disabledControllers: string[];
 }
 
-// TODO remove IController reference
 export interface BuzzerAnsweringState extends BuzzerStateBase {
   name: 'answering';
-  disabledControllerIds: string[];
-  controller: IController;
+  disabledControllers: string[];
+  controller: string;
   time: number;
   correct?: boolean;
   points?: number;

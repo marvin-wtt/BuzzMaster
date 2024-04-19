@@ -64,6 +64,8 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('running');
     });
 
+    it.todo('should show the correct amount of controllers');
+
     describe.todo('settings');
   });
 
@@ -94,7 +96,7 @@ describe('BuzzerPage', () => {
       expect(gameStore.state).toHaveProperty('controller', getController(0).id);
     });
 
-    it('should turn on the LED on buzzer', async () => {
+    it('should turn on the LED on buzzer press', async () => {
       const { buzzer } = mountBuzzerPage();
       const { device, pressAndRelease } = await createDevice(buzzer);
       await initializeStore();
@@ -267,7 +269,7 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('running');
     });
 
-    it('should reset all buzzers on reopen', async () => {
+    it('should turn of all LEDs on reopen', async () => {
       const { buzzer } = mountBuzzerPage();
       const { gameStore } = await initializeStoreWithDevice(buzzer);
 

@@ -1,8 +1,8 @@
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { describe, expect, it, vi } from 'vitest';
 import QuizQuestionPage from 'pages/questions/QuizQuestionPage.vue';
-import { Dialog } from 'quasar';
-import { installPinia } from 'app/test/vitest/install-pinia';
+import QuizSettingsDialog from 'components/questions/quiz/QuizSettingsDialog.vue';
+import { Dialog, QBtn, QIcon } from 'quasar';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useGameStore } from 'stores/game-store';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
@@ -14,15 +14,16 @@ import {
   QuizRunningChangeNeverState,
   QuizRunningState,
 } from 'app/common/gameState/QuizState';
-import { mountPage } from 'app/test/vitest/utils/mount-page';
+import { mountPage, mountWithStore } from 'app/test/vitest/utils/mount';
 import { installTeleportTarget } from 'app/test/vitest/install-teleport-target';
 import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
+import { useGameSettingsStore } from 'stores/game-settings-store';
+import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
 
 const mountQuizPage = () => mountPage(QuizQuestionPage);
 
 installQuasarPlugin({ plugins: { Dialog } });
-installPinia({ stubActions: false });
 installTeleportTarget('navbar-action');
 
 describe('QuizPage', () => {
@@ -61,6 +62,49 @@ describe('QuizPage', () => {
       expect(spy).toHaveBeenCalledOnce();
     });
 
+    it('should show the preparing circle', async () => {
+      const { wrapper } = mountQuizPage();
+
+      expect(wrapper.find(selector('preparing-circle')).exists()).to.be.true;
+    });
+
+    it.todo('should show the correct amount of controllers');
+
+    it('should show all enabled buttons', async () => {
+      const { wrapper } = mountQuizPage();
+      const { quizSettings } = useGameSettingsStore();
+
+      const icons = wrapper.findAllComponents<QIcon>(
+        selector('enabled-controllers-icon'),
+      );
+
+      const color = (c: string): RegExp => new RegExp(`.*${c}.*`);
+
+      expect(icons.length).toBe(4);
+
+      // Test all combinations
+      quizSettings.activeButtons = [BuzzerButton.BLUE, BuzzerButton.GREEN];
+      await nextTick();
+      expect(icons[0].props().color).to.match(color('blue'));
+      expect(icons[1].props().color).to.match(color('grey'));
+      expect(icons[2].props().color).to.match(color('green'));
+      expect(icons[3].props().color).to.match(color('grey'));
+
+      quizSettings.activeButtons = [BuzzerButton.YELLOW, BuzzerButton.ORANGE];
+      await nextTick();
+      expect(icons[0].props().color).to.match(color('grey'));
+      expect(icons[1].props().color).to.match(color('orange'));
+      expect(icons[2].props().color).to.match(color('grey'));
+      expect(icons[3].props().color).to.match(color('yellow'));
+
+      quizSettings.activeButtons = [BuzzerButton.BLUE, BuzzerButton.ORANGE];
+      await nextTick();
+      expect(icons[0].props().color).to.match(color('blue'));
+      expect(icons[1].props().color).to.match(color('orange'));
+      expect(icons[2].props().color).to.match(color('grey'));
+      expect(icons[3].props().color).to.match(color('grey'));
+    });
+
     it('should transition to running when start button is pressed', async () => {
       const { wrapper } = mountQuizPage();
       const gameStore = useGameStore();
@@ -74,22 +118,46 @@ describe('QuizPage', () => {
       expect(gameStore.state?.name).toBe('running');
     });
 
-    it('should show the preparing circle', async () => {
+    it('should transition to correct change mode when start button is pressed', async () => {
       const { wrapper } = mountQuizPage();
+      const gameStore = useGameStore();
+      const { quizSettings } = useGameSettingsStore();
+      quizSettings.changeMode = 'confirm';
 
-      expect(wrapper.find(selector('preparing-circle')).exists()).to.be.true;
+      const btm = wrapper.find(selector('btn-game-start'));
+      await btm.trigger('click');
+
+      const state1 = gameStore.state as QuizRunningState;
+      expect(state1.answerChangeAllowed).toBe('confirm');
     });
 
-    it.todo('should show the correct amount of controllers');
+    it('should set timer on correct time', async () => {
+      const { wrapper } = mountQuizPage();
+      const gameStore = useGameStore();
 
-    it.todo('should show all enabled buttons');
+      const { quizSettings } = useGameSettingsStore();
 
-    describe.todo('settings', () => {
-      it.todo('should state activated buttons');
-      it.todo('should state answer mode');
-      it.todo('should state result mode');
-      it.todo('should state points correct');
-      it.todo('should state points wrong');
+      const btm = wrapper.find(selector('btn-game-start'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
+
+      const state = gameStore.state as QuizRunningState;
+      expect(state.time).toBe(quizSettings.answerTime);
+    });
+
+    describe('settings', () => {
+      const mountQuizSettingsDialog = () => mountWithStore(QuizSettingsDialog);
+
+      it('should mount dialog properly', () => {
+        const { wrapper } = mountQuizSettingsDialog();
+        expect(wrapper.exists()).to.be.true;
+      });
+
+      it.todo('should set activated buttons');
+      it.todo('should set answer mode');
+      it.todo('should set result mode');
+      it.todo('should set points correct');
+      it.todo('should set points wrong');
     });
   });
 
@@ -130,8 +198,6 @@ describe('QuizPage', () => {
       expect(wrapper.find(selector('answer-timer')).exists()).to.be.true;
     });
 
-    it.todo('should set timer on correct time');
-
     it('should transition to completed when timer reaches zero', async () => {
       mountQuizPage();
       const gameStore = useGameStore();
@@ -151,8 +217,8 @@ describe('QuizPage', () => {
     });
 
     it('should transition to preparing on cancel', async () => {
-      const gameStore = useGameStore();
       const { wrapper } = mountQuizPage();
+      const gameStore = useGameStore();
 
       gameStore.transition({
         game: 'quiz',
@@ -164,9 +230,9 @@ describe('QuizPage', () => {
       await nextTick();
 
       expect(gameStore.state?.name).toBe('running');
-
-      expect(wrapper.find(selector('btn-game-cancel')).exists()).to.be.true;
-      await wrapper.find(selector('btn-game-cancel')).trigger('click');
+      const btn = wrapper.find(selector('btn-game-cancel'));
+      expect(btn.exists()).to.be.true;
+      await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
     });
@@ -201,7 +267,26 @@ describe('QuizPage', () => {
         expect(state.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
       });
 
-      it.todo('should only accept an answer from enabled buttons');
+      it('should only accept an answer from enabled buttons', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController } = await createDevice(buzzer);
+        const gameStore = await initializeStore();
+        const { quizSettings } = useGameSettingsStore();
+        quizSettings.activeButtons = [BuzzerButton.ORANGE, BuzzerButton.BLUE];
+
+        const controllerId = getController(0).id;
+
+        pressAndRelease(0, BuzzerButton.YELLOW);
+        const state1 = gameStore.state as QuizRunningChangeNeverState;
+        expect(state1.result).not.toHaveProperty(
+          controllerId,
+          BuzzerButton.ORANGE,
+        );
+
+        pressAndRelease(0, BuzzerButton.BLUE);
+        const state2 = gameStore.state as QuizRunningChangeNeverState;
+        expect(state2.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
+      });
 
       it('should turn on the LED on answer', async () => {
         const { buzzer } = mountQuizPage();
@@ -301,7 +386,26 @@ describe('QuizPage', () => {
         expect(state.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
       });
 
-      it.todo('should only accept an answer from enabled buttons');
+      it('should only accept an answer from enabled buttons', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController } = await createDevice(buzzer);
+        const gameStore = await initializeStore();
+        const { quizSettings } = useGameSettingsStore();
+        quizSettings.activeButtons = [BuzzerButton.ORANGE, BuzzerButton.BLUE];
+
+        const controllerId = getController(0).id;
+
+        pressAndRelease(0, BuzzerButton.YELLOW);
+        const state1 = gameStore.state as QuizRunningChangeAlwaysState;
+        expect(state1.result).not.toHaveProperty(
+          controllerId,
+          BuzzerButton.ORANGE,
+        );
+
+        pressAndRelease(0, BuzzerButton.BLUE);
+        const state2 = gameStore.state as QuizRunningChangeAlwaysState;
+        expect(state2.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
+      });
 
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
@@ -392,7 +496,33 @@ describe('QuizPage', () => {
         );
       });
 
-      it.todo('should only accept an answer from enabled buttons');
+      it('should only accept an answer from enabled buttons', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController } = await createDevice(buzzer);
+        const gameStore = await initializeStore();
+        const { quizSettings } = useGameSettingsStore();
+        quizSettings.activeButtons = [BuzzerButton.ORANGE, BuzzerButton.BLUE];
+
+        const controllerId = getController(0).id;
+
+        pressAndRelease(0, BuzzerButton.YELLOW);
+        const state1 = gameStore.state as QuizRunningChangeConfirmState;
+        expect(state1.unconfirmed).not.toHaveProperty(
+          controllerId,
+          BuzzerButton.ORANGE,
+        );
+        pressAndRelease(0, BuzzerButton.RED);
+        const state2 = gameStore.state as QuizRunningChangeConfirmState;
+        expect(state2.result).not.toHaveProperty(
+          controllerId,
+          BuzzerButton.ORANGE,
+        );
+
+        pressAndRelease(0, BuzzerButton.BLUE);
+        pressAndRelease(0, BuzzerButton.RED);
+        const state3 = gameStore.state as QuizRunningChangeConfirmState;
+        expect(state3.result).toHaveProperty(controllerId, BuzzerButton.BLUE);
+      });
 
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
@@ -576,8 +706,9 @@ describe('QuizPage', () => {
 
       expect(gameStore.state?.name).toBe('completed');
 
-      expect(wrapper.find(selector('btn-game-restart')).exists()).to.be.true;
-      await wrapper.find(selector('btn-game-restart')).trigger('click');
+      const btn = wrapper.find(selector('btn-game-restart'));
+      expect(btn.exists()).to.be.true;
+      await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
     });
@@ -588,16 +719,29 @@ describe('QuizPage', () => {
 
       expect(gameStore.state?.name).toBe('completed');
 
-      expect(wrapper.find(selector('btn-game-quick-play')).exists()).to.be.true;
-      await wrapper.find(selector('btn-game-quick-play')).trigger('click');
+      const btn = wrapper.find(selector('btn-game-quick-play'));
+      expect(btn.exists()).to.be.true;
+      await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
     });
 
-    it.todo('should toggle the result component on action button');
+    it('should toggle the result component on action button', async () => {
+      const { wrapper } = mountWithStore(QuizResultModeToggle);
+      const { quizSettings } = useGameSettingsStore();
+
+      const initialMode = quizSettings.resultMode;
+
+      const btn = wrapper.findComponent(QBtn);
+      expect(btn.exists()).to.be.true;
+
+      await btn.trigger('click');
+
+      expect(quizSettings.resultMode).not.toBe(initialMode);
+    });
 
     describe('result', () => {
-      it.todo('should only show answers of active buttons');
+      it.todo('should only the correct answer mode');
 
       describe('bar', () => {
         it.todo('should show the result bar chart');

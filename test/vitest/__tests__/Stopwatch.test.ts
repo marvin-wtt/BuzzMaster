@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { mountPage } from 'app/test/vitest/utils/mount-page';
+import { mountPage } from 'app/test/vitest/utils/mount';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { Dialog } from 'quasar';
-import { installPinia } from 'app/test/vitest/install-pinia';
 import StopwatchQuestionPage from 'pages/questions/StopwatchQuestionPage.vue';
 import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';
@@ -20,7 +19,6 @@ import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 const mountStopwatchPage = () => mountPage(StopwatchQuestionPage);
 
 installQuasarPlugin({ plugins: { Dialog } });
-installPinia({ stubActions: false });
 
 describe('StopwatchPage', () => {
   it('should mount component properly', () => {

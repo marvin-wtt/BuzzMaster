@@ -36,6 +36,7 @@
                   :key="button"
                   :color="buttonColorClass(button)"
                   name="circle"
+                  data-testid="enabled-controllers-icon"
                 />
               </div>
             </pulse-circle>
@@ -133,7 +134,7 @@
 import BeepTimer from 'components/BeepTimer.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
-import QuizQuestionDialog from 'components/questions/quiz/QuizQuestionDialog.vue';
+import QuizSettingsDialog from 'components/questions/quiz/QuizSettingsDialog.vue';
 import QuizResult from 'components/questions/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';
 import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
@@ -392,7 +393,7 @@ const buttonPressedAnswerChangeConfirm = (
 
 const openSettings = () => {
   quasar.dialog({
-    component: QuizQuestionDialog,
+    component: QuizSettingsDialog,
   });
 };
 

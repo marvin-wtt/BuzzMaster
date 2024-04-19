@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { mountPage } from 'app/test/vitest/utils/mount-page';
+import { mountPage } from 'app/test/vitest/utils/mount';
 import BuzzerQuestionPage from 'pages/questions/BuzzerQuestionPage.vue';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { Dialog } from 'quasar';
-import { installPinia } from 'app/test/vitest/install-pinia';
 
 const mountBuzzerPage = () => mountPage(BuzzerQuestionPage);
 
 installQuasarPlugin({ plugins: { Dialog } });
-installPinia({ stubActions: false });
 
 describe('BuzzerPage', () => {
   // FIXME Happy-dom currently does not support canvas

@@ -29,7 +29,6 @@ export const mountPage = <T extends Component>(component: T) => {
 
 export const mountWithStore = <P extends Parameters<typeof mount>>(
   component: P[0],
-  options: P[1] = {},
 ) => {
   const wrapper = mount(component, {
     global: {

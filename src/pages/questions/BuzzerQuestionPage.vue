@@ -61,12 +61,14 @@
             :label="t('question.buzzer.action.start')"
             color="primary"
             rounded
+            data-testid="btn-game-start"
             @click="start()"
           />
           <q-btn
             :label="t('question.buzzer.action.settings')"
             outline
             rounded
+            data-testid="btn-game-settings"
             @click="settings"
           />
         </div>
@@ -98,6 +100,7 @@
                 rounded
                 :outline="allControllersPressed"
                 :disable="allControllersPressed"
+                data-testid="btn-game-reopen"
                 @click="continueQuestion()"
               />
             </div>
@@ -108,6 +111,7 @@
                 color="primary"
                 class="q-mx-sm"
                 rounded
+                data-testid="btn-game-quick-play"
                 @click="quickPlay()"
               />
             </div>
@@ -119,6 +123,7 @@
               icon="replay"
               outline
               rounded
+              data-testid="btn-game-restart"
               @click="restart()"
             />
           </div>
@@ -133,6 +138,7 @@
               :label="t('question.buzzer.action.cancel')"
               outline
               rounded
+              data-testid="btn-game-cancel"
               @click="restart()"
             />
           </div>

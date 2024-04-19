@@ -151,10 +151,13 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('running');
     });
 
-    it('should not accept disabled controllers', async () => {
+    it('should not accept ignored controllers without multiple attempts', async () => {
       const { buzzer } = mountBuzzerPage();
       const { pressAndRelease, getController } = await createDevice(buzzer);
       const gameStore = useGameStore();
+      const { buzzerSettings } = useGameSettingsStore();
+
+      buzzerSettings.multipleAttempts = false;
       gameStore.transition({
         game: 'buzzer',
         name: 'running',
@@ -172,6 +175,28 @@ describe('BuzzerPage', () => {
       expect(state.name).toBe('answering');
       expect(state.controller).toBe(getController(1).id);
       expect(state.ignoredControllers).toContain(getController(0).id);
+    });
+
+    it('should accept ignored controllers with multiple attempts', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const gameStore = useGameStore();
+      const { buzzerSettings } = useGameSettingsStore();
+
+      buzzerSettings.multipleAttempts = true;
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'running',
+        ignoredControllers: [getController(0).id],
+      });
+      // Wait for changes to apply
+      await nextTick();
+
+      pressAndRelease(0, BuzzerButton.RED);
+
+      const state = gameStore.state as BuzzerAnsweringState;
+      expect(state.name).toBe('answering');
+      expect(state.controller).toBe(getController(0).id);
     });
 
     it('should transition to preparing when cancel button is pressed', async () => {

@@ -28,7 +28,6 @@
     "test:unit:ci": "vitest run"
   },
   "dependencies": {
-    "@electron/remote": "^2.1.2",
     "@quasar/extras": "^1.16.11",
     "electron-log": "^5.1.2",
     "electron-updater": "^6.1.8",

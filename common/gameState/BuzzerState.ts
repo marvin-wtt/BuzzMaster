@@ -13,12 +13,12 @@ export interface BuzzerPreparationState extends BuzzerStateBase {
 
 export interface BuzzerRunningState extends BuzzerStateBase {
   name: 'running';
-  disabledControllers: string[];
+  ignoredControllers: string[];
 }
 
 export interface BuzzerAnsweringState extends BuzzerStateBase {
   name: 'answering';
-  disabledControllers: string[];
+  ignoredControllers: string[];
   controller: string;
   time: number;
   correct?: boolean;

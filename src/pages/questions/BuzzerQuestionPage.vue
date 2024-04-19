@@ -279,10 +279,10 @@ const allControllersPressed = computed<boolean>(() => {
     return false;
   }
 
-  const disabledControllerIds = gameState.value.disabledControllers;
+  const ignoredControllers = gameState.value.ignoredControllers;
 
   return !controllers.value.some(
-    (controller) => !disabledControllerIds.includes(controller.id),
+    (controller) => !ignoredControllers.includes(controller.id),
   );
 });
 
@@ -297,7 +297,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   if (
     !buzzerSettings.multipleAttempts &&
-    state.disabledControllers.includes(event.controller.id)
+    state.ignoredControllers.includes(event.controller.id)
   ) {
     return;
   }
@@ -308,15 +308,15 @@ const listener = transition('running', (state, event: ButtonEvent) => {
     audio.play();
   }
 
-  const disabledControllers = state.disabledControllers;
-  disabledControllers.push(event.controller.id);
+  const ignoredControllers = state.ignoredControllers;
+  ignoredControllers.push(event.controller.id);
 
   return {
     game: 'buzzer',
     name: 'answering',
     time: buzzerSettings.answerTime,
     controller: event.controller.id,
-    disabledControllers,
+    ignoredControllers,
   };
 });
 
@@ -354,7 +354,7 @@ const onScored = transition(
       name: 'answering',
       time: state.time,
       controller: state.controller,
-      disabledControllers: state.disabledControllers,
+      ignoredControllers: state.ignoredControllers,
       correct,
       points,
     };
@@ -365,7 +365,7 @@ const continueQuestion = transition('answering', (state) => {
   return {
     game: 'buzzer',
     name: 'running',
-    disabledControllers: state.disabledControllers,
+    ignoredControllers: state.ignoredControllers,
   };
 });
 
@@ -385,7 +385,7 @@ const start = transition('preparing', () => {
   return {
     game: 'buzzer',
     name: 'running',
-    disabledControllers: [],
+    ignoredControllers: [],
   };
 });
 

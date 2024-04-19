@@ -2,9 +2,16 @@ import { describe, expect, it, vi } from 'vitest';
 import { mountPage } from 'app/test/vitest/utils/mount';
 import BuzzerQuestionPage from 'pages/questions/BuzzerQuestionPage.vue';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
-import { Dialog } from 'quasar';
+import { Dialog, QBtn, QItem } from 'quasar';
 import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';
+import { nextTick } from 'vue';
+import { createDevice } from 'app/test/vitest/utils/buzzer';
+import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerAnsweringState } from 'app/common/gameState/BuzzerState';
+import { installFakeTimer } from 'app/test/vitest/install-timer';
+import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 
 const mountBuzzerPage = () => mountPage(BuzzerQuestionPage);
 
@@ -25,13 +32,30 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
-    it.todo('should reset all buzzers');
+    it('should reset all buzzers', async () => {
+      const { buzzer } = mountBuzzerPage();
+      await createDevice(buzzer);
+      const gameState = useGameStore();
+      // Force another transition as the initial transition already happened here
+      gameState.transition({
+        game: 'buzzer',
+        name: 'running',
+        ignoredControllers: [],
+      });
+
+      const spy = vi.spyOn(buzzer, 'reset');
+
+      gameState.transition({
+        game: 'buzzer',
+        name: 'preparing',
+      });
+
+      expect(spy).toHaveBeenCalledOnce();
+    });
 
     it('should transition to running when start button is pressed', async () => {
       const { wrapper } = mountBuzzerPage();
       const gameStore = useGameStore();
-
-      expect(gameStore.state?.name).toBe('preparing');
 
       const btm = wrapper.find(selector('btn-game-start'));
       expect(btm.exists()).to.be.true;
@@ -43,7 +67,229 @@ describe('BuzzerPage', () => {
     describe.todo('settings');
   });
 
-  describe.todo('running');
+  describe('running', () => {
+    const initializeStore = async () => {
+      const gameStore = useGameStore();
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'running',
+        ignoredControllers: [],
+      });
+      // Wait for changes to apply
+      await nextTick();
 
-  describe.todo('answering');
+      return gameStore;
+    };
+
+    it('should transition to answering when buzzer is pressed', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const gameStore = await initializeStore();
+
+      expect(gameStore.state?.name).toBe('running');
+
+      pressAndRelease(0, BuzzerButton.RED);
+
+      expect(gameStore.state?.name).toBe('answering');
+      expect(gameStore.state).toHaveProperty('controller', getController(0).id);
+    });
+
+    it('should turn on the LED on buzzer', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { device, pressAndRelease } = await createDevice(buzzer);
+      await initializeStore();
+
+      const spy = vi.spyOn(device, 'updateLight');
+
+      pressAndRelease(0, BuzzerButton.RED);
+
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy).toHaveBeenCalledWith(0, true);
+    });
+
+    it('should set timer to correct time when transitioning to answering', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { pressAndRelease } = await createDevice(buzzer);
+      const gameStore = await initializeStore();
+      const { buzzerSettings } = useGameSettingsStore();
+
+      buzzerSettings.answerTime = 7;
+      pressAndRelease(0, BuzzerButton.RED);
+
+      expect(gameStore.state?.name).toBe('answering');
+      expect(gameStore.state).toHaveProperty('time', 7);
+    });
+
+    it('should add pressed controller to ignored when transitioning to answering', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const gameStore = useGameStore();
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'running',
+        ignoredControllers: [getController(0).id],
+      });
+
+      pressAndRelease(1, BuzzerButton.RED);
+
+      const state = gameStore.state as BuzzerAnsweringState;
+      expect(state.name).toBe('answering');
+      expect(state.ignoredControllers).toContain(getController(0).id);
+      expect(state.ignoredControllers).toContain(getController(1).id);
+    });
+
+    it('should only accept the RED button', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { pressAndRelease } = await createDevice(buzzer);
+      const gameStore = await initializeStore();
+
+      pressAndRelease(0, BuzzerButton.BLUE);
+      pressAndRelease(0, BuzzerButton.YELLOW);
+      pressAndRelease(0, BuzzerButton.GREEN);
+      pressAndRelease(0, BuzzerButton.ORANGE);
+
+      expect(gameStore.state?.name).toBe('running');
+    });
+
+    it('should not accept disabled controllers', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const gameStore = useGameStore();
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'running',
+        ignoredControllers: [getController(0).id],
+      });
+      // Wait for changes to apply
+      await nextTick();
+
+      pressAndRelease(0, BuzzerButton.RED);
+      expect(gameStore.state?.name).toBe('running');
+
+      pressAndRelease(1, BuzzerButton.RED);
+
+      const state = gameStore.state as BuzzerAnsweringState;
+      expect(state.name).toBe('answering');
+      expect(state.controller).toBe(getController(1).id);
+      expect(state.ignoredControllers).toContain(getController(0).id);
+    });
+
+    it('should transition to preparing when cancel button is pressed', async () => {
+      const { wrapper } = mountBuzzerPage();
+      const gameStore = await initializeStore();
+
+      expect(gameStore.state?.name).toBe('running');
+
+      const btm = wrapper.find(selector('btn-game-cancel'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
+
+      expect(gameStore.state?.name).toBe('preparing');
+    });
+  });
+
+  describe('answering', () => {
+    installFakeTimer();
+
+    const initializeStoreWithDevice = async (buzzer: BuzzerApi) => {
+      const gameStore = useGameStore();
+      const deviceApi = await createDevice(buzzer, 3);
+
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'answering',
+        time: 5,
+        controller: deviceApi.getController(0).id,
+        ignoredControllers: [deviceApi.getController(0).id],
+      });
+      await nextTick();
+
+      return {
+        gameStore,
+        ...deviceApi,
+      };
+    };
+
+    it('should start count down', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { gameStore } = await initializeStoreWithDevice(buzzer);
+
+      await vi.advanceTimersByTimeAsync(2000);
+
+      expect(gameStore.state?.name).toBe('answering');
+      expect(gameStore.state).toHaveProperty('time', 3);
+    });
+
+    it('should not accept another buzzer', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { gameStore, getController, pressAndRelease } =
+        await initializeStoreWithDevice(buzzer);
+
+      pressAndRelease(1, BuzzerButton.RED);
+
+      expect(gameStore.state?.name).toBe('answering');
+      expect(gameStore.state).toHaveProperty('controller', getController(0).id);
+    });
+
+    it('should transition to running on reopen', async () => {
+      const { wrapper, buzzer } = mountBuzzerPage();
+      const { gameStore } = await initializeStoreWithDevice(buzzer);
+
+      const btm = wrapper.find(selector('btn-game-reopen'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
+
+      expect(gameStore.state?.name).toBe('running');
+    });
+
+    it('should reset all buzzers on reopen', async () => {
+      const { buzzer } = mountBuzzerPage();
+      const { gameStore } = await initializeStoreWithDevice(buzzer);
+
+      const spy = vi.spyOn(buzzer, 'reset');
+
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'preparing',
+      });
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should disable re-open button when all controllers are ignored', async () => {
+      const { wrapper, buzzer } = mountBuzzerPage();
+      const gameStore = useGameStore();
+      const deviceApi = await createDevice(buzzer, 2);
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'answering',
+        time: 5,
+        controller: deviceApi.getController(0).id,
+        ignoredControllers: [
+          deviceApi.getController(0).id,
+          deviceApi.getController(1).id,
+        ],
+      });
+      await nextTick();
+
+      const buttons = wrapper.findAllComponents<QBtn>(
+        selector('btn-game-reopen'),
+      );
+      expect(buttons.length).toBe(1);
+      expect(buttons[0].props().disable).to.be.true;
+    });
+
+    it('should transition to preparing on restart', async () => {
+      const { wrapper, buzzer } = mountBuzzerPage();
+      const { gameStore } = await initializeStoreWithDevice(buzzer);
+
+      const btm = wrapper.find(selector('btn-game-restart'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
+
+      expect(gameStore.state?.name).toBe('preparing');
+    });
+
+    describe.todo('scores');
+  });
 });

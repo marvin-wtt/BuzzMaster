@@ -320,19 +320,17 @@ const listener = transition('running', (state, event: ButtonEvent) => {
   };
 });
 
-watch(
-  time,
-  transition('answering', (state, time: number) => {
-    if (time <= 0) {
-      stopTimer();
-    }
+const tick = transition('answering', (state, time: number) => {
+  if (time <= 0) {
+    stopTimer();
+  }
 
-    return {
-      ...state,
-      time,
-    };
-  }),
-);
+  return {
+    ...state,
+    time,
+  };
+});
+watch(time, tick);
 
 onStateEntry('preparing', () => {
   buzzer.reset();

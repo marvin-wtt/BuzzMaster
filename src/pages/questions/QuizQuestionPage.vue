@@ -183,23 +183,21 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
-watch(
-  time,
-  transition('running', (state, time: number) => {
-    if (time <= 0) {
-      return {
-        game: 'quiz',
-        name: 'completed',
-        result: state.result,
-      };
-    }
-
+const tick = transition('running', (state, time: number) => {
+  if (time <= 0) {
     return {
-      ...state,
-      time,
+      game: 'quiz',
+      name: 'completed',
+      result: state.result,
     };
-  }),
-);
+  }
+
+  return {
+    ...state,
+    time,
+  };
+});
+watch(time, tick);
 
 onStateEntry('preparing', () => {
   buzzer.reset();

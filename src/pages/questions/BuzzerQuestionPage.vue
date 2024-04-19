@@ -202,6 +202,29 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
+// Measure normal text width
+const canvas = document.createElement('canvas');
+const textMetrics = (text: string) => {
+  // Canvas is not present in testing environment.
+  // This is a workaround until either canvas is added or a simple stub is found
+  if (!('getContext' in canvas)) {
+    return { width: 0, height: 0 };
+  }
+  const context = canvas.getContext('2d');
+  if (context === null) {
+    return { width: 0, height: 0 };
+  }
+  context.font = '12pt arial';
+  const metrics = context.measureText(text);
+  const height =
+    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+  return {
+    width: metrics.width,
+    height,
+  };
+};
+
 const onCircleTimerResize = (size?: { width: number; height: number }) => {
   size ??= circleSize.value ?? { width: 0, height: 0 };
   const elementWidth = size.width;
@@ -240,24 +263,6 @@ const onCircleTimerResize = (size?: { width: number; height: number }) => {
 watchEffect(() => {
   onCircleTimerResize();
 });
-
-// Measure normal text width
-const canvas = document.createElement('canvas');
-const textMetrics = (text: string) => {
-  const context = canvas.getContext('2d');
-  if (context === null) {
-    return { width: 0, height: 0 };
-  }
-  context.font = '12pt arial';
-  const metrics = context.measureText(text);
-  const height =
-    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-
-  return {
-    width: metrics.width,
-    height,
-  };
-};
 
 const allControllersPressed = computed<boolean>(() => {
   if (gameState.value.name !== 'answering') {

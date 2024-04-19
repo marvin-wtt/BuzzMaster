@@ -65,13 +65,9 @@ watch(
       return;
     }
 
-    if (time <= 0) {
-      return;
-    }
-
     if (time <= 0 && prevTime > 0) {
       longBeep.play();
-    } else if (time / 1000 > prevTime / 1000) {
+    } else if (Math.ceil(time) < Math.ceil(prevTime)) {
       shortBeep.play();
     }
   },

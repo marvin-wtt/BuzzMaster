@@ -19,13 +19,12 @@
 
             <div class="column justify-center q-col-gutter-xs">
               <div :style="controllerNameStyle">
-                {{ gameState.controller.name }}
+                {{ findControllerById(gameState.controller).name }}
               </div>
-              <count-down
+              <beep-timer
                 v-if="buzzerSettings.answerTime > 0"
-                v-model="gameState.time"
-                :paused="gameState.correct !== undefined"
-                :beep="soundsEnabled"
+                :time="gameState.time"
+                :beep="buzzerSettings.playSounds"
                 :beep-start-time="buzzerSettings.countDownBeepStartAt"
                 :style="countDownStyle"
                 animated
@@ -62,12 +61,14 @@
             :label="t('question.buzzer.action.start')"
             color="primary"
             rounded
+            data-testid="btn-game-start"
             @click="start()"
           />
           <q-btn
             :label="t('question.buzzer.action.settings')"
             outline
             rounded
+            data-testid="btn-game-settings"
             @click="settings"
           />
         </div>
@@ -80,7 +81,7 @@
           <!-- Scoreboard -->
           <buzzer-scoreboard-buttons
             v-if="showScoreboardActions"
-            :controller="gameState.controller"
+            :controller="findControllerById(gameState.controller)"
             @update="onScored"
           />
 
@@ -99,6 +100,7 @@
                 rounded
                 :outline="allControllersPressed"
                 :disable="allControllersPressed"
+                data-testid="btn-game-reopen"
                 @click="continueQuestion()"
               />
             </div>
@@ -109,6 +111,7 @@
                 color="primary"
                 class="q-mx-sm"
                 rounded
+                data-testid="btn-game-quick-play"
                 @click="quickPlay()"
               />
             </div>
@@ -120,6 +123,7 @@
               icon="replay"
               outline
               rounded
+              data-testid="btn-game-restart"
               @click="restart()"
             />
           </div>
@@ -134,6 +138,7 @@
               :label="t('question.buzzer.action.cancel')"
               outline
               rounded
+              data-testid="btn-game-cancel"
               @click="restart()"
             />
           </div>
@@ -146,16 +151,29 @@
 <script lang="ts" setup>
 import BuzzerScoreboardButtons from 'components/questions/buzzer/BuzzerScoreboardButtons.vue';
 import BuzzerQuestionDialog from 'components/questions/buzzer/BuzzerQuestionDialog.vue';
-import CountDown from 'components/CountDown.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import {
+  computed,
+  onBeforeMount,
+  onUnmounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
+import {
+  ButtonEvent,
+  BuzzerButton,
+  IController,
+} from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
-import { BuzzerState } from 'app/common/GameState';
+import { BuzzerState } from 'app/common/gameState/BuzzerState';
+import { useGameState } from 'src/composables/gameState';
+import BeepTimer from 'components/BeepTimer.vue';
+import { useTimer } from 'src/composables/timer';
 
 interface Size {
   width: number;
@@ -164,13 +182,17 @@ interface Size {
 
 const quasar = useQuasar();
 const { t } = useI18n();
-const { buzzerSettings } = useQuestionSettingsStore();
+const { buzzerSettings } = useGameSettingsStore();
 const { controllers, buzzer } = useBuzzer();
-
-const gameState = ref<BuzzerState>({
-  game: 'buzzer',
-  name: 'preparing',
+const { time, stopTimer, startTimer } = useTimer({
+  updateRate: 100,
+  direction: 'down',
 });
+const { gameState, transition, onStateEntry, onStateExit } =
+  useGameState<BuzzerState>({
+    game: 'buzzer',
+    name: 'preparing',
+  });
 
 const controllerNameStyle = ref<string | { fontSize: string }>('');
 const countDownStyle = ref<string | { fontSize: string }>('');
@@ -190,16 +212,35 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
-const soundsEnabled = computed<boolean>(() => {
-  return buzzerSettings.playSounds;
-});
+// Measure normal text width
+const canvas = document.createElement('canvas');
+const textMetrics = (text: string) => {
+  // Canvas is not present in testing environment.
+  // This is a workaround until either canvas is added or a simple stub is found
+  if (!('getContext' in canvas)) {
+    return { width: 0, height: 0 };
+  }
+  const context = canvas.getContext('2d');
+  if (context === null) {
+    return { width: 0, height: 0 };
+  }
+  context.font = '12pt arial';
+  const metrics = context.measureText(text);
+  const height =
+    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+  return {
+    width: metrics.width,
+    height,
+  };
+};
 
 const onCircleTimerResize = (size?: { width: number; height: number }) => {
   size ??= circleSize.value ?? { width: 0, height: 0 };
   const elementWidth = size.width;
   const pressedController =
     gameState.value.name === 'answering'
-      ? gameState.value.controller
+      ? findControllerById(gameState.value.controller)
       : undefined;
 
   // Magical numbers so that the font size stays within the circle with padding
@@ -229,37 +270,19 @@ const onCircleTimerResize = (size?: { width: number; height: number }) => {
   };
 };
 
-watch(gameState, () => {
+watchEffect(() => {
   onCircleTimerResize();
 });
-
-// Measure normal text width
-const canvas = document.createElement('canvas');
-const textMetrics = (text: string) => {
-  const context = canvas.getContext('2d');
-  if (context === null) {
-    return { width: 0, height: 0 };
-  }
-  context.font = '12pt arial';
-  const metrics = context.measureText(text);
-  const height =
-    metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-
-  return {
-    width: metrics.width,
-    height,
-  };
-};
 
 const allControllersPressed = computed<boolean>(() => {
   if (gameState.value.name !== 'answering') {
     return false;
   }
 
-  const disabledControllerIds = gameState.value.disabledControllerIds;
+  const ignoredControllers = gameState.value.ignoredControllers;
 
   return !controllers.value.some(
-    (controller) => !disabledControllerIds.includes(controller.id),
+    (controller) => !ignoredControllers.includes(controller.id),
   );
 });
 
@@ -267,96 +290,117 @@ const showScoreboardActions = computed<boolean>(() => {
   return buzzerSettings.pointsCorrect !== 0 || buzzerSettings.pointsWrong !== 0;
 });
 
-const listener = (event: ButtonEvent) => {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
-
+const listener = transition('running', (state, event: ButtonEvent) => {
   if (event.button !== BuzzerButton.RED) {
     return;
   }
 
   if (
     !buzzerSettings.multipleAttempts &&
-    gameState.value.disabledControllerIds.includes(event.controller.id)
+    state.ignoredControllers.includes(event.controller.id)
   ) {
     return;
   }
 
-  if (soundsEnabled.value) {
+  event.controller.setLight(true);
+
+  if (buzzerSettings.playSounds) {
     audio.play();
   }
 
-  const disabledControllerIds = gameState.value.disabledControllerIds;
-  disabledControllerIds.push(event.controller.id);
-
-  gameState.value = {
+  return {
     game: 'buzzer',
     name: 'answering',
     time: buzzerSettings.answerTime,
-    controller: event.controller,
-    disabledControllerIds,
+    controller: event.controller.id,
+    ignoredControllers: [...state.ignoredControllers, event.controller.id],
   };
+});
 
-  event.controller.setLight(true);
-};
-
-const onScored = (correct: boolean | undefined, points: number | undefined) => {
-  if (gameState.value.name !== 'answering') {
-    return;
+const tick = transition('answering', (state, time: number) => {
+  if (time <= 0) {
+    stopTimer();
   }
 
-  gameState.value = {
-    game: 'buzzer',
-    name: 'answering',
-    time: gameState.value.time,
-    controller: gameState.value.controller,
-    disabledControllerIds: gameState.value.disabledControllerIds,
-    correct,
-    points,
+  return {
+    ...state,
+    time,
   };
-};
+});
+watch(time, tick);
 
-const continueQuestion = () => {
-  if (gameState.value.name !== 'answering') {
-    return;
-  }
-
+onStateEntry('preparing', () => {
   buzzer.reset();
+});
 
-  gameState.value = {
+onStateEntry('answering', (state) => {
+  time.value = state.time;
+  startTimer();
+});
+onStateExit('answering', () => {
+  stopTimer();
+  buzzer.reset();
+});
+
+const onScored = transition(
+  'answering',
+  (state, correct: boolean | undefined, points: number | undefined) => {
+    return {
+      game: 'buzzer',
+      name: 'answering',
+      time: state.time,
+      controller: state.controller,
+      ignoredControllers: state.ignoredControllers,
+      correct,
+      points,
+    };
+  },
+);
+
+const continueQuestion = transition('answering', (state) => {
+  return {
     game: 'buzzer',
     name: 'running',
-    disabledControllerIds: gameState.value.disabledControllerIds,
+    ignoredControllers: state.ignoredControllers,
   };
-};
+});
 
-const restart = () => {
-  buzzer.reset();
-
-  gameState.value = {
+const restart = transition(['running', 'answering'], () => {
+  return {
     game: 'buzzer',
     name: 'preparing',
   };
-};
+});
 
 const quickPlay = () => {
   restart();
   start();
 };
 
-const start = () => {
-  gameState.value = {
+const start = transition('preparing', () => {
+  return {
     game: 'buzzer',
     name: 'running',
-    disabledControllerIds: [],
+    ignoredControllers: [],
   };
-};
+});
 
 const settings = () => {
   quasar.dialog({
     component: BuzzerQuestionDialog,
   });
+};
+
+const findControllerById = (id: string): IController => {
+  const controller = controllers.value.find(
+    (controller) => controller.id === id,
+  );
+
+  if (!controller) {
+    throw new Error('Cannot find controller with id ' + id);
+  }
+
+  return controller;
 };
 </script>
 

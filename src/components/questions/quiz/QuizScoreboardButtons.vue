@@ -19,11 +19,11 @@ import { buzzerButtonColor } from 'components/buttonColors';
 import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
 import { onBeforeMount, ref } from 'vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useBuzzer } from 'src/plugins/buzzer';
 
 const scoreboardStore = useScoreboardStore();
-const { quizSettings } = useQuestionSettingsStore();
+const { quizSettings } = useGameSettingsStore();
 const { controllers } = useBuzzer();
 
 const correctAnswers = ref<Set<BuzzerButton>>(new Set());

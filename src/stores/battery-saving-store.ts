@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
@@ -126,4 +126,10 @@ function sort(a: IController, b: IController) {
     return -1;
   }
   return a.energySavingAt - b.energySavingAt;
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept(
+    acceptHMRUpdate(useBatterySavingStore, import.meta.hot),
+  );
 }

@@ -91,7 +91,7 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
@@ -99,7 +99,7 @@ defineEmits([...useDialogPluginComponent.emits]);
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 
-const { buzzerSettings } = useQuestionSettingsStore();
+const { buzzerSettings } = useGameSettingsStore();
 </script>
 
 <style scoped></style>

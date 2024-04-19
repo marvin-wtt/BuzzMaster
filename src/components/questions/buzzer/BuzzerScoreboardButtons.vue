@@ -25,11 +25,11 @@
 <script lang="ts" setup>
 import { onBeforeMount, ref } from 'vue';
 import { useScoreboardStore } from 'stores/scoreboard-store';
-import { useQuestionSettingsStore } from 'stores/question-settings-store';
+import { useGameSettingsStore } from 'stores/game-settings-store';
 import { IController } from 'src/plugins/buzzer/types';
 
 const scoreBoardStore = useScoreboardStore();
-const { buzzerSettings } = useQuestionSettingsStore();
+const { buzzerSettings } = useGameSettingsStore();
 
 const props = defineProps<{
   controller: IController;

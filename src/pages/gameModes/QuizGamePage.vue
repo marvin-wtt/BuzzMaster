@@ -25,7 +25,7 @@
             >
               <div>
                 {{
-                  t('question.quiz.controllersReady', {
+                  t('gameMode.quiz.controllersReady', {
                     count: controllers.length,
                   })
                 }}
@@ -67,14 +67,14 @@
             class="column q-gutter-sm"
           >
             <q-btn
-              :label="t('question.quiz.action.start')"
+              :label="t('gameMode.quiz.action.start')"
               color="primary"
               rounded
               data-testid="btn-game-start"
               @click="start()"
             />
             <q-btn
-              :label="t('question.quiz.action.settings')"
+              :label="t('gameMode.quiz.action.settings')"
               outline
               rounded
               @click="openSettings"
@@ -93,7 +93,7 @@
             <q-separator />
 
             <q-btn
-              :label="t('question.quiz.action.quickPlay')"
+              :label="t('gameMode.quiz.action.quickPlay')"
               icon="fast_forward"
               color="primary"
               class="self-center"
@@ -102,7 +102,7 @@
               @click="quickPlay()"
             />
             <q-btn
-              :label="t('question.quiz.action.reset')"
+              :label="t('gameMode.quiz.action.reset')"
               icon="replay"
               class="self-center"
               outline
@@ -114,7 +114,7 @@
 
           <div v-if="gameState.name === 'running'">
             <q-btn
-              :label="t('question.quiz.action.cancel')"
+              :label="t('gameMode.quiz.action.cancel')"
               outline
               rounded
               data-testid="btn-game-cancel"
@@ -134,10 +134,10 @@
 import BeepTimer from 'components/BeepTimer.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
-import QuizSettingsDialog from 'components/questions/quiz/QuizSettingsDialog.vue';
-import QuizResult from 'components/questions/quiz/QuizResult.vue';
-import QuizScoreboardButtons from 'components/questions/quiz/QuizScoreboardButtons.vue';
-import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
+import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
+import QuizResult from 'components/gameModes/quiz/QuizResult.vue';
+import QuizScoreboardButtons from 'components/gameModes/quiz/QuizScoreboardButtons.vue';
+import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';

@@ -5,7 +5,7 @@ import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
 
-export const useGameSettingsStore = defineStore('questionSettings', () => {
+export const useGameSettingsStore = defineStore('gameSettings', () => {
   const buzzerSettings = reactive<BuzzerSettings>({
     answerTime: 10,
     multipleAttempts: false,

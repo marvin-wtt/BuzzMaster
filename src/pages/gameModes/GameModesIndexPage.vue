@@ -34,18 +34,18 @@ type MenuItem = {
 
 const items: MenuItem[] = reactive([
   {
-    routeName: 'buzzer-question',
-    label: t('question.action.buzzer'),
+    routeName: 'buzzer-game',
+    label: t('gameMode.action.buzzer'),
     icon: 'radio_button_checked',
   },
   {
-    routeName: 'quiz-question',
-    label: t('question.action.quiz'),
+    routeName: 'quiz-game',
+    label: t('gameMode.action.quiz'),
     icon: 'format_list_numbered',
   },
   {
-    routeName: 'stopwatch-question',
-    label: t('question.action.stopwatch'),
+    routeName: 'stopwatch-game',
+    label: t('gameMode.action.stopwatch'),
     icon: 'timer',
   },
 ]);

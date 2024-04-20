@@ -15,7 +15,7 @@
         <q-btn
           :label="t('action.start')"
           icon="play_arrow"
-          to="questions"
+          to="gameModes"
           color="primary"
           rounded
         />

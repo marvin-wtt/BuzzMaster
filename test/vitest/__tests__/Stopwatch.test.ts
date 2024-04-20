@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mountPage } from 'app/test/vitest/utils/mount';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { Dialog } from 'quasar';
-import StopwatchQuestionPage from 'pages/questions/StopwatchQuestionPage.vue';
+import StopwatchQuestionPage from 'pages/gameModes/StopwatchGamePage.vue';
 import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';
 import { installFakeTimer } from 'app/test/vitest/install-timer';

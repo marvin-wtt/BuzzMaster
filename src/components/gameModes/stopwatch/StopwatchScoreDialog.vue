@@ -8,7 +8,7 @@
       style="min-width: 350px; width: 400px"
     >
       <q-card-section class="text-center text-h5">
-        {{ t('question.stopwatch.scores.title') }}
+        {{ t('gameMode.stopwatch.scores.title') }}
       </q-card-section>
 
       <q-card-section>
@@ -43,7 +43,7 @@
             <q-item-section side>
               <q-input
                 v-model.number="updatedScores[entry.controller.id]"
-                :label="t('question.stopwatch.scores.field')"
+                :label="t('gameMode.stopwatch.scores.field')"
                 type="number"
                 outlined
                 rounded
@@ -58,7 +58,7 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('question.stopwatch.scores.action.ok')"
+          :label="t('gameMode.stopwatch.scores.action.ok')"
           color="primary"
           rounded
           @click="onSave"
@@ -72,7 +72,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
-import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
+import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();

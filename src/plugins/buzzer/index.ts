@@ -1,4 +1,4 @@
-import { computed, inject } from 'vue';
+import { computed, inject, Plugin, App } from 'vue';
 import {
   IBuzzerApi,
   IBuzzerPlugin,
@@ -36,4 +36,10 @@ export const initBuzzerApi = async (): Promise<IBuzzerApi> => {
   await Promise.all(deviceManagers.map((init) => init(api)));
 
   return api;
+};
+
+export const BuzzerPlugin: Plugin = {
+  async install(app: App) {
+    app.provide('buzzer', await initBuzzerApi());
+  },
 };

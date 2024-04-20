@@ -40,7 +40,7 @@ describe('BuzzerPage', () => {
       gameState.transition({
         game: 'buzzer',
         name: 'running',
-        ignoredControllers: [],
+        pressedControllers: [],
       });
 
       const spy = vi.spyOn(buzzer, 'reset');
@@ -75,7 +75,7 @@ describe('BuzzerPage', () => {
       gameStore.transition({
         game: 'buzzer',
         name: 'running',
-        ignoredControllers: [],
+        pressedControllers: [],
       });
       // Wait for changes to apply
       await nextTick();
@@ -122,22 +122,22 @@ describe('BuzzerPage', () => {
       expect(gameStore.state).toHaveProperty('time', 7);
     });
 
-    it('should add pressed controller to ignored when transitioning to answering', async () => {
+    it('should add pressed controller to pressed controllers when transitioning to answering', async () => {
       const { buzzer } = mountBuzzerPage();
       const { pressAndRelease, getController } = await createDevice(buzzer);
       const gameStore = useGameStore();
       gameStore.transition({
         game: 'buzzer',
         name: 'running',
-        ignoredControllers: [getController(0).id],
+        pressedControllers: [getController(0).id],
       });
 
       pressAndRelease(1, BuzzerButton.RED);
 
       const state = gameStore.state as BuzzerAnsweringState;
       expect(state.name).toBe('answering');
-      expect(state.ignoredControllers).toContain(getController(0).id);
-      expect(state.ignoredControllers).toContain(getController(1).id);
+      expect(state.pressedControllers).toContain(getController(0).id);
+      expect(state.pressedControllers).toContain(getController(1).id);
     });
 
     it('should only accept the RED button', async () => {
@@ -153,7 +153,7 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('running');
     });
 
-    it('should not accept ignored controllers without multiple attempts', async () => {
+    it('should not accept pressed controllers without multiple attempts', async () => {
       const { buzzer } = mountBuzzerPage();
       const { pressAndRelease, getController } = await createDevice(buzzer);
       const gameStore = useGameStore();
@@ -163,7 +163,7 @@ describe('BuzzerPage', () => {
       gameStore.transition({
         game: 'buzzer',
         name: 'running',
-        ignoredControllers: [getController(0).id],
+        pressedControllers: [getController(0).id],
       });
       // Wait for changes to apply
       await nextTick();
@@ -176,10 +176,10 @@ describe('BuzzerPage', () => {
       const state = gameStore.state as BuzzerAnsweringState;
       expect(state.name).toBe('answering');
       expect(state.controller).toBe(getController(1).id);
-      expect(state.ignoredControllers).toContain(getController(0).id);
+      expect(state.pressedControllers).toContain(getController(0).id);
     });
 
-    it('should accept ignored controllers with multiple attempts', async () => {
+    it('should accept pressed controllers with multiple attempts', async () => {
       const { buzzer } = mountBuzzerPage();
       const { pressAndRelease, getController } = await createDevice(buzzer);
       const gameStore = useGameStore();
@@ -189,7 +189,7 @@ describe('BuzzerPage', () => {
       gameStore.transition({
         game: 'buzzer',
         name: 'running',
-        ignoredControllers: [getController(0).id],
+        pressedControllers: [getController(0).id],
       });
       // Wait for changes to apply
       await nextTick();
@@ -227,7 +227,7 @@ describe('BuzzerPage', () => {
         name: 'answering',
         time: 5,
         controller: deviceApi.getController(0).id,
-        ignoredControllers: [deviceApi.getController(0).id],
+        pressedControllers: [deviceApi.getController(0).id],
       });
       await nextTick();
 
@@ -283,7 +283,7 @@ describe('BuzzerPage', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should disable re-open button when all controllers are ignored', async () => {
+    it('should disable re-open button when all controllers are pressed', async () => {
       const { wrapper, buzzer } = mountBuzzerPage();
       const gameStore = useGameStore();
       const deviceApi = await createDevice(buzzer, 2);
@@ -292,7 +292,7 @@ describe('BuzzerPage', () => {
         name: 'answering',
         time: 5,
         controller: deviceApi.getController(0).id,
-        ignoredControllers: [
+        pressedControllers: [
           deviceApi.getController(0).id,
           deviceApi.getController(1).id,
         ],

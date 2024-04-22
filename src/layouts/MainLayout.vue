@@ -41,6 +41,18 @@
             @click="showScoreboard"
           />
 
+          <q-btn
+            aria-label="Open Cast"
+            key="cast"
+            dense
+            flat
+            rounded
+            size="sm"
+            class="settings-button bg-primary"
+            icon="cast"
+            @click="openCast"
+          />
+
           <!-- Settings -->
           <div
             v-if="expandSettings"
@@ -213,13 +225,15 @@
 
 <script lang="ts" setup>
 import { QSelectOption, useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
 import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
 import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
+import { CastMessage } from 'app/common/cast';
+import { useGameStore } from 'stores/game-store';
 
 const router = useRouter();
 const route = useRoute();
@@ -227,12 +241,14 @@ const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
 const { buzzer } = useBuzzer();
 const batterySavingStore = useBatterySavingStore();
+const gameStore = useGameStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
 const muted = ref<boolean>(false);
 const expandSettings = ref<boolean>(false);
 
+let castWindow: Window | null = null;
 const devMode = process.env.DEV ?? false;
 
 const darkMode = computed<boolean>(() => {
@@ -326,6 +342,49 @@ function closeApp() {
   buzzer.reset();
   window.windowAPI?.close();
 }
+
+function openCast() {
+  if (castWindow !== null && !castWindow.closed) {
+    castWindow.focus();
+  } else {
+    castWindow = window.open('#/cast');
+
+    updateCast({
+      name: 'game-state',
+      data: gameStore.state,
+    });
+
+    updateCast({
+      name: 'locale',
+      data: locale.value,
+    });
+  }
+}
+
+function updateCast(message: CastMessage) {
+  if (!castWindow) {
+    return;
+  }
+
+  castWindow.postMessage(message);
+}
+
+watch(locale, (value) => {
+  updateCast({
+    name: 'locale',
+    data: value,
+  });
+});
+
+watch(
+  () => gameStore.state,
+  (value) => {
+    updateCast({
+      name: 'game-state',
+      data: value,
+    });
+  },
+);
 </script>
 
 <style lang="scss">

@@ -103,9 +103,14 @@ function createWindow() {
   mainWindow.webContents.setWindowOpenHandler((/* details */) => {
     return {
       action: 'allow',
+      outlivesOpener: false,
       overrideBrowserWindowOptions: {
         frame: false,
+        width: 500,
+        height: 800,
+        alwaysOnTop: true,
         webPreferences: {
+          devTools: true,
           preload: electronPreload,
         },
       },

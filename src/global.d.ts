@@ -1,4 +1,4 @@
-import { AppAPI, WindowAPI } from 'app/common';
+import { AppAPI, WindowAPI, CastAPI } from 'app/common';
 
 export {};
 
@@ -6,5 +6,6 @@ declare global {
   interface Window {
     windowAPI: WindowAPI;
     appAPI: AppAPI;
+    castAPI: CastAPI;
   }
 }

@@ -232,8 +232,8 @@ import { useRoute, useRouter } from 'vue-router';
 import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
 import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
-import { CastMessage } from 'app/common/cast';
 import { useGameStore } from 'stores/game-store';
+import { GameState } from 'app/common/gameState';
 
 const router = useRouter();
 const route = useRoute();
@@ -246,9 +246,9 @@ const gameStore = useGameStore();
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
 const muted = ref<boolean>(false);
+const castOpen = ref<boolean>(false);
 const expandSettings = ref<boolean>(false);
 
-let castWindow: Window | null = null;
 const devMode = process.env.DEV ?? false;
 
 const darkMode = computed<boolean>(() => {
@@ -344,47 +344,28 @@ function closeApp() {
 }
 
 function openCast() {
-  if (castWindow !== null && !castWindow.closed) {
-    castWindow.focus();
+  if (!castOpen.value) {
+    window.castAPI.open();
+
+    // Init states
+    sendGameState(gameStore.state);
+    window.castAPI.updateLocale(locale.value);
   } else {
-    castWindow = window.open('#/cast');
-
-    updateCast({
-      name: 'game-state',
-      data: gameStore.state,
-    });
-
-    updateCast({
-      name: 'locale',
-      data: locale.value,
-    });
-  }
-}
-
-function updateCast(message: CastMessage) {
-  if (!castWindow) {
-    return;
+    window.castAPI.close();
   }
 
-  castWindow.postMessage(message);
+  castOpen.value = !castOpen.value;
 }
 
-watch(locale, (value) => {
-  updateCast({
-    name: 'locale',
-    data: value,
-  });
-});
+watch(locale, window.castAPI.updateLocale);
+watch(() => gameStore.state, sendGameState);
 
-watch(
-  () => gameStore.state,
-  (value) => {
-    updateCast({
-      name: 'game-state',
-      data: value,
-    });
-  },
-);
+function sendGameState(state: GameState | undefined) {
+  const value =
+    state !== undefined ? JSON.parse(JSON.stringify(state)) : undefined;
+
+  window.castAPI.updateGameState(value);
+}
 </script>
 
 <style lang="scss">

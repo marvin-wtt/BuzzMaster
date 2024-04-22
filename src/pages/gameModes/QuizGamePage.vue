@@ -82,7 +82,7 @@
           </div>
 
           <div
-            v-if="gameState.name === 'completed'"
+            v-else-if="gameState.name === 'completed'"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <quiz-scoreboard-buttons
@@ -112,7 +112,7 @@
             />
           </div>
 
-          <div v-if="gameState.name === 'running'">
+          <div v-else-if="gameState.name === 'running'">
             <q-btn
               :label="t('gameMode.quiz.action.cancel')"
               outline

@@ -14,38 +14,37 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: 'questions',
+        path: 'gameModes',
         children: [
           {
             path: '',
-            component: () => import('pages/questions/QuestionIndexPage.vue'),
+            component: () => import('pages/gameModes/GameModesIndexPage.vue'),
             meta: {
-              title: 'question.title',
+              title: 'gameMode.title',
             },
           },
           {
             path: 'buzzer',
-            name: 'buzzer-question',
-            component: () => import('pages/questions/BuzzerQuestionPage.vue'),
+            name: 'buzzer-game',
+            component: () => import('pages/gameModes/BuzzerGamePage.vue'),
             meta: {
-              title: 'question.buzzer.title',
+              title: 'gameMode.buzzer.title',
             },
           },
           {
             path: 'quiz',
-            name: 'quiz-question',
-            component: () => import('pages/questions/QuizQuestionPage.vue'),
+            name: 'quiz-game',
+            component: () => import('pages/gameModes/QuizGamePage.vue'),
             meta: {
-              title: 'question.quiz.title',
+              title: 'gameMode.quiz.title',
             },
           },
           {
             path: 'stopwatch',
-            name: 'stopwatch-question',
-            component: () =>
-              import('pages/questions/StopwatchQuestionPage.vue'),
+            name: 'stopwatch-game',
+            component: () => import('pages/gameModes/StopwatchGamePage.vue'),
             meta: {
-              title: 'question.stopwatch.title',
+              title: 'gameMode.stopwatch.title',
             },
           },
         ],

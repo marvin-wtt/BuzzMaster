@@ -9,20 +9,20 @@
     >
       <q-card-section>
         <a class="text-h5">
-          {{ t('question.stopwatch.settings.title') }}
+          {{ t('gameMode.stopwatch.settings.title') }}
         </a>
       </q-card-section>
 
       <q-card-section class="q-gutter-y-sm">
         <q-toggle
-          :label="t('question.stopwatch.settings.field.playSounds')"
+          :label="t('gameMode.stopwatch.settings.field.playSounds')"
           v-model="stopwatchSettings.playSounds"
         />
       </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('question.stopwatch.settings.action.ok')"
+          :label="t('gameMode.stopwatch.settings.action.ok')"
           color="primary"
           @click="onDialogOK"
           rounded

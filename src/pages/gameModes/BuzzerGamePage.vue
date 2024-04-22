@@ -39,13 +39,13 @@
           >
             <div v-if="gameState.name === 'preparing'">
               {{
-                t('question.buzzer.controllersReady', {
+                t('gameMode.buzzer.controllersReady', {
                   count: controllers.length,
                 })
               }}
             </div>
             <div v-else>
-              {{ t('question.buzzer.waitingForBuzzer') }}
+              {{ t('gameMode.buzzer.waitingForBuzzer') }}
             </div>
           </pulse-circle>
         </div>
@@ -58,14 +58,14 @@
           class="column q-gutter-sm justify-center"
         >
           <q-btn
-            :label="t('question.buzzer.action.start')"
+            :label="t('gameMode.buzzer.action.start')"
             color="primary"
             rounded
             data-testid="btn-game-start"
             @click="start()"
           />
           <q-btn
-            :label="t('question.buzzer.action.settings')"
+            :label="t('gameMode.buzzer.action.settings')"
             outline
             rounded
             data-testid="btn-game-settings"
@@ -93,7 +93,7 @@
           <div class="row">
             <div class="col-6 column justify-center content-end">
               <q-btn
-                :label="t('question.buzzer.action.reOpen')"
+                :label="t('gameMode.buzzer.action.reOpen')"
                 icon="loop"
                 color="primary"
                 class="q-mx-sm"
@@ -106,7 +106,7 @@
             </div>
             <div class="col-6 column justify-center content-start">
               <q-btn
-                :label="t('question.buzzer.action.quickPlay')"
+                :label="t('gameMode.buzzer.action.quickPlay')"
                 icon="fast_forward"
                 color="primary"
                 class="q-mx-sm"
@@ -119,7 +119,7 @@
           <!-- Second row -->
           <div class="row justify-center">
             <q-btn
-              :label="t('question.buzzer.action.reset')"
+              :label="t('gameMode.buzzer.action.reset')"
               icon="replay"
               outline
               rounded
@@ -135,7 +135,7 @@
         >
           <div class="column justify-center">
             <q-btn
-              :label="t('question.buzzer.action.cancel')"
+              :label="t('gameMode.buzzer.action.cancel')"
               outline
               rounded
               data-testid="btn-game-cancel"
@@ -149,8 +149,8 @@
 </template>
 
 <script lang="ts" setup>
-import BuzzerScoreboardButtons from 'components/questions/buzzer/BuzzerScoreboardButtons.vue';
-import BuzzerQuestionDialog from 'components/questions/buzzer/BuzzerQuestionDialog.vue';
+import BuzzerScoreboardButtons from 'components/gameModes/buzzer/BuzzerScoreboardButtons.vue';
+import BuzzerSettingsDialog from 'components/gameModes/buzzer/BuzzerSettingsDialog.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import {
@@ -279,10 +279,10 @@ const allControllersPressed = computed<boolean>(() => {
     return false;
   }
 
-  const ignoredControllers = gameState.value.ignoredControllers;
+  const pressedControllers = gameState.value.pressedControllers;
 
   return !controllers.value.some(
-    (controller) => !ignoredControllers.includes(controller.id),
+    (controller) => !pressedControllers.includes(controller.id),
   );
 });
 
@@ -297,7 +297,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   if (
     !buzzerSettings.multipleAttempts &&
-    state.ignoredControllers.includes(event.controller.id)
+    state.pressedControllers.includes(event.controller.id)
   ) {
     return;
   }
@@ -308,12 +308,17 @@ const listener = transition('running', (state, event: ButtonEvent) => {
     audio.play();
   }
 
+  const pressedControllers = [...state.pressedControllers];
+  if (!state.pressedControllers.includes(event.controller.id)) {
+    pressedControllers.push(event.controller.id);
+  }
+
   return {
     game: 'buzzer',
     name: 'answering',
     time: buzzerSettings.answerTime,
     controller: event.controller.id,
-    ignoredControllers: [...state.ignoredControllers, event.controller.id],
+    pressedControllers,
   };
 });
 
@@ -350,7 +355,7 @@ const onScored = transition(
       name: 'answering',
       time: state.time,
       controller: state.controller,
-      ignoredControllers: state.ignoredControllers,
+      pressedControllers: state.pressedControllers,
       correct,
       points,
     };
@@ -361,7 +366,7 @@ const continueQuestion = transition('answering', (state) => {
   return {
     game: 'buzzer',
     name: 'running',
-    ignoredControllers: state.ignoredControllers,
+    pressedControllers: state.pressedControllers,
   };
 });
 
@@ -381,13 +386,13 @@ const start = transition('preparing', () => {
   return {
     game: 'buzzer',
     name: 'running',
-    ignoredControllers: [],
+    pressedControllers: [],
   };
 });
 
 const settings = () => {
   quasar.dialog({
-    component: BuzzerQuestionDialog,
+    component: BuzzerSettingsDialog,
   });
 };
 

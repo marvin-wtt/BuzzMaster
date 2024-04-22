@@ -1,7 +1,7 @@
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { describe, expect, it, vi } from 'vitest';
-import QuizQuestionPage from 'pages/questions/QuizQuestionPage.vue';
-import QuizSettingsDialog from 'components/questions/quiz/QuizSettingsDialog.vue';
+import QuizQuestionPage from 'pages/gameModes/QuizGamePage.vue';
+import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
 import { Dialog, QBtn, QIcon } from 'quasar';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useGameStore } from 'stores/game-store';
@@ -19,7 +19,7 @@ import { installTeleportTarget } from 'app/test/vitest/install-teleport-target';
 import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import QuizResultModeToggle from 'components/questions/quiz/QuizResultModeToggle.vue';
+import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
 
 const mountQuizPage = () => mountPage(QuizQuestionPage);
 

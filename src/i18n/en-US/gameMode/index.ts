@@ -3,7 +3,7 @@ import quiz from './quiz';
 import stopwatch from './stopwatch';
 
 export default {
-  title: 'Questions',
+  title: 'Game Mode',
 
   action: {
     buzzer: 'Buzzer',

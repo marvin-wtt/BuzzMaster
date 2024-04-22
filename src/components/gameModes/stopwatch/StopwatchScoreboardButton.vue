@@ -10,10 +10,10 @@
 </template>
 
 <script lang="ts" setup>
-import StopwatchScoreDialog from 'components/questions/stopwatch/StopwatchScoreDialog.vue';
+import StopwatchScoreDialog from 'components/gameModes/stopwatch/StopwatchScoreDialog.vue';
 import { useQuasar } from 'quasar';
 import { useScoreboardStore } from 'stores/scoreboard-store';
-import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
+import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 
 const quasar = useQuasar();
 const scoreboardStore = useScoreboardStore();

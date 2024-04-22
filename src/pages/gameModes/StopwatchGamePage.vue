@@ -92,7 +92,7 @@
           data-testid="controllers-ready"
         >
           {{
-            t('question.stopwatch.controllersReady', {
+            t('gameMode.stopwatch.controllersReady', {
               count: controllers.length,
             })
           }}
@@ -102,14 +102,14 @@
       <div class="col-4 column q-gutter-y-sm justify-center content-center">
         <template v-if="gameState.name === 'preparing'">
           <q-btn
-            :label="t('question.stopwatch.action.start')"
+            :label="t('gameMode.stopwatch.action.start')"
             color="primary"
             rounded
             data-testid="btn-game-start"
             @click="start()"
           />
           <q-btn
-            :label="t('question.quiz.action.settings')"
+            :label="t('gameMode.quiz.action.settings')"
             outline
             rounded
             @click="openSettings"
@@ -118,7 +118,7 @@
 
         <template v-else-if="gameState.name === 'running'">
           <q-btn
-            :label="t('question.stopwatch.action.pause')"
+            :label="t('gameMode.stopwatch.action.pause')"
             class="self-center"
             outline
             rounded
@@ -126,7 +126,7 @@
             @click="pause()"
           />
           <q-btn
-            :label="t('question.stopwatch.action.cancel')"
+            :label="t('gameMode.stopwatch.action.cancel')"
             class="self-center"
             outline
             rounded
@@ -141,14 +141,14 @@
         >
           <div class="q-gutter-x-sm">
             <q-btn
-              :label="t('question.stopwatch.action.resume')"
+              :label="t('gameMode.stopwatch.action.resume')"
               color="primary"
               rounded
               data-testid="btn-game-resume"
               @click="resume()"
             />
             <q-btn
-              :label="t('question.stopwatch.action.stop')"
+              :label="t('gameMode.stopwatch.action.stop')"
               outline
               rounded
               data-testid="btn-game-stop"
@@ -156,7 +156,7 @@
             />
           </div>
           <q-btn
-            :label="t('question.stopwatch.action.cancel')"
+            :label="t('gameMode.stopwatch.action.cancel')"
             class="self-center"
             outline
             rounded
@@ -167,14 +167,14 @@
 
         <template v-else-if="gameState.name === 'completed'">
           <stopwatch-scoreboard-button
-            :label="t('question.stopwatch.action.scores')"
+            :label="t('gameMode.stopwatch.action.scores')"
             :result="result"
           />
 
           <q-separator />
           <!-- First row -->
           <q-btn
-            :label="t('question.stopwatch.action.quickPlay')"
+            :label="t('gameMode.stopwatch.action.quickPlay')"
             icon="fast_forward"
             color="primary"
             class="self-center"
@@ -184,7 +184,7 @@
           />
           <!-- Second row -->
           <q-btn
-            :label="t('question.stopwatch.action.reset')"
+            :label="t('gameMode.stopwatch.action.reset')"
             icon="replay"
             class="self-center"
             outline
@@ -200,7 +200,7 @@
 
 <script lang="ts" setup>
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
-import StopwatchQuestionDialog from 'components/questions/stopwatch/StopwatchQuestionDialog.vue';
+import StopwatchSettingsDialog from 'components/gameModes/stopwatch/StopwatchSettingsDialog.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
@@ -209,14 +209,14 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
-import StopwatchScoreboardButton from 'components/questions/stopwatch/StopwatchScoreboardButton.vue';
+import StopwatchScoreboardButton from 'components/gameModes/stopwatch/StopwatchScoreboardButton.vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useQuasar } from 'quasar';
 import {
   StopwatchRunningState,
   StopwatchState,
 } from 'app/common/gameState/StopwatchState';
-import { StopwatchEntry } from 'components/questions/stopwatch/StopwatchEntry';
+import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 import BeepTimer from 'components/BeepTimer.vue';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
@@ -350,7 +350,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
 const openSettings = () => {
   quasar.dialog({
-    component: StopwatchQuestionDialog,
+    component: StopwatchSettingsDialog,
   });
 };
 
@@ -413,7 +413,7 @@ const start = transition('preparing', () => {
 
 const formatTime = (time: number | undefined) => {
   if (time === undefined) {
-    return t('question.stopwatch.disqualified');
+    return t('gameMode.stopwatch.disqualified');
   }
 
   const date = new Date(time * 1000);

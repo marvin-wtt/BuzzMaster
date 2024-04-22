@@ -8,12 +8,12 @@
       style="max-width: 20rem"
     >
       <q-card-section>
-        <a class="text-h5">{{ t('question.buzzer.settings.title') }}</a>
+        <a class="text-h5">{{ t('gameMode.buzzer.settings.title') }}</a>
       </q-card-section>
 
       <q-card-section class="q-gutter-y-sm">
         <q-input
-          :label="t('question.buzzer.settings.field.answerTime')"
+          :label="t('gameMode.buzzer.settings.field.answerTime')"
           v-model.number="buzzerSettings.answerTime"
           type="number"
           rounded
@@ -25,18 +25,18 @@
         </q-input>
 
         <q-toggle
-          :label="t('question.buzzer.settings.field.multipleAttempts')"
+          :label="t('gameMode.buzzer.settings.field.multipleAttempts')"
           v-model="buzzerSettings.multipleAttempts"
         />
 
         <q-toggle
-          :label="t('question.buzzer.settings.field.playSounds')"
+          :label="t('gameMode.buzzer.settings.field.playSounds')"
           v-model="buzzerSettings.playSounds"
         />
 
         <q-input
           v-if="buzzerSettings.playSounds"
-          :label="t('question.buzzer.settings.field.beepAt')"
+          :label="t('gameMode.buzzer.settings.field.beepAt')"
           v-model.number="buzzerSettings.countDownBeepStartAt"
           type="number"
           rounded
@@ -48,11 +48,11 @@
         </q-input>
 
         <div class="text-body1">
-          {{ t('question.buzzer.settings.field.points') }}
+          {{ t('gameMode.buzzer.settings.field.points') }}
         </div>
 
         <q-input
-          :label="t('question.buzzer.settings.field.pointsCorrect')"
+          :label="t('gameMode.buzzer.settings.field.pointsCorrect')"
           v-model.number="buzzerSettings.pointsCorrect"
           type="number"
           rounded
@@ -64,8 +64,8 @@
         </q-input>
 
         <q-input
-          :label="t('question.buzzer.settings.field.pointsWrong.label')"
-          :hint="t('question.buzzer.settings.field.pointsWrong.hint')"
+          :label="t('gameMode.buzzer.settings.field.pointsWrong.label')"
+          :hint="t('gameMode.buzzer.settings.field.pointsWrong.hint')"
           v-model.number="buzzerSettings.pointsWrong"
           type="number"
           rounded
@@ -79,7 +79,7 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('question.buzzer.settings.action.ok')"
+          :label="t('gameMode.buzzer.settings.action.ok')"
           color="primary"
           @click="onDialogOK"
           rounded

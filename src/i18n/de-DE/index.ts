@@ -1,4 +1,4 @@
-import question from './questions';
+import gameMode from './gameMode';
 import devices from './devices';
 import scoreboard from './scoreboard';
 import batterySaving from './batterySaving';
@@ -13,6 +13,6 @@ export default {
 
   batterySaving,
   devices,
-  question,
+  gameMode,
   scoreboard,
 };

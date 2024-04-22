@@ -3,27 +3,10 @@ import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import { GameState } from 'app/common/gameState';
 import { useRouter } from 'vue-router';
-import { CastMessage } from 'app/common/cast';
 
 export const useCastStore = defineStore('cast', () => {
   const { locale } = useI18n();
   const router = useRouter();
-
-  function receiveMessage(message: CastMessage) {
-    // TODO Add game settings
-
-    switch (message.name) {
-      case 'game-state':
-        updateGameState(message.data);
-        break;
-      case 'controllers':
-        updateControllers(message.data);
-        break;
-      case 'locale':
-        updateLocale(message.data);
-        break;
-    }
-  }
 
   const gameState = ref<GameState>();
   function updateGameState(state: GameState | undefined) {
@@ -53,7 +36,9 @@ export const useCastStore = defineStore('cast', () => {
     controllers,
     gameState,
 
-    receiveMessage,
+    updateGameState,
+    updateLocale,
+    updateControllers,
   };
 });
 

@@ -1,6 +1,9 @@
 <template>
-  <q-layout view="hHh Lpr fFf">
-    <q-page-container v-if="gameState !== undefined">
+  <q-layout
+    view="hHh Lpr fFf"
+    class="q-electron-drag"
+  >
+    <q-page-container>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -8,14 +11,14 @@
 
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
-import { storeToRefs } from 'pinia';
 
 const castStore = useCastStore();
-const { gameState } = storeToRefs(castStore);
 
-window.addEventListener('message', (e) => {
-  if (e.data) {
-    castStore.receiveMessage(e.data);
-  }
+window.castAPI.onGameStateUpdate((state) => {
+  castStore.updateGameState(state);
+});
+
+window.castAPI.onLocaleUpdate((locale) => {
+  castStore.updateLocale(locale);
 });
 </script>

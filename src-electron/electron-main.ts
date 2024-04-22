@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import initWindowApiHandler from 'app/src-electron/windowAPI/main';
 import initAppApiHandler from 'app/src-electron/appAPI/main';
+import initCastApiHandler from 'app/src-electron/castAPI/main';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
@@ -118,6 +119,47 @@ function createWindow() {
   });
 }
 
+function createCastWindow() {
+  const electronPreload = getPreloadPath('electron-preload');
+  /**
+   * Initial window options
+   */
+  const window = new BrowserWindow({
+    parent: mainWindow,
+    icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
+    width: 500,
+    height: 800,
+    useContentSize: true,
+    frame: false,
+    alwaysOnTop: true,
+    webPreferences: {
+      sandbox: true,
+      contextIsolation: true,
+      preload: electronPreload,
+    },
+  });
+
+  const defaultRoute = '#/cast';
+
+  if (process.env.DEV) {
+    window.loadURL(process.env.APP_URL + defaultRoute);
+  } else {
+    window.loadFile('index.html' + defaultRoute);
+  }
+
+  if (process.env.DEBUGGING) {
+    // if on DEV or Production with debug enabled
+    window.webContents.openDevTools();
+  } else {
+    // we're on production; no access to devtools pls
+    window.webContents.on('devtools-opened', () => {
+      window?.webContents.closeDevTools();
+    });
+  }
+
+  return window;
+}
+
 export function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
   // It is a workaround for ESM compatibility issues, see https://github.com/electron-userland/electron-builder/issues/7976.
@@ -134,6 +176,7 @@ const startAutoUpdater = () => {
 app.whenReady().then(() => {
   initAppApiHandler();
   initWindowApiHandler();
+  initCastApiHandler(createCastWindow);
   createWindow();
 
   startAutoUpdater();

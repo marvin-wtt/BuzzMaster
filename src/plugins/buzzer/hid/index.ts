@@ -1,5 +1,6 @@
 import { IBuzzerApi, IDevice, IBuzzerPlugin } from 'src/plugins/buzzer/types';
-import { PlayStationDevice } from 'src/plugins/buzzer/hid/PlayStationDevice';
+import { PlayStation2Device } from 'src/plugins/buzzer/hid/PlayStation2Device';
+import { PlayStation3Device } from 'src/plugins/buzzer/hid/PlayStation3Device';
 
 // Maps all hidDevices to the corresponding buzzer devices to, so we can remove
 //  the dongle once the device disconnects
@@ -48,11 +49,11 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
 const findHidDevice = (hidDevice: HIDDevice): IDevice => {
   // NOTE: Devices need to be added at src-electron/electron-amin.ts too.
   if (matchHidDevice(hidDevice, 0x054c, 0x02)) {
-    return new PlayStationDevice(hidDevice);
+    return new PlayStation2Device(hidDevice);
   }
 
   if (matchHidDevice(hidDevice, 0x054c, 0x1000)) {
-    return new PlayStationDevice(hidDevice);
+    return new PlayStation3Device(hidDevice);
   }
 
   throw `Unknown HID device. ProductName: ${hidDevice.productName}, ProductId: ${hidDevice.productId}, VendorId: ${hidDevice.vendorId}.`;

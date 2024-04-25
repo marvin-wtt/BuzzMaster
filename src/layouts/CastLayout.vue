@@ -11,8 +11,12 @@
 
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
+import { useQuasar } from 'quasar';
 
 const castStore = useCastStore();
+const quasar = useQuasar();
+
+quasar.dark.set(false);
 
 window.castAPI.onGameStateUpdate((state) => {
   castStore.updateGameState(state);

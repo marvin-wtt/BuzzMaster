@@ -50,7 +50,7 @@
             size="sm"
             class="settings-button bg-primary"
             icon="cast"
-            @click="openCast"
+            @click="toggleCast"
           />
 
           <!-- Settings -->
@@ -234,12 +234,13 @@ import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
+import { IController } from 'src/plugins/buzzer/types';
 
 const router = useRouter();
 const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
-const { buzzer } = useBuzzer();
+const { buzzer, controllers } = useBuzzer();
 const batterySavingStore = useBatterySavingStore();
 const gameStore = useGameStore();
 
@@ -343,12 +344,13 @@ function closeApp() {
   window.windowAPI?.close();
 }
 
-function openCast() {
+function toggleCast() {
   if (!castOpen.value) {
     window.castAPI.open();
 
     // Init states
     sendGameState(gameStore.state);
+    sendControllerNames(controllers.value);
     window.castAPI.updateLocale(locale.value);
   } else {
     window.castAPI.close();
@@ -359,6 +361,17 @@ function openCast() {
 
 watch(locale, window.castAPI.updateLocale);
 watch(() => gameStore.state, sendGameState);
+watch(controllers, sendControllerNames);
+
+function sendControllerNames(controllers: IController[]) {
+  controllers.reduce(
+    (acc, curr) => {
+      acc[curr.id] = curr.id;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+}
 
 function sendGameState(state: GameState | undefined) {
   const value =

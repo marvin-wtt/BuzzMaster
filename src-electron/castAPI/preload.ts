@@ -1,20 +1,37 @@
-import { GameState } from 'app/common/gameState';
 import { ipcRenderer } from 'electron';
-import { CastAPI } from 'app/common';
+import { CastAPI, CastReceiverAPI, CastSenderAPI } from 'app/common';
+
+const send =
+  <K extends keyof CastSenderAPI>(name: K) =>
+  (...arg: Parameters<CastSenderAPI[K]>): void => {
+    ipcRenderer.send(`cast:${name}`, ...arg);
+  };
+
+const senderAPI: CastSenderAPI = {
+  open: send('open'),
+  close: send('close'),
+  updateGameState: send('updateGameState'),
+  updateLocale: send('updateLocale'),
+  updateController: send('updateController'),
+};
+
+const on = <K extends keyof CastReceiverAPI>(name: K): CastReceiverAPI[K] => {
+  const fn = (callback: (args: unknown) => void): void => {
+    ipcRenderer.on(`cast:${name}`, (event, args) => callback(args));
+  };
+
+  return fn as CastReceiverAPI[K];
+};
+
+const receiverAPI: CastReceiverAPI = {
+  onGameStateUpdate: on('onGameStateUpdate'),
+  onLocaleUpdate: on('onLocaleUpdate'),
+  onControllerUpdate: on('onControllerUpdate'),
+};
 
 const api: CastAPI = {
-  open: () => ipcRenderer.send('cast:open'),
-  close: () => ipcRenderer.send('cast:close'),
-  updateGameState: (state: GameState | undefined) =>
-    ipcRenderer.send('cast:updateGameState', state),
-  onGameStateUpdate: (callback: (state: GameState | undefined) => void) =>
-    ipcRenderer.on('cast:onGameStateUpdate', (_event, value) =>
-      callback(value),
-    ),
-  updateLocale: (locale: string) =>
-    ipcRenderer.send('cast:updateLocale', locale),
-  onLocaleUpdate: (callback: (locale: string) => void) =>
-    ipcRenderer.on('cast:onLocaleUpdate', (_event, value) => callback(value)),
+  ...senderAPI,
+  ...receiverAPI,
 };
 
 export default api;

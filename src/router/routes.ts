@@ -10,6 +10,11 @@ const routes: RouteRecordRaw[] = [
         name: 'cast',
         component: () => import('pages/cast/CastIndexPage.vue'),
       },
+      {
+        path: 'buzzer',
+        name: 'cast-buzzer',
+        component: () => import('pages/cast/CastBuzzerPage.vue'),
+      },
     ],
   },
   {

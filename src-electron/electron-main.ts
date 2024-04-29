@@ -157,6 +157,8 @@ function createCastWindow() {
     });
   }
 
+  window.setAlwaysOnTop(true, 'pop-up-menu', 1);
+
   return window;
 }
 

@@ -18,11 +18,16 @@ const quasar = useQuasar();
 
 quasar.dark.set(false);
 
-window.castAPI.onGameStateUpdate((state) => {
-  castStore.updateGameState(state);
-});
+window.castAPI.onGameStateUpdate(castStore.updateGameState);
+window.castAPI.onLocaleUpdate(castStore.updateLocale);
+window.castAPI.onControllerUpdate(castStore.updateControllers);
 
-window.castAPI.onLocaleUpdate((locale) => {
-  castStore.updateLocale(locale);
+// -------------------------------------
+// TODO Remove
+// -------------------------------------
+castStore.updateGameState({
+  game: 'buzzer',
+  name: 'preparing',
 });
+// -------------------------------------
 </script>

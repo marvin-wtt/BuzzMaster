@@ -17,7 +17,7 @@ export const useCastStore = defineStore('cast', () => {
         routeName = 'cast';
       }
 
-      router.push(routeName);
+      router.push({ name: routeName });
     }
 
     gameState.value = state;

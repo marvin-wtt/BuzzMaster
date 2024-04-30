@@ -3,13 +3,7 @@
     <div v-if="state.name === 'preparing'">
       Preparing
 
-      <img
-        ref="controllerLogo"
-        :src="ControllerLogo"
-        alt="controller-logo"
-        style="aspect-ratio: 1/1"
-        width="200px"
-      />
+      <controller-logo style="width: 200px" />
 
       <ul>
         <li>Speed counts!</li>
@@ -32,22 +26,13 @@
 
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { BuzzerState } from 'app/common/gameState/BuzzerState';
 import { storeToRefs } from 'pinia';
-import ControllerLogo from 'app/public/logo.svg';
+import ControllerLogo from 'components/ControllerLogo.vue';
 
 const castStore = useCastStore();
 const { controllers } = storeToRefs(castStore);
-
-const controllerLogo = ref<SVGElement>();
-
-setTimeout(() => {
-  const btn = controllerLogo.value?.querySelector('#btn-blue');
-  if (btn) {
-    console.log(btn);
-  }
-}, 1000);
 
 const state = computed<BuzzerState>(() => {
   return castStore.gameState as BuzzerState;

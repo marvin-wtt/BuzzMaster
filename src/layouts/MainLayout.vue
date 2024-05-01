@@ -94,7 +94,6 @@
               key="battery-saving"
               icon="battery_saver"
               class="settings-button bg-primary"
-              :color="batterySavingColor"
               @click="showBatterySavingDialog"
             />
 
@@ -241,8 +240,8 @@ const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
-const batterySavingStore = useBatterySavingStore();
 const gameStore = useGameStore();
+useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
@@ -322,12 +321,6 @@ function showScoreboard() {
     component: ScoreboardDialog,
   });
 }
-
-const batterySavingColor = computed<string | undefined>(() => {
-  return batterySavingStore.criticalBatterySavingTimes.length > 0
-    ? 'warning'
-    : undefined;
-});
 
 function showBatterySavingDialog() {
   quasar.dialog({

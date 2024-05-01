@@ -9,18 +9,27 @@ export const useCastStore = defineStore('cast', () => {
   const router = useRouter();
 
   const gameState = ref<GameState>();
-  function updateGameState(state: GameState | undefined) {
-    if (gameState.value?.game !== state?.game) {
-      let routeName = state === undefined ? undefined : `cast-${state.game}`;
+  async function updateGameState(state: GameState | undefined) {
+    const changeRoute = gameState.value?.game !== state?.game;
 
-      if (routeName === undefined || !router.hasRoute(routeName)) {
-        routeName = 'cast';
-      }
-
-      router.push({ name: routeName });
+    if (changeRoute) {
+      // Always to via index page to avoid state conflicts
+      await router.push({ name: 'cast' });
     }
 
     gameState.value = state;
+
+    // Route to next page if needed
+    if (!changeRoute || state === undefined) {
+      return;
+    }
+
+    const routeName = `cast-${state.game}`;
+    if (!router.hasRoute(routeName)) {
+      return;
+    }
+
+    await router.push({ name: routeName });
   }
 
   const controllers = ref<Record<string, string>>({});

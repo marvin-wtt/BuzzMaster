@@ -27,7 +27,8 @@ window.castAPI.onControllerUpdate(castStore.updateControllers);
 // -------------------------------------
 castStore.updateGameState({
   game: 'buzzer',
-  name: 'preparing',
+  name: 'running',
+  pressedControllers: [],
 });
 // -------------------------------------
 </script>

@@ -47,6 +47,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 500,
+    minWidth: 400,
     height: 800,
     useContentSize: true,
     frame: false,
@@ -100,23 +101,6 @@ function createWindow() {
       mainWindow?.webContents.closeDevTools();
     });
   }
-
-  mainWindow.webContents.setWindowOpenHandler((/* details */) => {
-    return {
-      action: 'allow',
-      outlivesOpener: false,
-      overrideBrowserWindowOptions: {
-        frame: false,
-        width: 500,
-        height: 800,
-        alwaysOnTop: true,
-        webPreferences: {
-          devTools: true,
-          preload: electronPreload,
-        },
-      },
-    };
-  });
 }
 
 function createCastWindow() {
@@ -128,6 +112,7 @@ function createCastWindow() {
     parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 500,
+    minWidth: 400,
     height: 800,
     useContentSize: true,
     frame: false,

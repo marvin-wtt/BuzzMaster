@@ -3,7 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/cast',
-    component: import('layouts/CastLayout.vue'),
+    component: () => import('layouts/CastLayout.vue'),
     children: [
       {
         path: '',

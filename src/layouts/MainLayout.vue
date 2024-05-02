@@ -224,7 +224,7 @@
 
 <script lang="ts" setup>
 import { QSelectOption, useQuasar } from 'quasar';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
@@ -233,7 +233,6 @@ import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
-import { IController } from 'src/plugins/buzzer/types';
 
 const router = useRouter();
 const route = useRoute();
@@ -345,7 +344,7 @@ function toggleCast() {
     // FIXME How can we improve this?
     setTimeout(() => {
       sendGameState(gameStore.state);
-      sendControllerNames(controllers.value);
+      sendControllerNames(controllerNames.value);
       window.castAPI.updateLocale(locale.value);
     }, 1000);
   } else {
@@ -355,21 +354,23 @@ function toggleCast() {
   castOpen.value = !castOpen.value;
 }
 
-watch(locale, window.castAPI.updateLocale);
-watch(() => gameStore.state, sendGameState);
-watch(controllers, sendControllerNames);
-
-function sendControllerNames(controllers: IController[]) {
-  const names = controllers.reduce(
+const controllerNames = computed<Record<string, string>>(() => {
+  return controllers.value.reduce(
     (acc, curr) => {
       acc[curr.id] = curr.name;
       return acc;
     },
     {} as Record<string, string>,
   );
+});
 
-  window.castAPI.updateControllers(names);
+function sendControllerNames(controllers: Record<string, string>) {
+  window.castAPI.updateControllers(toRaw(controllers));
 }
+
+watch(locale, window.castAPI.updateLocale);
+watch(() => gameStore.state, sendGameState);
+watch(controllerNames, sendControllerNames);
 
 function sendGameState(state: GameState | undefined) {
   const value =

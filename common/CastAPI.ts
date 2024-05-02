@@ -7,7 +7,7 @@ export interface CastSenderAPI {
   close: () => void;
   updateGameState: (state: GameState | undefined) => void;
   updateLocale: (locale: string) => void;
-  updateController: (controllers: Record<string, string>) => void;
+  updateControllers: (controllers: Record<string, string>) => void;
 }
 
 type Callback<F> = (callback: F) => void;
@@ -20,5 +20,5 @@ type CastCallback<K extends keyof CastSenderAPI> = APICallback<
 export interface CastReceiverAPI {
   onGameStateUpdate: CastCallback<'updateGameState'>;
   onLocaleUpdate: CastCallback<'updateLocale'>;
-  onControllerUpdate: CastCallback<'updateController'>;
+  onControllerUpdate: CastCallback<'updateControllers'>;
 }

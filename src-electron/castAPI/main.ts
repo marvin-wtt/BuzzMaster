@@ -1,5 +1,4 @@
 import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
-import { GameState } from 'app/common/gameState';
 
 type CastWindowFactory = () => BrowserWindow;
 
@@ -7,13 +6,18 @@ export default (windowFactory: CastWindowFactory) => {
   ipcMain.on('cast:open', open);
   ipcMain.on('cast:close', close);
 
-  ipcMain.on('cast:updateGameState', updateGameState);
-  ipcMain.on('cast:updateLocale', updateLocale);
+  ipcMain.on('cast:updateGameState', forwardTo('onGameStateUpdate'));
+  ipcMain.on('cast:updateLocale', forwardTo('onLocaleUpdate'));
+  ipcMain.on('cast:updateControllers', forwardTo('onControllerUpdate'));
 
   let castWindow: BrowserWindow;
 
+  function isCastWindowClosed(): boolean {
+    return castWindow === undefined || castWindow.isDestroyed();
+  }
+
   function open() {
-    if (castWindow === undefined || castWindow.isDestroyed()) {
+    if (isCastWindowClosed()) {
       castWindow = windowFactory();
     }
   }
@@ -22,19 +26,13 @@ export default (windowFactory: CastWindowFactory) => {
     castWindow.close();
   }
 
-  function updateGameState(event: IpcMainEvent, state: GameState | undefined) {
-    if (!castWindow) {
-      return;
-    }
+  function forwardTo(name: string) {
+    return (event: IpcMainEvent, ...args: unknown[]) => {
+      if (isCastWindowClosed()) {
+        return;
+      }
 
-    castWindow.webContents.send('cast:onGameStateUpdate', state);
-  }
-
-  function updateLocale(event: IpcMainEvent, locale: string) {
-    if (!castWindow) {
-      return;
-    }
-
-    castWindow.webContents.send('cast:onLocaleUpdate', locale);
+      castWindow.webContents.send(`cast:${name}`, ...args);
+    };
   }
 };

@@ -8,7 +8,7 @@
           class="column justify-center q-col-gutter-sm text-h3"
           pulse
         >
-          Hello
+          GO
         </pulse-circle>
       </div>
     </div>
@@ -17,6 +17,8 @@
 
 <script lang="ts" setup>
 import PulseCircle from 'components/PulseCircle.vue';
+
+// TODO i18n
 </script>
 
 <style scoped></style>

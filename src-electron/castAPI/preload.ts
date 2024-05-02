@@ -12,10 +12,11 @@ const senderAPI: CastSenderAPI = {
   close: send('close'),
   updateGameState: send('updateGameState'),
   updateLocale: send('updateLocale'),
-  updateController: send('updateController'),
+  updateControllers: send('updateControllers'),
 };
 
 const on = <K extends keyof CastReceiverAPI>(name: K): CastReceiverAPI[K] => {
+  // TODO Callback should accept multiple parameters
   const fn = (callback: (args: unknown) => void): void => {
     ipcRenderer.on(`cast:${name}`, (event, args) => callback(args));
   };

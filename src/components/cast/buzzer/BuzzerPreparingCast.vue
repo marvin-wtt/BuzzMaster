@@ -6,10 +6,12 @@
       Press the red button to answer.
     </div>
 
-    <controller-logo
-      class="self-center"
-      red
-    />
+    <div class="col-grow q-ma-md relative-position">
+      <controller-logo
+        class="absolute"
+        red
+      />
+    </div>
 
     <q-separator />
 
@@ -38,10 +40,7 @@
         </q-item>
         <q-item>
           <q-item-section avatar>
-            <q-icon
-              name="check"
-              color="positive"
-            />
+            <q-icon name="check" />
           </q-item-section>
           <q-item-section>Correct</q-item-section>
           <q-item-section side>
@@ -50,10 +49,7 @@
         </q-item>
         <q-item>
           <q-item-section avatar>
-            <q-icon
-              name="close"
-              color="negative"
-            />
+            <q-icon name="close" />
           </q-item-section>
           <q-item-section>Wrong</q-item-section>
           <q-item-section side>
@@ -68,6 +64,9 @@
 <script lang="ts" setup>
 import ControllerLogo from 'components/ControllerLogo.vue';
 import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
+// import { useI18n } from 'vue-i18n';
+//
+// const { t } = useI18n();
 
 const props = defineProps<{
   settings: BuzzerSettings;

@@ -217,7 +217,7 @@ import {
   StopwatchState,
 } from 'app/common/gameState/StopwatchState';
 import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
-import BeepTimer from 'components/BeepTimer.vue';
+import BeepTimer from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
 

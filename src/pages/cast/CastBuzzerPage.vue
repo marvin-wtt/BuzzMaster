@@ -11,6 +11,7 @@
     <buzzer-answering-cast
       v-else-if="state.name === 'answering'"
       :state="state"
+      :settings="settings"
     />
   </q-page>
 </template>

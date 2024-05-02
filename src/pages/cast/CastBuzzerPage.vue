@@ -8,11 +8,10 @@
       :settings="settings"
     />
     <buzzer-running-cast v-else-if="state.name === 'running'" />
-    <div v-else-if="state.name === 'answering'">
-      Answering
-      {{ controllers[state.controller] }}
-      {{ state.time }}
-    </div>
+    <buzzer-answering-cast
+      v-else-if="state.name === 'answering'"
+      :state="state"
+    />
   </q-page>
 </template>
 
@@ -20,13 +19,12 @@
 import { useCastStore } from 'stores/cast-store';
 import { computed, reactive } from 'vue';
 import { BuzzerState } from 'app/common/gameState/BuzzerState';
-import { storeToRefs } from 'pinia';
 import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import BuzzerPreparingCast from 'components/cast/buzzer/BuzzerPreparingCast.vue';
 import BuzzerRunningCast from 'components/cast/buzzer/BuzzerRunningCast.vue';
+import BuzzerAnsweringCast from 'components/cast/buzzer/BuzzerAnsweringCast.vue';
 
 const castStore = useCastStore();
-const { controllers } = storeToRefs(castStore);
 
 // TODO Get from main window
 const settings = reactive<BuzzerSettings>({

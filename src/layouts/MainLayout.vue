@@ -342,9 +342,12 @@ function toggleCast() {
     window.castAPI.open();
 
     // Init states
-    sendGameState(gameStore.state);
-    sendControllerNames(controllers.value);
-    window.castAPI.updateLocale(locale.value);
+    // FIXME How can we improve this?
+    setTimeout(() => {
+      sendGameState(gameStore.state);
+      sendControllerNames(controllers.value);
+      window.castAPI.updateLocale(locale.value);
+    }, 1000);
   } else {
     window.castAPI.close();
   }
@@ -357,13 +360,15 @@ watch(() => gameStore.state, sendGameState);
 watch(controllers, sendControllerNames);
 
 function sendControllerNames(controllers: IController[]) {
-  controllers.reduce(
+  const names = controllers.reduce(
     (acc, curr) => {
-      acc[curr.id] = curr.id;
+      acc[curr.id] = curr.name;
       return acc;
     },
     {} as Record<string, string>,
   );
+
+  window.castAPI.updateControllers(names);
 }
 
 function sendGameState(state: GameState | undefined) {

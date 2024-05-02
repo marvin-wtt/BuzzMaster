@@ -117,6 +117,7 @@ function createCastWindow() {
     useContentSize: true,
     frame: false,
     alwaysOnTop: true,
+    transparent: true,
     webPreferences: {
       sandbox: true,
       contextIsolation: true,

@@ -35,7 +35,7 @@
 import { computed } from 'vue';
 
 interface Props {
-  modelValue: number;
+  time: number;
   max: number;
   width?: string | number;
   infoClass?: string;
@@ -66,7 +66,7 @@ const colorClass = computed<string>(() => {
 });
 
 const time = computed<number>(() => {
-  return Math.ceil(props.modelValue);
+  return Math.ceil(props.time);
 });
 
 const timeFraction = computed(() => {

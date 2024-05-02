@@ -43,15 +43,13 @@
 
             <!-- Waiting for answers -->
             <circle-timer
-              v-if="gameState.name === 'running' || keepCountDown"
-              v-model="time"
+              v-if="gameState.name === 'running'"
+              :time="time"
               :max="quizSettings.answerTime"
               data-testid="answer-timer"
             >
-              <beep-timer
+              <timer-animated
                 :time="time"
-                :beep="quizSettings.playSounds"
-                :beep-start-time="quizSettings.countDownBeepStartAt"
                 animated
                 class="text-h2"
               />
@@ -124,6 +122,12 @@
         </transition-fade>
       </div>
     </div>
+
+    <audio-beep
+      :time="time"
+      :start-at="quizSettings.countDownBeepStartAt"
+      :silent="!quizSettings.playSounds"
+    />
   </q-page>
 
   <!-- Actions -->
@@ -131,14 +135,14 @@
 </template>
 
 <script lang="ts" setup>
-import BeepTimer from 'components/BeepTimer.vue';
+import TimerAnimated from 'components/TimerAnimated.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
 import QuizResult from 'components/gameModes/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/gameModes/quiz/QuizScoreboardButtons.vue';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useGameSettingsStore } from 'stores/game-settings-store';
@@ -158,6 +162,7 @@ import {
 } from 'app/common/gameState/QuizState';
 import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
+import AudioBeep from 'components/AudioBeep.vue';
 
 const { t } = useI18n();
 const quasar = useQuasar();
@@ -427,29 +432,6 @@ const quickPlay = () => {
   restart();
   start();
 };
-
-// Workaround to keep the countdown alive and wait for the last beep to finish
-const keepCountDown = ref<boolean>(false);
-let keepCountDownTimeout: NodeJS.Timeout | undefined = undefined;
-watch(gameState, (value, oldValue) => {
-  // Only capture transitions from running to completed
-  if (oldValue.name !== 'running' || value.name !== 'completed') {
-    clearTimeout(keepCountDownTimeout);
-    keepCountDown.value = false;
-
-    return;
-  }
-
-  if (oldValue.time > 0) {
-    keepCountDown.value = false;
-    return;
-  }
-
-  keepCountDown.value = true;
-  keepCountDownTimeout = setTimeout(() => {
-    keepCountDown.value = false;
-  }, 1000);
-});
 </script>
 
 <style scoped></style>

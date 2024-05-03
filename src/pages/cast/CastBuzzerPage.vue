@@ -13,27 +13,28 @@
       :state="state"
       :settings="settings"
     />
+    <buzzer-answered-cast
+      v-else-if="state.name === 'answered'"
+      :state="state"
+    />
   </q-page>
 </template>
 
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
-import { computed, reactive } from 'vue';
+import { computed } from 'vue';
 import { BuzzerState } from 'app/common/gameState/BuzzerState';
 import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import BuzzerPreparingCast from 'components/cast/buzzer/BuzzerPreparingCast.vue';
 import BuzzerRunningCast from 'components/cast/buzzer/BuzzerRunningCast.vue';
 import BuzzerAnsweringCast from 'components/cast/buzzer/BuzzerAnsweringCast.vue';
+import BuzzerAnsweredCast from 'components/cast/buzzer/BuzzerAnsweredCast.vue';
 
 const castStore = useCastStore();
 
-// TODO Get from main window
-const settings = reactive<BuzzerSettings>({
-  answerTime: 10,
-  multipleAttempts: true,
-  pointsCorrect: 10,
-  pointsWrong: -20,
-} as BuzzerSettings);
+const settings = computed<BuzzerSettings>(() => {
+  return castStore.gameSettings.buzzer;
+});
 
 const state = computed<BuzzerState>(() => {
   return castStore.gameState as BuzzerState;

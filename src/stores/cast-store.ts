@@ -3,6 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import { GameState } from 'app/common/gameState';
 import { useRouter } from 'vue-router';
+import { GameSettings } from 'app/common/gameSettings';
 
 export const useCastStore = defineStore('cast', () => {
   const { locale } = useI18n();
@@ -32,6 +33,11 @@ export const useCastStore = defineStore('cast', () => {
     await router.push({ name: routeName });
   }
 
+  const gameSettings = ref<GameSettings>({} as GameSettings);
+  function updateGameSettings(settings: GameSettings) {
+    gameSettings.value = settings;
+  }
+
   const controllers = ref<Record<string, string>>({});
   function updateControllers(value: Record<string, string>) {
     controllers.value = value;
@@ -44,8 +50,10 @@ export const useCastStore = defineStore('cast', () => {
   return {
     controllers,
     gameState,
+    gameSettings,
 
     updateGameState,
+    updateGameSettings,
     updateLocale,
     updateControllers,
   };

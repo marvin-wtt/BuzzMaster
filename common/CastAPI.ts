@@ -1,4 +1,5 @@
 import { GameState } from 'app/common/gameState';
+import { GameSettings } from 'app/common/gameSettings';
 
 export type CastAPI = CastSenderAPI & CastReceiverAPI;
 
@@ -6,6 +7,7 @@ export interface CastSenderAPI {
   open: () => void;
   close: () => void;
   updateGameState: (state: GameState | undefined) => void;
+  updateGameSettings: (settings: GameSettings) => void;
   updateLocale: (locale: string) => void;
   updateControllers: (controllers: Record<string, string>) => void;
 }
@@ -19,6 +21,7 @@ type CastCallback<K extends keyof CastSenderAPI> = APICallback<
 
 export interface CastReceiverAPI {
   onGameStateUpdate: CastCallback<'updateGameState'>;
+  onGameSettingsUpdate: CastCallback<'updateGameSettings'>;
   onLocaleUpdate: CastCallback<'updateLocale'>;
   onControllerUpdate: CastCallback<'updateControllers'>;
 }

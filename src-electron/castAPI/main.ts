@@ -7,6 +7,7 @@ export default (windowFactory: CastWindowFactory) => {
   ipcMain.on('cast:close', close);
 
   ipcMain.on('cast:updateGameState', forwardTo('onGameStateUpdate'));
+  ipcMain.on('cast:updateGameSettings', forwardTo('onGameSettingsUpdate'));
   ipcMain.on('cast:updateLocale', forwardTo('onLocaleUpdate'));
   ipcMain.on('cast:updateControllers', forwardTo('onControllerUpdate'));
 

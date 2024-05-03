@@ -2,10 +2,6 @@
   <div class="column justify-center">
     <div class="text-center text-h1 q-pa-lg">Buzzer</div>
 
-    <div class="text-h4 text-center q-pa-md">
-      Press the red button to answer.
-    </div>
-
     <div class="col-grow q-ma-md relative-position">
       <controller-logo
         class="absolute"
@@ -22,15 +18,17 @@
             <q-icon name="timer" />
           </q-item-section>
           <q-item-section>Answer time</q-item-section>
-          <q-item-section side
-            >{{ props.settings.answerTime }} s</q-item-section
-          >
+          <q-item-section side>
+            {{ props.settings.answerTime }} s
+          </q-item-section>
         </q-item>
         <q-item>
           <q-item-section avatar>
             <q-icon name="replay" />
           </q-item-section>
-          <q-item-section>Attempts</q-item-section>
+          <q-item-section>
+            {{ t('cast.buzzer.preparing.settings.attempts') }}
+          </q-item-section>
           <q-item-section side>
             <template v-if="props.settings.multipleAttempts">
               <q-icon name="all_inclusive" />
@@ -42,18 +40,32 @@
           <q-item-section avatar>
             <q-icon name="check" />
           </q-item-section>
-          <q-item-section>Correct</q-item-section>
+          <q-item-section>
+            {{ t('cast.buzzer.preparing.settings.score.correct') }}
+          </q-item-section>
           <q-item-section side>
-            {{ props.settings.pointsCorrect }} pts
+            {{
+              t(
+                'cast.buzzer.preparing.settings.score.points',
+                props.settings.pointsCorrect,
+              )
+            }}
           </q-item-section>
         </q-item>
         <q-item>
           <q-item-section avatar>
             <q-icon name="close" />
           </q-item-section>
-          <q-item-section>Wrong</q-item-section>
+          <q-item-section>
+            {{ t('cast.buzzer.preparing.settings.score.wrong') }}
+          </q-item-section>
           <q-item-section side>
-            {{ props.settings.pointsWrong }} pts
+            {{
+              t(
+                'cast.buzzer.preparing.settings.score.points',
+                props.settings.pointsWrong,
+              )
+            }}
           </q-item-section>
         </q-item>
       </q-list>
@@ -64,15 +76,13 @@
 <script lang="ts" setup>
 import ControllerLogo from 'components/ControllerLogo.vue';
 import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
-// import { useI18n } from 'vue-i18n';
-//
-// const { t } = useI18n();
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   settings: BuzzerSettings;
 }>();
-
-// TODO Add i18n
 </script>
 
 <style scoped></style>

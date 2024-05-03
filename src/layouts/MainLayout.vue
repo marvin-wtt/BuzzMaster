@@ -233,6 +233,8 @@ import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
+import { useGameSettingsStore } from 'stores/game-settings-store';
+import { GameSettings } from 'app/common/gameSettings';
 
 const router = useRouter();
 const route = useRoute();
@@ -240,6 +242,7 @@ const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
+const gameSettingsStore = useGameSettingsStore();
 useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
@@ -344,6 +347,7 @@ function toggleCast() {
     // FIXME How can we improve this?
     setTimeout(() => {
       sendGameState(gameStore.state);
+      sendGameSettings(gameSettingsStore.gameSettings);
       sendControllerNames(controllerNames.value);
       window.castAPI.updateLocale(locale.value);
     }, 1000);
@@ -370,6 +374,7 @@ function sendControllerNames(controllers: Record<string, string>) {
 
 watch(locale, window.castAPI.updateLocale);
 watch(() => gameStore.state, sendGameState);
+watch(gameSettingsStore.gameSettings, sendGameSettings);
 watch(controllerNames, sendControllerNames);
 
 function sendGameState(state: GameState | undefined) {
@@ -377,6 +382,12 @@ function sendGameState(state: GameState | undefined) {
     state !== undefined ? JSON.parse(JSON.stringify(state)) : undefined;
 
   window.castAPI.updateGameState(value);
+}
+
+function sendGameSettings(settings: GameSettings) {
+  const value = JSON.parse(JSON.stringify(settings));
+
+  window.castAPI.updateGameSettings(value);
 }
 </script>
 

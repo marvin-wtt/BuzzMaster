@@ -317,6 +317,81 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
+    it.todo('should transition to answered on score');
+
     describe.todo('scores');
+  });
+
+  describe('answered', () => {
+    const initializeStoreWithDevice = async (buzzer: BuzzerApi) => {
+      const gameStore = useGameStore();
+      const deviceApi = await createDevice(buzzer, 3);
+
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'answered',
+        controller: deviceApi.getController(0).id,
+        pressedControllers: [deviceApi.getController(0).id],
+        correct: true,
+        points: 5,
+      });
+      await nextTick();
+
+      return {
+        gameStore,
+        ...deviceApi,
+      };
+    };
+
+    it('should transition to running on reopen', async () => {
+      const { wrapper, buzzer } = mountBuzzerPage();
+      const { gameStore } = await initializeStoreWithDevice(buzzer);
+
+      const btm = wrapper.find(selector('btn-game-reopen'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
+
+      expect(gameStore.state?.name).toBe('running');
+    });
+
+    it('should transition to preparing on restart', async () => {
+      const { wrapper, buzzer } = mountBuzzerPage();
+      const { gameStore } = await initializeStoreWithDevice(buzzer);
+
+      const btm = wrapper.find(selector('btn-game-restart'));
+      expect(btm.exists()).to.be.true;
+      await btm.trigger('click');
+
+      expect(gameStore.state?.name).toBe('preparing');
+    });
+
+    it('should disable re-open button when all controllers are pressed', async () => {
+      const { wrapper, buzzer } = mountBuzzerPage();
+      const gameStore = useGameStore();
+      const deviceApi = await createDevice(buzzer, 2);
+      gameStore.transition({
+        game: 'buzzer',
+        name: 'answering',
+        time: 5,
+        controller: deviceApi.getController(0).id,
+        pressedControllers: [
+          deviceApi.getController(0).id,
+          deviceApi.getController(1).id,
+        ],
+      });
+      await nextTick();
+
+      const buttons = wrapper.findAllComponents<QBtn>(
+        selector('btn-game-reopen'),
+      );
+      expect(buttons.length).toBe(1);
+      expect(buttons[0].props().disable).to.be.true;
+    });
+
+    it.todo('should update the score');
+
+    it.todo('should disable continue button when answer is correct');
+
+    it.todo('should transition to answering and score is de-selected');
   });
 });

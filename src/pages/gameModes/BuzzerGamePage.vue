@@ -18,7 +18,6 @@
             />
 
             <circle-timer
-              v-if="gameState.name === 'answering'"
               :time="gameState.time"
               :max="buzzerSettings.answerTime"
             >
@@ -31,6 +30,16 @@
                   animated
                 />
               </text-dynamic>
+            </circle-timer>
+          </template>
+          <template v-else-if="gameState.name === 'answered'">
+            <circle-timer
+              :time="0"
+              :max="buzzerSettings.answerTime"
+            >
+              <text-dynamic
+                :name="findControllerById(gameState.controller).name"
+              />
             </circle-timer>
           </template>
           <!-- Waiting -->
@@ -77,7 +86,9 @@
 
         <!-- Result menu -->
         <div
-          v-else-if="gameState.name === 'answering'"
+          v-else-if="
+            gameState.name === 'answering' || gameState.name === 'answered'
+          "
           class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
         >
           <!-- Scoreboard -->
@@ -100,8 +111,8 @@
                 color="primary"
                 class="q-mx-sm"
                 rounded
-                :outline="allControllersPressed"
-                :disable="allControllersPressed"
+                :outline="disableContinue"
+                :disable="disableContinue"
                 data-testid="btn-game-reopen"
                 @click="continueQuestion()"
               />
@@ -132,7 +143,7 @@
         </div>
 
         <div
-          v-if="gameState.name === 'running'"
+          v-else-if="gameState.name === 'running'"
           class="row justify-center"
         >
           <div class="column justify-center">
@@ -200,7 +211,11 @@ onUnmounted(() => {
   buzzer.reset();
 });
 
-const allControllersPressed = computed<boolean>(() => {
+const disableContinue = computed<boolean>(() => {
+  if (gameState.value.name === 'answered') {
+    return gameState.value.correct === true;
+  }
+
   if (gameState.value.name !== 'answering') {
     return false;
   }
@@ -274,21 +289,30 @@ onStateExit('answering', () => {
 });
 
 const onScored = transition(
-  'answering',
+  ['answering', 'answered'],
   (state, correct: boolean | undefined, points: number | undefined) => {
+    if (correct !== undefined && points !== undefined) {
+      return {
+        game: 'buzzer',
+        name: 'answered',
+        controller: state.controller,
+        pressedControllers: state.pressedControllers,
+        correct,
+        points,
+      };
+    }
+
     return {
       game: 'buzzer',
       name: 'answering',
-      time: state.time,
       controller: state.controller,
       pressedControllers: state.pressedControllers,
-      correct,
-      points,
+      time: 0,
     };
   },
 );
 
-const continueQuestion = transition('answering', (state) => {
+const continueQuestion = transition(['answering', 'answered'], (state) => {
   return {
     game: 'buzzer',
     name: 'running',
@@ -296,7 +320,7 @@ const continueQuestion = transition('answering', (state) => {
   };
 });
 
-const restart = transition(['running', 'answering'], () => {
+const restart = transition(['running', 'answering', 'answered'], () => {
   return {
     game: 'buzzer',
     name: 'preparing',

@@ -19,16 +19,7 @@ const quasar = useQuasar();
 quasar.dark.set(false);
 
 window.castAPI.onGameStateUpdate(castStore.updateGameState);
+window.castAPI.onGameSettingsUpdate(castStore.updateGameSettings);
 window.castAPI.onLocaleUpdate(castStore.updateLocale);
 window.castAPI.onControllerUpdate(castStore.updateControllers);
-
-// -------------------------------------
-// TODO Remove
-// -------------------------------------
-castStore.updateGameState({
-  game: 'buzzer',
-  name: 'running',
-  pressedControllers: [],
-});
-// -------------------------------------
 </script>

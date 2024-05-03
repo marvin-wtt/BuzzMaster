@@ -1,14 +1,13 @@
 <template>
   <div class="col-12 column no-wrap">
-    <!-- Content -->
+    <!-- This can be simplified... -->
     <div class="col-12 row justify-center">
-      <div class="col-10 self-center text-center justify-center">
-        <!-- Waiting -->
+      <div class="col-12 self-center text-center justify-center">
         <pulse-circle
           class="column justify-center q-col-gutter-sm text-h3"
           pulse
         >
-          GO
+          {{ t('cast.buzzer.running.go') }}
         </pulse-circle>
       </div>
     </div>
@@ -17,8 +16,9 @@
 
 <script lang="ts" setup>
 import PulseCircle from 'components/PulseCircle.vue';
+import { useI18n } from 'vue-i18n';
 
-// TODO i18n
+const { t } = useI18n();
 </script>
 
 <style scoped></style>

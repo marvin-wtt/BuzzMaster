@@ -56,6 +56,7 @@
           v-model.number="quizSettings.answerTime"
           :label="t('gameMode.quiz.settings.field.answerTime')"
           type="number"
+          :rules="[isNumber]"
           rounded
           outlined
         >
@@ -100,6 +101,7 @@
           v-model.number="quizSettings.pointsCorrect"
           :label="t('gameMode.quiz.settings.field.pointsCorrect')"
           type="number"
+          :rules="[isNumber]"
           rounded
           outlined
         >
@@ -113,6 +115,7 @@
           :label="t('gameMode.quiz.settings.field.pointsWrong.label')"
           :hint="t('gameMode.quiz.settings.field.pointsWrong.hint')"
           type="number"
+          :rules="[isNumber]"
           rounded
           outlined
         >
@@ -139,6 +142,7 @@ import { useDialogPluginComponent, QSelectOption } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
+import { isNumber } from 'lodash-es';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

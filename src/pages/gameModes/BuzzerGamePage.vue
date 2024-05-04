@@ -93,7 +93,6 @@
         >
           <!-- Scoreboard -->
           <buzzer-scoreboard-buttons
-            v-if="showScoreboardActions"
             :controller="findControllerById(gameState.controller)"
             @update="onScored"
           />
@@ -212,11 +211,14 @@ onUnmounted(() => {
 });
 
 const disableContinue = computed<boolean>(() => {
-  if (gameState.value.name === 'answered') {
-    return gameState.value.correct === true;
+  if (gameState.value.name === 'answered' && gameState.value.correct === true) {
+    return true;
   }
 
-  if (gameState.value.name !== 'answering') {
+  if (
+    gameState.value.name !== 'answering' &&
+    gameState.value.name !== 'answered'
+  ) {
     return false;
   }
 
@@ -225,10 +227,6 @@ const disableContinue = computed<boolean>(() => {
   return !controllers.value.some(
     (controller) => !pressedControllers.includes(controller.id),
   );
-});
-
-const showScoreboardActions = computed<boolean>(() => {
-  return buzzerSettings.pointsCorrect !== 0 || buzzerSettings.pointsWrong !== 0;
 });
 
 const listener = transition('running', (state, event: ButtonEvent) => {

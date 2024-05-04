@@ -4,6 +4,7 @@ export default {
 
     settings: {
       attempts: 'Attempts',
+      answerTime: 'Answer time',
       score: {
         correct: 'Correct',
         wrong: 'Wrong',
@@ -14,5 +15,9 @@ export default {
 
   running: {
     go: 'GO',
+  },
+
+  answered: {
+    points: 'Points',
   },
 };

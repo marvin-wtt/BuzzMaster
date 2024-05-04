@@ -372,7 +372,7 @@ function sendControllerNames(controllers: Record<string, string>) {
   window.castAPI.updateControllers(toRaw(controllers));
 }
 
-watch(locale, window.castAPI.updateLocale);
+watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
 watch(() => gameStore.state, sendGameState);
 watch(gameSettingsStore.gameSettings, sendGameSettings);
 watch(controllerNames, sendControllerNames);

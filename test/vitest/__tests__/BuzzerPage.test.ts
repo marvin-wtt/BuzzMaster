@@ -332,7 +332,7 @@ describe('BuzzerPage', () => {
         name: 'answered',
         controller: deviceApi.getController(0).id,
         pressedControllers: [deviceApi.getController(0).id],
-        correct: true,
+        correct: false,
         points: 5,
       });
       await nextTick();
@@ -371,13 +371,14 @@ describe('BuzzerPage', () => {
       const deviceApi = await createDevice(buzzer, 2);
       gameStore.transition({
         game: 'buzzer',
-        name: 'answering',
-        time: 5,
+        name: 'answered',
         controller: deviceApi.getController(0).id,
         pressedControllers: [
           deviceApi.getController(0).id,
           deviceApi.getController(1).id,
         ],
+        points: 1,
+        correct: true,
       });
       await nextTick();
 

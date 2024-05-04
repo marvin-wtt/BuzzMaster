@@ -12,11 +12,19 @@
         key="check"
         class="score-info column"
       >
-        <div class="text-h4 text-center">
+        <div
+          class="text-h3 text-center q-py-md"
+          style="word-break: break-all"
+        >
           {{ controllers[props.state.controller] }}
         </div>
-        <div class="text-h3 font-bold text-right">
-          {{ props.state.points }}
+        <q-separator />
+        <div
+          class="text-h2 font-bold text-center points q-py-md"
+          :class="pointsClass"
+        >
+          {{ n(props.state.points, { signDisplay: 'exceptZero' }) }}
+          {{ t('cast.buzzer.answered.points') }}
         </div>
       </div>
     </transition-group>
@@ -29,7 +37,9 @@ import CrossCheck from 'components/CrossCheck.vue';
 import { computed, ref } from 'vue';
 import { useCastStore } from 'stores/cast-store';
 import { storeToRefs } from 'pinia';
+import { useI18n } from 'vue-i18n';
 
+const { t, n } = useI18n();
 const castStore = useCastStore();
 const { controllers } = storeToRefs(castStore);
 
@@ -40,13 +50,25 @@ const props = defineProps<{
 const showScores = ref<boolean>(false);
 const checkWidth = ref<number>(100);
 
+const pointsClass = computed<string>(() => {
+  if (props.state.points > 0) {
+    return 'text-green';
+  }
+
+  if (props.state.points < 0) {
+    return 'text-red';
+  }
+
+  return 'text-blue';
+});
+
 const symbol = computed<'check' | 'cross'>(() => {
   return props.state.correct ? 'check' : 'cross';
 });
 
 setTimeout(() => {
   showScores.value = true;
-  checkWidth.value = 50;
+  checkWidth.value = 75;
 }, 2000);
 </script>
 

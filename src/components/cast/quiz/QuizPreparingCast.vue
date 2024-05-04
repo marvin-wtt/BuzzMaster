@@ -1,13 +1,17 @@
 <template>
   <div class="column justify-center">
     <div class="text-center text-h1 q-pa-lg">
-      {{ t('cast.buzzer.preparing.title') }}
+      {{ t('cast.quiz.preparing.title') }}
     </div>
 
     <div class="col-grow q-ma-md relative-position">
       <controller-logo
         class="absolute"
-        red
+        :red="buttons.red"
+        :blue="buttons.blue"
+        :orange="buttons.orange"
+        :green="buttons.green"
+        :yellow="buttons.yellow"
       />
     </div>
 
@@ -20,22 +24,24 @@
             <q-icon name="timer" />
           </q-item-section>
           <q-item-section>
-            {{ t('cast.buzzer.preparing.settings.answerTime') }}
-          </q-item-section>
+            {{ t('cast.quiz.preparing.settings.answerTime') }}</q-item-section
+          >
           <q-item-section side> {{ settings.answerTime }} s </q-item-section>
         </q-item>
         <q-item>
           <q-item-section avatar>
-            <q-icon name="replay" />
+            <q-icon name="swap_horiz" />
           </q-item-section>
           <q-item-section>
-            {{ t('cast.buzzer.preparing.settings.attempts') }}
+            {{ t('cast.quiz.preparing.settings.changeMode.label') }}
           </q-item-section>
           <q-item-section side>
-            <template v-if="settings.multipleAttempts">
-              <q-icon name="all_inclusive" />
-            </template>
-            <template v-else> 1 </template>
+            {{
+              t(
+                'cast.quiz.preparing.settings.changeMode.option.' +
+                  settings.changeMode,
+              )
+            }}
           </q-item-section>
         </q-item>
         <q-item>
@@ -43,12 +49,12 @@
             <q-icon name="check" />
           </q-item-section>
           <q-item-section>
-            {{ t('cast.buzzer.preparing.settings.score.correct') }}
+            {{ t('cast.quiz.preparing.settings.score.correct') }}
           </q-item-section>
           <q-item-section side>
             {{
               t(
-                'cast.buzzer.preparing.settings.score.points',
+                'cast.quiz.preparing.settings.score.points',
                 settings.pointsCorrect,
               )
             }}
@@ -77,16 +83,27 @@
 
 <script lang="ts" setup>
 import ControllerLogo from 'components/ControllerLogo.vue';
-import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
+import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
+import { BuzzerButton } from 'src/plugins/buzzer/types';
 
 const { t } = useI18n();
 const castStore = useCastStore();
 
-const settings = computed<BuzzerSettings>(() => {
-  return castStore.gameSettings.buzzer;
+const settings = computed<QuizSettings>(() => {
+  return castStore.gameSettings.quiz;
+});
+
+const buttons = computed(() => {
+  return {
+    red: settings.value.changeMode === 'confirm',
+    blue: settings.value.activeButtons.includes(BuzzerButton.BLUE),
+    orange: settings.value.activeButtons.includes(BuzzerButton.ORANGE),
+    green: settings.value.activeButtons.includes(BuzzerButton.GREEN),
+    yellow: settings.value.activeButtons.includes(BuzzerButton.YELLOW),
+  };
 });
 </script>
 

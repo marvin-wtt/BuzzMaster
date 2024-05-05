@@ -15,6 +15,15 @@
 
         <q-space />
 
+        <!-- Dark mode -->
+        <q-btn
+          dense
+          flat
+          rounded
+          :icon="darkMode ? 'light_mode' : 'dark_mode'"
+          @click="toggleDarkMode"
+        />
+
         <q-btn
           dense
           flat
@@ -47,6 +56,7 @@ const castStore = useCastStore();
 const quasar = useQuasar();
 
 quasar.dark.set(true);
+const toggleDarkMode = quasar.dark.toggle;
 
 window.castAPI.onGameStateUpdate(castStore.updateGameState);
 window.castAPI.onGameSettingsUpdate(castStore.updateGameSettings);
@@ -57,6 +67,10 @@ const showAppBar = ref<boolean>(true);
 
 const layoutClass = computed<string | undefined>(() => {
   return showAppBar.value ? 'layout' : undefined;
+});
+
+const darkMode = computed<boolean>(() => {
+  return quasar.dark.isActive;
 });
 
 function onFocus() {

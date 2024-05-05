@@ -3,9 +3,7 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
 type CastWindowFactory = () => BrowserWindow;
 
 export default (windowFactory: CastWindowFactory) => {
-  ipcMain.on('cast:open', open);
-  ipcMain.on('cast:close', close);
-
+  ipcMain.on('cast:toggle', toggle);
   ipcMain.on('cast:updateGameState', forwardTo('onGameStateUpdate'));
   ipcMain.on('cast:updateGameSettings', forwardTo('onGameSettingsUpdate'));
   ipcMain.on('cast:updateLocale', forwardTo('onLocaleUpdate'));
@@ -17,14 +15,12 @@ export default (windowFactory: CastWindowFactory) => {
     return castWindow === undefined || castWindow.isDestroyed();
   }
 
-  function open() {
+  function toggle() {
     if (isCastWindowClosed()) {
       castWindow = windowFactory();
+    } else {
+      castWindow.close();
     }
-  }
-
-  function close() {
-    castWindow.close();
   }
 
   function forwardTo(name: string) {

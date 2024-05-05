@@ -65,8 +65,6 @@
           </template>
         </q-input>
 
-        {{ buzzerSettings.pointsCorrect }}
-
         <q-input
           :label="t('gameMode.buzzer.settings.field.pointsWrong.label')"
           :hint="t('gameMode.buzzer.settings.field.pointsWrong.hint')"

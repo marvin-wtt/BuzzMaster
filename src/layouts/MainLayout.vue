@@ -248,7 +248,6 @@ useBatterySavingStore();
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
 const muted = ref<boolean>(false);
-const castOpen = ref<boolean>(false);
 const expandSettings = ref<boolean>(false);
 
 const devMode = process.env.DEV ?? false;
@@ -340,22 +339,14 @@ function closeApp() {
 }
 
 function toggleCast() {
-  if (!castOpen.value) {
-    window.castAPI.open();
-
-    // Init states
-    // FIXME How can we improve this?
-    setTimeout(() => {
-      sendGameState(gameStore.state);
-      sendGameSettings(gameSettingsStore.gameSettings);
-      sendControllerNames(controllerNames.value);
-      window.castAPI.updateLocale(locale.value);
-    }, 1000);
-  } else {
-    window.castAPI.close();
-  }
-
-  castOpen.value = !castOpen.value;
+  window.castAPI.toggle();
+  // Send data in case it's the initial open
+  setTimeout(() => {
+    sendGameState(gameStore.state);
+    sendGameSettings(gameSettingsStore.gameSettings);
+    sendControllerNames(controllerNames.value);
+    window.castAPI.updateLocale(locale.value);
+  }, 1000);
 }
 
 const controllerNames = computed<Record<string, string>>(() => {

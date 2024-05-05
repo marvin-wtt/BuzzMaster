@@ -132,9 +132,12 @@ const barHeightPercentages = computed<BuzzerMap>(() => {
 
 const resultOptions = computed<BuzzerButton[]>(() => {
   // Red button as equivalent for not pressed
-  return buttonOccurrences.value[BuzzerButton.RED] === 0
-    ? quizSettings.activeButtons
-    : [...quizSettings.activeButtons, BuzzerButton.RED];
+  const options =
+    buttonOccurrences.value[BuzzerButton.RED] === 0
+      ? quizSettings.activeButtons
+      : [...quizSettings.activeButtons, BuzzerButton.RED];
+
+  return options.sort();
 });
 
 const mode = computed<string>(() => {

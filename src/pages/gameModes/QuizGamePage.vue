@@ -6,11 +6,16 @@
     <div class="col-12 column no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
-        <quiz-result
-          v-if="gameState.name === 'completed'"
-          :controllers-by-button="controllersByButton"
-          data-testid="result"
-        />
+        <template v-if="gameState.name === 'completed'">
+          <quiz-result-table
+            v-if="quizSettings.resultMode === 'table'"
+            :controllers-by-button="controllersByButton"
+          />
+          <quiz-result-bar-chart
+            v-else-if="quizSettings.resultMode === 'bar'"
+            :controllers-by-button="controllersByButton"
+          />
+        </template>
         <div
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
@@ -86,6 +91,7 @@
             <quiz-scoreboard-buttons
               v-if="showScoreboardActions"
               :controller-values="controllersByButton"
+              @update="onScored"
             />
 
             <q-separator />
@@ -139,7 +145,6 @@ import TimerAnimated from 'components/TimerAnimated.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
-import QuizResult from 'components/gameModes/quiz/QuizResult.vue';
 import QuizScoreboardButtons from 'components/gameModes/quiz/QuizScoreboardButtons.vue';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
@@ -163,6 +168,8 @@ import {
 import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
 import AudioBeep from 'components/AudioBeep.vue';
+import QuizResultTable from 'components/gameModes/quiz/QuizResultTable.vue';
+import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
 
 const { t } = useI18n();
 const quasar = useQuasar();
@@ -427,6 +434,18 @@ const restart = transition(['running', 'completed'], () => {
     name: 'preparing',
   };
 });
+
+const onScored = transition(
+  'completed',
+  (state, correct: BuzzerButton[] | undefined) => {
+    return {
+      game: 'quiz',
+      name: 'completed',
+      result: state.result,
+      correct,
+    };
+  },
+);
 
 const quickPlay = () => {
   restart();

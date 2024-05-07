@@ -1,5 +1,5 @@
 <template>
-  <div class="column justify-center">
+  <div class="column justify-center col-11">
     <div class="text-center text-h1 q-pa-lg">
       {{ t('cast.buzzer.preparing.title') }}
     </div>

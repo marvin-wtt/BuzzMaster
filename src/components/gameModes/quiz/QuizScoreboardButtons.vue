@@ -31,6 +31,10 @@ const props = defineProps<{
   controllerValues: Record<BuzzerButton, IController[] | undefined>;
 }>();
 
+const emit = defineEmits<{
+  (e: 'update', correct: BuzzerButton[] | undefined): void;
+}>();
+
 let audioPlayed = false;
 const audioCorrect = new Audio('sounds/answer-correct.mp3');
 
@@ -71,6 +75,11 @@ const updateButtonScore = (button: BuzzerButton): void => {
       scoreboardStore.addPoints(controller.id, quizSettings.pointsWrong * -1);
     });
   }
+
+  emit(
+    'update',
+    correctAnswers.value.size === 0 ? undefined : [...correctAnswers.value],
+  );
 
   playAudio();
 };

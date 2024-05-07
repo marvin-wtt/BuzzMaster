@@ -9,6 +9,8 @@
       v-if="showAppBar"
       class="bg-grey"
       elevated
+      @mouseenter="onMouseEnter"
+      @mouseleave="onMouseLeave"
     >
       <q-bar class="q-electron-drag">
         Cast
@@ -29,7 +31,7 @@
           flat
           rounded
           icon="visibility_off"
-          @click.stop="transparent"
+          @click.stop="setTransparent"
         />
 
         <q-btn
@@ -64,9 +66,11 @@ window.castAPI.onLocaleUpdate(castStore.updateLocale);
 window.castAPI.onControllerUpdate(castStore.updateControllers);
 
 const showAppBar = ref<boolean>(true);
+const transparent = ref<boolean>(false);
+const mouseOverMenu = ref<boolean>(false);
 
 const layoutClass = computed<string | undefined>(() => {
-  return showAppBar.value ? 'layout' : undefined;
+  return transparent.value ? undefined : 'layout';
 });
 
 const darkMode = computed<boolean>(() => {
@@ -75,18 +79,30 @@ const darkMode = computed<boolean>(() => {
 
 function onFocus() {
   showAppBar.value = true;
+  transparent.value = false;
 }
 
 function onBlur() {
-  // TODO
-  //showAppBar.value = false;
+  if (mouseOverMenu.value) {
+    return;
+  }
+  showAppBar.value = false;
+}
+
+function onMouseEnter() {
+  mouseOverMenu.value = true;
+}
+
+function onMouseLeave() {
+  mouseOverMenu.value = false;
 }
 
 function closeWindow() {
   window.windowAPI.close();
 }
 
-function transparent() {
+function setTransparent() {
+  transparent.value = true;
   showAppBar.value = false;
 }
 </script>
@@ -97,11 +113,11 @@ body.body--dark {
 }
 
 body.body--light .layout {
-  background: #000;
+  background: #fff;
 }
 
-body.body--light .layout {
-  background: #fff;
+body.body--dark .layout {
+  background: var(--q-dark-page) !important;
 }
 
 .layout:focus {

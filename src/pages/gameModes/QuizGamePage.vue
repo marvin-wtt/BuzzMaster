@@ -89,7 +89,6 @@
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <quiz-scoreboard-buttons
-              v-if="showScoreboardActions"
               :controller-values="controllersByButton"
               @update="onScored"
             />
@@ -246,10 +245,6 @@ const controllersByButton = computed<
     },
     {} as Record<BuzzerButton, IController[]>,
   );
-});
-
-const showScoreboardActions = computed<boolean>(() => {
-  return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;
 });
 
 // Order of buttons

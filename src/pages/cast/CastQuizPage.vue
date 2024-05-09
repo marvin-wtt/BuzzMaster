@@ -8,7 +8,10 @@
       v-else-if="state.name === 'running'"
       :state="state"
     />
-    <template v-else-if="state.name === 'completed'" />
+    <quiz-completed-cast
+      v-else-if="state.name === 'completed'"
+      :state="state"
+    />
   </q-page>
 </template>
 
@@ -19,6 +22,7 @@ import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
 import { QuizState } from 'app/common/gameState/QuizState';
 import QuizRunningCast from 'components/cast/quiz/QuizRunningCast.vue';
+import QuizCompletedCast from 'components/cast/quiz/QuizCompletedCast.vue';
 
 const castStore = useCastStore();
 

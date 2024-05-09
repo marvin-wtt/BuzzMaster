@@ -22,5 +22,7 @@ export default {
 
   running: {},
 
-  completed: {},
+  completed: {
+    points: 'Points',
+  },
 };

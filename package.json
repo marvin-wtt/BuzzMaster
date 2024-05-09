@@ -50,7 +50,7 @@
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.8.0",
     "@vitest/ui": "^1.6.0",
-    "@vue/test-utils": "^2.4.4",
+    "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.19",
     "electron": "^30.0.2",
     "electron-builder": "^24.13.3",

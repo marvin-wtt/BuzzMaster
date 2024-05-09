@@ -1,6 +1,6 @@
 <template>
   <div class="col-grow column justify-around">
-    <transition-group name="slide">
+    <transition-group name="bounce">
       <cross-check
         key="cross-check"
         :style="{ width: symbolWidth + '%' }"
@@ -95,17 +95,38 @@ const buzzerButtonBgColor = {
   border-radius: 50px;
 }
 
+.slide-move,
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform 0.5s ease-in-out;
+  transition: all 2s ease;
 }
 
-.slide-enter,
+.slide-enter-from,
 .slide-leave-to {
-  transform: translateY(100%);
+  opacity: 0;
 }
 
 .slide-leave-active {
   position: absolute;
+}
+
+.bounce-leave-active {
+  transition: opacity 1ms step-start;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

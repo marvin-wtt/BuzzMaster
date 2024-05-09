@@ -13,6 +13,7 @@
       @mouseleave="onMouseLeave"
     >
       <q-bar class="q-electron-drag">
+        <!-- TODO i18n -->
         Cast
 
         <q-space />

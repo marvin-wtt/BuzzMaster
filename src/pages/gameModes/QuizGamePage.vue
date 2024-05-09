@@ -10,10 +10,12 @@
           <quiz-result-table
             v-if="quizSettings.resultMode === 'table'"
             :controllers-by-button="controllersByButton"
+            data-testid="result"
           />
           <quiz-result-bar-chart
             v-else-if="quizSettings.resultMode === 'bar'"
             :controllers-by-button="controllersByButton"
+            data-testid="result"
           />
         </template>
         <div

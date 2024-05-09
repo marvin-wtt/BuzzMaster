@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.11",
-    "electron-log": "^5.1.2",
+    "electron-log": "^5.1.4",
     "electron-updater": "^6.1.8",
     "events": "^3.3.0",
     "pinia": "^2.1.7",

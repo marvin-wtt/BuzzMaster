@@ -20,6 +20,11 @@ const routes: RouteRecordRaw[] = [
         name: 'cast-quiz',
         component: () => import('pages/cast/CastQuizPage.vue'),
       },
+      {
+        path: 'stopwatch',
+        name: 'cast-stopwatch',
+        component: () => import('pages/cast/CastStopwatchPage.vue'),
+      },
     ],
   },
   {

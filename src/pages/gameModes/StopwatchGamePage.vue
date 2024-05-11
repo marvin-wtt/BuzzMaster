@@ -169,6 +169,7 @@
           <stopwatch-scoreboard-button
             :label="t('gameMode.stopwatch.action.scores')"
             :result="result"
+            @update="onScore"
           />
 
           <q-separator />
@@ -284,7 +285,9 @@ const result = computed<StopwatchEntry[]>(() => {
     })
     .map((controller): StopwatchEntry => {
       const time =
-        controller.id in state.result ? state.result[controller.id] : undefined;
+        controller.id in state.result
+          ? state.result[controller.id] ?? undefined
+          : undefined;
 
       return {
         controller,
@@ -373,13 +376,13 @@ const resume = transition('paused', (state) => {
 });
 
 const stop = transition('paused', (state) => {
-  const result: Record<string, number | undefined> = state.result;
+  const result: Record<string, number | null> = state.result;
   for (const controller of controllers.value) {
     if (controller.id in result) {
       continue;
     }
 
-    result[controller.id] = undefined;
+    result[controller.id] = null;
   }
 
   return {
@@ -450,11 +453,25 @@ const removeController = createEvent([
       time: state.time,
       result: {
         ...state.result,
-        [controller.id]: undefined,
+        [controller.id]: null,
       },
+      points: state.points,
     };
   }),
 ]);
+
+const onScore = transition(
+  'completed',
+  (state, points: Record<string, number | undefined>) => {
+    return {
+      game: 'stopwatch',
+      name: 'completed',
+      result: state.result,
+      time: state.time,
+      points,
+    };
+  },
+);
 
 const avatarColor = (index: number) => {
   switch (index) {

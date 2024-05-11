@@ -18,11 +18,17 @@ import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 const quasar = useQuasar();
 const scoreboardStore = useScoreboardStore();
 
-let scores: Record<string, number | undefined> = {};
+type PointRecord = Record<string, number | undefined>;
+
+let scores: PointRecord = {};
 
 const props = defineProps<{
   label: string | undefined;
   result: StopwatchEntry[];
+}>();
+
+const emit = defineEmits<{
+  (e: 'update', points: PointRecord): void;
 }>();
 
 const updateScores = () => {
@@ -34,7 +40,7 @@ const updateScores = () => {
         scores,
       },
     })
-    .onOk((updatedScores: Record<string, number | undefined>) => {
+    .onOk((updatedScores: PointRecord) => {
       // Refund previous points
       for (const controllerId in scores) {
         const points = scores[controllerId];
@@ -54,6 +60,8 @@ const updateScores = () => {
 
         scoreboardStore.addPoints(controllerId, points);
       }
+
+      emit('update', updatedScores);
 
       scores = updatedScores;
     });

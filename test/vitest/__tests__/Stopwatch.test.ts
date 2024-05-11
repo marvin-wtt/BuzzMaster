@@ -463,7 +463,7 @@ describe('StopwatchPage', () => {
         time: 10.1,
         result: {
           [deviceApi.getController(0).id]: 5.2,
-          [deviceApi.getController(1).id]: undefined,
+          [deviceApi.getController(1).id]: null,
         },
       });
       await nextTick();

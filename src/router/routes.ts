@@ -13,17 +13,17 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'buzzer',
         name: 'cast-buzzer',
-        component: () => import('pages/cast/CastBuzzerPage.vue'),
+        component: () => import('pages/cast/BuzzerCastPage.vue'),
       },
       {
         path: 'quiz',
         name: 'cast-quiz',
-        component: () => import('pages/cast/CastQuizPage.vue'),
+        component: () => import('pages/cast/QuizCastPage.vue'),
       },
       {
         path: 'stopwatch',
         name: 'cast-stopwatch',
-        component: () => import('pages/cast/CastStopwatchPage.vue'),
+        component: () => import('pages/cast/StopwatchCastPage.vue'),
       },
     ],
   },

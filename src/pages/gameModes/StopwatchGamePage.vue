@@ -169,7 +169,7 @@
           <stopwatch-leaderboard-button
             :label="t('gameMode.stopwatch.action.points')"
             :result="result"
-            @update="onScore"
+            @update="onPointsUpdate"
           />
 
           <q-separator />
@@ -460,7 +460,7 @@ const removeController = createEvent([
   }),
 ]);
 
-const onScore = transition(
+const onPointsUpdate = transition(
   'completed',
   (state, points: Record<string, number | undefined>) => {
     return {

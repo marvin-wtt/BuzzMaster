@@ -13,7 +13,7 @@ export default {
 
     field: {
       label: 'Points',
-      hint: 'New points: {score}',
+      hint: 'New points: {points}',
     },
 
     rule: {

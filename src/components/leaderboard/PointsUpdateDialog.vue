@@ -21,7 +21,7 @@
         <q-input
           v-model="inputValue"
           :label="t('leaderboard.update.field.label')"
-          :hint="t('leaderboard.update.field.hint', { score: roundedScore })"
+          :hint="t('leaderboard.update.field.hint', { points: roundedPoints })"
           :prefix="inputPrefix"
           outlined
           rounded
@@ -131,7 +131,7 @@ const operand = computed<Operand | undefined>(() => {
   return op as Operand;
 });
 
-const resultingScore = computed<number | undefined>(() => {
+const resultingPoints = computed<number | undefined>(() => {
   if (replaceMode.value) {
     return numericInput.value;
   }
@@ -155,9 +155,9 @@ const resultingScore = computed<number | undefined>(() => {
   }
 });
 
-const roundedScore = computed<number | undefined>(() => {
-  return resultingScore.value !== undefined
-    ? round(resultingScore.value)
+const roundedPoints = computed<number | undefined>(() => {
+  return resultingPoints.value !== undefined
+    ? round(resultingPoints.value)
     : undefined;
 });
 const toggleUpdateMode = () => {
@@ -169,7 +169,7 @@ const round = (n: number): number => {
 };
 
 const submit = () => {
-  onDialogOK(roundedScore.value ?? props.entry.value);
+  onDialogOK(roundedPoints.value ?? props.entry.value);
 };
 </script>
 

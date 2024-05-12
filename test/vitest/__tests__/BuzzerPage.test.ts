@@ -317,7 +317,7 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
-    it.todo('should transition to answered on score');
+    it.todo('should transition to answered on points update');
 
     describe.todo('points');
   });
@@ -389,10 +389,10 @@ describe('BuzzerPage', () => {
       expect(buttons[0].props().disable).to.be.true;
     });
 
-    it.todo('should update the score');
+    it.todo('should update the points');
 
     it.todo('should disable continue button when answer is correct');
 
-    it.todo('should transition to answering and score is de-selected');
+    it.todo('should transition to answering and points is de-selected');
   });
 });

@@ -94,7 +94,7 @@
           <!-- Leaderboard -->
           <buzzer-leaderboard-buttons
             :controller="findControllerById(gameState.controller)"
-            @update="onScored"
+            @update="onPointsUpdate"
           />
 
           <div class="q-pt-md">
@@ -286,7 +286,7 @@ onStateExit('answering', () => {
   buzzer.reset();
 });
 
-const onScored = transition(
+const onPointsUpdate = transition(
   ['answering', 'answered'],
   (state, correct: boolean | undefined, points: number | undefined) => {
     if (correct !== undefined && points !== undefined) {

@@ -92,7 +92,7 @@
           >
             <quiz-leaderboard-buttons
               :controller-values="controllersByButton"
-              @update="onScored"
+              @update="onPointsUpdate"
             />
 
             <q-separator />
@@ -432,7 +432,7 @@ const restart = transition(['running', 'completed'], () => {
   };
 });
 
-const onScored = transition(
+const onPointsUpdate = transition(
   'completed',
   (state, correct: BuzzerButton[] | undefined) => {
     return {

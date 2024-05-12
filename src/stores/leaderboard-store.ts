@@ -25,10 +25,10 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
       .sort((a, b) => b.value - a.value);
 
     // Set the position for each element
-    entries.forEach((score, index) => {
+    entries.forEach((entry, index) => {
       // Same position for entries with same value
-      score.position =
-        index === 0 || score.value !== entries[index - 1].value
+      entry.position =
+        index === 0 || entry.value !== entries[index - 1].value
           ? index + 1
           : entries[index - 1].position;
     });

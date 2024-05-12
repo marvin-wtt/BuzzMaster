@@ -49,12 +49,12 @@
             <q-icon name="check" />
           </q-item-section>
           <q-item-section>
-            {{ t('cast.quiz.preparing.settings.score.correct') }}
+            {{ t('cast.quiz.preparing.settings.leaderboard.correct') }}
           </q-item-section>
           <q-item-section side>
             {{
               t(
-                'cast.quiz.preparing.settings.score.points',
+                'cast.quiz.preparing.settings.leaderboard.points',
                 settings.pointsCorrect,
               )
             }}
@@ -65,12 +65,12 @@
             <q-icon name="close" />
           </q-item-section>
           <q-item-section>
-            {{ t('cast.buzzer.preparing.settings.score.wrong') }}
+            {{ t('cast.buzzer.preparing.settings.leaderboard.wrong') }}
           </q-item-section>
           <q-item-section side>
             {{
               t(
-                'cast.buzzer.preparing.settings.score.points',
+                'cast.buzzer.preparing.settings.leaderboard.points',
                 settings.pointsWrong,
               )
             }}

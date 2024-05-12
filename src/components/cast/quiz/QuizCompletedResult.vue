@@ -11,7 +11,7 @@
       <div
         v-if="props.showResult"
         key="result"
-        class="q-gutter-lg score-info"
+        class="q-gutter-lg points-info"
       >
         <div
           class="text-h2 font-bold text-center points"
@@ -82,7 +82,7 @@ const buzzerButtonBgColor = {
     transform 0.5s ease-in-out;
 }
 
-.score-info {
+.points-info {
   transition-delay: 0.5s;
   transition:
     width 0.5s ease-in-out,

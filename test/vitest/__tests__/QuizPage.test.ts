@@ -772,6 +772,6 @@ describe('QuizPage', () => {
       });
     });
 
-    describe.todo('score');
+    describe.todo('points');
   });
 });

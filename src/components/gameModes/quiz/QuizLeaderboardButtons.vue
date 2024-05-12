@@ -8,7 +8,7 @@
       round
       style="border-width: 20px"
       :outline="!correctAnswers.has(button)"
-      @click="updateButtonScore(button)"
+      @click="updateButtonPoints(button)"
     />
   </div>
 </template>
@@ -41,7 +41,7 @@ onBeforeMount(() => {
   audioCorrect.load();
 });
 
-const updateButtonScore = (button: BuzzerButton): void => {
+const updateButtonPoints = (button: BuzzerButton): void => {
   // No button was preciously pressed, so we assume all answers are wrong.
   // Points for correct answers are refunded later
   if (correctAnswers.value.size === 0) {

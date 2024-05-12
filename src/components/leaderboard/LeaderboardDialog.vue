@@ -18,7 +18,7 @@
             :key="entry.id"
             clickable
             v-ripple
-            @click="updateScore(entry)"
+            @click="updatePoints(entry)"
           >
             <q-item-section avatar>
               <q-avatar
@@ -71,7 +71,7 @@ import {
   useLeaderboardStore,
 } from 'stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
-import ScoreUpdateDialog from 'components/leaderboard/ScoreUpdateDialog.vue';
+import PointsUpdateDialog from 'components/leaderboard/PointsUpdateDialog.vue';
 import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
@@ -82,10 +82,10 @@ const quasar = useQuasar();
 const leaderboardStore = useLeaderboardStore();
 const { leaderboard } = storeToRefs(leaderboardStore);
 
-const updateScore = (entry: LeaderboardEntry) => {
+const updatePoints = (entry: LeaderboardEntry) => {
   quasar
     .dialog({
-      component: ScoreUpdateDialog,
+      component: PointsUpdateDialog,
       componentProps: {
         entry,
       },

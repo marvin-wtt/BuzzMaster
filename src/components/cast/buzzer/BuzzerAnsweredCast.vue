@@ -10,7 +10,7 @@
       <div
         v-if="showPoints"
         key="check"
-        class="score-info column"
+        class="points-info column"
       >
         <div
           class="text-h3 text-center q-py-md"
@@ -74,7 +74,7 @@ setTimeout(() => {
 
 <style scoped>
 .check-cross,
-.score-info {
+.points-info {
   transition:
     width 0.5s ease-in-out,
     transform 0.5s ease-in-out;

@@ -12,7 +12,7 @@ export default {
         },
       },
       answerTime: 'Answer time',
-      score: {
+      leaderboard: {
         correct: 'Correct',
         wrong: 'Wrong',
         points: '{n} pts.',

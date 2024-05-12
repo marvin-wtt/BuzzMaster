@@ -5,7 +5,7 @@ export default {
     settings: {
       attempts: 'Attempts',
       answerTime: 'Answer time',
-      score: {
+      leaderboard: {
         correct: 'Correct',
         wrong: 'Wrong',
         points: '{n} pts.',

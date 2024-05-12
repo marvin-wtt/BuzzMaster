@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import StopwatchScoreDialog from 'components/gameModes/stopwatch/StopwatchScoreDialog.vue';
+import StopwatchPointsDialog from 'components/gameModes/stopwatch/StopwatchPointsDialog.vue';
 import { useQuasar } from 'quasar';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
@@ -34,7 +34,7 @@ const emit = defineEmits<{
 const updatePoints = () => {
   quasar
     .dialog({
-      component: StopwatchScoreDialog,
+      component: StopwatchPointsDialog,
       componentProps: {
         result: props.result,
         points: grantedPoints,

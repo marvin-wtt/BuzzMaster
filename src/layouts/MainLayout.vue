@@ -32,13 +32,13 @@
           type="animation"
         >
           <q-btn
-            aria-label="Show scoreboard"
-            key="scoreboard"
+            aria-label="Show leaderboard"
+            key="leaderboard"
             dense
             flat
             rounded
             icon="emoji_events"
-            @click="showScoreboard"
+            @click="showLeaderboard"
           />
 
           <q-btn
@@ -228,7 +228,7 @@ import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
-import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
+import LeaderboardDialog from 'components/leaderboard/LeaderboardDialog.vue';
 import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 import { useGameStore } from 'stores/game-store';
@@ -317,9 +317,9 @@ function togglePin() {
   pinned.value = !pinned.value;
 }
 
-function showScoreboard() {
+function showLeaderboard() {
   quasar.dialog({
-    component: ScoreboardDialog,
+    component: LeaderboardDialog,
   });
 }
 

@@ -5,22 +5,22 @@
     color="grey"
     class="self-center"
     rounded
-    @click="updateScores()"
+    @click="updatePoints()"
   />
 </template>
 
 <script lang="ts" setup>
 import StopwatchScoreDialog from 'components/gameModes/stopwatch/StopwatchScoreDialog.vue';
 import { useQuasar } from 'quasar';
-import { useScoreboardStore } from 'stores/scoreboard-store';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 
 const quasar = useQuasar();
-const scoreboardStore = useScoreboardStore();
+const leaderboardStore = useLeaderboardStore();
 
 type PointRecord = Record<string, number | undefined>;
 
-let scores: PointRecord = {};
+let grantedPoints: PointRecord = {};
 
 const props = defineProps<{
   label: string | undefined;
@@ -31,39 +31,39 @@ const emit = defineEmits<{
   (e: 'update', points: PointRecord): void;
 }>();
 
-const updateScores = () => {
+const updatePoints = () => {
   quasar
     .dialog({
       component: StopwatchScoreDialog,
       componentProps: {
         result: props.result,
-        scores,
+        points: grantedPoints,
       },
     })
-    .onOk((updatedScores: PointRecord) => {
+    .onOk((updatedPoints: PointRecord) => {
       // Refund previous points
-      for (const controllerId in scores) {
-        const points = scores[controllerId];
+      for (const controllerId in grantedPoints) {
+        const points = grantedPoints[controllerId];
         if (points === undefined) {
           continue;
         }
 
-        scoreboardStore.addPoints(controllerId, points * -1);
+        leaderboardStore.addPoints(controllerId, points * -1);
       }
 
       // Update points
-      for (const controllerId in updatedScores) {
-        const points = updatedScores[controllerId];
+      for (const controllerId in updatedPoints) {
+        const points = updatedPoints[controllerId];
         if (points === undefined) {
           continue;
         }
 
-        scoreboardStore.addPoints(controllerId, points);
+        leaderboardStore.addPoints(controllerId, points);
       }
 
-      emit('update', updatedScores);
+      emit('update', updatedPoints);
 
-      scores = updatedScores;
+      grantedPoints = updatedPoints;
     });
 };
 </script>

@@ -90,7 +90,7 @@
             v-else-if="gameState.name === 'completed'"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
-            <quiz-scoreboard-buttons
+            <quiz-leaderboard-buttons
               :controller-values="controllersByButton"
               @update="onScored"
             />
@@ -146,7 +146,7 @@ import TimerAnimated from 'components/TimerAnimated.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
-import QuizScoreboardButtons from 'components/gameModes/quiz/QuizScoreboardButtons.vue';
+import QuizLeaderboardButtons from 'components/gameModes/quiz/QuizLeaderboardButtons.vue';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';

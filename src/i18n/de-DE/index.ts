@@ -1,6 +1,6 @@
 import gameMode from './gameMode';
 import devices from './devices';
-import scoreboard from './scoreboard';
+import leaderboard from './leaderboard';
 import batterySaving from './batterySaving';
 
 export default {
@@ -14,5 +14,5 @@ export default {
   batterySaving,
   devices,
   gameMode,
-  scoreboard,
+  leaderboard,
 };

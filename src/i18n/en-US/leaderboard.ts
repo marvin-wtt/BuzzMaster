@@ -1,5 +1,5 @@
 export default {
-  title: 'Scoreboard',
+  title: 'Leaderboard',
 
   noEntries: 'No active buzzer available!',
 
@@ -12,8 +12,8 @@ export default {
     title: 'Update {name}',
 
     field: {
-      label: 'Score',
-      hint: 'New score: {score}',
+      label: 'Points',
+      hint: 'New points: {score}',
     },
 
     rule: {
@@ -29,7 +29,7 @@ export default {
   },
 
   reset: {
-    title: 'Reset Scores',
+    title: 'Reset Points',
     message: 'Do you want to reset all points for all controllers?',
 
     action: {

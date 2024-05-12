@@ -2,20 +2,20 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 
-export type Score = {
+export type LeaderboardEntry = {
   id: string;
   name: string;
   value: number;
   position: number;
 };
 
-export const useScoreboardStore = defineStore('scoreboard', () => {
+export const useLeaderboardStore = defineStore('leaderboard', () => {
   const { controllers } = useBuzzer();
 
   const points = ref<Record<string, number>>({});
 
-  const scores = computed<Score[]>(() => {
-    const scores = controllers.value
+  const leaderboard = computed<LeaderboardEntry[]>(() => {
+    const entries = controllers.value
       .map((controller) => ({
         id: controller.id,
         name: controller.name,
@@ -25,15 +25,15 @@ export const useScoreboardStore = defineStore('scoreboard', () => {
       .sort((a, b) => b.value - a.value);
 
     // Set the position for each element
-    scores.forEach((score, index) => {
+    entries.forEach((score, index) => {
       // Same position for entries with same value
       score.position =
-        index === 0 || score.value !== scores[index - 1].value
+        index === 0 || score.value !== entries[index - 1].value
           ? index + 1
-          : scores[index - 1].position;
+          : entries[index - 1].position;
     });
 
-    return scores;
+    return entries;
   });
 
   const addPoints = (controllerId: string, p: number) => {
@@ -50,7 +50,7 @@ export const useScoreboardStore = defineStore('scoreboard', () => {
   };
 
   return {
-    scores,
+    leaderboard,
     addPoints,
     updatePoints,
     resetPoints,
@@ -58,5 +58,5 @@ export const useScoreboardStore = defineStore('scoreboard', () => {
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useScoreboardStore, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useLeaderboardStore, import.meta.hot));
 }

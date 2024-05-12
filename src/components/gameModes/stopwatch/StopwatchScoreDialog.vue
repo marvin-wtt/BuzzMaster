@@ -8,7 +8,7 @@
       style="min-width: 350px; width: 400px"
     >
       <q-card-section class="text-center text-h5">
-        {{ t('gameMode.stopwatch.scores.title') }}
+        {{ t('gameMode.stopwatch.points.title') }}
       </q-card-section>
 
       <q-card-section>
@@ -42,8 +42,8 @@
 
             <q-item-section side>
               <q-input
-                v-model.number="updatedScores[entry.controller.id]"
-                :label="t('gameMode.stopwatch.scores.field')"
+                v-model.number="updatedPoints[entry.controller.id]"
+                :label="t('gameMode.stopwatch.leaderboard.field')"
                 type="number"
                 outlined
                 rounded
@@ -58,7 +58,7 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('gameMode.stopwatch.scores.action.ok')"
+          :label="t('gameMode.stopwatch.leaderboard.action.ok')"
           color="primary"
           rounded
           @click="onSave"
@@ -79,11 +79,11 @@ const { t } = useI18n();
 
 const props = defineProps<{
   result: StopwatchEntry[];
-  scores: Record<string, number | undefined>;
+  points: Record<string, number | undefined>;
 }>();
 
-const updatedScores = ref<Record<string, number | undefined>>(
-  structuredClone(toRaw(props.scores)),
+const updatedPoints = ref<Record<string, number | undefined>>(
+  structuredClone(toRaw(props.points)),
 );
 
 defineEmits([...useDialogPluginComponent.emits]);
@@ -102,7 +102,7 @@ const avatarColor = (index: number) => {
 };
 
 const onSave = () => {
-  onDialogOK(updatedScores.value);
+  onDialogOK(updatedPoints.value);
 };
 </script>
 

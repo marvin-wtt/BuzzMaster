@@ -91,8 +91,8 @@
           "
           class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 justify-center q-col-gutter-y-sm"
         >
-          <!-- Scoreboard -->
-          <buzzer-scoreboard-buttons
+          <!-- Leaderboard -->
+          <buzzer-leaderboard-buttons
             :controller="findControllerById(gameState.controller)"
             @update="onScored"
           />
@@ -161,7 +161,7 @@
 </template>
 
 <script lang="ts" setup>
-import BuzzerScoreboardButtons from 'components/gameModes/buzzer/BuzzerScoreboardButtons.vue';
+import BuzzerLeaderboardButtons from 'components/gameModes/buzzer/BuzzerLeaderboardButtons.vue';
 import BuzzerSettingsDialog from 'components/gameModes/buzzer/BuzzerSettingsDialog.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';

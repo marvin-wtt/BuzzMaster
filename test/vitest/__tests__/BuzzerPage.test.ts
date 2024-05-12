@@ -319,7 +319,7 @@ describe('BuzzerPage', () => {
 
     it.todo('should transition to answered on score');
 
-    describe.todo('scores');
+    describe.todo('points');
   });
 
   describe('answered', () => {

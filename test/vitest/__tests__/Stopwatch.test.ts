@@ -547,6 +547,6 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
-    describe.todo('scores');
+    describe.todo('points');
   });
 });

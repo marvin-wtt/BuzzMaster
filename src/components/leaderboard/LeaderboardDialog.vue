@@ -8,53 +8,53 @@
       style="min-width: 350px; width: 400px"
     >
       <q-card-section class="text-center text-h5">
-        {{ t('scoreboard.title') }}
+        {{ t('leaderboard.title') }}
       </q-card-section>
 
-      <q-card-section v-if="scores.length > 0">
+      <q-card-section v-if="leaderboard.length > 0">
         <q-list>
           <q-item
-            v-for="score in scores"
-            :key="score.id"
+            v-for="entry in leaderboard"
+            :key="entry.id"
             clickable
             v-ripple
-            @click="updateScore(score)"
+            @click="updateScore(entry)"
           >
             <q-item-section avatar>
               <q-avatar
-                :color="avatarColor(score.position)"
+                :color="avatarColor(entry.position)"
                 text-color="white"
                 size="sm"
               >
-                {{ score.position }}
+                {{ entry.position }}
               </q-avatar>
             </q-item-section>
 
             <q-item-section class="ellipsis">
-              {{ score.name }}
+              {{ entry.name }}
             </q-item-section>
 
             <q-item-section side>
-              {{ score.value }}
+              {{ entry.value }}
             </q-item-section>
           </q-item>
         </q-list>
       </q-card-section>
 
       <q-card-section v-else>
-        {{ t('scoreboard.noEntries') }}
+        {{ t('leaderboard.noEntries') }}
       </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('scoreboard.action.reset')"
+          :label="t('leaderboard.action.reset')"
           color="primary"
           rounded
           outline
           @click="onResetPoints"
         />
         <q-btn
-          :label="t('scoreboard.action.ok')"
+          :label="t('leaderboard.action.ok')"
           color="primary"
           rounded
           @click="onDialogOK"
@@ -66,9 +66,12 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent, useQuasar } from 'quasar';
-import { Score, useScoreboardStore } from 'stores/scoreboard-store';
+import {
+  LeaderboardEntry,
+  useLeaderboardStore,
+} from 'stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
-import ScoreUpdateDialog from 'components/scoreboard/ScoreUpdateDialog.vue';
+import ScoreUpdateDialog from 'components/leaderboard/ScoreUpdateDialog.vue';
 import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);
@@ -76,41 +79,41 @@ defineEmits([...useDialogPluginComponent.emits]);
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 const quasar = useQuasar();
-const scoreboardStore = useScoreboardStore();
-const { scores } = storeToRefs(scoreboardStore);
+const leaderboardStore = useLeaderboardStore();
+const { leaderboard } = storeToRefs(leaderboardStore);
 
-const updateScore = (score: Score) => {
+const updateScore = (entry: LeaderboardEntry) => {
   quasar
     .dialog({
       component: ScoreUpdateDialog,
       componentProps: {
-        score,
+        entry,
       },
     })
     .onOk((payload) => {
-      scoreboardStore.updatePoints(score.id, payload);
+      leaderboardStore.updatePoints(entry.id, payload);
     });
 };
 
 const onResetPoints = () => {
   quasar
     .dialog({
-      title: t('scoreboard.reset.title'),
-      message: t('scoreboard.reset.message'),
+      title: t('leaderboard.reset.title'),
+      message: t('leaderboard.reset.message'),
       ok: {
-        label: t('scoreboard.reset.action.ok'),
+        label: t('leaderboard.reset.action.ok'),
         color: 'negative',
         rounded: true,
       },
       cancel: {
-        label: t('scoreboard.reset.action.cancel'),
+        label: t('leaderboard.reset.action.cancel'),
         color: 'primary',
         rounded: true,
         outline: true,
       },
     })
     .onOk(() => {
-      scoreboardStore.resetPoints();
+      leaderboardStore.resetPoints();
     });
 };
 

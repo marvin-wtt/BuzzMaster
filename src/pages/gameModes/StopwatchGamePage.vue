@@ -166,8 +166,8 @@
         </div>
 
         <template v-else-if="gameState.name === 'completed'">
-          <stopwatch-scoreboard-button
-            :label="t('gameMode.stopwatch.action.scores')"
+          <stopwatch-leaderboard-button
+            :label="t('gameMode.stopwatch.action.points')"
             :result="result"
             @update="onScore"
           />
@@ -210,7 +210,7 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
-import StopwatchScoreboardButton from 'components/gameModes/stopwatch/StopwatchScoreboardButton.vue';
+import StopwatchLeaderboardButton from 'components/gameModes/stopwatch/StopwatchLeaderboardButton.vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useQuasar } from 'quasar';
 import {

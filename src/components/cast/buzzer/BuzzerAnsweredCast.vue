@@ -8,7 +8,7 @@
         :mode="symbol"
       />
       <div
-        v-if="showScores"
+        v-if="showPoints"
         key="check"
         class="score-info column"
       >
@@ -47,7 +47,7 @@ const props = defineProps<{
   state: BuzzerAnsweredState;
 }>();
 
-const showScores = ref<boolean>(false);
+const showPoints = ref<boolean>(false);
 const checkWidth = ref<number>(100);
 
 const pointsClass = computed<string>(() => {
@@ -67,7 +67,7 @@ const symbol = computed<'check' | 'cross'>(() => {
 });
 
 setTimeout(() => {
-  showScores.value = true;
+  showPoints.value = true;
   checkWidth.value = 75;
 }, 2000);
 </script>

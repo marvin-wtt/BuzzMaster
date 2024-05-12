@@ -235,6 +235,10 @@ import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { GameSettings } from 'app/common/gameSettings';
+import {
+  LeaderboardEntry,
+  useLeaderboardStore,
+} from 'stores/leaderboard-store';
 
 const router = useRouter();
 const route = useRoute();
@@ -243,6 +247,7 @@ const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
+const leaderboardStore = useLeaderboardStore();
 useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
@@ -345,6 +350,7 @@ function toggleCast() {
     sendGameState(gameStore.state);
     sendGameSettings(gameSettingsStore.gameSettings);
     sendControllerNames(controllerNames.value);
+    sendLeaderboard(leaderboardStore.leaderboard);
     window.castAPI.updateLocale(locale.value);
   }, 1000);
 }
@@ -367,18 +373,26 @@ watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
 watch(() => gameStore.state, sendGameState);
 watch(gameSettingsStore.gameSettings, sendGameSettings);
 watch(controllerNames, sendControllerNames);
+watch(leaderboardStore.leaderboard, sendLeaderboard);
 
 function sendGameState(state: GameState | undefined) {
-  const value =
-    state !== undefined ? JSON.parse(JSON.stringify(state)) : undefined;
-
-  window.castAPI.updateGameState(value);
+  window.castAPI.updateGameState(toValue(state));
 }
 
 function sendGameSettings(settings: GameSettings) {
-  const value = JSON.parse(JSON.stringify(settings));
+  window.castAPI.updateGameSettings(toValue(settings));
+}
 
-  window.castAPI.updateGameSettings(value);
+function sendLeaderboard(entries: LeaderboardEntry[]) {
+  window.castAPI.updateLeaderboard(toValue(entries));
+}
+
+function toValue<T>(value: T): T {
+  if (value === undefined) {
+    return value;
+  }
+
+  return JSON.parse(JSON.stringify(value));
 }
 </script>
 

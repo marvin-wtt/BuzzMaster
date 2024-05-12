@@ -13,6 +13,7 @@ const senderAPI: CastSenderAPI = {
   updateGameSettings: send('updateGameSettings'),
   updateLocale: send('updateLocale'),
   updateControllers: send('updateControllers'),
+  updateLeaderboard: send('updateLeaderboard'),
 };
 
 const on = <K extends keyof CastReceiverAPI>(name: K): CastReceiverAPI[K] => {
@@ -29,6 +30,7 @@ const receiverAPI: CastReceiverAPI = {
   onGameSettingsUpdate: on('onGameSettingsUpdate'),
   onLocaleUpdate: on('onLocaleUpdate'),
   onControllerUpdate: on('onControllerUpdate'),
+  onLeaderboardUpdate: on('onLeaderboardUpdate'),
 };
 
 const api: CastAPI = {

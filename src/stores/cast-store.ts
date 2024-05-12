@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { GameState } from 'app/common/gameState';
 import { useRouter } from 'vue-router';
 import { GameSettings } from 'app/common/gameSettings';
+import { LeaderboardEntry } from 'stores/leaderboard-store';
 
 export const useCastStore = defineStore('cast', () => {
   const { locale } = useI18n();
@@ -47,15 +48,22 @@ export const useCastStore = defineStore('cast', () => {
     locale.value = value;
   }
 
+  const leaderboard = ref<LeaderboardEntry[]>();
+  function updateLeaderboard(entries: LeaderboardEntry[]) {
+    leaderboard.value = entries;
+  }
+
   return {
     controllers,
     gameState,
     gameSettings,
+    leaderboard,
 
     updateGameState,
     updateGameSettings,
     updateLocale,
     updateControllers,
+    updateLeaderboard,
   };
 });
 

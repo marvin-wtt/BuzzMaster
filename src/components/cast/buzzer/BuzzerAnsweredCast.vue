@@ -5,7 +5,7 @@
         key="cross-check"
         class="check-cross"
         :style="{ width: checkWidth + '%' }"
-        :mode="symbol"
+        :symbol="symbol"
       />
       <div
         v-if="showPoints"

@@ -1,5 +1,5 @@
 <template>
-  <template v-if="props.mode === 'check'">
+  <template v-if="props.symbol === 'check'">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 130.2 130.2"
@@ -71,7 +71,7 @@
 
 <script lang="ts" setup>
 const props = defineProps<{
-  mode: 'check' | 'cross';
+  symbol: 'check' | 'cross';
 }>();
 
 const colors = {

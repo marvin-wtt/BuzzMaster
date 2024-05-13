@@ -5,7 +5,7 @@
         key="cross-check"
         :style="{ width: symbolWidth + '%' }"
         class="check-cross"
-        :mode="props.symbol"
+        :symbol="props.symbol"
       />
 
       <div

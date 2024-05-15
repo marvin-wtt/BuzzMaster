@@ -8,12 +8,12 @@
       <div class="col-grow row justify-center no-wrap">
         <template v-if="gameState.name === 'completed'">
           <quiz-result-table
-            v-if="quizSettings.resultMode === 'table'"
+            v-if="quizSettings.presentationView === 'table'"
             :controllers-by-button="controllersByButton"
             data-testid="result"
           />
           <quiz-result-bar-chart
-            v-else-if="quizSettings.resultMode === 'bar'"
+            v-else-if="quizSettings.presentationView === 'bar-chart'"
             :controllers-by-button="controllersByButton"
             data-testid="result"
           />

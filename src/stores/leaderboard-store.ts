@@ -12,14 +12,14 @@ export type LeaderboardEntry = {
 export const useLeaderboardStore = defineStore('leaderboard', () => {
   const { controllers } = useBuzzer();
 
-  const points = ref<Record<string, number>>({});
+  const controllerPoints = ref<Record<string, number>>({});
 
   const leaderboard = computed<LeaderboardEntry[]>(() => {
     const entries = controllers.value
       .map((controller) => ({
         id: controller.id,
         name: controller.name,
-        value: points.value[controller.id] ?? 0,
+        value: controllerPoints.value[controller.id] ?? 0,
         position: 0,
       }))
       .sort((a, b) => b.value - a.value);
@@ -36,17 +36,17 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
     return entries;
   });
 
-  const addPoints = (controllerId: string, p: number) => {
-    points.value[controllerId] ??= 0;
-    points.value[controllerId] += p;
+  const addPoints = (controllerId: string, points: number) => {
+    controllerPoints.value[controllerId] ??= 0;
+    controllerPoints.value[controllerId] += points;
   };
 
-  const updatePoints = (controllerId: string, p: number) => {
-    points.value[controllerId] = p;
+  const updatePoints = (controllerId: string, points: number) => {
+    controllerPoints.value[controllerId] = points;
   };
 
   const resetPoints = () => {
-    points.value = {};
+    controllerPoints.value = {};
   };
 
   return {

@@ -27,7 +27,8 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     changeMode: 'never',
     playSounds: true,
     countDownBeepStartAt: 10,
-    resultMode: 'bar',
+    mode: 'quiz',
+    presentationView: 'bar-chart',
     pointsCorrect: 0,
     pointsWrong: 0,
   });

@@ -6,7 +6,8 @@ export interface QuizSettings {
   changeMode: 'never' | 'always' | 'confirm';
   playSounds: boolean;
   countDownBeepStartAt: number;
-  resultMode: 'table' | 'bar';
+  mode: 'quiz' | 'survey';
+  presentationView: 'table' | 'bar-chart';
   pointsCorrect: number;
   pointsWrong: number;
 }

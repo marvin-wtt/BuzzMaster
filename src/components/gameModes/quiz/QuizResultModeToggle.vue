@@ -18,11 +18,14 @@ import { computed } from 'vue';
 const { quizSettings } = useGameSettingsStore();
 
 const icon = computed<string>(() => {
-  return quizSettings.resultMode === 'bar' ? 'view_list' : 'bar_chart';
+  return quizSettings.presentationView === 'bar-chart'
+    ? 'view_list'
+    : 'bar_chart';
 });
 
 const togglePresentationMode = () => {
-  quizSettings.resultMode = quizSettings.resultMode === 'bar' ? 'table' : 'bar';
+  quizSettings.presentationView =
+    quizSettings.presentationView === 'bar-chart' ? 'table' : 'bar-chart';
 };
 </script>
 

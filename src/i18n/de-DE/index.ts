@@ -2,6 +2,7 @@ import gameMode from './gameMode';
 import devices from './devices';
 import leaderboard from './leaderboard';
 import batterySaving from './batterySaving';
+import cast from './cast';
 
 export default {
   app_name: 'Buzz Master',
@@ -11,6 +12,7 @@ export default {
     devices: 'Geräte',
   },
 
+  cast,
   batterySaving,
   devices,
   gameMode,

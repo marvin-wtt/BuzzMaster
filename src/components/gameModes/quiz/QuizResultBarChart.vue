@@ -12,18 +12,31 @@
       :key="button"
       class="column justify-between no-wrap text-center"
     >
-      <div class="q-pb-sm">{{ buttonPercentage[button] }} %</div>
+      <div
+        class="q-pb-sm bar-value"
+        :style="animationDurationStyle(button)"
+      >
+        {{ buttonPercentage[button] }} %
+      </div>
 
       <div class="col-grow column justify-end">
         <div
           class="bar text-center"
-          :class="buzzerButtonBgColor[button]"
           :style="{
             height: `${barHeightPercentages[button]}%`,
           }"
-        />
+        >
+          <div
+            class="inner"
+            :class="buzzerButtonBgColor[button]"
+            :style="animationDurationStyle(button)"
+          />
+        </div>
       </div>
-      <div>
+      <div
+        class="bar-value"
+        :style="animationDurationStyle(button)"
+      >
         {{ buttonOccurrences[button] }}
       </div>
     </div>
@@ -31,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, StyleValue } from 'vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -43,6 +56,8 @@ interface ControllerLike {
   id: string;
   name: string;
 }
+
+const maxAnimationDuration = 2;
 
 const props = defineProps<{
   controllersByButton: Record<BuzzerButton, ControllerLike[] | undefined>;
@@ -100,6 +115,18 @@ const barHeightPercentages = computed<BuzzerMap>(() => {
   return buttonPercentage;
 });
 
+function animationTime(button: BuzzerButton): number {
+  return (barHeightPercentages.value[button] / 100) * maxAnimationDuration;
+}
+
+function animationDurationStyle(button: BuzzerButton): StyleValue {
+  const duration = animationTime(button);
+
+  return {
+    animationDuration: `${duration}s`,
+  };
+}
+
 const buzzerButtonBgColor = {
   [BuzzerButton.BLUE]: 'bg-blue',
   [BuzzerButton.ORANGE]: 'bg-orange',
@@ -113,10 +140,54 @@ const buzzerButtonBgColor = {
 .bar {
   width: 50px;
   margin: 0 10px;
+  position: relative;
+}
+
+.bar .inner {
+  width: 100%;
+  height: 100%;
   border-radius: 5px;
+  animation-name: growBar;
+  animation-timing-function: linear;
+  position: absolute;
+  bottom: 0;
+}
+
+.bar-value {
+  opacity: 1;
+  animation-name: fadeIn;
+  animation-timing-function: linear;
 }
 
 .bar-chart-container {
   transition: height 10s;
+}
+
+@keyframes growBar {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: 100%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  0% {
+    opacity: 0;
+  }
+
+  99% {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 </style>

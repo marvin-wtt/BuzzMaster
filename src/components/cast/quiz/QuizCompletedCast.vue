@@ -28,9 +28,14 @@
 
   <div
     v-else-if="settings.mode === 'survey'"
-    class="self-center"
+    class="column justify-center"
   >
-    <quiz-result-bar-chart :controllers-by-button="buttonsByControllers" />
+    <div class="col-8">
+      <quiz-result-bar-chart
+        class="fit"
+        :controllers-by-button="buttonsByControllers"
+      />
+    </div>
   </div>
 </template>
 

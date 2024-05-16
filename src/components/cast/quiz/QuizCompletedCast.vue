@@ -1,5 +1,8 @@
 <template>
-  <div class="column text-h2">
+  <div
+    v-if="settings.mode === 'quiz'"
+    class="column text-h2"
+  >
     <!-- Correct -->
     <quiz-completed-result
       symbol="check"
@@ -22,6 +25,13 @@
       {{ t('cast.quiz.completed.points') }}
     </quiz-completed-result>
   </div>
+
+  <div
+    v-else-if="settings.mode === 'survey'"
+    class="self-center"
+  >
+    <quiz-result-bar-chart :controllers-by-button="buttonsByControllers" />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -32,6 +42,7 @@ import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import QuizCompletedResult from 'components/cast/quiz/QuizCompletedResult.vue';
+import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
 
 const { t } = useI18n();
 const castStore = useCastStore();
@@ -68,6 +79,36 @@ const wrongButtons = computed<BuzzerButton[] | undefined>(() => {
 
   return allButtons.filter((value) => !props.state.correct?.includes(value));
 });
+
+interface ControllerLike {
+  id: string;
+  name: string;
+}
+
+const buttonsByControllers = computed<Record<BuzzerButton, ControllerLike[]>>(
+  () => {
+    return Object.keys(props.state.result).reduce(
+      (acc, controllerId) => {
+        // Mo input is default button
+        const pressedButton =
+          controllerId in props.state.result
+            ? props.state.result[controllerId]
+            : undefined;
+        // Ignore input if user has not confirmed the button selection
+        const button = pressedButton ?? BuzzerButton.RED;
+
+        acc[button] ??= [];
+        acc[button].push({
+          id: controllerId,
+          name: castStore.controllers[controllerId],
+        });
+
+        return acc;
+      },
+      {} as Record<BuzzerButton, ControllerLike[]>,
+    );
+  },
+);
 </script>
 
 <style scoped></style>

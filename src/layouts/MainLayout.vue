@@ -397,33 +397,6 @@ function toValue<T>(value: T): T {
 </script>
 
 <style lang="scss">
-/* width */
-::-webkit-scrollbar {
-  width: 0.6rem;
-  height: 0.5rem;
-}
-
-/* Scrollbar */
-/* Track */
-::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 0.125rem grey;
-  border-radius: 0.25rem;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #656565;
-  border-radius: 0.25rem;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: $primary;
-}
-
-::-webkit-scrollbar-corner {
-}
-
 /* Settings menu */
 .settings-container {
   padding: 2px;

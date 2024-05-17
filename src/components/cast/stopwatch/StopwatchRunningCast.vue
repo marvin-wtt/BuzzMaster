@@ -3,7 +3,7 @@
     <beep-timer
       :time="props.state.time"
       :precision="2"
-      class="text-center text-h6"
+      class="text-center text-h2"
     />
 
     <q-separator />
@@ -19,13 +19,16 @@
         style="background-color: transparent"
         v-slot="{ item, index }: { item: ResultItem; index: number }"
       >
-        <tr :key="item.id">
+        <tr
+          :key="item.id"
+          class="entry"
+        >
           <td>
             <q-avatar
               v-if="item.time !== undefined"
               :color="avatarColor(index)"
               text-color="white"
-              size="sm"
+              size="md"
             >
               {{ index + 1 }}
             </q-avatar>
@@ -33,13 +36,13 @@
               v-else
               :color="avatarColor(-1)"
               text-color="white"
-              size="sm"
+              size="md"
             >
               -
             </q-avatar>
           </td>
 
-          <td>
+          <td class="full-width">
             {{ item.name }}
           </td>
 
@@ -146,4 +149,8 @@ const avatarColor = (index: number) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.entry td {
+  font-size: 18pt;
+}
+</style>

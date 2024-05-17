@@ -171,10 +171,12 @@ import { useTimer } from 'src/composables/timer';
 import AudioBeep from 'components/AudioBeep.vue';
 import QuizResultTable from 'components/gameModes/quiz/QuizResultTable.vue';
 import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const quasar = useQuasar();
-const { quizSettings } = useGameSettingsStore();
+const quizSettingsStore = useGameSettingsStore();
+const { quizSettings } = storeToRefs(quizSettingsStore);
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
@@ -258,7 +260,7 @@ const buttons: BuzzerButton[] = [
 ];
 
 const buttonColorClass = (button: BuzzerButton) => {
-  return quizSettings.activeButtons?.includes(button)
+  return quizSettings.value.activeButtons?.includes(button)
     ? buzzerButtonColor[button]
     : 'grey';
 };
@@ -278,7 +280,7 @@ const buttonPressedAnswerChangeAlways = (
   event: ButtonEvent,
   state: QuizRunningChangeAlwaysState,
 ): QuizState | undefined => {
-  if (!quizSettings.activeButtons.includes(event.button)) {
+  if (!quizSettings.value.activeButtons.includes(event.button)) {
     return;
   }
 
@@ -300,7 +302,7 @@ const buttonPressedAnswerChangeNever = (
   event: ButtonEvent,
   state: QuizRunningChangeNeverState,
 ): QuizState | undefined => {
-  if (!quizSettings.activeButtons.includes(event.button)) {
+  if (!quizSettings.value.activeButtons.includes(event.button)) {
     return;
   }
 
@@ -346,7 +348,7 @@ const buttonPressedAnswerChangeConfirm = (
 
   // Change answer
   if (event.button !== BuzzerButton.RED) {
-    if (!quizSettings.activeButtons.includes(event.button)) {
+    if (!quizSettings.value.activeButtons.includes(event.button)) {
       return;
     }
 
@@ -405,11 +407,11 @@ const openSettings = () => {
 };
 
 const start = transition('preparing', () => {
-  if (quizSettings.changeMode === 'confirm') {
+  if (quizSettings.value.changeMode === 'confirm') {
     return {
       game: 'quiz',
       name: 'running',
-      time: quizSettings.answerTime,
+      time: quizSettings.value.answerTime,
       answerChangeAllowed: 'confirm',
       result: {},
       unconfirmed: {},
@@ -419,8 +421,8 @@ const start = transition('preparing', () => {
   return {
     game: 'quiz',
     name: 'running',
-    time: quizSettings.answerTime,
-    answerChangeAllowed: quizSettings.changeMode,
+    time: quizSettings.value.answerTime,
+    answerChangeAllowed: quizSettings.value.changeMode,
     result: {},
   };
 });

@@ -9,6 +9,8 @@ export type LeaderboardEntry = {
   position: number;
 };
 
+export type Leaderboard = LeaderboardEntry[];
+
 export const useLeaderboardStore = defineStore('leaderboard', () => {
   const { controllers } = useBuzzer();
 

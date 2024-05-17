@@ -110,6 +110,10 @@ function setTransparent() {
 </script>
 
 <style>
+* {
+  font-family: sans-serif;
+}
+
 body.body--dark {
   background: transparent !important;
 }

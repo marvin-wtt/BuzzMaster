@@ -43,7 +43,7 @@
             <q-item-section side>
               <q-input
                 v-model.number="updatedPoints[entry.controller.id]"
-                :label="t('gameMode.stopwatch.leaderboard.field')"
+                :label="t('gameMode.stopwatch.points.field')"
                 type="number"
                 outlined
                 rounded
@@ -58,7 +58,7 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('gameMode.stopwatch.leaderboard.action.ok')"
+          :label="t('gameMode.stopwatch.points.action.ok')"
           color="primary"
           rounded
           @click="onSave"

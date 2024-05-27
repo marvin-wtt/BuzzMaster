@@ -22,10 +22,8 @@
 import { computed } from 'vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import { useBuzzer } from 'src/plugins/buzzer';
 import QuizResultBar from 'components/gameModes/quiz/QuizResultBar.vue';
 
-const { controllers } = useBuzzer();
 const { quizSettings } = useGameSettingsStore();
 
 interface ControllerLike {
@@ -65,8 +63,12 @@ const buttonOccurrences = computed<BuzzerMap>(() => {
   };
 });
 
+const totalAnswers = computed<number>(() => {
+  return Object.values(props.controllersByButton).flat().length;
+});
+
 const buttonPercentage = computed<BuzzerMap>(() => {
-  const total = controllers.value.length;
+  const total = totalAnswers.value;
   const buttonPercentage: Record<BuzzerButton, number> = {} as BuzzerMap;
   Object.keys(BuzzerButton).map((value) => {
     const button = BuzzerButton[value as keyof typeof BuzzerButton];

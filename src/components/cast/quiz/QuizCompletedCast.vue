@@ -34,6 +34,7 @@
       <quiz-result-bar-chart
         class="fit"
         :controllers-by-button="buttonsByControllers"
+        animated
       />
     </div>
   </div>

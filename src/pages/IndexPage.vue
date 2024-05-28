@@ -21,6 +21,14 @@
         />
 
         <q-btn
+          :label="t('action.leaderboard')"
+          icon="emoji_events"
+          to="leaderboard"
+          color="primary"
+          rounded
+        />
+
+        <q-btn
           :label="t('action.devices')"
           icon="sports_esports"
           to="devices"

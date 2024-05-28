@@ -235,10 +235,6 @@ import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { GameSettings } from 'app/common/gameSettings';
-import {
-  LeaderboardEntry,
-  useLeaderboardStore,
-} from 'stores/leaderboard-store';
 
 const router = useRouter();
 const route = useRoute();
@@ -247,7 +243,6 @@ const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
-const leaderboardStore = useLeaderboardStore();
 useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
@@ -350,7 +345,6 @@ function toggleCast() {
     sendGameState(gameStore.state);
     sendGameSettings(gameSettingsStore.gameSettings);
     sendControllerNames(controllerNames.value);
-    sendLeaderboard(leaderboardStore.leaderboard);
     window.castAPI.updateLocale(locale.value);
   }, 1000);
 }
@@ -373,7 +367,6 @@ watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
 watch(() => gameStore.state, sendGameState);
 watch(() => gameSettingsStore.gameSettings, sendGameSettings);
 watch(controllerNames, sendControllerNames);
-watch(() => leaderboardStore.leaderboard, sendLeaderboard);
 
 function sendGameState(state: GameState | undefined) {
   window.castAPI.updateGameState(toValue(state));
@@ -381,10 +374,6 @@ function sendGameState(state: GameState | undefined) {
 
 function sendGameSettings(settings: GameSettings) {
   window.castAPI.updateGameSettings(toValue(settings));
-}
-
-function sendLeaderboard(entries: LeaderboardEntry[]) {
-  window.castAPI.updateLeaderboard(toValue(entries));
 }
 
 function toValue<T>(value: T): T {

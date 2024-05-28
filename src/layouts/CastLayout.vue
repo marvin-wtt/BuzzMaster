@@ -65,7 +65,6 @@ window.castAPI.onGameStateUpdate(castStore.updateGameState);
 window.castAPI.onGameSettingsUpdate(castStore.updateGameSettings);
 window.castAPI.onLocaleUpdate(castStore.updateLocale);
 window.castAPI.onControllerUpdate(castStore.updateControllers);
-window.castAPI.onLeaderboardUpdate(castStore.updateLeaderboard);
 
 const showAppBar = ref<boolean>(true);
 const transparent = ref<boolean>(false);

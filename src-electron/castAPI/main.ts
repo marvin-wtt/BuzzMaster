@@ -8,7 +8,6 @@ export default (windowFactory: CastWindowFactory) => {
   ipcMain.on('cast:updateGameSettings', forwardTo('onGameSettingsUpdate'));
   ipcMain.on('cast:updateLocale', forwardTo('onLocaleUpdate'));
   ipcMain.on('cast:updateControllers', forwardTo('onControllerUpdate'));
-  ipcMain.on('cast:updateLeaderboard', forwardTo('onLeaderboardUpdate'));
 
   let castWindow: BrowserWindow;
 

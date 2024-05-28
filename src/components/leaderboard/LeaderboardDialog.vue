@@ -18,7 +18,7 @@
             :key="entry.id"
             clickable
             v-ripple
-            @click="updatePoints(entry)"
+            @click="showUpdatePoints(entry)"
           >
             <q-item-section avatar>
               <q-avatar
@@ -51,7 +51,7 @@
           color="primary"
           rounded
           outline
-          @click="onResetPoints"
+          @click="showResetPoints()"
         />
         <q-btn
           :label="t('leaderboard.action.ok')"
@@ -65,57 +65,19 @@
 </template>
 
 <script lang="ts" setup>
-import { useDialogPluginComponent, useQuasar } from 'quasar';
-import {
-  LeaderboardEntry,
-  useLeaderboardStore,
-} from 'stores/leaderboard-store';
+import { useDialogPluginComponent } from 'quasar';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
-import PointsUpdateDialog from 'components/leaderboard/PointsUpdateDialog.vue';
 import { useI18n } from 'vue-i18n';
+import { useLeaderboardDialogs } from 'src/composables/leaderboard';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
-const quasar = useQuasar();
 const leaderboardStore = useLeaderboardStore();
 const { leaderboard } = storeToRefs(leaderboardStore);
-
-const updatePoints = (entry: LeaderboardEntry) => {
-  quasar
-    .dialog({
-      component: PointsUpdateDialog,
-      componentProps: {
-        entry,
-      },
-    })
-    .onOk((payload) => {
-      leaderboardStore.updatePoints(entry.id, payload);
-    });
-};
-
-const onResetPoints = () => {
-  quasar
-    .dialog({
-      title: t('leaderboard.reset.title'),
-      message: t('leaderboard.reset.message'),
-      ok: {
-        label: t('leaderboard.reset.action.ok'),
-        color: 'negative',
-        rounded: true,
-      },
-      cancel: {
-        label: t('leaderboard.reset.action.cancel'),
-        color: 'primary',
-        rounded: true,
-        outline: true,
-      },
-    })
-    .onOk(() => {
-      leaderboardStore.resetPoints();
-    });
-};
+const { showUpdatePoints, showResetPoints } = useLeaderboardDialogs();
 
 const avatarColor = (index: number) => {
   switch (index) {

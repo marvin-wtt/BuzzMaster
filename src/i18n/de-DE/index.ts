@@ -10,6 +10,7 @@ export default {
   action: {
     start: 'Start',
     devices: 'Geräte',
+    leaderboard: 'Punktestand',
   },
 
   cast,

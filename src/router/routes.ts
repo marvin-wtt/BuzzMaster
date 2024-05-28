@@ -11,6 +11,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/cast/CastIndexPage.vue'),
       },
       {
+        path: 'leaderboard',
+        name: 'cast-leaderboard',
+        component: () => import('pages/cast/LeaderboardCastPage.vue'),
+      },
+      {
         path: 'buzzer',
         name: 'cast-buzzer',
         component: () => import('pages/cast/BuzzerCastPage.vue'),
@@ -33,7 +38,16 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') },
       {
+        path: 'leaderboard',
+        name: 'leaderboard',
+        component: () => import('pages/LeaderboardPage.vue'),
+        meta: {
+          title: 'leaderboard.title',
+        },
+      },
+      {
         path: 'devices',
+        name: 'devices',
         component: () => import('pages/DevicesPage.vue'),
         meta: {
           title: 'devices.title',

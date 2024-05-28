@@ -1,13 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-
-export type LeaderboardEntry = {
-  id: string;
-  name: string;
-  value: number;
-  position: number;
-};
+import { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
 
 export type Leaderboard = LeaderboardEntry[];
 

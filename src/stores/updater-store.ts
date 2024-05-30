@@ -8,7 +8,10 @@ export const useUpdaterStore = defineStore('updater', () => {
   const quasar = useQuasar();
   const { t } = useI18n();
 
+  const version = ref<string>();
   const status = ref<AppUpdate>();
+
+  window.appAPI.getVersion().then((value) => (version.value = value));
 
   window.appAPI.onUpdateInfo((data) => {
     status.value = data;
@@ -19,13 +22,13 @@ export const useUpdaterStore = defineStore('updater', () => {
   sendNotification();
 
   function sendNotification() {
-    //if (status.value?.name !== 'update-available') {
-    //  return;
-    //}
+    if (status.value?.name !== 'update-available') {
+      return;
+    }
 
     quasar.notify({
       color: 'primary',
-      caption: '1.0.0',
+      caption: status.value.name,
       actions: [
         {
           icon: 'download',
@@ -40,6 +43,7 @@ export const useUpdaterStore = defineStore('updater', () => {
 
   return {
     status,
+    version,
   };
 });
 

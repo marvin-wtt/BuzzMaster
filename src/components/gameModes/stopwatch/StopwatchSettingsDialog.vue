@@ -16,7 +16,7 @@
       <q-card-section class="q-gutter-y-sm">
         <q-toggle
           :label="t('gameMode.stopwatch.settings.field.playSounds')"
-          v-model="stopwatchSettings.playSounds"
+          v-model="settings.playSounds"
         />
       </q-card-section>
 
@@ -24,7 +24,7 @@
         <q-btn
           :label="t('gameMode.stopwatch.settings.action.ok')"
           color="primary"
-          @click="onDialogOK"
+          @click="onOk"
           rounded
         />
       </q-card-actions>
@@ -33,16 +33,33 @@
 </template>
 
 <script lang="ts" setup>
-import { useDialogPluginComponent } from 'quasar';
+import { QForm, useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
+import { ref, toRaw } from 'vue';
+import { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 
-const { stopwatchSettings } = useGameSettingsStore();
+const gameSettingsStore = useGameSettingsStore();
+const form = ref<QForm | null>(null);
+const settings = ref<StopwatchSettings>(
+  structuredClone(toRaw(gameSettingsStore.stopwatchSettings)),
+);
+
+const onOk = async () => {
+  const valid = await form.value?.validate();
+
+  if (!valid) {
+    return;
+  }
+
+  gameSettingsStore.stopwatchSettings = settings.value;
+  onDialogOK();
+};
 </script>
 
 <style scoped></style>

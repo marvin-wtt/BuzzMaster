@@ -22,7 +22,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { reactive } from 'vue';
+import { computed } from 'vue';
 
 const { t } = useI18n();
 
@@ -32,7 +32,7 @@ type MenuItem = {
   icon?: string;
 };
 
-const items: MenuItem[] = reactive([
+const items = computed<MenuItem[]>(() => [
   {
     routeName: 'buzzer-game',
     label: t('gameMode.action.buzzer'),

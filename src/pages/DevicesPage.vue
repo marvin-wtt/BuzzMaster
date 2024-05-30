@@ -147,6 +147,9 @@ onUnmounted(() => {
   cancelFindDevice();
 });
 
+const FIND_DEVICE_INTERVAL = 500;
+const FIND_DEVICE_TIMEOUT = 5000;
+
 let findTimerId:
   | {
       intervalId: NodeJS.Timeout;
@@ -160,7 +163,7 @@ const findDevice = (controller: IController) => {
   const intervalId = setInterval(() => {
     controller.setLight(toggle);
     toggle = !toggle;
-  }, 500);
+  }, FIND_DEVICE_INTERVAL);
 
   const timeoutId = setTimeout(() => {
     clearInterval(intervalId);
@@ -168,7 +171,7 @@ const findDevice = (controller: IController) => {
 
     // Remove from list
     findTimerId = undefined;
-  }, 5000);
+  }, FIND_DEVICE_TIMEOUT);
 
   // Add ids so the timers can be canceled externally
   findTimerId = {
@@ -183,7 +186,7 @@ const findDongle = (dongle: IDongle) => {
   const intervalId = setInterval(() => {
     dongle.controllers.forEach((controller) => controller.setLight(toggle));
     toggle = !toggle;
-  });
+  }, FIND_DEVICE_INTERVAL);
 
   const timeoutId = setTimeout(() => {
     clearInterval(intervalId);
@@ -191,7 +194,7 @@ const findDongle = (dongle: IDongle) => {
 
     // Remove from list
     findTimerId = undefined;
-  }, 5000);
+  }, FIND_DEVICE_TIMEOUT);
 
   // Add ids so the timers can be canceled externally
   findTimerId = {

@@ -730,14 +730,14 @@ describe('QuizPage', () => {
       const { wrapper } = mountWithStore(QuizResultModeToggle);
       const { quizSettings } = useGameSettingsStore();
 
-      const initialMode = quizSettings.resultMode;
+      const initialView = quizSettings.presentationView;
 
       const btn = wrapper.findComponent(QBtn);
       expect(btn.exists()).to.be.true;
 
       await btn.trigger('click');
 
-      expect(quizSettings.resultMode).not.toBe(initialMode);
+      expect(quizSettings.presentationView).not.toBe(initialView);
     });
 
     describe('result', () => {
@@ -772,6 +772,6 @@ describe('QuizPage', () => {
       });
     });
 
-    describe.todo('score');
+    describe.todo('points');
   });
 });

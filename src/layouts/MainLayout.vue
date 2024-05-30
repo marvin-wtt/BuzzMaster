@@ -32,13 +32,25 @@
           type="animation"
         >
           <q-btn
-            aria-label="Show scoreboard"
-            key="scoreboard"
+            aria-label="Show leaderboard"
+            key="leaderboard"
             dense
             flat
             rounded
             icon="emoji_events"
-            @click="showScoreboard"
+            @click="showLeaderboard"
+          />
+
+          <q-btn
+            aria-label="Open Cast"
+            key="cast"
+            dense
+            flat
+            rounded
+            size="sm"
+            class="settings-button bg-primary"
+            icon="cast"
+            @click="toggleCast"
           />
 
           <!-- Settings -->
@@ -82,7 +94,6 @@
               key="battery-saving"
               icon="battery_saver"
               class="settings-button bg-primary"
-              :color="batterySavingColor"
               @click="showBatterySavingDialog"
             />
 
@@ -213,20 +224,26 @@
 
 <script lang="ts" setup>
 import { QSelectOption, useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
-import ScoreboardDialog from 'components/scoreboard/ScoreboardDialog.vue';
+import LeaderboardDialog from 'components/leaderboard/LeaderboardDialog.vue';
 import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
+import { useGameStore } from 'stores/game-store';
+import { GameState } from 'app/common/gameState';
+import { useGameSettingsStore } from 'stores/game-settings-store';
+import { GameSettings } from 'app/common/gameSettings';
 
 const router = useRouter();
 const route = useRoute();
 const quasar = useQuasar();
 const { t, locale, availableLocales } = useI18n();
-const { buzzer } = useBuzzer();
-const batterySavingStore = useBatterySavingStore();
+const { buzzer, controllers } = useBuzzer();
+const gameStore = useGameStore();
+const gameSettingsStore = useGameSettingsStore();
+useBatterySavingStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
@@ -300,17 +317,11 @@ function togglePin() {
   pinned.value = !pinned.value;
 }
 
-function showScoreboard() {
+function showLeaderboard() {
   quasar.dialog({
-    component: ScoreboardDialog,
+    component: LeaderboardDialog,
   });
 }
-
-const batterySavingColor = computed<string | undefined>(() => {
-  return batterySavingStore.criticalBatterySavingTimes.length > 0
-    ? 'warning'
-    : undefined;
-});
 
 function showBatterySavingDialog() {
   quasar.dialog({
@@ -326,36 +337,55 @@ function closeApp() {
   buzzer.reset();
   window.windowAPI?.close();
 }
+
+function toggleCast() {
+  window.castAPI.toggle();
+  // Send data in case it's the initial open
+  setTimeout(() => {
+    sendGameState(gameStore.state);
+    sendGameSettings(gameSettingsStore.gameSettings);
+    sendControllerNames(controllerNames.value);
+    window.castAPI.updateLocale(locale.value);
+  }, 1000);
+}
+
+const controllerNames = computed<Record<string, string>>(() => {
+  return controllers.value.reduce(
+    (acc, curr) => {
+      acc[curr.id] = curr.name;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+});
+
+function sendControllerNames(controllers: Record<string, string>) {
+  window.castAPI.updateControllers(toRaw(controllers));
+}
+
+watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
+watch(() => gameStore.state, sendGameState);
+watch(() => gameSettingsStore.gameSettings, sendGameSettings);
+watch(controllerNames, sendControllerNames);
+
+function sendGameState(state: GameState | undefined) {
+  window.castAPI.updateGameState(toValue(state));
+}
+
+function sendGameSettings(settings: GameSettings) {
+  window.castAPI.updateGameSettings(toValue(settings));
+}
+
+function toValue<T>(value: T): T {
+  if (value === undefined) {
+    return value;
+  }
+
+  return JSON.parse(JSON.stringify(value));
+}
 </script>
 
 <style lang="scss">
-/* width */
-::-webkit-scrollbar {
-  width: 0.6rem;
-  height: 0.5rem;
-}
-
-/* Scrollbar */
-/* Track */
-::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 0.125rem grey;
-  border-radius: 0.25rem;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #656565;
-  border-radius: 0.25rem;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: $primary;
-}
-
-::-webkit-scrollbar-corner {
-}
-
 /* Settings menu */
 .settings-container {
   padding: 2px;

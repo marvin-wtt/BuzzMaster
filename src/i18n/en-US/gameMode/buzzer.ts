@@ -21,7 +21,7 @@ export default {
       multipleAttempts: 'Allow multiple attempts per team',
       playSounds: 'Play sounds',
       beepAt: 'Start countdown beep at',
-      points: 'Score',
+      points: 'Points',
       pointsCorrect: 'Correct answer',
       pointsWrong: {
         label: 'Wrong answer',

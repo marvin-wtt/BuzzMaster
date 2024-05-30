@@ -16,6 +16,7 @@
           :label="t('gameMode.buzzer.settings.field.answerTime')"
           v-model.number="buzzerSettings.answerTime"
           type="number"
+          :rules="[isNumber]"
           rounded
           outlined
         >
@@ -55,6 +56,7 @@
           :label="t('gameMode.buzzer.settings.field.pointsCorrect')"
           v-model.number="buzzerSettings.pointsCorrect"
           type="number"
+          :rules="[isNumber]"
           rounded
           outlined
         >
@@ -68,6 +70,7 @@
           :hint="t('gameMode.buzzer.settings.field.pointsWrong.hint')"
           v-model.number="buzzerSettings.pointsWrong"
           type="number"
+          :rules="[isNumber]"
           rounded
           outlined
         >
@@ -81,8 +84,8 @@
         <q-btn
           :label="t('gameMode.buzzer.settings.action.ok')"
           color="primary"
-          @click="onDialogOK"
           rounded
+          @click="onDialogOK"
         />
       </q-card-actions>
     </q-card>
@@ -93,6 +96,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
+import { isNumber } from 'lodash-es';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

@@ -13,29 +13,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeMount, watch } from 'vue';
+import { computed } from 'vue';
 
 interface Props {
   time: number;
   animated?: boolean;
-  beep?: boolean;
-  beepStartTime?: number;
   precision?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   reverse: false,
-  beep: false,
-  beepStartTime: 10,
   animated: false,
   precision: 0,
-});
-
-const shortBeep = new Audio('sounds/beep-sec.mp3');
-const longBeep = new Audio('sounds/beep-end.mp3');
-
-onBeforeMount(() => {
-  loadAudio();
 });
 
 const displayTime = computed<string>(() => {
@@ -48,30 +37,6 @@ const displayTime = computed<string>(() => {
 const fade = computed<boolean>(() => {
   return props.animated && Number(displayTime.value.slice(-1)) % 2 === 0;
 });
-
-const loadAudio = () => {
-  shortBeep.load();
-  longBeep.load();
-};
-
-watch(
-  () => props.time,
-  (time, prevTime) => {
-    if (!props.beep) {
-      return;
-    }
-
-    if (time > props.beepStartTime) {
-      return;
-    }
-
-    if (time <= 0 && prevTime > 0) {
-      longBeep.play();
-    } else if (Math.ceil(time) < Math.ceil(prevTime)) {
-      shortBeep.play();
-    }
-  },
-);
 
 const formatTime = (time: number) => {
   const date = new Date(time * 1000);

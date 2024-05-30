@@ -13,7 +13,7 @@ export default {
 
     field: {
       label: 'Punktestand',
-      hint: 'Neuer Punktestand: {score}',
+      hint: 'Neuer Punktestand: {points}',
     },
 
     rule: {

@@ -37,21 +37,22 @@ export default {
         },
       },
       answerTime: 'Antwortzeit',
-      resultMode: {
-        label: 'Ergebnismodus',
+      mode: {
+        label: 'Modus',
         option: {
-          table: 'Tabelle',
-          bar: 'Balkendiagramm',
+          quiz: 'Quiz',
+          survey: 'Umfrage',
         },
       },
-      playSounds: 'Ton abspielen',
-      beepAt: 'Start des Countdown-Tons bei',
       points: 'Punkte',
       pointsCorrect: 'Richtige Antwort',
       pointsWrong: {
         label: 'Falsche Antwort',
         hint: 'Negative Zahl eintragen, um Punkte abzuziehen',
       },
+      sounds: 'Ton',
+      playSounds: 'Ton abspielen',
+      beepAt: 'Start des Countdown-Tons bei',
     },
 
     action: {

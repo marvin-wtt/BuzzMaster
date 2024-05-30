@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import initWindowApiHandler from 'app/src-electron/windowAPI/main';
 import initAppApiHandler from 'app/src-electron/appAPI/main';
+import initCastApiHandler from 'app/src-electron/castAPI/main';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
@@ -46,6 +47,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
     width: 500,
+    minWidth: 400,
     height: 800,
     useContentSize: true,
     frame: false,
@@ -99,18 +101,51 @@ function createWindow() {
       mainWindow?.webContents.closeDevTools();
     });
   }
+}
 
-  mainWindow.webContents.setWindowOpenHandler((/* details */) => {
-    return {
-      action: 'allow',
-      overrideBrowserWindowOptions: {
-        frame: false,
-        webPreferences: {
-          preload: electronPreload,
-        },
-      },
-    };
+function createCastWindow() {
+  const electronPreload = getPreloadPath('electron-preload');
+  /**
+   * Initial window options
+   */
+  const window = new BrowserWindow({
+    parent: mainWindow,
+    icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
+    width: 500,
+    minWidth: 400,
+    height: 800,
+    useContentSize: true,
+    frame: false,
+    alwaysOnTop: true,
+    transparent: true,
+    webPreferences: {
+      sandbox: true,
+      contextIsolation: true,
+      preload: electronPreload,
+    },
   });
+
+  const defaultRoute = '#/cast';
+
+  if (process.env.DEV) {
+    window.loadURL(process.env.APP_URL + defaultRoute);
+  } else {
+    window.loadFile('index.html' + defaultRoute);
+  }
+
+  if (process.env.DEBUGGING) {
+    // if on DEV or Production with debug enabled
+    window.webContents.openDevTools();
+  } else {
+    // we're on production; no access to devtools pls
+    window.webContents.on('devtools-opened', () => {
+      window?.webContents.closeDevTools();
+    });
+  }
+
+  window.setAlwaysOnTop(true, 'pop-up-menu', 1);
+
+  return window;
 }
 
 export function getAutoUpdater(): AppUpdater {
@@ -129,6 +164,7 @@ const startAutoUpdater = () => {
 app.whenReady().then(() => {
   initAppApiHandler();
   initWindowApiHandler();
+  initCastApiHandler(createCastWindow);
   createWindow();
 
   startAutoUpdater();

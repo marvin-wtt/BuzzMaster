@@ -14,15 +14,20 @@
 <script lang="ts" setup>
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
 
-const { quizSettings } = useGameSettingsStore();
+const quizSettingsStore = useGameSettingsStore();
+const { quizSettings } = storeToRefs(quizSettingsStore);
 
 const icon = computed<string>(() => {
-  return quizSettings.resultMode === 'bar' ? 'view_list' : 'bar_chart';
+  return quizSettings.value.presentationView === 'bar-chart'
+    ? 'view_list'
+    : 'bar_chart';
 });
 
 const togglePresentationMode = () => {
-  quizSettings.resultMode = quizSettings.resultMode === 'bar' ? 'table' : 'bar';
+  quizSettings.value.presentationView =
+    quizSettings.value.presentationView === 'bar-chart' ? 'table' : 'bar-chart';
 };
 </script>
 

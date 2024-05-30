@@ -1,12 +1,13 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { reactive } from 'vue';
+import { computed, ref } from 'vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
+import { GameSettings } from 'app/common/gameSettings';
 
 export const useGameSettingsStore = defineStore('gameSettings', () => {
-  const buzzerSettings = reactive<BuzzerSettings>({
+  const buzzerSettings = ref<BuzzerSettings>({
     answerTime: 10,
     multipleAttempts: false,
     playSounds: true,
@@ -15,7 +16,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     pointsWrong: 0,
   });
 
-  const quizSettings = reactive<QuizSettings>({
+  const quizSettings = ref<QuizSettings>({
     activeButtons: [
       BuzzerButton.BLUE,
       BuzzerButton.ORANGE,
@@ -26,16 +27,25 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     changeMode: 'never',
     playSounds: true,
     countDownBeepStartAt: 10,
-    resultMode: 'bar',
+    mode: 'quiz',
+    presentationView: 'bar-chart',
     pointsCorrect: 0,
     pointsWrong: 0,
   });
 
-  const stopwatchSettings = reactive<StopwatchSettings>({
+  const stopwatchSettings = ref<StopwatchSettings>({
     playSounds: true,
   });
 
+  const gameSettings = computed<GameSettings>(() => ({
+    buzzer: buzzerSettings.value,
+    quiz: quizSettings.value,
+    stopwatch: stopwatchSettings.value,
+  }));
+
   return {
+    gameSettings,
+
     buzzerSettings,
     quizSettings,
     stopwatchSettings,

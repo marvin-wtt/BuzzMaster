@@ -166,9 +166,10 @@
         </div>
 
         <template v-else-if="gameState.name === 'completed'">
-          <stopwatch-scoreboard-button
-            :label="t('gameMode.stopwatch.action.scores')"
+          <stopwatch-leaderboard-button
+            :label="t('gameMode.stopwatch.action.points')"
             :result="result"
+            @update="onPointsUpdate"
           />
 
           <q-separator />
@@ -209,7 +210,7 @@ import {
   IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
-import StopwatchScoreboardButton from 'components/gameModes/stopwatch/StopwatchScoreboardButton.vue';
+import StopwatchLeaderboardButton from 'components/gameModes/stopwatch/StopwatchLeaderboardButton.vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useQuasar } from 'quasar';
 import {
@@ -217,7 +218,7 @@ import {
   StopwatchState,
 } from 'app/common/gameState/StopwatchState';
 import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
-import BeepTimer from 'components/BeepTimer.vue';
+import BeepTimer from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
 
@@ -284,7 +285,9 @@ const result = computed<StopwatchEntry[]>(() => {
     })
     .map((controller): StopwatchEntry => {
       const time =
-        controller.id in state.result ? state.result[controller.id] : undefined;
+        controller.id in state.result
+          ? state.result[controller.id] ?? undefined
+          : undefined;
 
       return {
         controller,
@@ -373,13 +376,13 @@ const resume = transition('paused', (state) => {
 });
 
 const stop = transition('paused', (state) => {
-  const result: Record<string, number | undefined> = state.result;
+  const result: Record<string, number | null> = state.result;
   for (const controller of controllers.value) {
     if (controller.id in result) {
       continue;
     }
 
-    result[controller.id] = undefined;
+    result[controller.id] = null;
   }
 
   return {
@@ -450,11 +453,25 @@ const removeController = createEvent([
       time: state.time,
       result: {
         ...state.result,
-        [controller.id]: undefined,
+        [controller.id]: null,
       },
+      points: state.points,
     };
   }),
 ]);
+
+const onPointsUpdate = transition(
+  'completed',
+  (state, points: Record<string, number | undefined>) => {
+    return {
+      game: 'stopwatch',
+      name: 'completed',
+      result: state.result,
+      time: state.time,
+      points,
+    };
+  },
+);
 
 const avatarColor = (index: number) => {
   switch (index) {

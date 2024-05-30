@@ -43,5 +43,4 @@ export interface QuizCompleteState extends QuizStateBase {
   name: 'completed';
   result: Record<string, BuzzerButton>;
   correct?: BuzzerButton[];
-  points?: Record<string, number>;
 }

@@ -16,10 +16,10 @@ Participants select one of four options within a given time frame.
 
 Tracks the time taken for each participant to press the red button.
 
-### Scoreboard
+### Leaderboard
 
 Keeps track of points gained or lost throughout the quiz show.
-Points can be updated either directly after a question / game or manually in the scoreboard.
+Points can be updated either directly after a question / game or manually in the leaderboard.
 When choosing to update the points manually, either new points can be set or the current points can be updated using simple algebra.
 
 ### Energy Saving Notification

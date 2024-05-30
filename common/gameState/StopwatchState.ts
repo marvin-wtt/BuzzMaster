@@ -28,5 +28,6 @@ export type StopwatchPausedState = {
 export interface StopwatchCompletedState extends StopwatchStateBase {
   name: 'completed';
   time: number;
-  result: Record<string, number | undefined>;
+  result: Record<string, number | null>;
+  points?: Record<string, number | undefined>;
 }

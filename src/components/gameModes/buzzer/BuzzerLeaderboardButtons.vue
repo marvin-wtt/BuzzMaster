@@ -24,11 +24,11 @@
 
 <script lang="ts" setup>
 import { onBeforeMount, ref } from 'vue';
-import { useScoreboardStore } from 'stores/scoreboard-store';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { IController } from 'src/plugins/buzzer/types';
 
-const scoreBoardStore = useScoreboardStore();
+const leaderboardStore = useLeaderboardStore();
 const { buzzerSettings } = useGameSettingsStore();
 
 const props = defineProps<{
@@ -57,7 +57,7 @@ const onAnswerChange = (answer: boolean) => {
   // Take back points if button is pressed again
   if (answerCorrect.value === answer) {
     answerCorrect.value = undefined;
-    updateScoreboard(points * -1);
+    updateLeaderboard(points * -1);
     emit('update', undefined, undefined);
     return;
   }
@@ -67,11 +67,11 @@ const onAnswerChange = (answer: boolean) => {
     const refundPoints = answer
       ? buzzerSettings.pointsWrong
       : buzzerSettings.pointsCorrect;
-    updateScoreboard(refundPoints * -1);
+    updateLeaderboard(refundPoints * -1);
   }
 
   answerCorrect.value = answer;
-  updateScoreboard(points);
+  updateLeaderboard(points);
   emit('update', answer, points);
 
   playAudio(answer);
@@ -85,8 +85,8 @@ const playAudio = (answer: boolean) => {
   }
 };
 
-const updateScoreboard = (points: number) => {
-  scoreBoardStore.addPoints(props.controller.id, points);
+const updateLeaderboard = (points: number) => {
+  leaderboardStore.addPoints(props.controller.id, points);
 };
 </script>
 

@@ -1,7 +1,8 @@
 export type BuzzerState =
   | BuzzerPreparationState
   | BuzzerRunningState
-  | BuzzerAnsweringState;
+  | BuzzerAnsweringState
+  | BuzzerAnsweredState;
 
 export interface BuzzerStateBase {
   game: 'buzzer';
@@ -21,6 +22,12 @@ export interface BuzzerAnsweringState extends BuzzerStateBase {
   pressedControllers: string[];
   controller: string;
   time: number;
-  correct?: boolean;
-  points?: number;
+}
+
+export interface BuzzerAnsweredState extends BuzzerStateBase {
+  name: 'answered';
+  pressedControllers: string[];
+  controller: string;
+  correct: boolean;
+  points: number;
 }

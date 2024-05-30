@@ -10,8 +10,8 @@
       <q-card-section>
         <a class="text-h5 ellipsis">
           {{
-            t('scoreboard.update.title', {
-              name: props.score.name,
+            t('leaderboard.update.title', {
+              name: props.entry.name,
             })
           }}
         </a>
@@ -20,8 +20,8 @@
       <q-card-section>
         <q-input
           v-model="inputValue"
-          :label="t('scoreboard.update.field.label')"
-          :hint="t('scoreboard.update.field.hint', { score: roundedScore })"
+          :label="t('leaderboard.update.field.label')"
+          :hint="t('leaderboard.update.field.hint', { points: roundedPoints })"
           :prefix="inputPrefix"
           outlined
           rounded
@@ -40,14 +40,14 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('scoreboard.update.action.cancel')"
+          :label="t('leaderboard.update.action.cancel')"
           color="primary"
           rounded
           outline
           @click="onDialogCancel"
         />
         <q-btn
-          :label="t('scoreboard.update.action.submit')"
+          :label="t('leaderboard.update.action.submit')"
           color="primary"
           rounded
           :disable="error"
@@ -61,11 +61,11 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
 import { computed, ref } from 'vue';
-import { Score } from 'stores/scoreboard-store';
 import { useI18n } from 'vue-i18n';
+import { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
 
 const props = defineProps<{
-  score: Score;
+  entry: LeaderboardEntry;
 }>();
 
 defineEmits([...useDialogPluginComponent.emits]);
@@ -83,22 +83,22 @@ const error = computed<boolean>(() => {
 
 const errorMessage = computed<string | undefined>(() => {
   if (numericInput.value === undefined) {
-    return t('scoreboard.update.rule.onlyNumbers');
+    return t('leaderboard.update.rule.onlyNumbers');
   }
 
   if (!replaceMode.value && operand.value === undefined) {
-    return t('scoreboard.update.rule.missingOperand');
+    return t('leaderboard.update.rule.missingOperand');
   }
 
   if (operand.value === '/' && numericInput.value === 0) {
-    return t('scoreboard.update.rule.divZero');
+    return t('leaderboard.update.rule.divZero');
   }
 
   return undefined;
 });
 
 const inputPrefix = computed<string | undefined>(() => {
-  return replaceMode.value ? undefined : props.score.value + ' ';
+  return replaceMode.value ? undefined : props.entry.value + ' ';
 });
 
 const iconName = computed<string>(() => {
@@ -131,7 +131,7 @@ const operand = computed<Operand | undefined>(() => {
   return op as Operand;
 });
 
-const resultingScore = computed<number | undefined>(() => {
+const resultingPoints = computed<number | undefined>(() => {
   if (replaceMode.value) {
     return numericInput.value;
   }
@@ -143,21 +143,21 @@ const resultingScore = computed<number | undefined>(() => {
   const op = operand.value;
   switch (op) {
     case '+':
-      return props.score.value + numericInput.value;
+      return props.entry.value + numericInput.value;
     case '-':
-      return props.score.value - numericInput.value;
+      return props.entry.value - numericInput.value;
     case '*':
-      return props.score.value * numericInput.value;
+      return props.entry.value * numericInput.value;
     case '/':
-      return props.score.value / numericInput.value;
+      return props.entry.value / numericInput.value;
     default:
       return undefined;
   }
 });
 
-const roundedScore = computed<number | undefined>(() => {
-  return resultingScore.value !== undefined
-    ? round(resultingScore.value)
+const roundedPoints = computed<number | undefined>(() => {
+  return resultingPoints.value !== undefined
+    ? round(resultingPoints.value)
     : undefined;
 });
 const toggleUpdateMode = () => {
@@ -169,7 +169,7 @@ const round = (n: number): number => {
 };
 
 const submit = () => {
-  onDialogOK(roundedScore.value ?? props.score.value);
+  onDialogOK(roundedPoints.value ?? props.entry.value);
 };
 </script>
 

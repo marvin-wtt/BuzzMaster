@@ -386,7 +386,7 @@ describe('StopwatchPage', () => {
 
       const state = gameStore.state as StopwatchCompletedState;
       expect(state.result).toHaveProperty(getController(0).id, 5.2);
-      expect(state.result).toHaveProperty(getController(1).id, undefined);
+      expect(state.result).toHaveProperty(getController(1).id, null);
     });
 
     it('should remove a controller', async () => {
@@ -463,7 +463,7 @@ describe('StopwatchPage', () => {
         time: 10.1,
         result: {
           [deviceApi.getController(0).id]: 5.2,
-          [deviceApi.getController(1).id]: undefined,
+          [deviceApi.getController(1).id]: null,
         },
       });
       await nextTick();
@@ -485,7 +485,7 @@ describe('StopwatchPage', () => {
 
       const state = gameStore.state as StopwatchCompletedState;
       expect(state.result).toHaveProperty(getController(0).id, 5.2);
-      expect(state.result).toHaveProperty(getController(1).id, undefined);
+      expect(state.result).toHaveProperty(getController(1).id, null);
     });
 
     it('should disqualify a controller', async () => {
@@ -502,7 +502,7 @@ describe('StopwatchPage', () => {
       await wrapper.find(selector('btn-remove-result')).trigger('click');
 
       const state = gameStore.state as StopwatchPausedState;
-      expect(state.result).toHaveProperty(getController(0).id, undefined);
+      expect(state.result).toHaveProperty(getController(0).id, null);
     });
 
     it('should turn of the LED for a disqualified controller', async () => {
@@ -547,6 +547,6 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
-    describe.todo('scores');
+    describe.todo('points');
   });
 });

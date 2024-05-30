@@ -175,9 +175,12 @@ const editControllerName = (controller: IController) => {
       },
       ok: {
         label: t('devices.edit.action.ok'),
+        rounded: true,
       },
       cancel: {
         label: t('devices.edit.action.cancel'),
+        rounded: true,
+        outline: true,
       },
     })
     .onOk((name: string) => {

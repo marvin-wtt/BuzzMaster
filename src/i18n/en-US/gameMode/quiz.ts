@@ -37,21 +37,22 @@ export default {
         },
       },
       answerTime: 'Answer time',
-      resultMode: {
-        label: 'Result Mode',
+      mode: {
+        label: 'Mode',
         option: {
-          table: 'Table',
-          bar: 'Bar chart',
+          quiz: 'Quiz',
+          survey: 'Survey',
         },
       },
-      playSounds: 'Play sounds',
-      beepAt: 'Start countdown beep at',
-      points: 'Score',
+      points: 'Points',
       pointsCorrect: 'Correct answer',
       pointsWrong: {
         label: 'Wrong answer',
         hint: 'Enter a negative number to subtract points',
       },
+      sounds: 'Sounds',
+      playSounds: 'Play sounds',
+      beepAt: 'Start countdown beep at',
     },
 
     action: {

@@ -6,11 +6,18 @@
     <div class="col-12 column no-wrap">
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
-        <quiz-result
-          v-if="gameState.name === 'completed'"
-          :controllers-by-button="controllersByButton"
-          data-testid="result"
-        />
+        <template v-if="gameState.name === 'completed'">
+          <quiz-result-table
+            v-if="quizSettings.presentationView === 'table'"
+            :controllers-by-button="controllersByButton"
+            data-testid="result"
+          />
+          <quiz-result-bar-chart
+            v-else-if="quizSettings.presentationView === 'bar-chart'"
+            :controllers-by-button="controllersByButton"
+            data-testid="result"
+          />
+        </template>
         <div
           v-else
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center justify-center"
@@ -43,15 +50,13 @@
 
             <!-- Waiting for answers -->
             <circle-timer
-              v-if="gameState.name === 'running' || keepCountDown"
-              v-model="time"
+              v-if="gameState.name === 'running'"
+              :time="time"
               :max="quizSettings.answerTime"
               data-testid="answer-timer"
             >
-              <beep-timer
+              <timer-animated
                 :time="time"
-                :beep="quizSettings.playSounds"
-                :beep-start-time="quizSettings.countDownBeepStartAt"
                 animated
                 class="text-h2"
               />
@@ -82,12 +87,12 @@
           </div>
 
           <div
-            v-if="gameState.name === 'completed'"
+            v-else-if="gameState.name === 'completed'"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
-            <quiz-scoreboard-buttons
-              v-if="showScoreboardActions"
+            <quiz-leaderboard-buttons
               :controller-values="controllersByButton"
+              @update="onPointsUpdate"
             />
 
             <q-separator />
@@ -112,7 +117,7 @@
             />
           </div>
 
-          <div v-if="gameState.name === 'running'">
+          <div v-else-if="gameState.name === 'running'">
             <q-btn
               :label="t('gameMode.quiz.action.cancel')"
               outline
@@ -124,6 +129,12 @@
         </transition-fade>
       </div>
     </div>
+
+    <audio-beep
+      :time="time"
+      :start-at="quizSettings.countDownBeepStartAt"
+      :silent="!quizSettings.playSounds"
+    />
   </q-page>
 
   <!-- Actions -->
@@ -131,14 +142,13 @@
 </template>
 
 <script lang="ts" setup>
-import BeepTimer from 'components/BeepTimer.vue';
+import TimerAnimated from 'components/TimerAnimated.vue';
 import CircleTimer from 'components/CircleTimer.vue';
 import PulseCircle from 'components/PulseCircle.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
-import QuizResult from 'components/gameModes/quiz/QuizResult.vue';
-import QuizScoreboardButtons from 'components/gameModes/quiz/QuizScoreboardButtons.vue';
+import QuizLeaderboardButtons from 'components/gameModes/quiz/QuizLeaderboardButtons.vue';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useGameSettingsStore } from 'stores/game-settings-store';
@@ -158,10 +168,15 @@ import {
 } from 'app/common/gameState/QuizState';
 import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
+import AudioBeep from 'components/AudioBeep.vue';
+import QuizResultTable from 'components/gameModes/quiz/QuizResultTable.vue';
+import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const quasar = useQuasar();
-const { quizSettings } = useGameSettingsStore();
+const quizSettingsStore = useGameSettingsStore();
+const { quizSettings } = storeToRefs(quizSettingsStore);
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
@@ -236,10 +251,6 @@ const controllersByButton = computed<
   );
 });
 
-const showScoreboardActions = computed<boolean>(() => {
-  return quizSettings.pointsCorrect !== 0 || quizSettings.pointsWrong !== 0;
-});
-
 // Order of buttons
 const buttons: BuzzerButton[] = [
   BuzzerButton.BLUE,
@@ -249,7 +260,7 @@ const buttons: BuzzerButton[] = [
 ];
 
 const buttonColorClass = (button: BuzzerButton) => {
-  return quizSettings.activeButtons?.includes(button)
+  return quizSettings.value.activeButtons?.includes(button)
     ? buzzerButtonColor[button]
     : 'grey';
 };
@@ -269,7 +280,7 @@ const buttonPressedAnswerChangeAlways = (
   event: ButtonEvent,
   state: QuizRunningChangeAlwaysState,
 ): QuizState | undefined => {
-  if (!quizSettings.activeButtons.includes(event.button)) {
+  if (!quizSettings.value.activeButtons.includes(event.button)) {
     return;
   }
 
@@ -291,7 +302,7 @@ const buttonPressedAnswerChangeNever = (
   event: ButtonEvent,
   state: QuizRunningChangeNeverState,
 ): QuizState | undefined => {
-  if (!quizSettings.activeButtons.includes(event.button)) {
+  if (!quizSettings.value.activeButtons.includes(event.button)) {
     return;
   }
 
@@ -337,7 +348,7 @@ const buttonPressedAnswerChangeConfirm = (
 
   // Change answer
   if (event.button !== BuzzerButton.RED) {
-    if (!quizSettings.activeButtons.includes(event.button)) {
+    if (!quizSettings.value.activeButtons.includes(event.button)) {
       return;
     }
 
@@ -396,11 +407,11 @@ const openSettings = () => {
 };
 
 const start = transition('preparing', () => {
-  if (quizSettings.changeMode === 'confirm') {
+  if (quizSettings.value.changeMode === 'confirm') {
     return {
       game: 'quiz',
       name: 'running',
-      time: quizSettings.answerTime,
+      time: quizSettings.value.answerTime,
       answerChangeAllowed: 'confirm',
       result: {},
       unconfirmed: {},
@@ -410,8 +421,8 @@ const start = transition('preparing', () => {
   return {
     game: 'quiz',
     name: 'running',
-    time: quizSettings.answerTime,
-    answerChangeAllowed: quizSettings.changeMode,
+    time: quizSettings.value.answerTime,
+    answerChangeAllowed: quizSettings.value.changeMode,
     result: {},
   };
 });
@@ -423,33 +434,22 @@ const restart = transition(['running', 'completed'], () => {
   };
 });
 
+const onPointsUpdate = transition(
+  'completed',
+  (state, correct: BuzzerButton[] | undefined) => {
+    return {
+      game: 'quiz',
+      name: 'completed',
+      result: state.result,
+      correct,
+    };
+  },
+);
+
 const quickPlay = () => {
   restart();
   start();
 };
-
-// Workaround to keep the countdown alive and wait for the last beep to finish
-const keepCountDown = ref<boolean>(false);
-let keepCountDownTimeout: NodeJS.Timeout | undefined = undefined;
-watch(gameState, (value, oldValue) => {
-  // Only capture transitions from running to completed
-  if (oldValue.name !== 'running' || value.name !== 'completed') {
-    clearTimeout(keepCountDownTimeout);
-    keepCountDown.value = false;
-
-    return;
-  }
-
-  if (oldValue.time > 0) {
-    keepCountDown.value = false;
-    return;
-  }
-
-  keepCountDown.value = true;
-  keepCountDownTimeout = setTimeout(() => {
-    keepCountDown.value = false;
-  }, 1000);
-});
 </script>
 
 <style scoped></style>

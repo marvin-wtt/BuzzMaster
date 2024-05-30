@@ -5,7 +5,7 @@ export default {
   disqualified: 'DSQ',
 
   action: {
-    scores: 'Scores',
+    points: 'Points',
     start: 'Start',
     pause: 'Pause',
     resume: 'Resume',
@@ -15,7 +15,7 @@ export default {
     reset: 'Reset',
   },
 
-  scores: {
+  points: {
     title: 'Award points',
     field: 'Points',
 

@@ -3,62 +3,33 @@
     class="column"
     padding
   >
-    <!-- TODO Add i18n -->
-
     <q-list
       ref="container"
       class="col-grow text-h4 relative-position"
     >
       <transition name="slide-right">
+        <!-- This is a workaround because transition group animation always animated single entries instead if the entire page -->
         <div
           v-if="animationToggle"
           class="absolute full-width full-height"
         >
-          <q-item
+          <cast-leaderboard-entry
+            ref="containerItems"
             v-for="entry in entries"
             :key="entry.id"
-            ref="containerItems"
-          >
-            <q-item-section avatar>
-              <q-avatar
-                :color="avatarColor(entry.position)"
-                text-color="white"
-              >
-                {{ entry.position }}
-              </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ entry.name }}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              {{ entry.value }}
-            </q-item-section>
-          </q-item>
+            :entry="entry"
+          />
         </div>
         <div
           v-else
           class="absolute full-width full-height"
         >
-          <q-item
+          <cast-leaderboard-entry
+            ref="containerItems"
             v-for="entry in entries"
             :key="entry.id"
-            ref="containerItems"
-          >
-            <q-item-section avatar>
-              <q-avatar
-                :color="avatarColor(entry.position)"
-                text-color="white"
-              >
-                {{ entry.position }}
-              </q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ entry.name }}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              {{ entry.value }}
-            </q-item-section>
-          </q-item>
+            :entry="entry"
+          />
         </div>
       </transition>
 
@@ -69,13 +40,13 @@
 
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
-import { computed, ref } from 'vue';
-import { Leaderboard } from 'stores/leaderboard-store';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import {
   LeaderboardEntry,
   LeaderboardState,
 } from 'app/common/gameState/LeaderboardState';
 import { QItem, QList } from 'quasar';
+import CastLeaderboardEntry from 'components/cast/leaderboard/CastLeaderboardEntry.vue';
 
 const castStore = useCastStore();
 
@@ -84,6 +55,10 @@ const containerItems = ref<QItem[]>([]);
 const pageNumber = ref<number>(1);
 const pageSize = ref<number>(10);
 const animationToggle = ref<boolean>(false);
+
+onMounted(() => {
+  nextTick(updateItemsPerPage);
+});
 
 const state = computed<LeaderboardState>(() => {
   return castStore.gameState as LeaderboardState;
@@ -108,7 +83,7 @@ const intervalId = setInterval(() => {
   }
 }, 4000);
 
-const entries = computed<Leaderboard>(() => {
+const entries = computed<LeaderboardEntry[]>(() => {
   const entries = leaderboard.value;
 
   if (!entries) {
@@ -134,19 +109,6 @@ const updateItemsPerPage = () => {
   const itemHeight = itemEl.clientHeight;
   const containerHeight = el.clientHeight;
   pageSize.value = Math.max(1, Math.floor(containerHeight / itemHeight));
-};
-
-const avatarColor = (index: number) => {
-  switch (index) {
-    case 1:
-      return 'primary';
-    case 2:
-      return 'secondary';
-    case 3:
-      return 'info';
-  }
-
-  return 'grey';
 };
 </script>
 

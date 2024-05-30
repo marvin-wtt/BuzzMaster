@@ -29,9 +29,7 @@ export const useBuzzer = () => {
 
 const deviceManagers: IBuzzerPlugin[] = [initHidDeviceManager];
 
-export const initBuzzerApi = async (): Promise<IBuzzerApi> => {
-  const api = new BuzzerApi();
-
+export const initBuzzerApi = async (api: BuzzerApi): Promise<IBuzzerApi> => {
   // Init all device managers
   await Promise.all(deviceManagers.map((init) => init(api)));
 
@@ -39,7 +37,10 @@ export const initBuzzerApi = async (): Promise<IBuzzerApi> => {
 };
 
 export const BuzzerPlugin: Plugin = {
-  async install(app: App) {
-    app.provide('buzzer', await initBuzzerApi());
+  install(app: App) {
+    const api = new BuzzerApi();
+    app.provide('buzzer', api);
+
+    initBuzzerApi(api);
   },
 };

@@ -11,8 +11,11 @@
         group="dongles"
         expand-separator
       >
-        <template v-slot:header>
-          <q-item-section class="col col-shrink">
+        <template v-slot:header="{ expanded }">
+          <q-item-section
+            v-if="!expanded"
+            class="col col-shrink"
+          >
             <q-icon
               name="circle"
               :color="getDongleColor(dongle)"
@@ -24,7 +27,10 @@
               {{ dongle.name }}
             </q-item-label>
           </q-item-section>
-          <q-item-section side>
+          <q-item-section
+            v-if="!expanded"
+            side
+          >
             <q-btn
               icon="search"
               size="xs"

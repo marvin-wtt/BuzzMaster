@@ -19,13 +19,13 @@ export const useUpdaterStore = defineStore('updater', () => {
   sendNotification();
 
   function sendNotification() {
-    //if (status.value?.name !== 'update-available') {
-    //  return;
-    //}
+    if (status.value?.name !== 'update-available') {
+      return;
+    }
 
     quasar.notify({
       color: 'primary',
-      caption: '1.0.0',
+      caption: status.value.name,
       actions: [
         {
           icon: 'download',

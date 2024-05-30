@@ -166,8 +166,11 @@
           </div>
         </div>
 
-        <div v-else>
-          {{ t('update.check') }}
+        <div
+          v-else
+          class="row q-gutter-x-sm"
+        >
+          {{ t('updater.search') }}
 
           <q-btn
             dense

@@ -6,6 +6,7 @@ export default {
   updateCanceled: 'Update canceled...',
   updateDownloaded: 'Restart app to install.',
   updateNotAvailable: 'App is up to date.',
+  search: 'Check for updates',
 
   notification: {
     message: 'New update available!',

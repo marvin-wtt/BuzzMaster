@@ -6,6 +6,7 @@ export default {
   updateCanceled: 'Update abgebrochen...',
   updateDownloaded: 'App zur Installation neu starten.',
   updateNotAvailable: 'App ist auf dem neuesten Stand.',
+  search: 'Nach Updates suchen',
 
   notification: {
     message: 'Neues Update verfügbar!',

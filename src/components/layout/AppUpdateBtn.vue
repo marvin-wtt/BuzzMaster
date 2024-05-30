@@ -1,6 +1,6 @@
 <template>
   <q-btn
-    aria-label="Battery saving"
+    aria-label="About"
     dense
     flat
     rounded

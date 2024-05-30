@@ -149,6 +149,8 @@
               :icon="muted ? 'volume_off' : 'volume_up'"
               @click="toggleMute"
             />
+
+            <app-update-btn class="settings-button bg-primary" />
           </div>
         </transition-group>
 
@@ -235,6 +237,8 @@ import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { GameSettings } from 'app/common/gameSettings';
+import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
+import { useUpdaterStore } from 'stores/updater-store';
 
 const router = useRouter();
 const route = useRoute();
@@ -244,6 +248,7 @@ const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
 useBatterySavingStore();
+useUpdaterStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);

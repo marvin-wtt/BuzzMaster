@@ -3,14 +3,15 @@ import devices from './devices';
 import leaderboard from './leaderboard';
 import batterySaving from './batterySaving';
 import cast from './cast';
+import updater from './updater';
 
 export default {
   app_name: 'Buzz Master',
 
   action: {
     start: 'Start',
-    devices: 'Geräte',
-    leaderboard: 'Punktestand',
+    devices: 'Devices',
+    leaderboard: 'Leaderboard',
   },
 
   cast,
@@ -18,4 +19,6 @@ export default {
   devices,
   gameMode,
   leaderboard,
+
+  updater,
 };

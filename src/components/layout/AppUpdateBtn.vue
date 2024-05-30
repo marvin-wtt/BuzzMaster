@@ -8,16 +8,17 @@
     :icon="icon"
   >
     <q-menu
+      v-model="menuOpen"
       anchor="bottom middle"
       self="top middle"
-      style="width: 200px"
+      style="min-width: 200px"
     >
       <div class="column no-wrap q-pa-md q-gutter-y-sm">
         <div
           v-if="status?.name === 'checking-for-update'"
           class="column"
         >
-          <a class="q-mb-sm"> {{ t('update.checking-for-update') }}</a>
+          <a class="q-mb-sm"> {{ t('updater.checkingForUpdate') }}</a>
 
           <q-linear-progress
             rounded
@@ -25,47 +26,68 @@
           />
         </div>
 
-        <div v-else-if="status?.name === 'update-available'">
-          <a>{{ t('update.available') }}</a>
+        <!-- update-available -->
+        <div
+          v-else-if="status?.name === 'update-available'"
+          class="row no-wrap justify-between q-gutter-x-sm"
+        >
+          <div class="column">
+            {{ t('updater.updateAvailable') }}
 
-          {{ status.info.version }}
+            <div class="text-caption">
+              {{ status.info.version }} / {{ updateSize(status.info) }}
+            </div>
+          </div>
 
           <q-btn
             icon="download"
             dense
             rounded
             color="primary"
+            class="self-center"
             @click="downloadUpdate"
           />
         </div>
 
+        <!-- update-not-available -->
         <div
           v-else-if="status?.name === 'update-not-available'"
-          class="column q-gutter-sm"
+          class="row no-wrap justify-between q-gutter-x-sm"
         >
-          {{ t('update.not_available') }}
+          <div class="column">
+            {{ t('updater.updateNotAvailable') }}
+
+            <div class="text-caption">
+              {{ status.info.version }}
+            </div>
+          </div>
 
           <q-btn
             icon="sync"
+            rounded
+            dense
+            color="primary"
+            class="self-center"
             @click="checkForUpdates"
           />
         </div>
 
-        <div v-else-if="status?.name === 'download-progress'">
-          {{ t('update.download-progress') }}
+        <!-- download-progress -->
+        <div
+          v-else-if="status?.name === 'download-progress'"
+          class="column no-wrap q-gutter-y-xs"
+        >
+          {{ t('updater.downloadProgress') }}
 
-          <div class="text-right">
-            <!-- TODO format data rate -->
-            {{ status.info.transferred }} / {{ status.info.total }} ({{
-              status.info.bytesPerSecond
-            }}
-            Bps)
+          <div class="text-right text-caption">
+            {{ humanStorageSize(status.info.transferred) }} /
+            {{ humanStorageSize(status.info.total) }}
           </div>
 
           <div class="row q-gutter-sm">
             <div class="col-grow column justify-center">
               <q-linear-progress
-                :value="status.info.percent"
+                :value="status.info.percent / 100"
                 stripe
               />
             </div>
@@ -80,20 +102,68 @@
           </div>
         </div>
 
-        <div v-else-if="status?.name === 'update-downloaded'">
-          {{ t('update.downloaded') }}
+        <!-- update-cancelled -->
+        <div
+          v-else-if="status?.name === 'update-cancelled'"
+          class="row no-wrap justify-between q-gutter-x-sm"
+        >
+          <div class="column">
+            {{ t('updater.updateCanceled') }}
+
+            <div class="text-caption">
+              {{ status.info.version }} / {{ updateSize(status.info) }}
+            </div>
+          </div>
+
+          <q-btn
+            icon="download"
+            dense
+            rounded
+            color="primary"
+            class="self-center"
+            @click="downloadUpdate"
+          />
+        </div>
+
+        <!-- update-downloaded -->
+        <div
+          v-else-if="status?.name === 'update-downloaded'"
+          class="row no-wrap justify-between q-gutter-x-sm"
+        >
+          <div class="column">
+            {{ t('updater.updateDownloaded') }}
+
+            <div class="text-caption">
+              {{ status.info.version }}
+            </div>
+          </div>
 
           <q-btn
             icon="restart_alt"
-            size="xs"
             dense
+            rounded
+            color="primary"
+            class="self-center"
             @click="installUpdate"
           />
         </div>
 
-        <div v-else-if="status?.name === 'error'">
-          <q-icon name="error" />
-          {{ status.error.message }}
+        <!-- error -->
+        <div
+          v-else-if="status?.name === 'error'"
+          class="row no-wrap justify-between q-gutter-x-sm"
+        >
+          <q-icon
+            size="lg"
+            name="error_outline"
+            class="self-center"
+          />
+          <div class="column q-gutter-sm">
+            {{ t('updater.error') }}
+            <a class="text-caption">
+              {{ status.error.message }}
+            </a>
+          </div>
         </div>
 
         <div v-else>
@@ -114,43 +184,44 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { AppUpdate } from 'app/common';
 import { useI18n } from 'vue-i18n';
+import { format } from 'quasar';
+import { UpdateInfo } from 'electron-updater';
+import { useUpdaterStore } from 'stores/updater-store';
+import { storeToRefs } from 'pinia';
 
-// TODO Add translations
 const { t } = useI18n();
+const updaterStore = useUpdaterStore();
+const { status } = storeToRefs(updaterStore);
+const { humanStorageSize } = format;
 
-const status = ref<AppUpdate>({
-  name: 'download-progress',
-  info: {
-    total: 10000,
-    transferred: 100,
-    percent: 0.6,
-    delta: 0,
-    bytesPerSecond: 100,
-  },
-});
-
-window.appAPI.onUpdateInfo((data) => {
-  status.value = data;
-});
+const menuOpen = ref<boolean>(false);
 
 const icon = computed<string>(() => {
   switch (status.value?.name) {
-    case 'checking-for-update':
     case 'update-available':
       return 'download';
+    case 'checking-for-update':
     case 'download-progress':
       return 'sync';
     case 'update-downloaded':
-      return 'restart_alt';
+      return 'update';
     case 'error':
-      return 'error';
+      return 'error_outline';
     case 'update-not-available':
     default:
-      return 'update';
+      return 'o_info';
   }
 });
+
+function updateSize(info: UpdateInfo): string {
+  const bytes = info.files.reduce(
+    (total, file) => (file.size ? total + file.size : total),
+    0,
+  );
+
+  return humanStorageSize(bytes);
+}
 
 function checkForUpdates() {
   window.appAPI.checkForUpdate();

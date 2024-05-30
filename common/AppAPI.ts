@@ -20,6 +20,7 @@ export type AppUpdate =
   | UpdateNotAvailable
   | UpdateError
   | UpdateDownloadProgress
+  | UpdateCanceled
   | UpdateDownloaded;
 
 export interface CheckingForUpdates {
@@ -44,6 +45,11 @@ export interface UpdateError {
 export interface UpdateDownloadProgress {
   name: 'download-progress';
   info: ProgressInfo;
+}
+
+export interface UpdateCanceled {
+  name: 'update-cancelled';
+  info: UpdateInfo;
 }
 
 export interface UpdateDownloaded {

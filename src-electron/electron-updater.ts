@@ -20,67 +20,70 @@ function getAutoUpdater(): AppUpdater {
 const startAutoUpdater = async () => {
   const autoUpdater = getAutoUpdater();
   autoUpdater.logger = log;
-  registerEventListener();
   await autoUpdater.checkForUpdates();
 };
 
-function registerEventListener() {
-  const autoUpdater = getAutoUpdater();
-  autoUpdater.on('checking-for-update', () => {
-    send({
-      name: 'checking-for-update',
-    });
+const autoUpdater = getAutoUpdater();
+autoUpdater.on('checking-for-update', () => {
+  send({
+    name: 'checking-for-update',
   });
-  autoUpdater.on('update-available', (info) => {
-    send({
-      name: 'update-available',
-      info,
-    });
+});
+autoUpdater.on('update-cancelled', (info) => {
+  send({
+    name: 'update-cancelled',
+    info,
   });
-  autoUpdater.on('update-not-available', (info) => {
-    send({
-      name: 'update-not-available',
-      info,
-    });
+});
+autoUpdater.on('update-available', (info) => {
+  send({
+    name: 'update-available',
+    info,
   });
-  autoUpdater.on('error', (err) => {
-    send({
-      name: 'error',
-      error: err,
-    });
+});
+autoUpdater.on('update-not-available', (info) => {
+  send({
+    name: 'update-not-available',
+    info,
   });
-  autoUpdater.on('download-progress', (progressObj) => {
-    send({
-      name: 'download-progress',
-      info: progressObj,
-    });
+});
+autoUpdater.on('error', (err) => {
+  send({
+    name: 'error',
+    error: err,
   });
+});
+autoUpdater.on('download-progress', (progressObj) => {
+  send({
+    name: 'download-progress',
+    info: progressObj,
+  });
+});
 
-  autoUpdater.on('update-downloaded', (info) => {
-    send({
-      name: 'update-downloaded',
-      info,
-    });
+autoUpdater.on('update-downloaded', (info) => {
+  send({
+    name: 'update-downloaded',
+    info,
   });
+});
 
-  let cancellationToken: CancellationToken | undefined;
-  ipcMain.on('app:checkForUpdate', async () => {
-    await autoUpdater.checkForUpdates();
-  });
-  ipcMain.on('app:downloadUpdate', async () => {
-    if (cancellationToken) {
-      return;
-    }
-    await autoUpdater.downloadUpdate(cancellationToken);
-  });
-  ipcMain.on('app:cancelUpdate', () => {
-    cancellationToken?.cancel();
-    cancellationToken = undefined;
-  });
-  ipcMain.on('app:installUpdate', () => {
-    autoUpdater.quitAndInstall();
-  });
-}
+let cancellationToken: CancellationToken | undefined;
+ipcMain.on('app:checkForUpdate', async () => {
+  await autoUpdater.checkForUpdates();
+});
+ipcMain.on('app:downloadUpdate', async () => {
+  if (cancellationToken) {
+    return;
+  }
+  await autoUpdater.downloadUpdate(cancellationToken);
+});
+ipcMain.on('app:cancelUpdate', () => {
+  cancellationToken?.cancel();
+  cancellationToken = undefined;
+});
+ipcMain.on('app:installUpdate', () => {
+  autoUpdater.quitAndInstall();
+});
 
 function send(update: AppUpdate) {
   BrowserWindow.getAllWindows().forEach((win) => {

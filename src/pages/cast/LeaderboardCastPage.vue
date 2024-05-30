@@ -4,35 +4,66 @@
     padding
   >
     <!-- TODO Add i18n -->
-    <div class="text-center text-h2 q-ma-lg">Leaderboard</div>
 
-    <div class="col-grow relative-position text-h4">
-      <q-scroll-area class="absolute fit">
-        <q-list>
-          <transition-group name="list">
-            <q-item
-              v-for="entry in entries"
-              :key="entry.id"
-            >
-              <q-item-section avatar>
-                <q-avatar
-                  :color="avatarColor(entry.position)"
-                  text-color="white"
-                >
-                  {{ entry.position }}
-                </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ entry.name }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                {{ entry.value }}
-              </q-item-section>
-            </q-item>
-          </transition-group>
-        </q-list>
-      </q-scroll-area>
-    </div>
+    <q-list
+      ref="container"
+      class="col-grow text-h4 relative-position"
+    >
+      <transition name="slide-right">
+        <div
+          v-if="animationToggle"
+          class="absolute full-width full-height"
+        >
+          <q-item
+            v-for="entry in entries"
+            :key="entry.id"
+            ref="containerItems"
+          >
+            <q-item-section avatar>
+              <q-avatar
+                :color="avatarColor(entry.position)"
+                text-color="white"
+              >
+                {{ entry.position }}
+              </q-avatar>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ entry.name }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              {{ entry.value }}
+            </q-item-section>
+          </q-item>
+        </div>
+        <div
+          v-else
+          class="absolute full-width full-height"
+        >
+          <q-item
+            v-for="entry in entries"
+            :key="entry.id"
+            ref="containerItems"
+          >
+            <q-item-section avatar>
+              <q-avatar
+                :color="avatarColor(entry.position)"
+                text-color="white"
+              >
+                {{ entry.position }}
+              </q-avatar>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ entry.name }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              {{ entry.value }}
+            </q-item-section>
+          </q-item>
+        </div>
+      </transition>
+
+      <q-resize-observer @resize="updateItemsPerPage" />
+    </q-list>
   </q-page>
 </template>
 
@@ -44,11 +75,15 @@ import {
   LeaderboardEntry,
   LeaderboardState,
 } from 'app/common/gameState/LeaderboardState';
+import { QItem, QList } from 'quasar';
 
 const castStore = useCastStore();
 
+const container = ref<QList | null>(null);
+const containerItems = ref<QItem[]>([]);
 const pageNumber = ref<number>(1);
-const pageSize = 10;
+const pageSize = ref<number>(10);
+const animationToggle = ref<boolean>(false);
 
 const state = computed<LeaderboardState>(() => {
   return castStore.gameState as LeaderboardState;
@@ -64,7 +99,9 @@ const intervalId = setInterval(() => {
     return;
   }
 
-  if (pageNumber.value >= leaderboard.value.length / pageSize) {
+  animationToggle.value = !animationToggle.value;
+
+  if (pageNumber.value >= leaderboard.value.length / pageSize.value) {
     pageNumber.value = 1;
   } else {
     pageNumber.value += 1;
@@ -78,13 +115,26 @@ const entries = computed<Leaderboard>(() => {
     return [];
   }
 
-  return paginate(entries, pageNumber.value, pageSize);
+  return paginate(entries, pageNumber.value, pageSize.value);
 });
 
 function paginate<T>(array: T[], pageNumber: number, pageSize: number): T[] {
   const startIndex = (pageNumber - 1) * pageSize;
   return array.slice(startIndex, startIndex + pageSize);
 }
+
+const updateItemsPerPage = () => {
+  const el: HTMLElement = container.value?.$el;
+  if (!el || containerItems.value.length === 0) {
+    return;
+  }
+  // Use the first list item to measure the item height
+  const itemEl: HTMLElement = containerItems.value[0].$el;
+
+  const itemHeight = itemEl.clientHeight;
+  const containerHeight = el.clientHeight;
+  pageSize.value = Math.max(1, Math.floor(containerHeight / itemHeight));
+};
 
 const avatarColor = (index: number) => {
   switch (index) {
@@ -100,22 +150,29 @@ const avatarColor = (index: number) => {
 };
 </script>
 
+<style>
+body {
+  overflow: hidden;
+}
+</style>
+
 <style scoped>
-.list-move, /* apply transition to moving elements */
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
+.slide-right-enter-active {
+  transition: all 2s ease-out;
 }
 
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-/* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
-.list-leave-active {
+.slide-right-leave-active {
+  transition: all 2s ease-out;
   position: absolute;
+}
+
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
 }
 </style>

@@ -84,6 +84,8 @@
               @click="openDevTools"
             />
 
+            <app-update-btn class="settings-button bg-primary" />
+
             <!-- Battery Saving -->
             <q-btn
               aria-label="Battery saving"
@@ -235,6 +237,7 @@ import { useGameStore } from 'stores/game-store';
 import { GameState } from 'app/common/gameState';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { GameSettings } from 'app/common/gameSettings';
+import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 
 const router = useRouter();
 const route = useRoute();

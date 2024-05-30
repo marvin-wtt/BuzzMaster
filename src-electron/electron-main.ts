@@ -6,7 +6,8 @@ import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
 import log from 'electron-log';
-import electronUpdater, { type AppUpdater } from 'electron-updater';
+
+import './electron-updater';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
@@ -148,26 +149,11 @@ function createCastWindow() {
   return window;
 }
 
-export function getAutoUpdater(): AppUpdater {
-  // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
-  // It is a workaround for ESM compatibility issues, see https://github.com/electron-userland/electron-builder/issues/7976.
-  const { autoUpdater } = electronUpdater;
-  return autoUpdater;
-}
-
-const startAutoUpdater = () => {
-  const autoUpdater = getAutoUpdater();
-  autoUpdater.logger = log;
-  autoUpdater.checkForUpdatesAndNotify();
-};
-
 app.whenReady().then(() => {
   initAppApiHandler();
   initWindowApiHandler();
   initCastApiHandler(createCastWindow);
   createWindow();
-
-  startAutoUpdater();
 });
 
 app.on('window-all-closed', () => {

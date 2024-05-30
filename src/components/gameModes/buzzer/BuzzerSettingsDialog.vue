@@ -14,7 +14,7 @@
       <q-card-section class="q-gutter-y-sm">
         <q-input
           :label="t('gameMode.buzzer.settings.field.answerTime')"
-          v-model.number="buzzerSettings.answerTime"
+          v-model.number="settings.answerTime"
           type="number"
           :rules="[isNumber]"
           rounded
@@ -27,18 +27,18 @@
 
         <q-toggle
           :label="t('gameMode.buzzer.settings.field.multipleAttempts')"
-          v-model="buzzerSettings.multipleAttempts"
+          v-model="settings.multipleAttempts"
         />
 
         <q-toggle
           :label="t('gameMode.buzzer.settings.field.playSounds')"
-          v-model="buzzerSettings.playSounds"
+          v-model="settings.playSounds"
         />
 
         <q-input
-          v-if="buzzerSettings.playSounds"
+          v-if="settings.playSounds"
           :label="t('gameMode.buzzer.settings.field.beepAt')"
-          v-model.number="buzzerSettings.countDownBeepStartAt"
+          v-model.number="settings.countDownBeepStartAt"
           type="number"
           rounded
           outlined
@@ -54,7 +54,7 @@
 
         <q-input
           :label="t('gameMode.buzzer.settings.field.pointsCorrect')"
-          v-model.number="buzzerSettings.pointsCorrect"
+          v-model.number="settings.pointsCorrect"
           type="number"
           :rules="[isNumber]"
           rounded
@@ -68,7 +68,7 @@
         <q-input
           :label="t('gameMode.buzzer.settings.field.pointsWrong.label')"
           :hint="t('gameMode.buzzer.settings.field.pointsWrong.hint')"
-          v-model.number="buzzerSettings.pointsWrong"
+          v-model.number="settings.pointsWrong"
           type="number"
           :rules="[isNumber]"
           rounded
@@ -85,7 +85,7 @@
           :label="t('gameMode.buzzer.settings.action.ok')"
           color="primary"
           rounded
-          @click="onDialogOK"
+          @click="onOk"
         />
       </q-card-actions>
     </q-card>
@@ -93,17 +93,34 @@
 </template>
 
 <script lang="ts" setup>
-import { useDialogPluginComponent } from 'quasar';
+import { QForm, useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { isNumber } from 'lodash-es';
+import { ref, toRaw } from 'vue';
+import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 
-const { buzzerSettings } = useGameSettingsStore();
+const gameSettingsStore = useGameSettingsStore();
+const form = ref<QForm | null>(null);
+const settings = ref<BuzzerSettings>(
+  structuredClone(toRaw(gameSettingsStore.buzzerSettings)),
+);
+
+const onOk = async () => {
+  const valid = await form.value?.validate();
+
+  if (!valid) {
+    return;
+  }
+
+  gameSettingsStore.buzzerSettings = settings.value;
+  onDialogOK();
+};
 </script>
 
 <style scoped></style>

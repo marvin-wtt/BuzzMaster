@@ -44,11 +44,10 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
-
-const version = ref<string>();
+import { useUpdaterStore } from 'stores/updater-store';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
-
-window.appAPI.getVersion().then((value) => (version.value = value));
+const updaterStore = useUpdaterStore();
+const { version } = storeToRefs(updaterStore);
 </script>

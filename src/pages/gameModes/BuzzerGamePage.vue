@@ -211,7 +211,7 @@ onUnmounted(() => {
 });
 
 const disableContinue = computed<boolean>(() => {
-  if (gameState.value.name === 'answered' && gameState.value.correct === true) {
+  if (gameState.value.name === 'answered' && gameState.value.correct) {
     return true;
   }
 

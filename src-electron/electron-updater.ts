@@ -20,8 +20,11 @@ function getAutoUpdater(): AppUpdater {
 const startAutoUpdater = async () => {
   const autoUpdater = getAutoUpdater();
   autoUpdater.logger = log;
+  autoUpdater.autoDownload = false;
   await autoUpdater.checkForUpdates();
 };
+
+let cancellationToken: CancellationToken | undefined;
 
 const autoUpdater = getAutoUpdater();
 autoUpdater.on('checking-for-update', () => {
@@ -30,6 +33,7 @@ autoUpdater.on('checking-for-update', () => {
   });
 });
 autoUpdater.on('update-cancelled', (info) => {
+  cancellationToken = undefined;
   send({
     name: 'update-cancelled',
     info,
@@ -61,13 +65,13 @@ autoUpdater.on('download-progress', (progressObj) => {
 });
 
 autoUpdater.on('update-downloaded', (info) => {
+  cancellationToken = undefined;
   send({
     name: 'update-downloaded',
     info,
   });
 });
 
-let cancellationToken: CancellationToken | undefined;
 ipcMain.on('app:checkForUpdate', async () => {
   await autoUpdater.checkForUpdates();
 });

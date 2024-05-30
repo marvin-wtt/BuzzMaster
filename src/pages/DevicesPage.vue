@@ -9,57 +9,85 @@
         v-for="dongle in dongles"
         :key="dongle.name"
         group="dongles"
-        :label="dongle.name"
         expand-separator
       >
-        <q-list>
-          <q-item
-            v-for="controller in dongle.controllers"
-            :key="controller.name"
-          >
-            <q-item-section class="col col-shrink">
-              <q-icon
-                name="circle"
-                :color="getButtonColor(controller)"
-                size="xs"
-              />
-            </q-item-section>
+        <template v-slot:header>
+          <q-item-section class="col col-shrink">
+            <q-icon
+              name="circle"
+              :color="getDongleColor(dongle)"
+              size="xs"
+            />
+          </q-item-section>
+          <q-item-section class="col col-grow">
+            <q-item-label>
+              {{ dongle.name }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn
+              icon="search"
+              size="xs"
+              flat
+              round
+              @click="findDongle(dongle)"
+            />
+          </q-item-section>
+        </template>
+        <template v-slot:default>
+          <q-list>
+            <q-item
+              v-for="controller in dongle.controllers"
+              :key="controller.name"
+            >
+              <q-item-section class="col col-shrink">
+                <q-icon
+                  name="circle"
+                  :color="getButtonColor(controller)"
+                  size="xs"
+                />
+              </q-item-section>
 
-            <q-item-section class="col col-grow">
-              {{ controller.name }}
-            </q-item-section>
+              <q-item-section class="col col-grow">
+                <q-item-label>
+                  {{ controller.name }}
+                </q-item-label>
+              </q-item-section>
 
-            <q-item-section side>
-              <q-btn
-                icon="search"
-                size="xs"
-                flat
-                round
-                @click="findDevice(controller)"
-              />
-            </q-item-section>
-            <q-item-section side>
-              <q-btn
-                icon="edit"
-                size="xs"
-                flat
-                round
-                @click="editControllerName(controller)"
-              />
-            </q-item-section>
-            <q-item-section side>
-              <q-btn
-                :icon="
-                  controller.disabled ? 'play_circle' : 'remove_circle_outline'
-                "
-                size="xs"
-                flat
-                round
-                @click="controller.disabled = !controller.disabled"
-              />
-            </q-item-section>
-          </q-item>
-        </q-list>
+              <q-item-section side>
+                <q-btn
+                  icon="search"
+                  size="xs"
+                  flat
+                  round
+                  @click="findDevice(controller)"
+                />
+              </q-item-section>
+              <q-item-section side>
+                <q-btn
+                  icon="edit"
+                  size="xs"
+                  flat
+                  round
+                  @click="editControllerName(controller)"
+                />
+              </q-item-section>
+              <q-item-section side>
+                <q-btn
+                  :icon="
+                    controller.disabled
+                      ? 'play_circle'
+                      : 'remove_circle_outline'
+                  "
+                  size="xs"
+                  flat
+                  round
+                  @click="controller.disabled = !controller.disabled"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </template>
       </q-expansion-item>
       <!-- Buzzer Test -->
       <q-item v-if="dongles.length > 0">
@@ -96,7 +124,7 @@
 
 <script lang="ts" setup>
 import { useBuzzer } from 'src/plugins/buzzer';
-import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
+import { BuzzerButton, IController, IDongle } from 'src/plugins/buzzer/types';
 import { NamedColor, useQuasar } from 'quasar';
 import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
 import { computed, onUnmounted } from 'vue';
@@ -131,6 +159,29 @@ const findDevice = (controller: IController) => {
   const timeoutId = setTimeout(() => {
     clearInterval(intervalId);
     controller.setLight(false);
+
+    // Remove from list
+    findTimerId = undefined;
+  }, 5000);
+
+  // Add ids so the timers can be canceled externally
+  findTimerId = {
+    intervalId,
+    timeoutId,
+  };
+};
+
+const findDongle = (dongle: IDongle) => {
+  cancelFindDevice();
+  let toggle = true;
+  const intervalId = setInterval(() => {
+    dongle.controllers.forEach((controller) => controller.setLight(toggle));
+    toggle = !toggle;
+  });
+
+  const timeoutId = setTimeout(() => {
+    clearInterval(intervalId);
+    dongle.controllers.forEach((controller) => controller.setLight(false));
 
     // Remove from list
     findTimerId = undefined;
@@ -186,6 +237,14 @@ const editControllerName = (controller: IController) => {
     .onOk((name: string) => {
       controller.name = name;
     });
+};
+
+const getDongleColor = (dongle: IDongle): NamedColor => {
+  const pressed = dongle.controllers
+    .flatMap((controller: IController) => Object.values(controller.buttons))
+    .some((pressed: boolean) => pressed);
+
+  return pressed ? 'red' : 'grey';
 };
 
 const getButtonColor = (controller: IController): NamedColor => {

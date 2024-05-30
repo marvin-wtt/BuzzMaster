@@ -8,7 +8,10 @@ export const useUpdaterStore = defineStore('updater', () => {
   const quasar = useQuasar();
   const { t } = useI18n();
 
+  const version = ref<string>();
   const status = ref<AppUpdate>();
+
+  window.appAPI.getVersion().then((value) => (version.value = value));
 
   window.appAPI.onUpdateInfo((data) => {
     status.value = data;
@@ -40,6 +43,7 @@ export const useUpdaterStore = defineStore('updater', () => {
 
   return {
     status,
+    version,
   };
 });
 

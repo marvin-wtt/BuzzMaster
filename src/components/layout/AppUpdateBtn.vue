@@ -168,15 +168,22 @@
 
         <div
           v-else
-          class="row q-gutter-x-sm"
+          class="row no-wrap justify-between q-gutter-x-sm"
         >
-          {{ t('updater.search') }}
+          <div class="column">
+            {{ t('updater.search') }}
+
+            <div class="text-caption">
+              {{ version }}
+            </div>
+          </div>
 
           <q-btn
             dense
             rounded
             color="primary"
             icon="sync"
+            class="self-center"
             @click="checkForUpdates"
           />
         </div>
@@ -195,7 +202,7 @@ import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const updaterStore = useUpdaterStore();
-const { status } = storeToRefs(updaterStore);
+const { status, version } = storeToRefs(updaterStore);
 const { humanStorageSize } = format;
 
 const menuOpen = ref<boolean>(false);

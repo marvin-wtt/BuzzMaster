@@ -131,7 +131,13 @@ function createCastWindow() {
   if (process.env.DEV) {
     window.loadURL(process.env.APP_URL + defaultRoute);
   } else {
-    window.loadFile('index.html' + defaultRoute);
+    window
+      .loadFile('index.html')
+      .then(() =>
+        window.webContents.executeJavaScript(
+          `window.location.hash = '${defaultRoute}'`,
+        ),
+      );
   }
 
   if (process.env.DEBUGGING) {

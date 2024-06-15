@@ -48,5 +48,10 @@ const items = computed<MenuItem[]>(() => [
     label: t('gameMode.action.stopwatch'),
     icon: 'timer',
   },
+  {
+    routeName: 'viewing-rate-game',
+    label: t('gameMode.action.viewingRate'),
+    icon: 'trending_up',
+  },
 ]);
 </script>

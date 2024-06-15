@@ -22,7 +22,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  reverse: false,
   animated: false,
   precision: 0,
 });
@@ -42,11 +41,16 @@ const formatTime = (time: number) => {
   const date = new Date(time * 1000);
 
   let timeString = '';
+  // Hours
+  if (date.getUTCHours() > 0) {
+    const hours = date.getUTCHours();
+    timeString = `${hours}:`;
+  }
 
   // Minutes
-  if (date.getUTCMinutes() > 0) {
+  if (date.getUTCMinutes() > 0 || timeString) {
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    timeString = `${minutes}:`;
+    timeString += `${minutes}:`;
   }
 
   // Seconds

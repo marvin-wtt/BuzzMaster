@@ -5,7 +5,10 @@
   >
     <div class="col-12 column no-wrap">
       <!-- Content -->
-      <div class="col-8 row justify-center">
+      <div
+        class="row justify-center"
+        :class="gameState.name === 'completed' ? 'col-10' : 'col-8'"
+      >
         <div
           v-if="gameState.name === 'preparing'"
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center text-h5"
@@ -16,33 +19,47 @@
             })
           }}
         </div>
-        <div v-else>
-          <div
-            v-if="gameState.name !== 'completed'"
-            class="text-h6 text-center"
-          >
-            <timer-animated :time="time" />
+        <div
+          v-else
+          class="column col-xs-11 col-sm-7 col-md-5 col-lg-3 col-xl-2 q-mb-sm"
+        >
+          <template v-if="gameState.name !== 'completed'">
+            <timer-animated
+              :time="time"
+              class="text-center text-h6"
+            />
 
             <q-separator inset />
-          </div>
 
-          <div class="column justify-around full-height">
-            <div
-              v-if="gameState.name !== 'completed'"
-              class="text-center"
-            >
-              <div class="text-h6">
-                {{ t('gameMode.viewingRate.currentlyViewing') }}
+            <div class="column justify-around col-grow">
+              <!-- Currently viewing -->
+              <div class="text-h6 text-center">
+                <div class="text-h6">
+                  {{ t('gameMode.viewingRate.currentlyViewing') }}
+                </div>
+
+                <div class="text-h5">
+                  {{ currentlyViewingControllers }} / {{ totalControllers }} ({{
+                    toRoundedPercentage(currentlyViewing)
+                  }})
+                </div>
               </div>
 
-              <div class="text-h5">
-                {{ currentlyViewingControllers }} / {{ totalControllers }} ({{
-                  toRoundedPercentage(currentlyViewing)
-                }})
+              <!-- Total viewing rate -->
+              <div class="text-h6 text-center">
+                <div class="text-h6">
+                  {{ t('gameMode.viewingRate.totalWatchRate') }}
+                </div>
+
+                <div class="text-h5">
+                  {{ toRoundedPercentage(totalWatchRate) }}
+                </div>
               </div>
             </div>
+          </template>
 
-            <div class="text-h6 text-center">
+          <template v-if="gameState.name === 'completed'">
+            <div class="text-h6 text-center q-pb-lg">
               <div class="text-h6">
                 {{ t('gameMode.viewingRate.totalWatchRate') }}
               </div>
@@ -51,11 +68,34 @@
                 {{ toRoundedPercentage(totalWatchRate) }}
               </div>
             </div>
-          </div>
+
+            <div class="col-grow relative-position">
+              <q-virtual-scroll
+                class="absolute fit"
+                :items="Object.entries(gameState.changeTimes)"
+                v-slot="{
+                  item: [controllerId, times],
+                }: {
+                  item: [string, number[]];
+                  index: number;
+                }"
+              >
+                <viewing-rate-result-item
+                  :name="controllerNames[controllerId]"
+                  :times="times"
+                  :total-time="time"
+                  :default="settings.startViewing"
+                />
+              </q-virtual-scroll>
+            </div>
+          </template>
         </div>
       </div>
       <!-- Actions -->
-      <div class="col-4 column q-gutter-y-sm justify-center content-center">
+      <div
+        class="column q-gutter-y-sm justify-center content-center"
+        :class="gameState.name === 'completed' ? 'col-2' : 'col-4'"
+      >
         <template v-if="gameState.name === 'preparing'">
           <q-btn
             :label="t('gameMode.viewingRate.action.start')"
@@ -124,14 +164,22 @@ import { storeToRefs } from 'pinia';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
-import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
+import {
+  computed,
+  onBeforeMount,
+  onUnmounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 import {
   ViewingRateRunningState,
   ViewingRateState,
 } from 'app/common/gameState/ViewingRateState';
-import { ButtonEvent } from 'src/plugins/buzzer/types';
+import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import TimerAnimated from 'components/TimerAnimated.vue';
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
+import ViewingRateResultItem from 'components/gameModes/viewingRate/ViewingRateResultItem.vue';
 
 const { t } = useI18n();
 const gameSettingsStore = useGameSettingsStore();
@@ -146,6 +194,11 @@ const { gameState, transition, onStateEntry, onStateExit } =
     game: 'viewing-rates',
     name: 'preparing',
   });
+
+// TODO Extract from settings
+const settings = reactive({
+  startViewing: false,
+});
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -202,7 +255,7 @@ const currentlyViewing = computed<number>(() => {
 
 const controllerViewingRate = (changes: number[], time: number) => {
   let totalWatchTime = 0;
-  let watching = false;
+  let watching = settings.startViewing;
   let prevTime = 0;
   for (const changeTime of changes) {
     if (watching) {
@@ -301,7 +354,9 @@ const stop = transition('running', (state) => {
 });
 
 const controllerWatchStatus = (changes: number[]): boolean => {
-  return changes.length % 2 === 1;
+  const viewingMod = settings.startViewing ? 0 : 1;
+
+  return changes.length % 2 === viewingMod;
 };
 
 const isControllerViewing = (
@@ -312,6 +367,10 @@ const isControllerViewing = (
 };
 
 const listener = transition('running', (state, event: ButtonEvent) => {
+  if (event.button !== BuzzerButton.RED) {
+    return;
+  }
+
   const controllerId = event.controller.id;
   const changes = { ...state.changeTimes };
   if (!(controllerId in changes)) {
@@ -335,6 +394,16 @@ const toRoundedPercentage = (n: number): string => {
 
   return percentage + ' %';
 };
+
+const controllerNames = computed<Record<string, string>>(() => {
+  return controllers.value.reduce(
+    (acc, controller) => {
+      acc[controller.id] = controller.name;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+});
 </script>
 
 <style scoped></style>

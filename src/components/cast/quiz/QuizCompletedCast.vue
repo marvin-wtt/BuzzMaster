@@ -1,6 +1,18 @@
 <template>
   <div
-    v-if="settings.mode === 'quiz'"
+    v-if="settings.mode === 'survey'"
+    class="column justify-center"
+  >
+    <div class="col-8">
+      <quiz-result-bar-chart
+        class="fit"
+        :controllers-by-button="buttonsByControllers"
+        animated
+      />
+    </div>
+  </div>
+  <div
+    v-else
     class="column text-h2"
   >
     <!-- Correct -->
@@ -24,19 +36,6 @@
     >
       {{ t('cast.quiz.completed.points') }}
     </quiz-completed-result>
-  </div>
-
-  <div
-    v-else-if="settings.mode === 'survey'"
-    class="column justify-center"
-  >
-    <div class="col-8">
-      <quiz-result-bar-chart
-        class="fit"
-        :controllers-by-button="buttonsByControllers"
-        animated
-      />
-    </div>
   </div>
 </template>
 

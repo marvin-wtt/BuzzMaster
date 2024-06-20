@@ -177,7 +177,7 @@ const settings = ref<QuizSettings>(
 );
 
 const showPoints = computed<boolean>(() => {
-  return settings.value.mode === 'quiz';
+  return settings.value.mode !== 'survey';
 });
 
 const onOk = async () => {
@@ -214,12 +214,16 @@ const changeModeOptions = [
 
 const modeOptions = [
   {
-    label: t('gameMode.quiz.settings.field.mode.option.quiz'),
-    value: 'quiz',
+    label: t('gameMode.quiz.settings.field.mode.option.normal'),
+    value: 'normal',
   },
   {
     label: t('gameMode.quiz.settings.field.mode.option.survey'),
     value: 'survey',
+  },
+  {
+    label: t('gameMode.quiz.settings.field.mode.option.elimination'),
+    value: 'elimination',
   },
 ];
 

@@ -3,6 +3,7 @@ import {
   BuzzerButton,
   IController,
   IDevice,
+  IDongle,
 } from 'src/plugins/buzzer/types';
 import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 
@@ -54,13 +55,7 @@ export const createDevice = async (
   };
 
   const getController = (index: number): IController => {
-    const dongle = plugin.dongles.find(
-      (dongle) => dongle.device.id === device.id,
-    );
-
-    if (!dongle) {
-      throw 'Cannot find dongle.';
-    }
+    const dongle = getDongle();
 
     if (index >= dongle.controllers.length) {
       throw 'Controller does not exist. Make sure that there are enough controllers specified.';
@@ -69,10 +64,23 @@ export const createDevice = async (
     return dongle.controllers[index];
   };
 
+  const getDongle = (): IDongle => {
+    const dongle = plugin.dongles.find(
+      (dongle) => dongle.device.id === device.id,
+    );
+
+    if (!dongle) {
+      throw 'Cannot find dongle.';
+    }
+
+    return dongle;
+  };
+
   return {
     device,
     updateButton,
     pressAndRelease,
     getController,
+    getDongle,
   };
 };

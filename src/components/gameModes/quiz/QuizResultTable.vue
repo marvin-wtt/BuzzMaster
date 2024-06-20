@@ -25,7 +25,7 @@
       class="col-grow absolute"
     >
       <q-virtual-scroll
-        :items="controllerNames(props.controllersByButton[button])"
+        :items="controllersByButton[button]"
         separator
         v-slot="{ item }"
         style="height: 100%"
@@ -42,7 +42,7 @@
 
 <script lang="ts" setup>
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import { BuzzerButton, IController } from 'src/plugins/buzzer/types';
+import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { computed, ref } from 'vue';
 import { buzzerButtonColor } from 'components/buttonColors';
 
@@ -50,24 +50,38 @@ const { quizSettings } = useGameSettingsStore();
 
 const activeResult = ref<BuzzerButton>();
 const props = defineProps<{
-  controllersByButton: Record<BuzzerButton, IController[] | undefined>;
+  answers: Record<string, BuzzerButton>;
+  controllerNames: Record<string, string>;
 }>();
 
-type BuzzerMap = Record<BuzzerButton, number>;
-
-const buttonOccurrences = computed<BuzzerMap>(() => {
-  return {
-    [BuzzerButton.BLUE]:
-      props.controllersByButton[BuzzerButton.BLUE]?.length ?? 0,
-    [BuzzerButton.ORANGE]:
-      props.controllersByButton[BuzzerButton.ORANGE]?.length ?? 0,
-    [BuzzerButton.GREEN]:
-      props.controllersByButton[BuzzerButton.GREEN]?.length ?? 0,
-    [BuzzerButton.YELLOW]:
-      props.controllersByButton[BuzzerButton.YELLOW]?.length ?? 0,
-    [BuzzerButton.RED]:
-      props.controllersByButton[BuzzerButton.RED]?.length ?? 0,
+const buttonOccurrences = computed<Record<BuzzerButton, number>>(() => {
+  const result: Record<BuzzerButton, number> = {
+    [BuzzerButton.RED]: 0,
+    [BuzzerButton.BLUE]: 0,
+    [BuzzerButton.ORANGE]: 0,
+    [BuzzerButton.GREEN]: 0,
+    [BuzzerButton.YELLOW]: 0,
   };
+
+  return Object.values(props.answers).reduce((acc, button) => {
+    acc[button] += 1;
+    return acc;
+  }, result);
+});
+
+const controllersByButton = computed<Record<BuzzerButton, string[]>>(() => {
+  const result: Record<BuzzerButton, string[]> = {
+    [BuzzerButton.RED]: [],
+    [BuzzerButton.BLUE]: [],
+    [BuzzerButton.ORANGE]: [],
+    [BuzzerButton.GREEN]: [],
+    [BuzzerButton.YELLOW]: [],
+  };
+
+  return Object.entries(props.answers).reduce((acc, [controllerId, button]) => {
+    acc[button].push(props.controllerNames[controllerId]);
+    return acc;
+  }, result);
 });
 
 const resultOptions = computed<BuzzerButton[]>(() => {
@@ -80,10 +94,6 @@ const resultOptions = computed<BuzzerButton[]>(() => {
   return options.sort();
 });
 
-function controllerNames(controllers?: IController[]): string[] {
-  return controllers?.map((controller) => controller.name) ?? [];
-}
-
 function menuButtonColor(button: BuzzerButton) {
   if (button === BuzzerButton.RED) {
     return 'grey';
@@ -93,18 +103,4 @@ function menuButtonColor(button: BuzzerButton) {
 }
 </script>
 
-<style scoped>
-.result-tab-content {
-  background-color: black;
-  color: white;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-}
-
-.result-tab-active-content {
-  background-color: white;
-  color: black;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-}
-</style>
+<style scoped></style>

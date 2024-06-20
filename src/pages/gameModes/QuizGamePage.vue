@@ -9,12 +9,14 @@
         <template v-if="gameState.name === 'completed'">
           <quiz-result-table
             v-if="quizSettings.presentationView === 'table'"
-            :controllers-by-button="controllersByButton"
+            :answers="gameState.result"
+            :controller-names="controllerNames"
             data-testid="result"
           />
           <quiz-result-bar-chart
             v-else-if="quizSettings.presentationView === 'bar-chart'"
-            :controllers-by-button="controllersByButton"
+            :answers="gameState.result"
+            :total-answers="gameState.controllers.length"
             data-testid="result"
           />
         </template>
@@ -164,11 +166,7 @@ import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import {
-  ButtonEvent,
-  BuzzerButton,
-  IController,
-} from 'src/plugins/buzzer/types';
+import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
 import { buzzerButtonColor } from 'components/buttonColors';
 import { useI18n } from 'vue-i18n';
@@ -243,36 +241,13 @@ onStateExit('running', () => {
   stopControllerBlink();
 });
 
-// TODO Make results independent of IController interface
-const controllersByButton = computed<
-  Record<BuzzerButton, IController[] | undefined>
->(() => {
-  const state = gameState.value;
-  if (state.name !== 'completed') {
-    return {} as Record<BuzzerButton, IController[] | undefined>;
-  }
-
-  return state.controllers.reduce(
-    (acc, controllerId) => {
-      // Mo input is default button
-      const pressedButton =
-        controllerId in state.result ? state.result[controllerId] : undefined;
-      // Ignore input if user has not confirmed the button selection
-      const button = pressedButton ?? BuzzerButton.RED;
-
-      const controller = controllers.value.find(
-        (value) => value.id === controllerId,
-      );
-      if (!controller) {
-        return acc;
-      }
-
-      acc[button] ??= [];
-      acc[button].push(controller);
-
+const controllerNames = computed<Record<string, string>>(() => {
+  return controllers.value.reduce(
+    (acc, controller) => {
+      acc[controller.id] = controller.name;
       return acc;
     },
-    {} as Record<BuzzerButton, IController[]>,
+    {} as Record<string, string>,
   );
 });
 

@@ -9,12 +9,14 @@
         <template v-if="gameState.name === 'completed'">
           <quiz-result-table
             v-if="quizSettings.presentationView === 'table'"
-            :controllers-by-button="controllersByButton"
+            :answers="gameState.result"
+            :controller-names="controllerNames"
             data-testid="result"
           />
           <quiz-result-bar-chart
             v-else-if="quizSettings.presentationView === 'bar-chart'"
-            :controllers-by-button="controllersByButton"
+            :answers="gameState.result"
+            :total-answers="gameState.controllers.length"
             data-testid="result"
           />
         </template>
@@ -91,13 +93,25 @@
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
             <quiz-leaderboard-buttons
-              :controller-values="controllersByButton"
+              :answers="gameState.result"
               @update="onPointsUpdate"
             />
 
             <q-separator />
 
             <q-btn
+              v-if="gameState.mode === 'elimination'"
+              :label="t('gameMode.quiz.action.nextRound')"
+              icon="fast_forward"
+              color="primary"
+              class="self-center"
+              rounded
+              :disable="disableNextRoundButton"
+              data-testid="btn-game-next-round"
+              @click="nextRound()"
+            />
+            <q-btn
+              v-else
               :label="t('gameMode.quiz.action.quickPlay')"
               icon="fast_forward"
               color="primary"
@@ -152,11 +166,7 @@ import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import {
-  ButtonEvent,
-  BuzzerButton,
-  IController,
-} from 'src/plugins/buzzer/types';
+import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
 import { buzzerButtonColor } from 'components/buttonColors';
 import { useI18n } from 'vue-i18n';
@@ -164,6 +174,8 @@ import {
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
+  QuizRunningState,
+  QuizRunningStateBase,
   QuizState,
 } from 'app/common/gameState/QuizState';
 import { useGameState } from 'src/composables/gameState';
@@ -203,7 +215,9 @@ const tick = transition('running', (state, time: number) => {
     return {
       game: 'quiz',
       name: 'completed',
+      controllers: state.controllers,
       result: state.result,
+      mode: state.mode,
     };
   }
 
@@ -224,31 +238,38 @@ onStateEntry('running', (state) => {
 });
 onStateExit('running', () => {
   stopTimer();
+  stopControllerBlink();
 });
 
-const controllersByButton = computed<
-  Record<BuzzerButton, IController[] | undefined>
->(() => {
-  const state = gameState.value;
-  if (state.name !== 'completed') {
-    return {} as Record<BuzzerButton, IController[] | undefined>;
-  }
-
+const controllerNames = computed<Record<string, string>>(() => {
   return controllers.value.reduce(
     (acc, controller) => {
-      // Mo input is default button
-      const pressedButton =
-        controller.id in state.result ? state.result[controller.id] : undefined;
-      // Ignore input if user has not confirmed the button selection
-      const button = pressedButton ?? BuzzerButton.RED;
-
-      acc[button] ??= [];
-      acc[button].push(controller);
-
+      acc[controller.id] = controller.name;
       return acc;
     },
-    {} as Record<BuzzerButton, IController[]>,
+    {} as Record<string, string>,
   );
+});
+
+const disableNextRoundButton = computed<boolean>(() => {
+  const state = gameState.value;
+  if (state.name !== 'completed') {
+    return true;
+  }
+
+  if (state.mode !== 'elimination') {
+    return true;
+  }
+
+  if (state.correct === undefined) {
+    return true;
+  }
+
+  const correctAnswers = Object.entries(state.result).filter(([, button]) =>
+    state.correct?.includes(button),
+  ).length;
+
+  return correctAnswers < 2;
 });
 
 // Order of buttons
@@ -266,6 +287,10 @@ const buttonColorClass = (button: BuzzerButton) => {
 };
 
 const listener = transition('running', (state, event: ButtonEvent) => {
+  if (!state.controllers.includes(event.controller.id)) {
+    return;
+  }
+
   switch (state.answerChangeAllowed) {
     case 'always':
       return buttonPressedAnswerChangeAlways(event, state);
@@ -293,6 +318,8 @@ const buttonPressedAnswerChangeAlways = (
     game: 'quiz',
     name: 'running',
     answerChangeAllowed: 'always',
+    mode: state.mode,
+    controllers: state.controllers,
     time: state.time,
     result,
   };
@@ -320,10 +347,12 @@ const buttonPressedAnswerChangeNever = (
   };
 
   // Transition to completed if all controllers answered
-  if (Object.keys(result).length >= controllers.value.length) {
+  if (Object.keys(result).length >= state.controllers.length) {
     return {
       game: 'quiz',
       name: 'completed',
+      mode: state.mode,
+      controllers: state.controllers,
       result,
     };
   }
@@ -332,6 +361,8 @@ const buttonPressedAnswerChangeNever = (
     game: 'quiz',
     name: 'running',
     answerChangeAllowed: 'never',
+    controllers: state.controllers,
+    mode: state.mode,
     time: state.time,
     result,
   };
@@ -357,6 +388,8 @@ const buttonPressedAnswerChangeConfirm = (
       game: 'quiz',
       name: 'running',
       answerChangeAllowed: 'confirm',
+      controllers: state.controllers,
+      mode: state.mode,
       time: state.time,
       result: state.result,
       unconfirmed: {
@@ -382,10 +415,12 @@ const buttonPressedAnswerChangeConfirm = (
   };
 
   // Transition to completed if all controllers confirmed
-  if (Object.keys(result).length >= controllers.value.length) {
+  if (Object.keys(result).length >= state.controllers.length) {
     return {
       game: 'quiz',
       name: 'completed',
+      mode: state.mode,
+      controllers: state.controllers,
       result,
     };
   }
@@ -394,6 +429,8 @@ const buttonPressedAnswerChangeConfirm = (
     game: 'quiz',
     name: 'running',
     answerChangeAllowed: 'confirm',
+    controllers: state.controllers,
+    mode: state.mode,
     time: state.time,
     result,
     unconfirmed,
@@ -406,25 +443,55 @@ const openSettings = () => {
   });
 };
 
-const start = transition('preparing', () => {
-  if (quizSettings.value.changeMode === 'confirm') {
+const startGame = (controllerIds: string[]): QuizRunningState => {
+  const answerChangeAllowed = quizSettings.value.changeMode;
+  const time = quizSettings.value.answerTime;
+  const mode = quizSettings.value.mode;
+
+  const nextState: QuizRunningStateBase = {
+    game: 'quiz',
+    name: 'running',
+    time,
+    mode,
+    controllers: controllerIds,
+  };
+
+  if (answerChangeAllowed === 'confirm') {
     return {
-      game: 'quiz',
-      name: 'running',
-      time: quizSettings.value.answerTime,
-      answerChangeAllowed: 'confirm',
-      result: {},
+      ...nextState,
+      answerChangeAllowed,
       unconfirmed: {},
+      result: {},
     };
   }
 
   return {
-    game: 'quiz',
-    name: 'running',
-    time: quizSettings.value.answerTime,
-    answerChangeAllowed: quizSettings.value.changeMode,
+    answerChangeAllowed,
+    ...nextState,
     result: {},
   };
+};
+
+const start = transition('preparing', () => {
+  const availableControllers = controllers.value.map(
+    (controller) => controller.id,
+  );
+
+  return startGame(availableControllers);
+});
+
+const nextRound = transition('completed', (state) => {
+  if (state.correct === undefined) {
+    return;
+  }
+
+  const correctControllerIds = Object.entries(state.result)
+    .filter(([, button]) => state.correct?.includes(button))
+    .map(([controllerId]) => controllerId);
+
+  blinkControllers(correctControllerIds);
+
+  return startGame(correctControllerIds);
 });
 
 const restart = transition(['running', 'completed'], () => {
@@ -441,6 +508,8 @@ const onPointsUpdate = transition(
       game: 'quiz',
       name: 'completed',
       result: state.result,
+      mode: state.mode,
+      controllers: state.controllers,
       correct,
     };
   },
@@ -449,6 +518,26 @@ const onPointsUpdate = transition(
 const quickPlay = () => {
   restart();
   start();
+};
+
+let controllerBlinkIntervalId: NodeJS.Timeout | undefined;
+const blinkControllers = (controllerIds: string[]) => {
+  stopControllerBlink();
+  let toggle = true;
+  controllerBlinkIntervalId = setInterval(() => {
+    controllers.value
+      .filter((controller) => controllerIds.includes(controller.id))
+      .forEach((controller) => controller.setLight(toggle));
+
+    toggle = !toggle;
+  }, 1000);
+};
+
+const stopControllerBlink = () => {
+  if (controllerBlinkIntervalId) {
+    clearInterval(controllerBlinkIntervalId);
+    controllerBlinkIntervalId = undefined;
+  }
 };
 </script>
 

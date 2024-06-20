@@ -10,6 +10,7 @@ export default {
     quickPlay: 'Quick Play',
     reset: 'Reset',
     cancel: 'Cancel',
+    nextRound: 'Next Round',
   },
 
   settings: {
@@ -40,8 +41,9 @@ export default {
       mode: {
         label: 'Mode',
         option: {
-          quiz: 'Quiz',
+          normal: 'Normal',
           survey: 'Survey',
+          elimination: 'Elimination',
         },
       },
       points: 'Points',

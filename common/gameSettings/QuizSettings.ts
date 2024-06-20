@@ -1,4 +1,5 @@
 import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { QuizMode } from 'app/common/gameState/QuizState';
 
 export interface QuizSettings {
   activeButtons: BuzzerButton[];
@@ -6,7 +7,7 @@ export interface QuizSettings {
   changeMode: 'never' | 'always' | 'confirm';
   playSounds: boolean;
   countDownBeepStartAt: number;
-  mode: 'quiz' | 'survey';
+  mode: QuizMode;
   presentationView: 'table' | 'bar-chart';
   pointsCorrect: number;
   pointsWrong: number;

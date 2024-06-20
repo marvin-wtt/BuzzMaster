@@ -1,6 +1,19 @@
 <template>
   <div
-    v-if="settings.mode === 'quiz'"
+    v-if="settings.mode === 'survey'"
+    class="column justify-center"
+  >
+    <div class="col-8">
+      <quiz-result-bar-chart
+        class="fit"
+        :answers="props.state.result"
+        :total-answers="props.state.controllers.length"
+        animated
+      />
+    </div>
+  </div>
+  <div
+    v-else
     class="column text-h2"
   >
     <!-- Correct -->
@@ -24,19 +37,6 @@
     >
       {{ t('cast.quiz.completed.points') }}
     </quiz-completed-result>
-  </div>
-
-  <div
-    v-else-if="settings.mode === 'survey'"
-    class="column justify-center"
-  >
-    <div class="col-8">
-      <quiz-result-bar-chart
-        class="fit"
-        :controllers-by-button="buttonsByControllers"
-        animated
-      />
-    </div>
   </div>
 </template>
 
@@ -85,36 +85,6 @@ const wrongButtons = computed<BuzzerButton[] | undefined>(() => {
 
   return allButtons.filter((value) => !props.state.correct?.includes(value));
 });
-
-interface ControllerLike {
-  id: string;
-  name: string;
-}
-
-const buttonsByControllers = computed<Record<BuzzerButton, ControllerLike[]>>(
-  () => {
-    return Object.keys(props.state.result).reduce(
-      (acc, controllerId) => {
-        // Mo input is default button
-        const pressedButton =
-          controllerId in props.state.result
-            ? props.state.result[controllerId]
-            : undefined;
-        // Ignore input if user has not confirmed the button selection
-        const button = pressedButton ?? BuzzerButton.RED;
-
-        acc[button] ??= [];
-        acc[button].push({
-          id: controllerId,
-          name: castStore.controllers[controllerId],
-        });
-
-        return acc;
-      },
-      {} as Record<BuzzerButton, ControllerLike[]>,
-    );
-  },
-);
 </script>
 
 <style scoped></style>

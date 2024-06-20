@@ -43,7 +43,7 @@ export default {
         option: {
           normal: 'Quiz',
           survey: 'Umfrage',
-          elimination: 'Elemination',
+          elimination: 'Ausscheiden',
         },
       },
       points: 'Punkte',

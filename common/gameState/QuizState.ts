@@ -13,9 +13,13 @@ export interface QuizPreparationState extends QuizStateBase {
   name: 'preparing';
 }
 
+export type QuizMode = 'normal' | 'survey' | 'elimination';
+
 export interface QuizRunningStateBase extends QuizStateBase {
   name: 'running';
+  mode: QuizMode;
   time: number;
+  controllers: string[];
 }
 
 export type QuizRunningState =
@@ -41,6 +45,8 @@ export interface QuizRunningChangeConfirmState extends QuizRunningStateBase {
 
 export interface QuizCompleteState extends QuizStateBase {
   name: 'completed';
+  mode: QuizMode;
+  controllers: string[];
   result: Record<string, BuzzerButton>;
   correct?: BuzzerButton[];
 }

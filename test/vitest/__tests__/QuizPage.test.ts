@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import QuizQuestionPage from 'pages/gameModes/QuizGamePage.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
 import { Dialog, QBtn, QIcon } from 'quasar';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton, IDongle } from 'src/plugins/buzzer/types';
 import { useGameStore } from 'stores/game-store';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { selector } from 'app/test/vitest/utils/element-selector';
@@ -49,6 +49,8 @@ describe('QuizPage', () => {
       gameState.transition({
         game: 'quiz',
         name: 'completed',
+        mode: 'normal',
+        controllers: [],
         result: {},
       });
 
@@ -173,6 +175,8 @@ describe('QuizPage', () => {
         name: 'running',
         time: 5,
         answerChangeAllowed: 'always',
+        mode: 'normal',
+        controllers: [],
         result: {},
       });
 
@@ -191,6 +195,8 @@ describe('QuizPage', () => {
         name: 'running',
         time: 5,
         answerChangeAllowed: 'always',
+        mode: 'normal',
+        controllers: [],
         result: {},
       });
       await nextTick();
@@ -206,6 +212,8 @@ describe('QuizPage', () => {
         name: 'running',
         time: 5,
         answerChangeAllowed: 'always',
+        mode: 'normal',
+        controllers: [],
         result: {},
       });
 
@@ -225,6 +233,8 @@ describe('QuizPage', () => {
         name: 'running',
         time: 5,
         answerChangeAllowed: 'always',
+        mode: 'normal',
+        controllers: [],
         result: {},
       });
       await nextTick();
@@ -238,13 +248,19 @@ describe('QuizPage', () => {
     });
 
     describe('answer change never', () => {
-      const initializeStore = async () => {
+      const initializeStore = async (...dongles: IDongle[]) => {
         const gameStore = useGameStore();
+        const controllers = dongles
+          .flatMap((value) => value.controllers)
+          .map((value) => value.id);
+
         gameStore.transition({
           game: 'quiz',
           name: 'running',
           time: 5,
           answerChangeAllowed: 'never',
+          mode: 'normal',
+          controllers,
           result: {},
         });
         // Wait for changes to apply
@@ -255,8 +271,9 @@ describe('QuizPage', () => {
 
       it('should accept an answer', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -269,8 +286,9 @@ describe('QuizPage', () => {
 
       it('should only accept an answer from enabled buttons', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
         const { quizSettings } = useGameSettingsStore();
         quizSettings.activeButtons = [BuzzerButton.ORANGE, BuzzerButton.BLUE];
 
@@ -290,8 +308,9 @@ describe('QuizPage', () => {
 
       it('should turn on the LED on answer', async () => {
         const { buzzer } = mountQuizPage();
-        const { device, pressAndRelease } = await createDevice(buzzer);
-        await initializeStore();
+        const { device, pressAndRelease, getDongle } =
+          await createDevice(buzzer);
+        await initializeStore(getDongle());
 
         const spy = vi.spyOn(device, 'updateLight');
 
@@ -303,8 +322,9 @@ describe('QuizPage', () => {
 
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         pressAndRelease(0, BuzzerButton.BLUE);
         pressAndRelease(1, BuzzerButton.YELLOW);
@@ -318,8 +338,8 @@ describe('QuizPage', () => {
 
       it('should not accept the red button', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getDongle } = await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         pressAndRelease(0, BuzzerButton.RED);
 
@@ -328,8 +348,9 @@ describe('QuizPage', () => {
 
       it('should prevent answer changes', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -342,8 +363,8 @@ describe('QuizPage', () => {
 
       it('should transition to completed when all controllers are pressed', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getDongle } = await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         // Second controller pressed
         pressAndRelease(0, BuzzerButton.BLUE);
@@ -358,13 +379,19 @@ describe('QuizPage', () => {
     });
 
     describe('answer change always', () => {
-      const initializeStore = async () => {
+      const initializeStore = async (...dongles: IDongle[]) => {
         const gameStore = useGameStore();
+        const controllers = dongles
+          .flatMap((value) => value.controllers)
+          .map((value) => value.id);
+
         gameStore.transition({
           game: 'quiz',
           name: 'running',
           time: 5,
           answerChangeAllowed: 'always',
+          mode: 'normal',
+          controllers,
           result: {},
         });
         // Wait for changes to apply
@@ -375,8 +402,9 @@ describe('QuizPage', () => {
 
       it('should accept an answer', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -388,8 +416,9 @@ describe('QuizPage', () => {
 
       it('should only accept an answer from enabled buttons', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
         const { quizSettings } = useGameSettingsStore();
         quizSettings.activeButtons = [BuzzerButton.ORANGE, BuzzerButton.BLUE];
 
@@ -409,8 +438,9 @@ describe('QuizPage', () => {
 
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         pressAndRelease(0, BuzzerButton.BLUE);
         pressAndRelease(1, BuzzerButton.YELLOW);
@@ -424,8 +454,9 @@ describe('QuizPage', () => {
 
       it('should allow answer change', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -438,8 +469,8 @@ describe('QuizPage', () => {
 
       it('should not accept the red button', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getDongle } = await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         pressAndRelease(0, BuzzerButton.RED);
 
@@ -448,8 +479,8 @@ describe('QuizPage', () => {
 
       it('should stay in running when all controllers are pressed', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getDongle } = await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         // Second controller pressed
         pressAndRelease(0, BuzzerButton.BLUE);
@@ -464,13 +495,19 @@ describe('QuizPage', () => {
     });
 
     describe('answer change confirm', () => {
-      const initializeStore = async () => {
+      const initializeStore = async (...dongles: IDongle[]) => {
         const gameStore = useGameStore();
+        const controllers = dongles
+          .flatMap((value) => value.controllers)
+          .map((value) => value.id);
+
         gameStore.transition({
           game: 'quiz',
           name: 'running',
           time: 5,
           answerChangeAllowed: 'confirm',
+          mode: 'normal',
+          controllers,
           result: {},
           unconfirmed: {},
         });
@@ -482,8 +519,9 @@ describe('QuizPage', () => {
 
       it('should accept an answer', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -498,8 +536,9 @@ describe('QuizPage', () => {
 
       it('should only accept an answer from enabled buttons', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
         const { quizSettings } = useGameSettingsStore();
         quizSettings.activeButtons = [BuzzerButton.ORANGE, BuzzerButton.BLUE];
 
@@ -526,8 +565,9 @@ describe('QuizPage', () => {
 
       it('should accept an answer from multiple controllers', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         pressAndRelease(0, BuzzerButton.BLUE);
         pressAndRelease(0, BuzzerButton.RED);
@@ -543,8 +583,9 @@ describe('QuizPage', () => {
 
       it('should allow am answer change if not confirmed', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -561,8 +602,9 @@ describe('QuizPage', () => {
 
       it('should accept a red button after answer', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -577,8 +619,9 @@ describe('QuizPage', () => {
 
       it('should turn on the LED on confirm', async () => {
         const { buzzer } = mountQuizPage();
-        const { device, pressAndRelease } = await createDevice(buzzer);
-        await initializeStore();
+        const { device, pressAndRelease, getDongle } =
+          await createDevice(buzzer);
+        await initializeStore(getDongle());
 
         const spy = vi.spyOn(device, 'updateLight');
 
@@ -594,8 +637,9 @@ describe('QuizPage', () => {
 
       it('should reject a red button without previous selection', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -609,8 +653,9 @@ describe('QuizPage', () => {
 
       it('should reject an answer after confirmation', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         const controllerId = getController(0).id;
 
@@ -626,8 +671,9 @@ describe('QuizPage', () => {
 
       it('should not accept an unconfirmed selection as result', async () => {
         const { buzzer } = mountQuizPage();
-        const { pressAndRelease, getController } = await createDevice(buzzer);
-        const gameStore = await initializeStore();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer);
+        const gameStore = await initializeStore(getDongle());
 
         pressAndRelease(0, BuzzerButton.GREEN);
         pressAndRelease(0, BuzzerButton.RED);
@@ -655,11 +701,17 @@ describe('QuizPage', () => {
   });
 
   describe('completed', () => {
-    const initializeStore = async () => {
+    const initializeStore = async (...dongles: IDongle[]) => {
       const gameStore = useGameStore();
+      const controllers = dongles
+        .flatMap((value) => value.controllers)
+        .map((value) => value.id);
+
       gameStore.transition({
         game: 'quiz',
         name: 'completed',
+        mode: 'normal',
+        controllers,
         result: {},
       });
       // Wait for changes to apply
@@ -670,14 +722,19 @@ describe('QuizPage', () => {
 
     it('should not accept a buzzer', async () => {
       const { buzzer } = mountQuizPage();
-      const { pressAndRelease, getController } = await createDevice(buzzer);
+      const { pressAndRelease, getController, getDongle } =
+        await createDevice(buzzer);
       const controller0 = getController(0);
       const controller1 = getController(1);
+
+      const controllers = getDongle().controllers.map((value) => value.id);
 
       const gameStore = useGameStore();
       gameStore.transition({
         game: 'quiz',
         name: 'completed',
+        mode: 'normal',
+        controllers,
         result: {
           [controller0.id]: BuzzerButton.GREEN,
         },

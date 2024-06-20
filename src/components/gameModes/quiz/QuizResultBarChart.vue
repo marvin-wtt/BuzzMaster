@@ -26,13 +26,9 @@ import QuizResultBar from 'components/gameModes/quiz/QuizResultBar.vue';
 
 const { quizSettings } = useGameSettingsStore();
 
-interface ControllerLike {
-  id: string;
-  name: string;
-}
-
 const props = defineProps<{
-  controllersByButton: Record<BuzzerButton, ControllerLike[] | undefined>;
+  answers: Record<string, BuzzerButton>;
+  totalAnswers: number;
   animated?: boolean;
 }>();
 
@@ -49,30 +45,25 @@ const resultOptions = computed<BuzzerButton[]>(() => {
 type BuzzerMap = Record<BuzzerButton, number>;
 
 const buttonOccurrences = computed<BuzzerMap>(() => {
-  return {
-    [BuzzerButton.BLUE]:
-      props.controllersByButton[BuzzerButton.BLUE]?.length ?? 0,
-    [BuzzerButton.ORANGE]:
-      props.controllersByButton[BuzzerButton.ORANGE]?.length ?? 0,
-    [BuzzerButton.GREEN]:
-      props.controllersByButton[BuzzerButton.GREEN]?.length ?? 0,
-    [BuzzerButton.YELLOW]:
-      props.controllersByButton[BuzzerButton.YELLOW]?.length ?? 0,
-    [BuzzerButton.RED]:
-      props.controllersByButton[BuzzerButton.RED]?.length ?? 0,
+  const result: Record<BuzzerButton, number> = {
+    [BuzzerButton.RED]: 0,
+    [BuzzerButton.BLUE]: 0,
+    [BuzzerButton.ORANGE]: 0,
+    [BuzzerButton.GREEN]: 0,
+    [BuzzerButton.YELLOW]: 0,
   };
-});
 
-const totalAnswers = computed<number>(() => {
-  return Object.values(props.controllersByButton).flat().length;
+  return Object.values(props.answers).reduce((acc, button) => {
+    acc[button] += 1;
+    return acc;
+  }, result);
 });
 
 const buttonPercentage = computed<BuzzerMap>(() => {
-  const total = totalAnswers.value;
   const buttonPercentage: Record<BuzzerButton, number> = {} as BuzzerMap;
   Object.keys(BuzzerButton).map((value) => {
     const button = BuzzerButton[value as keyof typeof BuzzerButton];
-    const val = (buttonOccurrences.value[button] / total) * 100;
+    const val = (buttonOccurrences.value[button] / props.totalAnswers) * 100;
     buttonPercentage[button] = Math.round(val * 10) / 10;
   });
 

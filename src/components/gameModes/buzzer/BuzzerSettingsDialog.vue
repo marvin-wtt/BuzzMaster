@@ -11,73 +11,78 @@
         <a class="text-h5">{{ t('gameMode.buzzer.settings.title') }}</a>
       </q-card-section>
 
-      <q-card-section class="q-gutter-y-sm">
-        <q-input
-          :label="t('gameMode.buzzer.settings.field.answerTime')"
-          v-model.number="settings.answerTime"
-          type="number"
-          :rules="[isNumber]"
-          rounded
-          outlined
+      <q-card-section>
+        <q-form
+          ref="form"
+          class="column q-gutter-y-sm"
         >
-          <template #prepend>
-            <q-icon name="timer" />
-          </template>
-        </q-input>
+          <q-input
+            :label="t('gameMode.buzzer.settings.field.answerTime')"
+            v-model.number="settings.answerTime"
+            type="number"
+            :rules="[isNumber]"
+            rounded
+            outlined
+          >
+            <template #prepend>
+              <q-icon name="timer" />
+            </template>
+          </q-input>
 
-        <q-toggle
-          :label="t('gameMode.buzzer.settings.field.multipleAttempts')"
-          v-model="settings.multipleAttempts"
-        />
+          <q-toggle
+            :label="t('gameMode.buzzer.settings.field.multipleAttempts')"
+            v-model="settings.multipleAttempts"
+          />
 
-        <q-toggle
-          :label="t('gameMode.buzzer.settings.field.playSounds')"
-          v-model="settings.playSounds"
-        />
+          <q-toggle
+            :label="t('gameMode.buzzer.settings.field.playSounds')"
+            v-model="settings.playSounds"
+          />
 
-        <q-input
-          v-if="settings.playSounds"
-          :label="t('gameMode.buzzer.settings.field.beepAt')"
-          v-model.number="settings.countDownBeepStartAt"
-          type="number"
-          rounded
-          outlined
-        >
-          <template #prepend>
-            <q-icon name="timer" />
-          </template>
-        </q-input>
+          <q-input
+            v-if="settings.playSounds"
+            :label="t('gameMode.buzzer.settings.field.beepAt')"
+            v-model.number="settings.countDownBeepStartAt"
+            type="number"
+            rounded
+            outlined
+          >
+            <template #prepend>
+              <q-icon name="timer" />
+            </template>
+          </q-input>
 
-        <div class="text-body1">
-          {{ t('gameMode.buzzer.settings.field.points') }}
-        </div>
+          <div class="text-body1">
+            {{ t('gameMode.buzzer.settings.field.points') }}
+          </div>
 
-        <q-input
-          :label="t('gameMode.buzzer.settings.field.pointsCorrect')"
-          v-model.number="settings.pointsCorrect"
-          type="number"
-          :rules="[isNumber]"
-          rounded
-          outlined
-        >
-          <template #prepend>
-            <q-icon name="check" />
-          </template>
-        </q-input>
+          <q-input
+            :label="t('gameMode.buzzer.settings.field.pointsCorrect')"
+            v-model.number="settings.pointsCorrect"
+            type="number"
+            :rules="[isNumber]"
+            rounded
+            outlined
+          >
+            <template #prepend>
+              <q-icon name="check" />
+            </template>
+          </q-input>
 
-        <q-input
-          :label="t('gameMode.buzzer.settings.field.pointsWrong.label')"
-          :hint="t('gameMode.buzzer.settings.field.pointsWrong.hint')"
-          v-model.number="settings.pointsWrong"
-          type="number"
-          :rules="[isNumber]"
-          rounded
-          outlined
-        >
-          <template #prepend>
-            <q-icon name="close" />
-          </template>
-        </q-input>
+          <q-input
+            :label="t('gameMode.buzzer.settings.field.pointsWrong.label')"
+            :hint="t('gameMode.buzzer.settings.field.pointsWrong.hint')"
+            v-model.number="settings.pointsWrong"
+            type="number"
+            :rules="[isNumber]"
+            rounded
+            outlined
+          >
+            <template #prepend>
+              <q-icon name="close" />
+            </template>
+          </q-input>
+        </q-form>
       </q-card-section>
 
       <q-card-actions align="center">

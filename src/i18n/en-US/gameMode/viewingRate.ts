@@ -12,4 +12,17 @@ export default {
     reset: 'Reset',
     start: 'Start',
   },
+
+  settings: {
+    title: 'Settings',
+
+    field: {
+      startViewing: 'Start viewing',
+      readyCheck: 'Ready check',
+    },
+
+    action: {
+      ok: 'Ok',
+    },
+  },
 };

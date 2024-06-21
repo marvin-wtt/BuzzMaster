@@ -13,11 +13,25 @@
           v-if="gameState.name === 'preparing'"
           class="col-xs-7 col-sm-6 col-md-5 col-lg-4 col-xl-3 self-center text-center text-h5"
         >
-          {{
-            t('gameMode.stopwatch.controllersReady', {
-              count: controllers.length,
-            })
-          }}
+          <q-circular-progress
+            show-value
+            :value="gameState.controllersReady.length"
+            :max="controllers.length"
+            :thickness="0.1"
+            color="green"
+            track-color="grey-3"
+            class="q-ma-md fit"
+          >
+            <a class="text-h6">
+              {{
+                t('gameMode.stopwatch.controllersReady', {
+                  count: settings.readyCheck
+                    ? gameState.controllersReady.length
+                    : controllers.length,
+                })
+              }}
+            </a>
+          </q-circular-progress>
         </div>
         <div
           v-else
@@ -101,8 +115,15 @@
             :label="t('gameMode.viewingRate.action.start')"
             color="primary"
             rounded
+            :disable="!readyCheckDone"
             data-testid="btn-game-start"
             @click="start()"
+          />
+          <q-btn
+            :label="t('gameMode.quiz.action.settings')"
+            outline
+            rounded
+            @click="openSettings()"
           />
         </template>
         <template v-else-if="gameState.name === 'running'">
@@ -164,14 +185,7 @@ import { storeToRefs } from 'pinia';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
-import {
-  computed,
-  onBeforeMount,
-  onUnmounted,
-  reactive,
-  ref,
-  watch,
-} from 'vue';
+import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import {
   ViewingRateRunningState,
   ViewingRateState,
@@ -180,10 +194,13 @@ import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import TimerAnimated from 'components/TimerAnimated.vue';
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 import ViewingRateResultItem from 'components/gameModes/viewingRate/ViewingRateResultItem.vue';
+import { useQuasar } from 'quasar';
+import ViewingRateSettingsDialog from 'components/gameModes/viewingRate/ViewingRateSettingsDialog.vue';
 
+const quasar = useQuasar();
 const { t } = useI18n();
 const gameSettingsStore = useGameSettingsStore();
-const {} = storeToRefs(gameSettingsStore);
+const { viewingRateSettings } = storeToRefs(gameSettingsStore);
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
@@ -193,12 +210,10 @@ const { gameState, transition, onStateEntry, onStateExit } =
   useGameState<ViewingRateState>({
     game: 'viewing-rates',
     name: 'preparing',
+    controllersReady: [],
   });
 
-// TODO Extract from settings
-const settings = reactive({
-  startViewing: false,
-});
+const settings = computed(() => viewingRateSettings.value);
 
 onBeforeMount(() => {
   buzzer.reset();
@@ -255,7 +270,7 @@ const currentlyViewing = computed<number>(() => {
 
 const controllerViewingRate = (changes: number[], time: number) => {
   let totalWatchTime = 0;
-  let watching = settings.startViewing;
+  let watching = settings.value.startViewing;
   let prevTime = 0;
   for (const changeTime of changes) {
     if (watching) {
@@ -273,6 +288,33 @@ const controllerViewingRate = (changes: number[], time: number) => {
   return totalWatchTime / time;
 };
 
+const readyCheckDone = computed<boolean>(() => {
+  if (gameState.value.name !== 'preparing') {
+    return false;
+  }
+
+  return (
+    !settings.value.readyCheck ||
+    gameState.value.controllersReady.length >= controllers.value.length
+  );
+});
+
+const readyCheckUpdate = transition('preparing', (state) => {
+  const controllersReady = state.controllersReady.filter((controllerId) => {
+    return controllers.value.find(
+      (controller) => controller.id === controllerId,
+    );
+  });
+
+  return {
+    game: 'viewing-rates',
+    name: 'preparing',
+    controllersReady,
+  };
+});
+
+watch(controllers, readyCheckUpdate);
+
 const tick = transition('running', (state, time: number) => {
   return {
     game: 'viewing-rates',
@@ -284,6 +326,12 @@ const tick = transition('running', (state, time: number) => {
 watch(time, tick);
 
 onStateEntry('running', () => {
+  if (settings.value.startViewing) {
+    controllers.value.forEach((controller) => {
+      controller.setLight(true);
+    });
+  }
+
   startTimer();
 });
 
@@ -296,8 +344,12 @@ onStateEntry('preparing', () => {
   buzzer.reset();
 });
 
+onStateExit('preparing', () => {
+  buzzer.reset();
+});
+
 onStateEntry('completed', () => {
-  buzzer.reset;
+  buzzer.reset();
 });
 
 const start = transition('preparing', () => {
@@ -335,12 +387,11 @@ const resume = transition('paused', (state) => {
   };
 });
 
-const cancel = transition(['paused', 'completed'], (state) => {
+const cancel = transition(['paused', 'completed'], () => {
   return {
     game: 'viewing-rates',
     name: 'preparing',
-    time: state.time,
-    changeTimes: state.changeTimes,
+    controllersReady: [],
   };
 });
 
@@ -354,7 +405,7 @@ const stop = transition('running', (state) => {
 });
 
 const controllerWatchStatus = (changes: number[]): boolean => {
-  const viewingMod = settings.startViewing ? 0 : 1;
+  const viewingMod = settings.value.startViewing ? 0 : 1;
 
   return changes.length % 2 === viewingMod;
 };
@@ -366,7 +417,16 @@ const isControllerViewing = (
   return controllerWatchStatus(state.changeTimes[controllerId] ?? []);
 };
 
-const listener = transition('running', (state, event: ButtonEvent) => {
+const listener = (event: ButtonEvent) => {
+  switch (gameState.value.name) {
+    case 'preparing':
+      return readyCheckListener(event);
+    case 'running':
+      return runningListener(event);
+  }
+};
+
+const runningListener = transition('running', (state, event: ButtonEvent) => {
   if (event.button !== BuzzerButton.RED) {
     return;
   }
@@ -388,6 +448,25 @@ const listener = transition('running', (state, event: ButtonEvent) => {
   };
 });
 
+const readyCheckListener = transition(
+  'preparing',
+  (state, event: ButtonEvent) => {
+    // Always turn on light
+    event.controller.setLight(true);
+
+    if (state.controllersReady.includes(event.controller.id)) {
+      return;
+    }
+
+    const controllersReady = [...state.controllersReady, event.controller.id];
+    return {
+      game: 'viewing-rates',
+      name: 'preparing',
+      controllersReady,
+    };
+  },
+);
+
 const toRoundedPercentage = (n: number): string => {
   const rounded = Math.round(n * 10000) / 100;
   const percentage = rounded.toFixed(2);
@@ -404,6 +483,12 @@ const controllerNames = computed<Record<string, string>>(() => {
     {} as Record<string, string>,
   );
 });
+
+const openSettings = () => {
+  quasar.dialog({
+    component: ViewingRateSettingsDialog,
+  });
+};
 </script>
 
 <style scoped></style>

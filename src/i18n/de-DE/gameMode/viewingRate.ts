@@ -12,4 +12,17 @@ export default {
     reset: 'Zurücksetzen',
     start: 'Start',
   },
+
+  settings: {
+    title: 'Einstellungen',
+
+    field: {
+      startViewing: 'Zuschauend beginnen',
+      readyCheck: 'Bereitschaftsprüfung',
+    },
+
+    action: {
+      ok: 'Ok',
+    },
+  },
 };

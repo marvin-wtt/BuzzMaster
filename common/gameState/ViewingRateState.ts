@@ -10,6 +10,7 @@ interface ViewingRateBase {
 
 export interface ViewingRatePreparingState extends ViewingRateBase {
   name: 'preparing';
+  controllersReady: string[];
 }
 
 export interface ViewingRateRunningState extends ViewingRateBase {

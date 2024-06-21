@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO Can be replace by q-circular-progress -->
   <div class="base-timer">
     <svg
       class="base-timer__svg"

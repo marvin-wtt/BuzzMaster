@@ -18,9 +18,10 @@
             :value="gameState.controllersReady.length"
             :max="controllers.length"
             :thickness="0.1"
+            style="aspect-ratio: 1"
             color="green"
             track-color="grey-3"
-            class="q-ma-md fit"
+            class="fit"
           >
             <a class="text-h6">
               {{

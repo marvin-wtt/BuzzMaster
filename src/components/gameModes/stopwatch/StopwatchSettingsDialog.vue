@@ -16,7 +16,7 @@
       <q-card-section>
         <q-form
           ref="form"
-          class="q-gutter-y-sm"
+          class="column q-gutter-y-sm"
         >
           <q-toggle
             :label="t('gameMode.stopwatch.settings.field.playSounds')"

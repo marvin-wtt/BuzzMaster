@@ -5,6 +5,7 @@ import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
 import { GameSettings } from 'app/common/gameSettings';
+import { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
 
 export const useGameSettingsStore = defineStore('gameSettings', () => {
   const buzzerSettings = ref<BuzzerSettings>({
@@ -37,10 +38,16 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     playSounds: true,
   });
 
+  const viewingRateSettings = ref<ViewingRateSettings>({
+    startViewing: false,
+    readyCheck: true,
+  });
+
   const gameSettings = computed<GameSettings>(() => ({
     buzzer: buzzerSettings.value,
     quiz: quizSettings.value,
     stopwatch: stopwatchSettings.value,
+    viewingRate: viewingRateSettings.value,
   }));
 
   return {
@@ -49,6 +56,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     buzzerSettings,
     quizSettings,
     stopwatchSettings,
+    viewingRateSettings,
   };
 });
 

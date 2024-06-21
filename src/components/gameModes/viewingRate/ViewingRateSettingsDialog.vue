@@ -9,7 +9,7 @@
     >
       <q-card-section>
         <a class="text-h5">
-          {{ t('gameMode.stopwatch.settings.title') }}
+          {{ t('gameMode.viewingRate.settings.title') }}
         </a>
       </q-card-section>
 
@@ -19,15 +19,19 @@
           class="q-gutter-y-sm"
         >
           <q-toggle
-            :label="t('gameMode.stopwatch.settings.field.playSounds')"
-            v-model="settings.playSounds"
+            :label="t('gameMode.viewingRate.settings.field.startViewing')"
+            v-model="settings.startViewing"
+          />
+          <q-toggle
+            :label="t('gameMode.viewingRate.settings.field.readyCheck')"
+            v-model="settings.readyCheck"
           />
         </q-form>
       </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('gameMode.stopwatch.settings.action.ok')"
+          :label="t('gameMode.viewingRate.settings.action.ok')"
           color="primary"
           @click="onOk"
           rounded
@@ -42,7 +46,7 @@ import { QForm, useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
-import { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
+import { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
@@ -51,8 +55,8 @@ const { t } = useI18n();
 
 const gameSettingsStore = useGameSettingsStore();
 const form = ref<QForm | null>(null);
-const settings = ref<StopwatchSettings>(
-  structuredClone(toRaw(gameSettingsStore.stopwatchSettings)),
+const settings = ref<ViewingRateSettings>(
+  structuredClone(toRaw(gameSettingsStore.viewingRateSettings)),
 );
 
 const onOk = async () => {
@@ -62,7 +66,7 @@ const onOk = async () => {
     return;
   }
 
-  gameSettingsStore.stopwatchSettings = settings.value;
+  gameSettingsStore.viewingRateSettings = settings.value;
   onDialogOK();
 };
 </script>

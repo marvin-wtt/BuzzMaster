@@ -3,6 +3,7 @@
     <q-btn
       v-bind="$attrs"
       icon="done"
+      label=""
       @click="onConfirm"
     />
   </template>

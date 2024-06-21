@@ -87,6 +87,14 @@ const routes: RouteRecordRaw[] = [
               title: 'gameMode.stopwatch.title',
             },
           },
+          {
+            path: 'viewing-rate',
+            name: 'viewing-rate-game',
+            component: () => import('pages/gameModes/ViewingRateGamePage.vue'),
+            meta: {
+              title: 'gameMode.viewingRate.title',
+            },
+          },
         ],
       },
     ],

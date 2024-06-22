@@ -36,7 +36,7 @@
               size="xs"
               flat
               round
-              @click="findDongle(dongle)"
+              @click.stop="findDongle(dongle)"
             />
           </q-item-section>
         </template>

@@ -1,6 +1,7 @@
 export default {
   title: 'Einschaltquote',
 
+  controllersReady: '{count} Controller bereit!',
   currentlyViewing: 'Aktuell eingeschaltet',
   totalWatchRate: 'Totale Einschaltquote',
 
@@ -23,6 +24,13 @@ export default {
 
     action: {
       ok: 'Ok',
+    },
+
+    error: {
+      newController: {
+        message: 'Neue Controller sind vom diesem Spiel ausgeschlossen!.',
+        caption: 'Controller: ',
+      },
     },
   },
 };

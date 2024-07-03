@@ -25,7 +25,7 @@
           >
             <a class="text-h6">
               {{
-                t('gameMode.stopwatch.controllersReady', {
+                t('gameMode.viewingRate.controllersReady', {
                   count: settings.readyCheck
                     ? gameState.controllersReady.length
                     : controllers.length,
@@ -433,10 +433,21 @@ const runningListener = transition('running', (state, event: ButtonEvent) => {
   }
 
   const controllerId = event.controller.id;
-  const changes = { ...state.changeTimes };
-  if (!(controllerId in changes)) {
-    changes[controllerId] = [];
+
+  // Ignore controllers that connected after the start.
+  // This is to ensure correct calculation.
+  if (!(controllerId in state.changeTimes)) {
+    quasar.notify({
+      message: t('gameMode.viewingRate.error.newController.message'),
+      caption:
+        t('gameMode.viewingRate.error.newController.caption') +
+        event.controller.name,
+      color: 'negative',
+    });
+    return;
   }
+
+  const changes = { ...state.changeTimes };
   changes[controllerId].push(time.value);
 
   event.controller.setLight(isControllerViewing(state, event.controller.id));

@@ -1,6 +1,7 @@
 export default {
   title: 'Viewing Rate',
 
+  controllersReady: '{count} controllers ready!',
   currentlyViewing: 'Currently viewing',
   totalWatchRate: 'Total viewing rate',
 
@@ -23,6 +24,13 @@ export default {
 
     action: {
       ok: 'Ok',
+    },
+  },
+
+  error: {
+    newController: {
+      message: 'New controllers are excluded from this game.',
+      caption: 'Controller: ',
     },
   },
 };

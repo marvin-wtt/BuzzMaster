@@ -52,7 +52,7 @@
     "@vitest/ui": "^1.6.0",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.19",
-    "electron": "^31.0.2",
+    "electron": "^33.0.2",
     "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

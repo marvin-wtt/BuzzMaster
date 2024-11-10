@@ -28,7 +28,7 @@
     "test:unit:ci": "vitest run"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.11",
+    "@quasar/extras": "^1.16.13",
     "electron-log": "^5.1.5",
     "electron-updater": "^6.3.0",
     "events": "^3.3.0",

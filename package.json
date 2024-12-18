@@ -36,7 +36,7 @@
     "quasar": "^2.16.4",
     "vue": "^3.4.29",
     "vue-i18n": "^9.14.2",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^4.0.0",

@@ -1,0 +1,16 @@
+export default {
+  batterySaving: 'Show Battery Saving',
+  cast: 'Open Cast',
+  close: 'Close window',
+  darkMode: 'Toggle Dark Mode',
+  language: 'Change Language',
+  leaderboard: 'Show Leaderboard',
+  maximize: 'Maximize window',
+  minimize: 'Minimize window',
+  mute: 'Mute sound',
+  unmute: 'Unmute sound',
+  pin: 'Pin window to stay on top',
+  settings: 'Toggle Settings',
+  unpin: 'Unpin window',
+  updater: 'Check for updates',
+};

@@ -8,7 +8,17 @@ export default {
   updateNotAvailable: 'App ist auf dem neuesten Stand.',
   search: 'Nach Updates suchen',
 
+  action: {
+    cancel: 'Download abbrechen',
+    check: 'Nach Updates suchen',
+    download: 'Herunterladen',
+    install: 'Update installieren',
+  },
+
   notification: {
     message: 'Neues Update verfügbar!',
+    action: {
+      download: 'Herunterladen',
+    },
   },
 };

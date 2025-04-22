@@ -32,17 +32,21 @@
           type="animation"
         >
           <q-btn
-            aria-label="Show leaderboard"
+            :aria-label="t('toolbar.leaderboard')"
             key="leaderboard"
             dense
             flat
             rounded
             icon="emoji_events"
             @click="showLeaderboard"
-          />
+          >
+            <q-tooltip>
+              {{ t('toolbar.leaderboard') }}
+            </q-tooltip>
+          </q-btn>
 
           <q-btn
-            aria-label="Open Cast"
+            :aria-label="t('toolbar.cast')"
             key="cast"
             dense
             flat
@@ -51,7 +55,11 @@
             class="settings-button bg-primary"
             icon="cast"
             @click="toggleCast"
-          />
+          >
+            <q-tooltip>
+              {{ t('toolbar.cast') }}
+            </q-tooltip>
+          </q-btn>
 
           <!-- Settings -->
           <div
@@ -61,7 +69,7 @@
           >
             <!-- Pin -->
             <q-btn
-              aria-label="Pin window"
+              :aria-label="pinned ? t('toolbar.unpin') : t('toolbar.pin')"
               dense
               flat
               rounded
@@ -69,7 +77,11 @@
               class="settings-button bg-primary"
               :icon="pinned ? 'lock_open' : 'push_pin'"
               @click="togglePin"
-            />
+            >
+              <q-tooltip>
+                {{ pinned ? t('toolbar.unpin') : t('toolbar.pin') }}
+              </q-tooltip>
+            </q-btn>
 
             <!-- Dev tools -->
             <q-btn
@@ -86,7 +98,7 @@
 
             <!-- Battery Saving -->
             <q-btn
-              aria-label="Battery saving"
+              :aria-label="t('toolbar.batterySaving')"
               dense
               flat
               rounded
@@ -95,11 +107,15 @@
               icon="battery_saver"
               class="settings-button bg-primary"
               @click="showBatterySavingDialog"
-            />
+            >
+              <q-tooltip>
+                {{ t('toolbar.batterySaving') }}
+              </q-tooltip>
+            </q-btn>
 
             <!-- Dark mode -->
             <q-btn
-              aria-label="Toggle dark mode"
+              :aria-label="t('toolbar.darkMode')"
               dense
               flat
               rounded
@@ -107,12 +123,16 @@
               class="settings-button bg-primary"
               :icon="darkMode ? 'light_mode' : 'dark_mode'"
               @click="toggleDarkMode"
-            />
+            >
+              <q-tooltip>
+                {{ t('toolbar.darkMode') }}
+              </q-tooltip>
+            </q-btn>
 
             <!-- Change locale -->
             <q-btn
               v-if="supportedLanguages.length > 1"
-              aria-label="Language"
+              :aria-label="t('toolbar.language')"
               dense
               flat
               rounded
@@ -140,7 +160,7 @@
 
             <!-- Mute -->
             <q-btn
-              aria-label="Mute audio"
+              :aria-label="muted ? t('toolbar.unmute') : t('toolbar.mute')"
               dense
               flat
               rounded
@@ -148,9 +168,23 @@
               class="settings-button bg-primary"
               :icon="muted ? 'volume_off' : 'volume_up'"
               @click="toggleMute"
-            />
+            >
+              <q-tooltip>
+                {{ muted ? t('toolbar.unmute') : t('toolbar.mute') }}
+              </q-tooltip>
+            </q-btn>
 
-            <app-update-btn class="settings-button bg-primary" />
+            <app-update-btn
+              dense
+              flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
+            >
+              <q-tooltip>
+                {{ t('toolbar.updater') }}
+              </q-tooltip>
+            </app-update-btn>
           </div>
         </transition-group>
 
@@ -162,7 +196,11 @@
           dense
           flat
           @click="expandSettings = !expandSettings"
-        />
+        >
+          <q-tooltip>
+            {{ t('toolbar.settings') }}
+          </q-tooltip>
+        </q-btn>
 
         <q-separator
           vertical
@@ -172,23 +210,41 @@
         />
 
         <q-btn
+          :aria-label="t('toolbar.minimize')"
           dense
+          round
           flat
           icon="minimize"
           @click="minimize"
-        />
+        >
+          <q-tooltip :delay="1000">
+            {{ t('toolbar.minimize') }}
+          </q-tooltip>
+        </q-btn>
         <q-btn
+          :aria-label="t('toolbar.maximize')"
           dense
           flat
+          round
           icon="crop_square"
           @click="toggleMaximize"
-        />
+        >
+          <q-tooltip :delay="1000">
+            {{ t('toolbar.maximize') }}
+          </q-tooltip>
+        </q-btn>
         <q-btn
+          :aria-label="t('toolbar.close')"
           dense
           flat
+          round
           icon="close"
           @click="closeApp"
-        />
+        >
+          <q-tooltip :delay="1000">
+            {{ t('toolbar.close') }}
+          </q-tooltip>
+        </q-btn>
       </q-bar>
 
       <div

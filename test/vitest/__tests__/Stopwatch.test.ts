@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
-import { mountPage } from '../utils/mount';
+import { mountPage } from 'app/test/vitest/utils/mount';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
 import { Dialog } from 'quasar';
 import StopwatchQuestionPage from 'pages/gameModes/StopwatchGamePage.vue';
 import { useGameStore } from 'stores/game-store';
-import { selector } from '../utils/element-selector';
-import { installFakeTimer } from '../install-timer';
+import { selector } from 'app/test/vitest/utils/element-selector';
+import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
 import type {
   StopwatchCompletedState,
   StopwatchPausedState,
   StopwatchRunningState,
 } from 'app/common/gameState/StopwatchState';
-import { createDevice } from '../utils/buzzer';
+import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import type { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 

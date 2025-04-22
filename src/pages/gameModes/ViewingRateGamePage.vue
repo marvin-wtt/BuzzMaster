@@ -19,7 +19,7 @@
             :max="controllers.length"
             :thickness="0.1"
             style="aspect-ratio: 1"
-            color="green"
+            :color="controllers.length > 0 ? 'green' : 'red'"
             track-color="grey-3"
             class="fit"
           >
@@ -292,6 +292,11 @@ const controllerViewingRate = (changes: number[], time: number) => {
 
 const readyCheckDone = computed<boolean>(() => {
   if (gameState.value.name !== 'preparing') {
+    return false;
+  }
+
+  // At least one controller is required to start for calculation
+  if (controllers.value.length === 0) {
     return false;
   }
 

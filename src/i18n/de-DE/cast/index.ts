@@ -6,4 +6,12 @@ export default {
   buzzer,
   quiz,
   stopwatch,
+
+  title: 'Cast',
+
+  toolbar: {
+    close: 'Fenster schließen',
+    darkMode: 'Dunkelmodus umschalten',
+    transparent: 'Transparentes Fenster',
+  },
 };

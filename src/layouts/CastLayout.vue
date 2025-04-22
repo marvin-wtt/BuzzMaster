@@ -13,35 +13,49 @@
       @mouseleave="onMouseLeave"
     >
       <q-bar class="q-electron-drag">
-        <!-- TODO i18n -->
-        Cast
+        {{ t('cast.title') }}
 
         <q-space />
 
         <!-- Dark mode -->
         <q-btn
+          :aria-label="t('cast.toolbar.darkMode')"
           dense
           flat
-          rounded
+          round
           :icon="darkMode ? 'light_mode' : 'dark_mode'"
           @click="toggleDarkMode"
-        />
+        >
+          <q-tooltip :delay="1000">
+            {{ t('cast.toolbar.darkMode') }}
+          </q-tooltip>
+        </q-btn>
 
         <q-btn
+          :aria-label="t('cast.toolbar.transparent')"
           dense
           flat
-          rounded
+          round
           icon="visibility_off"
           @click.stop="setTransparent"
-        />
+        >
+          <q-tooltip :delay="1000">
+            {{ t('cast.toolbar.transparent') }}
+          </q-tooltip>
+        </q-btn>
 
         <q-btn
+          :aria-label="t('cast.toolbar.close')"
           dense
           flat
-          rounded
+          round
           icon="close"
-          @click.stop="closeWindow"
-        />
+          @click="closeWindow"
+        >
+          <q-tooltip :delay="1000">
+            {{ t('cast.toolbar.close') }}
+          </q-tooltip>
+        </q-btn>
       </q-bar>
     </q-header>
     <q-page-container>
@@ -54,9 +68,11 @@
 import { useCastStore } from 'stores/cast-store';
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const castStore = useCastStore();
 const quasar = useQuasar();
+const { t } = useI18n();
 
 quasar.dark.set(true);
 const toggleDarkMode = quasar.dark.toggle;

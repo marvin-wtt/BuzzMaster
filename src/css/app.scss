@@ -26,3 +26,38 @@
 
 ::-webkit-scrollbar-corner {
 }
+
+// Rounded borders
+.q-notification {
+  border-radius: 30px !important;
+}
+
+.q-list,
+.q-card,
+.q-menu {
+  border-radius: 30px !important;
+}
+
+.q-item:not(.q-list--separator) {
+  border-radius: 30px !important;
+  margin: 0 2px;
+}
+
+.q-item.q-router-link--exact-active {
+  background-color: $primary;
+  color: white;
+}
+
+.body--light {
+  .q-item.q-router-link--active:not(.q-router-link--exact-active) {
+    background-color: $grey-4;
+    color: black;
+  }
+}
+
+.body--dark {
+  .q-item.q-router-link--active:not(.q-router-link--exact-active) {
+    background-color: $grey-9;
+    color: white;
+  }
+}

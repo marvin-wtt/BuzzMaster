@@ -168,14 +168,14 @@ import PulseCircle from 'components/PulseCircle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
-  ButtonEvent,
+  type ButtonEvent,
   BuzzerButton,
-  IController,
+  type IController,
 } from 'src/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
-import { BuzzerState } from 'app/common/gameState/BuzzerState';
+import type { BuzzerState } from 'app/common/gameState/BuzzerState';
 import { useGameState } from 'src/composables/gameState';
 import TimerAnimated from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
@@ -198,16 +198,16 @@ const { gameState, transition, onStateEntry, onStateExit } =
 
 const audio = new Audio('sounds/buzzer.mp3');
 
-onBeforeMount(() => {
-  buzzer.reset();
+onBeforeMount(async () => {
+  await buzzer.reset();
   buzzer.on('press', listener);
 
   audio.load();
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   buzzer.removeListener('press', listener);
-  buzzer.reset();
+  await buzzer.reset();
 });
 
 const disableContinue = computed<boolean>(() => {
@@ -229,7 +229,7 @@ const disableContinue = computed<boolean>(() => {
   );
 });
 
-const listener = transition('running', (state, event: ButtonEvent) => {
+const listener = transition('running', async (state, event: ButtonEvent) => {
   if (event.button !== BuzzerButton.RED) {
     return;
   }

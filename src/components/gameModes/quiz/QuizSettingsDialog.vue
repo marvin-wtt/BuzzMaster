@@ -157,13 +157,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useDialogPluginComponent, QSelectOption, QForm } from 'quasar';
+import { useDialogPluginComponent, type QSelectOption, QForm } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 import { isNumber } from 'lodash-es';
 import { computed, ref, toRaw } from 'vue';
-import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

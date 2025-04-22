@@ -82,7 +82,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import {
-  BatterySavingEntry,
+  type BatterySavingEntry,
   useBatterySavingStore,
 } from 'stores/battery-saving-store';
 import { computed, ref } from 'vue';

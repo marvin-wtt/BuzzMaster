@@ -2,7 +2,7 @@ import PointsUpdateDialog from 'components/leaderboard/PointsUpdateDialog.vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
-import { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
+import type { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
 
 export function useLeaderboardDialogs() {
   const quasar = useQuasar();

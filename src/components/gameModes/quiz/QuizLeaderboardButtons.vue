@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { buzzerButtonColor } from 'components/buttonColors';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import type { BuzzerButton } from 'src/plugins/buzzer/types';
 import { onBeforeMount, ref } from 'vue';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { useGameSettingsStore } from 'stores/game-settings-store';
@@ -39,7 +39,7 @@ onBeforeMount(() => {
   audioCorrect.load();
 });
 
-const updateButtonPoints = (button: BuzzerButton): void => {
+const updateButtonPoints = async (button: BuzzerButton): void => {
   // No button was preciously pressed, so we assume all answers are wrong.
   // Points for correct answers are refunded later
   if (correctAnswers.value.size === 0) {
@@ -85,17 +85,17 @@ const updateButtonPoints = (button: BuzzerButton): void => {
     correctAnswers.value.size === 0 ? undefined : [...correctAnswers.value],
   );
 
-  playAudio();
+  await playAudio();
 };
 
-const playAudio = () => {
+const playAudio = async () => {
   // Only play sound once as multiple answers can be selected
   if (audioPlayed) {
     return;
   }
 
   audioPlayed = true;
-  audioCorrect.play();
+  await audioCorrect.play();
 };
 </script>
 

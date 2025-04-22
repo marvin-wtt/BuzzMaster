@@ -83,7 +83,7 @@
 
 <script lang="ts" setup>
 import ControllerLogo from 'components/ControllerLogo.vue';
-import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';

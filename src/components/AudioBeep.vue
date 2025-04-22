@@ -28,7 +28,7 @@ const loadAudio = () => {
 
 watch(
   () => props.time,
-  (time, prevTime) => {
+  async (time, prevTime) => {
     if (props.silent) {
       return;
     }
@@ -38,9 +38,9 @@ watch(
     }
 
     if (time <= 0 && prevTime > 0) {
-      longBeep.play();
+      await longBeep.play();
     } else if (Math.ceil(time) < Math.ceil(prevTime)) {
-      shortBeep.play();
+      await shortBeep.play();
     }
   },
 );

@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BuzzerAnsweredState } from 'app/common/gameState/BuzzerState';
+import type { BuzzerAnsweredState } from 'app/common/gameState/BuzzerState';
 import CrossCheck from 'components/CrossCheck.vue';
 import { computed, ref } from 'vue';
 import { useCastStore } from 'stores/cast-store';

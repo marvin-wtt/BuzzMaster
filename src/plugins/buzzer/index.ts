@@ -1,8 +1,8 @@
-import { computed, inject, Plugin, App } from 'vue';
+import { computed, inject, type Plugin, type App } from 'vue';
 import {
-  IBuzzerApi,
-  IBuzzerPlugin,
-  IController,
+  type IBuzzerApi,
+  type IBuzzerPlugin,
+  type IController,
 } from 'src/plugins/buzzer/types';
 import { initHidDeviceManager } from 'src/plugins/buzzer/hid';
 import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
@@ -11,7 +11,7 @@ export const useBuzzer = () => {
   const buzzerApi = inject<IBuzzerApi>('buzzer');
 
   if (!buzzerApi) {
-    throw 'Buzzer Api not installed.';
+    throw new Error('Buzzer API not found. Make sure to install the plugin.');
   }
 
   const controllers = computed<IController[]>(() => {
@@ -37,10 +37,10 @@ export const initBuzzerApi = async (api: BuzzerApi): Promise<IBuzzerApi> => {
 };
 
 export const BuzzerPlugin: Plugin = {
-  install(app: App) {
+  async install(app: App) {
     const api = new BuzzerApi();
     app.provide('buzzer', api);
 
-    initBuzzerApi(api);
+    await initBuzzerApi(api);
   },
 };

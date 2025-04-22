@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
+import type { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
 
 const props = defineProps<{
   entry: LeaderboardEntry;

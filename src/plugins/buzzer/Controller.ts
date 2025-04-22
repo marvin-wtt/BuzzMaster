@@ -1,8 +1,8 @@
 import {
-  ButtonState,
+  type ButtonState,
   BuzzerButton,
-  IController,
-  LightApi,
+  type IController,
+  type LightApi,
 } from 'src/plugins/buzzer/types';
 import { reactive } from 'vue';
 

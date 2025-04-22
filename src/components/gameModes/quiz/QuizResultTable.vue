@@ -79,13 +79,16 @@ const controllersByButton = computed<Record<BuzzerButton, string[]>>(() => {
   };
 
   return Object.entries(props.answers).reduce((acc, [controllerId, button]) => {
-    acc[button].push(props.controllerNames[controllerId]);
+    const name = props.controllerNames[controllerId];
+    if (name !== undefined) {
+      acc[button].push(name);
+    }
     return acc;
   }, result);
 });
 
 const resultOptions = computed<BuzzerButton[]>(() => {
-  // Red button as equivalent for not pressed
+  // The red button as equivalent for not pressed
   const options =
     buttonOccurrences.value[BuzzerButton.RED] === 0
       ? quizSettings.activeButtons

@@ -46,7 +46,7 @@ import { QForm, useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
-import { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
+import type { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

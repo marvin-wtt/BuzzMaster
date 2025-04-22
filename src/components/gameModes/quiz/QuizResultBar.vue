@@ -30,7 +30,7 @@
 
 <script lang="ts" setup>
 import { BuzzerButton } from 'src/plugins/buzzer/types';
-import { computed, StyleValue } from 'vue';
+import { computed, type StyleValue } from 'vue';
 
 const props = defineProps<{
   button: BuzzerButton;

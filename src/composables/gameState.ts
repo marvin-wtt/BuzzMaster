@@ -1,5 +1,5 @@
 import { computed, onBeforeMount, onUnmounted } from 'vue';
-import { GameState } from 'app/common/gameState';
+import type { GameState } from 'app/common/gameState';
 import { useGameStore } from 'stores/game-store';
 
 export function useGameState<S extends GameState>(initialState: S) {

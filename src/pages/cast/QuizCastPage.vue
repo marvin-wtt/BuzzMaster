@@ -20,7 +20,7 @@ import QuizPreparingCast from 'components/cast/quiz/QuizPreparingCast.vue';
 
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
-import { QuizState } from 'app/common/gameState/QuizState';
+import type { QuizState } from 'app/common/gameState/QuizState';
 import QuizRunningCast from 'components/cast/quiz/QuizRunningCast.vue';
 import QuizCompletedCast from 'components/cast/quiz/QuizCompletedCast.vue';
 

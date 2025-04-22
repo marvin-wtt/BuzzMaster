@@ -26,7 +26,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import { IController } from 'src/plugins/buzzer/types';
+import type { IController } from 'src/plugins/buzzer/types';
 
 const leaderboardStore = useLeaderboardStore();
 const { buzzerSettings } = useGameSettingsStore();
@@ -49,7 +49,7 @@ onBeforeMount(() => {
 
 const answerCorrect = ref<boolean>();
 
-const onAnswerChange = (answer: boolean) => {
+const onAnswerChange = async (answer: boolean) => {
   const points = answer
     ? buzzerSettings.pointsCorrect
     : buzzerSettings.pointsWrong;
@@ -74,14 +74,14 @@ const onAnswerChange = (answer: boolean) => {
   updateLeaderboard(points);
   emit('update', answer, points);
 
-  playAudio(answer);
+  await playAudio(answer);
 };
 
-const playAudio = (answer: boolean) => {
+const playAudio = async (answer: boolean) => {
   if (answer) {
-    audioCorrect.play();
+    await audioCorrect.play();
   } else {
-    audioWrong.play();
+    await audioWrong.play();
   }
 };
 

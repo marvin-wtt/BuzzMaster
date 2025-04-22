@@ -1,4 +1,10 @@
-import { MaybeRefOrGetter, onBeforeMount, Ref, toValue, watch } from 'vue';
+import {
+  type MaybeRefOrGetter,
+  onBeforeMount,
+  type Ref,
+  toValue,
+  watch,
+} from 'vue';
 
 export function useBeep(
   time: Ref<number>,

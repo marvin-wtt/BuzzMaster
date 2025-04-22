@@ -1,7 +1,7 @@
 <template>
   <q-page class="column justify-between">
     <div class="col-grow column items-center justify-evenly">
-      <a class="text-h3">
+      <a class="text-h3 text-center">
         {{ t('app_name') }}
       </a>
 

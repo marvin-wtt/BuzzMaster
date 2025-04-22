@@ -95,10 +95,46 @@
           </q-list>
         </template>
       </q-expansion-item>
+
+      <!-- No entries -->
+      <q-item v-if="dongles.length === 0">
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              {{ t('devices.item.noEntries.label') }}
+            </q-item-label>
+            <q-item-label caption>
+              {{ t('devices.item.noEntries.caption') }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-item>
+
+      <!-- Missing controllers hint -->
+      <q-item v-if="quasar.platform.is.win">
+        <q-item-section>
+          <q-item-label>
+            {{ t('devices.item.missing.label') }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            icon="question_mark"
+            :aria-label="t('devices.item.missing.button')"
+            outline
+            round
+            dense
+            @click="showMissingDongleHelp"
+          />
+        </q-item-section>
+      </q-item>
+
       <!-- Buzzer Test -->
       <q-item v-if="dongles.length > 0">
         <q-item-section>
-          {{ t('devices.item.test.label') }}
+          <q-item-label>
+            {{ t('devices.item.test.label') }}
+          </q-item-label>
         </q-item-section>
         <q-item-section side>
           <q-btn
@@ -110,10 +146,13 @@
           />
         </q-item-section>
       </q-item>
+
       <!-- Dongle naming -->
       <q-item v-else>
         <q-item-section>
-          {{ t('devices.item.names.label') }}
+          <q-item-label>
+            {{ t('devices.item.names.label') }}
+          </q-item-label>
         </q-item-section>
         <q-item-section side>
           <q-btn
@@ -142,6 +181,7 @@ import { useI18n } from 'vue-i18n';
 import DongleNameImportDialog from 'components/devices/DongleNameImportDialog.vue';
 import { Dongle } from 'src/plugins/buzzer/Dongle';
 import { config } from 'src/config';
+import DongleMissingDialog from 'components/devices/DongleMissingDialog.vue';
 
 const quasar = useQuasar();
 const { t } = useI18n();
@@ -306,6 +346,12 @@ const updateDongleNamingList = () => {
     .onOk((names: string[]) => {
       Dongle.CONTROLLER_NAMES = names;
     });
+};
+
+const showMissingDongleHelp = () => {
+  quasar.dialog({
+    component: DongleMissingDialog,
+  });
 };
 </script>
 

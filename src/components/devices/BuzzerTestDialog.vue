@@ -76,9 +76,9 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
 import {
-  ButtonEvent,
+  type ButtonEvent,
   BuzzerButton,
-  IController,
+  type IController,
 } from 'src/plugins/buzzer/types';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { computed, onMounted, onUnmounted, reactive } from 'vue';
@@ -99,8 +99,8 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
 
-onMounted(() => {
-  buzzer.reset();
+onMounted(async () => {
+  await buzzer.reset();
 
   buzzer.on('press', listener);
 });
@@ -126,10 +126,10 @@ const listener = (event: ButtonEvent) => {
     pressedButtons[event.controller.id] = [];
   }
 
-  if (!pressedButtons[event.controller.id].includes(event.button)) {
-    pressedButtons[event.controller.id].push(event.button);
-    // Turn on light
-    if (pressedButtons[event.controller.id].length === 5) {
+  if (!pressedButtons[event.controller.id]?.includes(event.button)) {
+    pressedButtons[event.controller.id]?.push(event.button);
+    // Turn on the light
+    if (pressedButtons[event.controller.id]?.length === 5) {
       event.controller.setLight(true);
     }
   }

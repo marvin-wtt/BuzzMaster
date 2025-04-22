@@ -40,7 +40,7 @@ function getPreloadPath(name: string): string {
   );
 }
 
-function createWindow() {
+async function createWindow() {
   const electronPreload = getPreloadPath('electron-preload');
   /**
    * Initial window options
@@ -88,9 +88,9 @@ function createWindow() {
   });
 
   if (process.env.DEV) {
-    mainWindow.loadURL(process.env.APP_URL);
+    await mainWindow.loadURL(process.env.APP_URL);
   } else {
-    mainWindow.loadFile('index.html');
+    await mainWindow.loadFile('index.html');
   }
 
   if (process.env.DEBUGGING) {
@@ -104,11 +104,15 @@ function createWindow() {
   }
 }
 
-function createCastWindow() {
+async function createCastWindow() {
   const electronPreload = getPreloadPath('electron-preload');
   /**
    * Initial window options
    */
+  if (!mainWindow) {
+    throw new Error('Failed to create cast window: main window is not defined');
+  }
+
   const window = new BrowserWindow({
     parent: mainWindow,
     icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
@@ -117,8 +121,6 @@ function createCastWindow() {
     height: 800,
     useContentSize: true,
     frame: false,
-    alwaysOnTop: true,
-    transparent: true,
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
@@ -129,9 +131,9 @@ function createCastWindow() {
   const defaultRoute = '#/cast';
 
   if (process.env.DEV) {
-    window.loadURL(process.env.APP_URL + defaultRoute);
+    await window.loadURL(process.env.APP_URL + defaultRoute);
   } else {
-    window
+    await window
       .loadFile('index.html')
       .then(() =>
         window.webContents.executeJavaScript(
@@ -155,12 +157,17 @@ function createCastWindow() {
   return window;
 }
 
-app.whenReady().then(() => {
-  initAppApiHandler();
-  initWindowApiHandler();
-  initCastApiHandler(createCastWindow);
-  createWindow();
-});
+app
+  .whenReady()
+  .then(async () => {
+    initAppApiHandler();
+    initWindowApiHandler();
+    initCastApiHandler(createCastWindow);
+    await createWindow();
+  })
+  .catch((reason) => {
+    log.error(`Failed to start application: ${reason}`);
+  });
 
 app.on('window-all-closed', () => {
   if (platform !== 'darwin') {
@@ -170,6 +177,8 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createWindow().catch((reason) => {
+      log.error(`Failed to create window: ${reason}`);
+    });
   }
 });

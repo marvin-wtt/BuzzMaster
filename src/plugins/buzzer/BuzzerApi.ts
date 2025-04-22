@@ -1,4 +1,4 @@
-import { IBuzzerApi, IDevice, IDongle } from 'src/plugins/buzzer/types';
+import type { IBuzzerApi, IDevice, IDongle } from 'src/plugins/buzzer/types';
 import { reactive } from 'vue';
 import { Dongle } from 'src/plugins/buzzer/Dongle';
 import { ButtonEventEmitter } from 'src/plugins/buzzer/ButtonEventEmitter';

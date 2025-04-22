@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
-import { AppUpdate } from 'app/common';
+import type { AppUpdate } from 'app/common';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
@@ -11,7 +11,12 @@ export const useUpdaterStore = defineStore('updater', () => {
   const version = ref<string>();
   const status = ref<AppUpdate>();
 
-  window.appAPI.getVersion().then((value) => (version.value = value));
+  window.appAPI
+    .getVersion()
+    .then((value) => (version.value = value))
+    .catch((reason) => {
+      console.error(`Failed to check for latest version: ${reason}`);
+    });
 
   window.appAPI.onUpdateInfo((data) => {
     status.value = data;

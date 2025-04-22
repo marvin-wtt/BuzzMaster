@@ -196,7 +196,7 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { format } from 'quasar';
-import { UpdateInfo } from 'electron-updater';
+import type { UpdateInfo } from 'electron-updater';
 import { useUpdaterStore } from 'stores/updater-store';
 import { storeToRefs } from 'pinia';
 

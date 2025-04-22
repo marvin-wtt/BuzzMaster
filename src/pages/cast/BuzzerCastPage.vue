@@ -19,7 +19,7 @@
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
-import { BuzzerState } from 'app/common/gameState/BuzzerState';
+import type { BuzzerState } from 'app/common/gameState/BuzzerState';
 import BuzzerPreparingCast from 'components/cast/buzzer/BuzzerPreparingCast.vue';
 import BuzzerRunningCast from 'components/cast/buzzer/BuzzerRunningCast.vue';
 import BuzzerAnsweringCast from 'components/cast/buzzer/BuzzerAnsweringCast.vue';

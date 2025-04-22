@@ -4,7 +4,15 @@
     padding
   >
     <div
-      class="col-xs-12 col-sm-10 col-md-7 col-lg-4 col-xl-2 column justify-between"
+      v-if="leaderboard.length === 0"
+      class="text-center column self-center text-h5"
+    >
+      {{ t('leaderboard.noEntries') }}
+    </div>
+
+    <div
+      v-else
+      class="col-xs-12 col-sm-10 col-md-7 col-lg-4 col-xl-2 column justify-between no-wrap"
     >
       <q-list>
         <q-item

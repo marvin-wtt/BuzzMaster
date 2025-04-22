@@ -1,6 +1,6 @@
 import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 import { mount } from '@vue/test-utils';
-import { Component } from 'vue';
+import type { Component } from 'vue';
 import { createTestingPinia } from '@pinia/testing';
 import { vi } from 'vitest';
 

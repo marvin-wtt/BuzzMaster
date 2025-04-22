@@ -79,7 +79,7 @@ const readNames = async (file: File): Promise<string[]> => {
   const content = await readFile(file);
 
   if (typeof content !== 'string') {
-    throw 'Unexpected file content';
+    throw new Error('Unexpected file content');
   }
 
   const maxLength = config.controllerNameMaxLength;

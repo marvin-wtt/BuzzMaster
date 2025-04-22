@@ -77,7 +77,7 @@
 
 <script lang="ts" setup>
 import ControllerLogo from 'components/ControllerLogo.vue';
-import { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
+import type { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import { useI18n } from 'vue-i18n';
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';

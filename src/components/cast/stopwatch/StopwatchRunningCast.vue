@@ -65,7 +65,7 @@
 
 <script lang="ts" setup>
 import BeepTimer from 'components/TimerAnimated.vue';
-import {
+import type {
   StopwatchCompletedState,
   StopwatchPausedState,
   StopwatchRunningState,
@@ -87,13 +87,13 @@ const props = defineProps<{
 interface ResultItem {
   id: string;
   name: string;
-  time?: number;
-  points?: number;
+  time?: number | undefined;
+  points?: number | undefined;
 }
 
 const result = computed<ResultItem[]>(() => {
   return Object.keys(props.state.result)
-    .map((controllerId) => {
+    .map((controllerId): ResultItem => {
       const points =
         props.state.name === 'completed' && props.state.points
           ? props.state.points[controllerId]
@@ -101,7 +101,7 @@ const result = computed<ResultItem[]>(() => {
 
       return {
         id: controllerId,
-        name: controllers.value[controllerId],
+        name: controllers.value[controllerId] ?? 'Invalid Controller',
         time: props.state.result[controllerId] ?? undefined,
         points,
       };

@@ -29,5 +29,5 @@ export interface StopwatchCompletedState extends StopwatchStateBase {
   name: 'completed';
   time: number;
   result: Record<string, number | null>;
-  points?: Record<string, number | undefined>;
+  points?: Record<string, number | undefined> | undefined;
 }

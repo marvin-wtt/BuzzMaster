@@ -72,7 +72,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
-import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
+import type { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();

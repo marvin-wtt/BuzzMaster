@@ -1,4 +1,4 @@
-import {
+import type {
   ButtonState,
   IController,
   IDevice,
@@ -48,22 +48,22 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
     const changedStates = states.filter(
       (state) =>
         // Compare new state with current state. Only accept updates.
-        this.controllers[state.controller].buttons[state.button] !==
+        this.controllers[state.controller]!.buttons[state.button] !==
         state.pressed,
     );
 
     // Send changes to all updated controllers
     changedStates.forEach((state) => {
-      this.controllers[state.controller].update(state);
+      this.controllers[state.controller]!.update(state);
     });
 
     // Emit changes to all listeners
     changedStates
-      .filter((state) => !this.controllers[state.controller].disabled)
+      .filter((state) => !this.controllers[state.controller]!.disabled)
       .forEach((state) => {
         const event = {
           button: state.button,
-          controller: this.controllers[state.controller],
+          controller: this.controllers[state.controller]!,
         };
 
         this.emit('change', event);

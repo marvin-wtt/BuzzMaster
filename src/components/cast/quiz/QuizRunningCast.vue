@@ -15,10 +15,10 @@
 
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
-import { QuizRunningState } from 'app/common/gameState/QuizState';
+import type { QuizRunningState } from 'app/common/gameState/QuizState';
 import CircleTimer from 'components/CircleTimer.vue';
 import TimerAnimated from 'components/TimerAnimated.vue';
-import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { computed } from 'vue';
 
 const castStore = useCastStore();

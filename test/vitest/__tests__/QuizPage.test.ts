@@ -2,12 +2,12 @@ import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-v
 import { describe, expect, it, vi } from 'vitest';
 import QuizQuestionPage from 'pages/gameModes/QuizGamePage.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
-import { Dialog, QBtn, QIcon } from 'quasar';
-import { BuzzerButton, IDongle } from 'src/plugins/buzzer/types';
+import { Dialog, QBtn, type QIcon } from 'quasar';
+import { BuzzerButton, type IDongle } from 'src/plugins/buzzer/types';
 import { useGameStore } from 'stores/game-store';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { selector } from 'app/test/vitest/utils/element-selector';
-import {
+import type {
   QuizCompleteState,
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
@@ -29,7 +29,7 @@ installTeleportTarget('navbar-action');
 describe('QuizPage', () => {
   it('should mount component properly', () => {
     const { wrapper } = mountQuizPage();
-    expect(wrapper.exists()).to.be.true;
+    expect(wrapper.exists()).toBe(true);
   });
 
   describe('preparing', () => {
@@ -64,10 +64,10 @@ describe('QuizPage', () => {
       expect(spy).toHaveBeenCalledOnce();
     });
 
-    it('should show the preparing circle', async () => {
+    it('should show the preparing circle', () => {
       const { wrapper } = mountQuizPage();
 
-      expect(wrapper.find(selector('preparing-circle')).exists()).to.be.true;
+      expect(wrapper.find(selector('preparing-circle')).exists()).toBe(true);
     });
 
     it.todo('should show the correct amount of controllers');
@@ -87,24 +87,24 @@ describe('QuizPage', () => {
       // Test all combinations
       quizSettings.activeButtons = [BuzzerButton.BLUE, BuzzerButton.GREEN];
       await nextTick();
-      expect(icons[0].props().color).to.match(color('blue'));
-      expect(icons[1].props().color).to.match(color('grey'));
-      expect(icons[2].props().color).to.match(color('green'));
-      expect(icons[3].props().color).to.match(color('grey'));
+      expect(icons[0]!.props().color).to.match(color('blue'));
+      expect(icons[1]!.props().color).to.match(color('grey'));
+      expect(icons[2]!.props().color).to.match(color('green'));
+      expect(icons[3]!.props().color).to.match(color('grey'));
 
       quizSettings.activeButtons = [BuzzerButton.YELLOW, BuzzerButton.ORANGE];
       await nextTick();
-      expect(icons[0].props().color).to.match(color('grey'));
-      expect(icons[1].props().color).to.match(color('orange'));
-      expect(icons[2].props().color).to.match(color('grey'));
-      expect(icons[3].props().color).to.match(color('yellow'));
+      expect(icons[0]!.props().color).to.match(color('grey'));
+      expect(icons[1]!.props().color).to.match(color('orange'));
+      expect(icons[2]!.props().color).to.match(color('grey'));
+      expect(icons[3]!.props().color).to.match(color('yellow'));
 
       quizSettings.activeButtons = [BuzzerButton.BLUE, BuzzerButton.ORANGE];
       await nextTick();
-      expect(icons[0].props().color).to.match(color('blue'));
-      expect(icons[1].props().color).to.match(color('orange'));
-      expect(icons[2].props().color).to.match(color('grey'));
-      expect(icons[3].props().color).to.match(color('grey'));
+      expect(icons[0]!.props().color).to.match(color('blue'));
+      expect(icons[1]!.props().color).to.match(color('orange'));
+      expect(icons[2]!.props().color).to.match(color('grey'));
+      expect(icons[3]!.props().color).to.match(color('grey'));
     });
 
     it('should transition to running when start button is pressed', async () => {
@@ -114,7 +114,7 @@ describe('QuizPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
 
       const btm = wrapper.find(selector('btn-game-start'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
@@ -140,7 +140,7 @@ describe('QuizPage', () => {
       const { quizSettings } = useGameSettingsStore();
 
       const btm = wrapper.find(selector('btn-game-start'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       const state = gameStore.state as QuizRunningState;
@@ -152,7 +152,7 @@ describe('QuizPage', () => {
 
       it('should mount dialog properly', () => {
         const { wrapper } = mountQuizSettingsDialog();
-        expect(wrapper.exists()).to.be.true;
+        expect(wrapper.exists()).toBe(true);
       });
 
       it.todo('should set activated buttons');
@@ -201,7 +201,7 @@ describe('QuizPage', () => {
       });
       await nextTick();
 
-      expect(wrapper.find(selector('answer-timer')).exists()).to.be.true;
+      expect(wrapper.find(selector('answer-timer')).exists()).toBe(true);
     });
 
     it('should transition to completed when timer reaches zero', async () => {
@@ -241,7 +241,7 @@ describe('QuizPage', () => {
 
       expect(gameStore.state?.name).toBe('running');
       const btn = wrapper.find(selector('btn-game-cancel'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
@@ -754,7 +754,7 @@ describe('QuizPage', () => {
       const { wrapper } = mountQuizPage();
       await initializeStore();
 
-      expect(wrapper.find(selector('result')).exists()).to.be.true;
+      expect(wrapper.find(selector('result')).exists()).toBe(true);
     });
 
     it('should transition to preparing on restart', async () => {
@@ -764,7 +764,7 @@ describe('QuizPage', () => {
       expect(gameStore.state?.name).toBe('completed');
 
       const btn = wrapper.find(selector('btn-game-restart'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
@@ -777,7 +777,7 @@ describe('QuizPage', () => {
       expect(gameStore.state?.name).toBe('completed');
 
       const btn = wrapper.find(selector('btn-game-quick-play'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
@@ -790,7 +790,7 @@ describe('QuizPage', () => {
       const initialView = quizSettings.presentationView;
 
       const btn = wrapper.findComponent(QBtn);
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
 
       await btn.trigger('click');
 

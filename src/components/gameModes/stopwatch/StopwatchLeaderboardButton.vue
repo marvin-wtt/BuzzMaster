@@ -13,7 +13,7 @@
 import StopwatchPointsDialog from 'components/gameModes/stopwatch/StopwatchPointsDialog.vue';
 import { useQuasar } from 'quasar';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
-import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
+import type { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 
 const quasar = useQuasar();
 const leaderboardStore = useLeaderboardStore();

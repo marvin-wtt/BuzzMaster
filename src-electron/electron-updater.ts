@@ -2,13 +2,18 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import log from 'electron-log';
 import electronUpdater, {
   type AppUpdater,
-  CancellationToken,
+  type CancellationToken,
 } from 'electron-updater';
-import { AppUpdate } from 'app/common';
+import type { AppUpdate } from 'app/common';
 
-app.whenReady().then(async () => {
-  await startAutoUpdater();
-});
+app
+  .whenReady()
+  .then(async () => {
+    await startAutoUpdater();
+  })
+  .catch((reason) => {
+    console.error(`Failed to start application: ${reason}`);
+  });
 
 function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
@@ -72,14 +77,14 @@ autoUpdater.on('update-downloaded', (info) => {
   });
 });
 
-ipcMain.on('app:checkForUpdate', async () => {
-  await autoUpdater.checkForUpdates();
+ipcMain.on('app:checkForUpdate', () => {
+  void autoUpdater.checkForUpdates();
 });
-ipcMain.on('app:downloadUpdate', async () => {
+ipcMain.on('app:downloadUpdate', () => {
   if (cancellationToken) {
     return;
   }
-  await autoUpdater.downloadUpdate(cancellationToken);
+  void autoUpdater.downloadUpdate(cancellationToken);
 });
 ipcMain.on('app:cancelUpdate', () => {
   cancellationToken?.cancel();

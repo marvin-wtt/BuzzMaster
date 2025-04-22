@@ -1,6 +1,7 @@
-import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
+import { type BrowserWindow, ipcMain, type IpcMainEvent } from 'electron';
+import log from 'electron-log';
 
-type CastWindowFactory = () => BrowserWindow;
+type CastWindowFactory = () => Promise<BrowserWindow>;
 
 export default (windowFactory: CastWindowFactory) => {
   ipcMain.on('cast:toggle', toggle);
@@ -17,7 +18,13 @@ export default (windowFactory: CastWindowFactory) => {
 
   function toggle() {
     if (isCastWindowClosed()) {
-      castWindow = windowFactory();
+      windowFactory()
+        .then((window) => {
+          castWindow = window;
+        })
+        .catch((reason) => {
+          log.error(`Failed to create cast window: ${reason}`);
+        });
     } else {
       castWindow.close();
     }

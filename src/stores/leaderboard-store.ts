@@ -1,7 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
+import type { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
 
 export type Leaderboard = LeaderboardEntry[];
 
@@ -24,9 +24,9 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
     entries.forEach((entry, index) => {
       // Same position for entries with same value
       entry.position =
-        index === 0 || entry.value !== entries[index - 1].value
+        index === 0 || entry.value !== entries[index - 1]!.value
           ? index + 1
-          : entries[index - 1].position;
+          : entries[index - 1]!.position;
     });
 
     return entries;

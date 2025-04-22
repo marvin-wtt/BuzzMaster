@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
-import { StopwatchState } from 'app/common/gameState/StopwatchState';
+import type { StopwatchState } from 'app/common/gameState/StopwatchState';
 import StopwatchPreparingCast from 'components/cast/stopwatch/StopwatchPreparingCast.vue';
 import StopwatchRunningCast from 'components/cast/stopwatch/StopwatchRunningCast.vue';
 

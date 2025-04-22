@@ -2,9 +2,14 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { getTestingConfig } from '@quasar/app-vite/lib/testing.js';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async () => ({
+  // Workaround for https://github.com/quasarframework/quasar/issues/17685#issuecomment-2523877200
+  resolve: {
+    alias: (await getTestingConfig()).resolve!.alias!,
+  },
   test: {
     environment: 'happy-dom',
     setupFiles: 'test/vitest/setup-file.ts',
@@ -24,4 +29,4 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-});
+}));

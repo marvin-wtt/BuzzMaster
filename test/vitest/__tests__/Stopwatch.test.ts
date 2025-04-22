@@ -7,14 +7,14 @@ import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';
 import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
-import {
+import type {
   StopwatchCompletedState,
   StopwatchPausedState,
   StopwatchRunningState,
 } from 'app/common/gameState/StopwatchState';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
-import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
+import type { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 
 const mountStopwatchPage = () => mountPage(StopwatchQuestionPage);
 
@@ -23,7 +23,7 @@ installQuasarPlugin({ plugins: { Dialog } });
 describe('StopwatchPage', () => {
   it('should mount component properly', () => {
     const { wrapper } = mountStopwatchPage();
-    expect(wrapper.exists()).to.be.true;
+    expect(wrapper.exists()).toBe(true);
   });
 
   describe('preparing', () => {
@@ -41,16 +41,16 @@ describe('StopwatchPage', () => {
 
       expect(gameStore.state?.name).toBe('preparing');
 
-      expect(wrapper.find(selector('btn-game-start')).exists()).to.be.true;
+      expect(wrapper.find(selector('btn-game-start')).exists()).toBe(true);
       await wrapper.find(selector('btn-game-start')).trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
     });
 
-    it('should show controllers ready', async () => {
+    it('should show controllers ready', () => {
       const { wrapper } = mountStopwatchPage();
 
-      expect(wrapper.find(selector('controllers-ready')).exists()).to.be.true;
+      expect(wrapper.find(selector('controllers-ready')).exists()).toBe(true);
     });
 
     it.todo('should show the correct amount of controllers');
@@ -88,7 +88,7 @@ describe('StopwatchPage', () => {
       await initializeStore(2.02);
 
       const timer = wrapper.find(selector('timer'));
-      expect(timer.exists()).to.be.true;
+      expect(timer.exists()).toBe(true);
       expect(timer.text()).toBe('02.02');
     });
 
@@ -141,10 +141,10 @@ describe('StopwatchPage', () => {
       await vi.advanceTimersByTimeAsync(100);
 
       const item = wrapper.find(selector('result-item'));
-      expect(item.exists()).to.be.true;
+      expect(item.exists()).toBe(true);
 
       const name = item.find(selector('result-item-name'));
-      expect(name.exists()).to.be.true;
+      expect(name.exists()).toBe(true);
       expect(name.text()).toBe(getController(0).name);
     });
 
@@ -159,10 +159,10 @@ describe('StopwatchPage', () => {
       await vi.advanceTimersByTimeAsync(100);
 
       const item = wrapper.find(selector('result-item'));
-      expect(item.exists()).to.be.true;
+      expect(item.exists()).toBe(true);
 
       const time = item.find(selector('result-item-time'));
-      expect(time.exists()).to.be.true;
+      expect(time.exists()).toBe(true);
       expect(time.text()).toBe('00:02.00');
     });
 
@@ -181,12 +181,12 @@ describe('StopwatchPage', () => {
       const items = wrapper.findAll(selector('result-item'));
       expect(items.length).toBe(2);
 
-      const firstTime = items[0].find(selector('result-item-time'));
-      expect(firstTime.exists()).to.be.true;
+      const firstTime = items[0]!.find(selector('result-item-time'));
+      expect(firstTime.exists()).toBe(true);
       expect(firstTime.text()).toBe('00:02.00');
 
-      const secondTime = items[1].find(selector('result-item-time'));
-      expect(secondTime.exists()).to.be.true;
+      const secondTime = items[1]!.find(selector('result-item-time'));
+      expect(secondTime.exists()).toBe(true);
       expect(secondTime.text()).toBe('00:04.10');
     });
 
@@ -270,7 +270,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('running');
 
       const btn = wrapper.find(selector('btn-game-pause'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('paused');
@@ -283,7 +283,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('running');
 
       const btn = wrapper.find(selector('btn-game-pause'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
       await vi.advanceTimersByTimeAsync(1000);
 
@@ -350,7 +350,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('paused');
 
       const btn = wrapper.find(selector('btn-game-resume'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       const state = gameStore.state as StopwatchRunningState;
@@ -367,7 +367,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('paused');
 
       const btn = wrapper.find(selector('btn-game-stop'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       const state = gameStore.state as StopwatchCompletedState;
@@ -381,7 +381,7 @@ describe('StopwatchPage', () => {
         await initializeStoreWithDevice(buzzer);
 
       const btn = wrapper.find(selector('btn-game-stop'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       const state = gameStore.state as StopwatchCompletedState;
@@ -429,7 +429,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('paused');
 
       const btn = wrapper.find(selector('btn-game-cancel'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
@@ -528,7 +528,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('completed');
 
       const btn = wrapper.find(selector('btn-game-quick-play'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
@@ -541,7 +541,7 @@ describe('StopwatchPage', () => {
       expect(gameStore.state?.name).toBe('completed');
 
       const btn = wrapper.find(selector('btn-game-restart'));
-      expect(btn.exists()).to.be.true;
+      expect(btn.exists()).toBe(true);
       await btn.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');

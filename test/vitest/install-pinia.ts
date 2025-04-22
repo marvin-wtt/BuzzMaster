@@ -1,8 +1,8 @@
 import { config } from '@vue/test-utils';
 import { cloneDeep } from 'lodash-es';
 import { beforeAll, afterAll, vi } from 'vitest';
-import { createTestingPinia, TestingOptions } from '@pinia/testing';
-import { Plugin } from 'vue';
+import { createTestingPinia, type TestingOptions } from '@pinia/testing';
+import type { Plugin } from 'vue';
 
 // This does not reset the store after each test
 export function installPinia(options?: Partial<TestingOptions>) {

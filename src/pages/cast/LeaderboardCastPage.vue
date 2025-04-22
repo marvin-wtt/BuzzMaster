@@ -41,11 +41,11 @@
 <script lang="ts" setup>
 import { useCastStore } from 'stores/cast-store';
 import { computed, nextTick, onMounted, ref } from 'vue';
-import {
+import type {
   LeaderboardEntry,
   LeaderboardState,
 } from 'app/common/gameState/LeaderboardState';
-import { QItem, QList } from 'quasar';
+import { type QItem, QList } from 'quasar';
 import CastLeaderboardEntry from 'components/cast/leaderboard/CastLeaderboardEntry.vue';
 
 const castStore = useCastStore();
@@ -56,8 +56,8 @@ const pageNumber = ref<number>(1);
 const pageSize = ref<number>(10);
 const animationToggle = ref<boolean>(false);
 
-onMounted(() => {
-  nextTick(updateItemsPerPage);
+onMounted(async () => {
+  await nextTick(updateItemsPerPage);
 });
 
 const state = computed<LeaderboardState>(() => {
@@ -104,7 +104,7 @@ const updateItemsPerPage = () => {
     return;
   }
   // Use the first list item to measure the item height
-  const itemEl: HTMLElement = containerItems.value[0].$el;
+  const itemEl: HTMLElement = containerItems.value[0]!.$el;
 
   const itemHeight = itemEl.clientHeight;
   const containerHeight = el.clientHeight;

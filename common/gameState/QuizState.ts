@@ -1,4 +1,4 @@
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import type { BuzzerButton } from 'src/plugins/buzzer/types';
 
 export type QuizState =
   | QuizPreparationState
@@ -48,5 +48,5 @@ export interface QuizCompleteState extends QuizStateBase {
   mode: QuizMode;
   controllers: string[];
   result: Record<string, BuzzerButton>;
-  correct?: BuzzerButton[];
+  correct?: BuzzerButton[] | undefined;
 }

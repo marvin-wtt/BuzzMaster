@@ -41,11 +41,11 @@
 </template>
 
 <script lang="ts" setup>
-import { QuizCompleteState } from 'app/common/gameState/QuizState';
+import type { QuizCompleteState } from 'app/common/gameState/QuizState';
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
-import { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import QuizCompletedResult from 'components/cast/quiz/QuizCompletedResult.vue';
 import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';

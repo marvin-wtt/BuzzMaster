@@ -62,7 +62,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
+import type { LeaderboardEntry } from 'app/common/gameState/LeaderboardState';
 
 const props = defineProps<{
   entry: LeaderboardEntry;

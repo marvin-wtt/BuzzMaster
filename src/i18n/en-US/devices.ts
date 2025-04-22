@@ -2,13 +2,23 @@ export default {
   title: 'Devices',
 
   item: {
+    noEntries: {
+      label: 'No devices connected',
+      caption: 'Please connect a dongle to your computer',
+    },
+
+    missing: {
+      label: 'Device not showing up?',
+      button: 'Help',
+    },
+
     test: {
       label: 'Test All Buzzers',
       button: 'Start',
     },
 
     names: {
-      label: 'Controller naming list',
+      label: 'Update Controller Names',
       button: 'Update',
     },
   },
@@ -46,6 +56,24 @@ export default {
     action: {
       save: 'Save',
       cancel: 'Cancel',
+    },
+  },
+
+  missing: {
+    title: 'Controller not showing up?',
+    description:
+      'Playstation 2 Buzz devices might be recognised as a malfunctioning USB-hub instead of a HID-Device. ' +
+      'Follow these steps to update the driver manually:',
+    steps: {
+      1: 'Open Device Manager',
+      2: 'Right-click on the device and select "Update Driver"',
+      3: 'Select "Browse my computer for driver software"',
+      4: 'Select "Let me pick from a list of device drivers on my computer"',
+      5: 'From the list of drivers, select "USB Input Device" or "USB HID Device" amd click "OK"',
+    },
+
+    action: {
+      ok: 'Ok',
     },
   },
 };

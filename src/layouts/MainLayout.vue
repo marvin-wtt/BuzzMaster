@@ -225,7 +225,7 @@
 </template>
 
 <script lang="ts" setup>
-import { QSelectOption, useQuasar } from 'quasar';
+import { type QSelectOption, useQuasar } from 'quasar';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -234,9 +234,9 @@ import LeaderboardDialog from 'components/leaderboard/LeaderboardDialog.vue';
 import { useBatterySavingStore } from 'stores/battery-saving-store';
 import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
 import { useGameStore } from 'stores/game-store';
-import { GameState } from 'app/common/gameState';
+import type { GameState } from 'app/common/gameState';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import { GameSettings } from 'app/common/gameSettings';
+import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from 'stores/updater-store';
 
@@ -296,8 +296,8 @@ const toggleMute = () => {
   muted.value = !muted.value;
 };
 
-const goToHome = () => {
-  router.push('/');
+const goToHome = async () => {
+  await router.push('/');
 };
 
 const navigateBack = () => {
@@ -338,8 +338,8 @@ function openDevTools() {
   window.windowAPI.openDevTools();
 }
 
-function closeApp() {
-  buzzer.reset();
+async function closeApp() {
+  await buzzer.reset();
   window.windowAPI?.close();
 }
 

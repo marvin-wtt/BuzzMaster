@@ -1,4 +1,8 @@
-import { IBuzzerApi, IDevice, IBuzzerPlugin } from 'src/plugins/buzzer/types';
+import type {
+  IBuzzerApi,
+  IDevice,
+  IBuzzerPlugin,
+} from 'src/plugins/buzzer/types';
 import { PlayStation2Device } from 'src/plugins/buzzer/hid/PlayStation2Device';
 import { PlayStation3Device } from 'src/plugins/buzzer/hid/PlayStation3Device';
 
@@ -18,12 +22,14 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
   }
 
   // Handle new devices
-  navigator.hid.addEventListener('connect', async (event) => {
+  navigator.hid.addEventListener('connect', (event) => {
     const { device: hidDevice } = event;
     const device = findHidDevice(hidDevice);
 
     deviceMap.set(hidDevice, device.id);
-    await api.addDevice(device);
+    api.addDevice(device).catch((reason) => {
+      console.error(`Failed to add device: ${reason}`);
+    });
   });
 
   // Handle device disconnection
@@ -56,7 +62,9 @@ const findHidDevice = (hidDevice: HIDDevice): IDevice => {
     return new PlayStation3Device(hidDevice);
   }
 
-  throw `Unknown HID device. ProductName: ${hidDevice.productName}, ProductId: ${hidDevice.productId}, VendorId: ${hidDevice.vendorId}.`;
+  throw new Error(
+    `Unknown HID device. ProductName: ${hidDevice.productName}, ProductId: ${hidDevice.productId}, VendorId: ${hidDevice.vendorId}.`,
+  );
 };
 
 const matchHidDevice = (

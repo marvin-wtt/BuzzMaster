@@ -95,10 +95,46 @@
           </q-list>
         </template>
       </q-expansion-item>
+
+      <!-- No entries -->
+      <q-item v-if="dongles.length === 0">
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              {{ t('devices.item.noEntries.label') }}
+            </q-item-label>
+            <q-item-label caption>
+              {{ t('devices.item.noEntries.caption') }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-item>
+
+      <!-- Missing controllers hint -->
+      <q-item v-if="quasar.platform.is.win">
+        <q-item-section>
+          <q-item-label>
+            {{ t('devices.item.missing.label') }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            icon="question_mark"
+            :aria-label="t('devices.item.missing.button')"
+            outline
+            round
+            dense
+            @click="showMissingDongleHelp"
+          />
+        </q-item-section>
+      </q-item>
+
       <!-- Buzzer Test -->
       <q-item v-if="dongles.length > 0">
         <q-item-section>
-          {{ t('devices.item.test.label') }}
+          <q-item-label>
+            {{ t('devices.item.test.label') }}
+          </q-item-label>
         </q-item-section>
         <q-item-section side>
           <q-btn
@@ -110,10 +146,13 @@
           />
         </q-item-section>
       </q-item>
+
       <!-- Dongle naming -->
       <q-item v-else>
         <q-item-section>
-          {{ t('devices.item.names.label') }}
+          <q-item-label>
+            {{ t('devices.item.names.label') }}
+          </q-item-label>
         </q-item-section>
         <q-item-section side>
           <q-btn
@@ -130,21 +169,26 @@
 
 <script lang="ts" setup>
 import { useBuzzer } from 'src/plugins/buzzer';
-import { BuzzerButton, IController, IDongle } from 'src/plugins/buzzer/types';
-import { NamedColor, useQuasar } from 'quasar';
+import {
+  BuzzerButton,
+  type IController,
+  type IDongle,
+} from 'src/plugins/buzzer/types';
+import { type NamedColor, useQuasar } from 'quasar';
 import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
 import { computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import DongleNameImportDialog from 'components/devices/DongleNameImportDialog.vue';
 import { Dongle } from 'src/plugins/buzzer/Dongle';
 import { config } from 'src/config';
+import DongleMissingDialog from 'components/devices/DongleMissingDialog.vue';
 
 const quasar = useQuasar();
 const { t } = useI18n();
 const { dongles, buzzer } = useBuzzer();
 
-onUnmounted(() => {
-  cancelFindDevice();
+onUnmounted(async () => {
+  await cancelFindDevice();
 });
 
 const FIND_DEVICE_INTERVAL = 500;
@@ -157,8 +201,8 @@ let findTimerId:
     }
   | undefined = undefined;
 
-const findDevice = (controller: IController) => {
-  cancelFindDevice();
+const findDevice = async (controller: IController) => {
+  await cancelFindDevice();
   let toggle = true;
   const intervalId = setInterval(() => {
     controller.setLight(toggle);
@@ -180,8 +224,8 @@ const findDevice = (controller: IController) => {
   };
 };
 
-const findDongle = (dongle: IDongle) => {
-  cancelFindDevice();
+const findDongle = async (dongle: IDongle) => {
+  await cancelFindDevice();
   let toggle = true;
   const intervalId = setInterval(() => {
     dongle.controllers.forEach((controller) => controller.setLight(toggle));
@@ -203,14 +247,14 @@ const findDongle = (dongle: IDongle) => {
   };
 };
 
-const cancelFindDevice = () => {
+const cancelFindDevice = async () => {
   if (!findTimerId) {
     return;
   }
 
   clearInterval(findTimerId.intervalId);
   clearTimeout(findTimerId.timeoutId);
-  buzzer.reset();
+  await buzzer.reset();
 };
 
 const hasEnabledController = computed<boolean>(() => {
@@ -280,21 +324,17 @@ const getButtonColor = (controller: IController): NamedColor => {
   return 'grey';
 };
 
-const startBuzzerTest = () => {
-  cancelFindDevice();
+const startBuzzerTest = async () => {
+  await cancelFindDevice();
 
   quasar
     .dialog({
       component: BuzzerTestDialog,
     })
-    .onOk(() => {
-      buzzer.reset();
-    })
-    .onCancel(() => {
-      buzzer.reset();
-    })
     .onDismiss(() => {
-      buzzer.reset();
+      buzzer.reset().catch((reason) => {
+        console.error(`Failed to reset buzzer: ${reason}  `);
+      });
     });
 };
 
@@ -306,6 +346,12 @@ const updateDongleNamingList = () => {
     .onOk((names: string[]) => {
       Dongle.CONTROLLER_NAMES = names;
     });
+};
+
+const showMissingDongleHelp = () => {
+  quasar.dialog({
+    component: DongleMissingDialog,
+  });
 };
 </script>
 

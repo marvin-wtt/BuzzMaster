@@ -2,14 +2,24 @@ export default {
   title: 'Geräte',
 
   item: {
+    noEntries: {
+      label: 'Keine verbundenen Controller',
+      caption: 'Verbinden Sie ein Dongle mit Ihrem Computer',
+    },
+
     test: {
       label: 'Alle Buzzer testen',
       button: 'Start',
     },
 
     names: {
-      label: 'Controller-Namensliste',
+      label: 'Controller-Namen aktualisieren',
       button: 'Aktualisieren',
+    },
+
+    missing: {
+      label: 'Gerät wird nicht angezeigt?',
+      button: 'Hilfe',
     },
   },
 
@@ -47,6 +57,22 @@ export default {
     action: {
       save: 'Speichern',
       cancel: 'Abbrechen',
+    },
+  },
+
+  missing: {
+    title: 'Controller wird nicht angezeigt?',
+    description:
+      'PlayStation 2 Buzz‑Geräte werden möglicherweise als fehlerhafter USB‑Hub statt als HID‑Gerät erkannt. Führen Sie die folgenden Schritte aus, um den Treiber manuell zu aktualisieren:',
+    steps: {
+      1: 'Geräte-Manager öffnen',
+      2: 'Mit der rechten Maustaste auf das Gerät klicken und „Treiber aktualisieren“ wählen',
+      3: '„Auf dem Computer nach Treibersoftware suchen“ auswählen',
+      4: '„Aus einer Liste verfügbarer Treiber auf meinem Computer auswählen“ wählen',
+      5: 'In der Treiberliste „USB‑Eingabegerät“ oder „USB‑HID‑Gerät“ auswählen und auf „OK“ klicken',
+    },
+    action: {
+      ok: 'OK',
     },
   },
 };

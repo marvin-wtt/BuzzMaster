@@ -1,4 +1,4 @@
-import { ButtonState, IDevice } from 'src/plugins/buzzer/types';
+import type { ButtonState, IDevice } from 'src/plugins/buzzer/types';
 import { buttonMapping } from 'src/plugins/buzzer/hid/playstationButtonMappings';
 
 export abstract class PlayStationDevice implements IDevice {
@@ -49,7 +49,10 @@ export abstract class PlayStationDevice implements IDevice {
   }
 
   async close(): Promise<void> {
-    this.device.removeEventListener('inputreport', this.deviceInputListener);
+    this.device.removeEventListener(
+      'inputreport',
+      this.deviceInputListener.bind(this),
+    );
     await this.device.close();
   }
 
@@ -61,12 +64,17 @@ export abstract class PlayStationDevice implements IDevice {
   readDeviceData(data: DataView): ButtonState[] {
     const uint8Array = new Uint8Array(data.buffer);
 
-    return buttonMapping.map((value) => {
-      const pressed = (uint8Array[value.byte] & value.mask) > 0;
+    return buttonMapping.map((mapping) => {
+      const byte = uint8Array[mapping.byte];
+      if (byte === undefined) {
+        throw new Error(`Invalid button data at byte ${mapping.byte}`);
+      }
+
+      const pressed = (byte & mapping.mask) > 0;
 
       return {
-        button: value.button,
-        controller: value.controller,
+        button: mapping.button,
+        controller: mapping.controller,
         pressed,
       };
     });

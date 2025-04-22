@@ -121,6 +121,7 @@ async function createCastWindow() {
     height: 800,
     useContentSize: true,
     frame: false,
+    transparent: true,
     webPreferences: {
       sandbox: true,
       contextIsolation: true,

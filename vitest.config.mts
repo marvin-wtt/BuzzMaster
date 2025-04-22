@@ -5,10 +5,10 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { getTestingConfig } from '@quasar/app-vite/lib/testing.js';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async () => ({
   // Workaround for https://github.com/quasarframework/quasar/issues/17685#issuecomment-2523877200
   resolve: {
-    alias: (await getTestingConfig()).resolve.alias,
+    alias: (await getTestingConfig()).resolve!.alias!,
   },
   test: {
     environment: 'happy-dom',
@@ -29,4 +29,4 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-});
+}));

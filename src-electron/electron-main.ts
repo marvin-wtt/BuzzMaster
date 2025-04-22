@@ -5,7 +5,7 @@ import initCastApiHandler from 'app/src-electron/castAPI/main';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
-import log from 'electron-log/main';
+import log from 'electron-log';
 
 import './electron-updater';
 

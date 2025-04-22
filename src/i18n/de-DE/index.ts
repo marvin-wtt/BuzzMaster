@@ -4,6 +4,7 @@ import leaderboard from './leaderboard';
 import batterySaving from './batterySaving';
 import cast from './cast';
 import updater from './updater';
+import toolbar from './toolbar';
 
 export default {
   app_name: 'Buzz Master',
@@ -20,5 +21,6 @@ export default {
   gameMode,
   leaderboard,
 
+  toolbar,
   updater,
 };

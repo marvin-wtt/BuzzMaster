@@ -1,0 +1,16 @@
+export default {
+  batterySaving: 'Batteriesparmodus anzeigen',
+  cast: 'Cast öffnen',
+  close: 'Fenster schließen',
+  darkMode: 'Dunkelmodus umschalten',
+  language: 'Sprache ändern',
+  leaderboard: 'Bestenliste anzeigen',
+  maximize: 'Fenster maximieren',
+  minimize: 'Fenster minimieren',
+  mute: 'Ton ausschalten',
+  unmute: 'Ton einschalten',
+  pin: 'Fenster im Vordergrund anheften',
+  settings: 'Einstellungen umschalten',
+  unpin: 'Fenster lösen',
+  updater: 'Nach Updates suchen',
+};

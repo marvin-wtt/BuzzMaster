@@ -1,12 +1,9 @@
 <template>
   <q-btn
-    aria-label="About"
-    dense
-    flat
-    rounded
-    size="sm"
-    :icon="icon"
+    v-bind="attrs"
+    :icon
   >
+    <slot />
     <q-menu
       v-model="menuOpen"
       anchor="bottom middle"
@@ -40,6 +37,7 @@
           </div>
 
           <q-btn
+            :aria-label="t('updater.action.download')"
             icon="download"
             dense
             rounded
@@ -63,6 +61,7 @@
           </div>
 
           <q-btn
+            :aria-label="t('updater.action.check')"
             icon="sync"
             rounded
             dense
@@ -93,6 +92,7 @@
             </div>
 
             <q-btn
+              :aria-label="t('updater.action.cancel')"
               icon="close"
               size="xs"
               dense
@@ -116,6 +116,7 @@
           </div>
 
           <q-btn
+            :aria-label="t('updater.action.download')"
             icon="download"
             dense
             rounded
@@ -139,6 +140,7 @@
           </div>
 
           <q-btn
+            :aria-label="t('updater.action.install')"
             icon="restart_alt"
             dense
             rounded
@@ -179,6 +181,7 @@
           </div>
 
           <q-btn
+            :aria-label="t('updater.action.check')"
             dense
             rounded
             color="primary"
@@ -193,7 +196,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, useAttrs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { format } from 'quasar';
 import type { UpdateInfo } from 'electron-updater';
@@ -204,6 +207,8 @@ const { t } = useI18n();
 const updaterStore = useUpdaterStore();
 const { status, version } = storeToRefs(updaterStore);
 const { humanStorageSize } = format;
+
+const attrs = useAttrs();
 
 const menuOpen = ref<boolean>(false);
 

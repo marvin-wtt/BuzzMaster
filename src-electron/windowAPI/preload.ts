@@ -1,4 +1,4 @@
-import { WindowAPI } from 'app/common/WindowAPI';
+import type { WindowAPI } from 'app/common/WindowAPI';
 import { ipcRenderer } from 'electron';
 
 const api: WindowAPI = {

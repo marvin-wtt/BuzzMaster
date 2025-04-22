@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { AppAPI } from 'app/common/AppAPI';
+import type { AppAPI } from 'app/common/AppAPI';
 
 const api: AppAPI = {
   getVersion: () => ipcRenderer.invoke('app:getVersion'),

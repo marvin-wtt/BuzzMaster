@@ -73,7 +73,7 @@ export function useStateActions<S extends GameState>() {
   const gameStore = useGameStore();
 
   type StateName = S['name'];
-  type ActionHandler = (state: S) => void;
+  type ActionHandler = (state: S) => Promise<void> | void;
   type StateActionHandlers = Partial<Record<StateName, ActionHandler>>;
 
   const entryActions: StateActionHandlers = {};
@@ -82,23 +82,23 @@ export function useStateActions<S extends GameState>() {
 
   const onStateEntry = <K extends StateName>(
     name: K,
-    fn: (state: Extract<S, { name: K }>) => void,
+    fn: (state: Extract<S, { name: K }>) => Promise<void> | void,
   ) => {
-    entryActions[name] = fn as (s: S) => void;
+    entryActions[name] = fn as (s: S) => Promise<void> | void;
   };
 
   const onStateExit = <K extends StateName>(
     name: K,
-    fn: (state: Extract<S, { name: K }>) => void,
+    fn: (state: Extract<S, { name: K }>) => Promise<void> | void,
   ) => {
-    exitActions[name] = fn as (s: S) => void;
+    exitActions[name] = fn as (s: S) => Promise<void> | void;
   };
 
   const onStateDo = <K extends StateName>(
     name: K,
-    fn: (state: Extract<S, { name: K }>) => void,
+    fn: (state: Extract<S, { name: K }>) => Promise<void> | void,
   ) => {
-    doActions[name] = fn as (s: S) => void;
+    doActions[name] = fn as (s: S) => Promise<void> | void;
   };
 
   const unsubscribe = gameStore.$onAction(
@@ -146,7 +146,14 @@ export function useStateActions<S extends GameState>() {
   const callActionHandler = (handlers: StateActionHandlers, state: S) => {
     const handler = handlers[state.name as StateName];
     if (handler) {
-      handler(state);
+      const result = handler(state);
+      if (result instanceof Promise) {
+        result.catch(() => {
+          console.error(
+            `Error in state action handler for game ${state.game} in state ${state.name}:`,
+          );
+        });
+      }
     }
   };
 

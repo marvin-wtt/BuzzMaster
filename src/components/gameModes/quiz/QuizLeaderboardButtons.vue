@@ -39,7 +39,7 @@ onBeforeMount(() => {
   audioCorrect.load();
 });
 
-const updateButtonPoints = async (button: BuzzerButton): void => {
+const updateButtonPoints = async (button: BuzzerButton): Promise<void> => {
   // No button was preciously pressed, so we assume all answers are wrong.
   // Points for correct answers are refunded later
   if (correctAnswers.value.size === 0) {

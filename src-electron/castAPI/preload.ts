@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { CastAPI, CastReceiverAPI, CastSenderAPI } from 'app/common';
+import type { CastAPI, CastReceiverAPI, CastSenderAPI } from 'app/common';
 
 const send =
   <K extends keyof CastSenderAPI>(name: K) =>

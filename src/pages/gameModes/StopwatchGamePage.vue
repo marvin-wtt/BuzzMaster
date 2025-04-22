@@ -205,19 +205,19 @@ import StopwatchSettingsDialog from 'components/gameModes/stopwatch/StopwatchSet
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import {
-  ButtonEvent,
+  type ButtonEvent,
   BuzzerButton,
-  IController,
+  type IController,
 } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 import StopwatchLeaderboardButton from 'components/gameModes/stopwatch/StopwatchLeaderboardButton.vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import { useQuasar } from 'quasar';
-import {
+import type {
   StopwatchRunningState,
   StopwatchState,
 } from 'app/common/gameState/StopwatchState';
-import { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
+import type { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
 import BeepTimer from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
@@ -237,16 +237,16 @@ const { gameState, transition, createEvent, onStateEntry, onStateExit } =
 
 const audio = new Audio('sounds/stopwatch-ping.mp3');
 
-onBeforeMount(() => {
-  buzzer.reset();
+onBeforeMount(async () => {
+  await buzzer.reset();
   buzzer.on('press', listener);
 
   audio.load();
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   buzzer.removeListener('press', listener);
-  buzzer.reset();
+  await buzzer.reset();
 });
 
 const tick = transition('running', (state, time: number) => {
@@ -257,8 +257,8 @@ const tick = transition('running', (state, time: number) => {
 });
 watch(time, tick);
 
-onStateEntry('preparing', () => {
-  buzzer.reset();
+onStateEntry('preparing', async () => {
+  await buzzer.reset();
 });
 onStateEntry('running', (state: StopwatchRunningState) => {
   time.value = state.time;
@@ -286,7 +286,7 @@ const result = computed<StopwatchEntry[]>(() => {
     .map((controller): StopwatchEntry => {
       const time =
         controller.id in state.result
-          ? state.result[controller.id] ?? undefined
+          ? (state.result[controller.id] ?? undefined)
           : undefined;
 
       return {
@@ -324,7 +324,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   if (stopwatchSettings.playSounds) {
     const clonedAudio = audio.cloneNode() as typeof audio;
-    clonedAudio.play();
+    void clonedAudio.play();
   }
 
   // Calculate exact time so that timer interval does not affect precision
@@ -444,7 +444,7 @@ const removeController = createEvent([
       result,
     };
   }),
-  transition('completed', (state, controller: IController) => {
+  transition('completed', (state, controller: IController): StopwatchState => {
     controller.setLight(false);
 
     return {

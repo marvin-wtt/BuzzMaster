@@ -96,6 +96,7 @@
                 }"
               >
                 <viewing-rate-result-item
+                  v-if="controllerNames[controllerId]"
                   :name="controllerNames[controllerId]"
                   :times="times"
                   :total-time="time"
@@ -187,11 +188,11 @@ import { useBuzzer } from 'src/plugins/buzzer';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
-import {
+import type {
   ViewingRateRunningState,
   ViewingRateState,
 } from 'app/common/gameState/ViewingRateState';
-import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
+import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import TimerAnimated from 'components/TimerAnimated.vue';
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 import ViewingRateResultItem from 'components/gameModes/viewingRate/ViewingRateResultItem.vue';
@@ -216,14 +217,14 @@ const { gameState, transition, onStateEntry, onStateExit } =
 
 const settings = computed(() => viewingRateSettings.value);
 
-onBeforeMount(() => {
-  buzzer.reset();
+onBeforeMount(async () => {
+  await buzzer.reset();
   buzzer.on('press', listener);
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   buzzer.removeListener('press', listener);
-  buzzer.reset();
+  await buzzer.reset();
 });
 
 const totalWatchRate = computed<number>(() => {
@@ -340,17 +341,17 @@ onStateExit('running', () => {
   stopTimer();
 });
 
-onStateEntry('preparing', () => {
+onStateEntry('preparing', async () => {
   time.value = 0;
-  buzzer.reset();
+  await buzzer.reset();
 });
 
-onStateExit('preparing', () => {
-  buzzer.reset();
+onStateExit('preparing', async () => {
+  await buzzer.reset();
 });
 
-onStateEntry('completed', () => {
-  buzzer.reset();
+onStateEntry('completed', async () => {
+  await buzzer.reset();
 });
 
 const start = transition('preparing', () => {
@@ -448,7 +449,11 @@ const runningListener = transition('running', (state, event: ButtonEvent) => {
   }
 
   const changes = { ...state.changeTimes };
-  changes[controllerId].push(time.value);
+  if (!(controllerId in changes)) {
+    changes[controllerId] = [];
+  }
+
+  changes[controllerId]!.push(time.value);
 
   event.controller.setLight(isControllerViewing(state, event.controller.id));
 

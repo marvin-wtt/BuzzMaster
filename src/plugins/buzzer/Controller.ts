@@ -33,7 +33,11 @@ export class Controller implements IController {
     this.buttons[state.button] = state.pressed;
   }
 
-  async setLight(value: boolean): Promise<void> {
-    return this.lightApi.updateLight(value);
+  setLight(value: boolean): void {
+    this.lightApi.updateLight(value).catch((reason) => {
+      console.error(
+        `Failed to set light of controller ${this.name}: ${reason}`,
+      );
+    });
   }
 }

@@ -1,11 +1,11 @@
-import {
+import type {
   ButtonState,
   BuzzerButton,
   IController,
   IDevice,
   IDongle,
 } from 'src/plugins/buzzer/types';
-import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
+import type { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 
 export const createDevice = async (
   plugin: BuzzerApi,
@@ -58,10 +58,12 @@ export const createDevice = async (
     const dongle = getDongle();
 
     if (index >= dongle.controllers.length) {
-      throw 'Controller does not exist. Make sure that there are enough controllers specified.';
+      throw new Error(
+        'Controller does not exist. Make sure that there are enough controllers specified.',
+      );
     }
 
-    return dongle.controllers[index];
+    return dongle.controllers[index]!;
   };
 
   const getDongle = (): IDongle => {
@@ -70,7 +72,7 @@ export const createDevice = async (
     );
 
     if (!dongle) {
-      throw 'Cannot find dongle.';
+      throw new Error('Cannot find dongle.');
     }
 
     return dongle;

@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
-import { GameState } from 'app/common/gameState';
+import type { GameState } from 'app/common/gameState';
 
 class StateTransitionError extends Error {
   constructor(state: GameState, prevState: GameState) {

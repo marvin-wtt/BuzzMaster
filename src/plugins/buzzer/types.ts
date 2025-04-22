@@ -36,7 +36,7 @@ export type IController = {
   name: string;
   disabled: boolean;
   energySavingAt: number | undefined;
-  setLight: (value: boolean) => Promise<void>;
+  setLight: (value: boolean) => void;
   buttons: Record<BuzzerButton, boolean>;
   update: (value: ButtonState) => void;
 };

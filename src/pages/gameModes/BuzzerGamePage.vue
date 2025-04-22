@@ -229,7 +229,7 @@ const disableContinue = computed<boolean>(() => {
   );
 });
 
-const listener = transition('running', async (state, event: ButtonEvent) => {
+const listener = transition('running', (state, event: ButtonEvent) => {
   if (event.button !== BuzzerButton.RED) {
     return;
   }
@@ -244,7 +244,7 @@ const listener = transition('running', async (state, event: ButtonEvent) => {
   event.controller.setLight(true);
 
   if (buzzerSettings.playSounds) {
-    audio.play();
+    void audio.play();
   }
 
   const pressedControllers = [...state.pressedControllers];
@@ -273,17 +273,17 @@ const tick = transition('answering', (state, time: number) => {
 });
 watch(time, tick);
 
-onStateEntry('preparing', () => {
-  buzzer.reset();
+onStateEntry('preparing', async () => {
+  await buzzer.reset();
 });
 
 onStateEntry('answering', (state) => {
   time.value = state.time;
   startTimer();
 });
-onStateExit('answering', () => {
+onStateExit('answering', async () => {
   stopTimer();
-  buzzer.reset();
+  await buzzer.reset();
 });
 
 const onPointsUpdate = transition(

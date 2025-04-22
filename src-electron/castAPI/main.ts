@@ -1,9 +1,9 @@
-import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
+import { type BrowserWindow, ipcMain, type IpcMainEvent } from 'electron';
 
-type CastWindowFactory = () => BrowserWindow;
+type CastWindowFactory = () => Promise<BrowserWindow>;
 
 export default (windowFactory: CastWindowFactory) => {
-  ipcMain.on('cast:toggle', toggle);
+  ipcMain.on('cast:toggle', () => void toggle());
   ipcMain.on('cast:updateGameState', forwardTo('onGameStateUpdate'));
   ipcMain.on('cast:updateGameSettings', forwardTo('onGameSettingsUpdate'));
   ipcMain.on('cast:updateLocale', forwardTo('onLocaleUpdate'));
@@ -15,9 +15,9 @@ export default (windowFactory: CastWindowFactory) => {
     return castWindow === undefined || castWindow.isDestroyed();
   }
 
-  function toggle() {
+  async function toggle() {
     if (isCastWindowClosed()) {
-      castWindow = windowFactory();
+      castWindow = await windowFactory();
     } else {
       castWindow.close();
     }

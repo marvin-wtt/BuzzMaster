@@ -166,11 +166,11 @@ import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import { ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
+import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import TransitionFade from 'components/TransitionFade.vue';
 import { buzzerButtonColor } from 'components/buttonColors';
 import { useI18n } from 'vue-i18n';
-import {
+import type {
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
@@ -200,14 +200,14 @@ const { gameState, transition, onStateEntry, onStateExit } =
     name: 'preparing',
   });
 
-onBeforeMount(() => {
-  buzzer.reset();
+onBeforeMount(async () => {
+  await buzzer.reset();
   buzzer.on('press', listener);
 });
 
-onUnmounted(() => {
+onUnmounted(async () => {
   buzzer.removeListener('press', listener);
-  buzzer.reset();
+  await buzzer.reset();
 });
 
 const tick = transition('running', (state, time: number) => {
@@ -228,8 +228,8 @@ const tick = transition('running', (state, time: number) => {
 });
 watch(time, tick);
 
-onStateEntry('preparing', () => {
-  buzzer.reset();
+onStateEntry('preparing', async () => {
+  await buzzer.reset();
 });
 
 onStateEntry('running', (state) => {
@@ -404,11 +404,15 @@ const buttonPressedAnswerChangeConfirm = (
     return;
   }
 
+  // Extract precious pressed button and unconfirmed list
+  const { [event.controller.id]: button, ...unconfirmed } = state.unconfirmed;
+  if (button === undefined) {
+    return;
+  }
+
   // Selection confirmed
   event.controller.setLight(true);
 
-  // Extract precious pressed button and unconfirmed list
-  const { [event.controller.id]: button, ...unconfirmed } = state.unconfirmed;
   const result = {
     ...state.result,
     [event.controller.id]: button,
@@ -503,7 +507,7 @@ const restart = transition(['running', 'completed'], () => {
 
 const onPointsUpdate = transition(
   'completed',
-  (state, correct: BuzzerButton[] | undefined) => {
+  (state, correct: BuzzerButton[] | undefined): QuizState => {
     return {
       game: 'quiz',
       name: 'completed',

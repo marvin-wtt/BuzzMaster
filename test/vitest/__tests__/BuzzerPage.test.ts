@@ -2,15 +2,15 @@ import { describe, expect, it, vi } from 'vitest';
 import { mountPage } from 'app/test/vitest/utils/mount';
 import BuzzerQuestionPage from 'pages/gameModes/BuzzerGamePage.vue';
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
-import { Dialog, QBtn } from 'quasar';
+import { Dialog, type QBtn } from 'quasar';
 import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';
 import { nextTick } from 'vue';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
-import { BuzzerAnsweringState } from 'app/common/gameState/BuzzerState';
+import type { BuzzerAnsweringState } from 'app/common/gameState/BuzzerState';
 import { installFakeTimer } from 'app/test/vitest/install-timer';
-import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
+import type { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 
 const mountBuzzerPage = () => mountPage(BuzzerQuestionPage);
@@ -20,7 +20,7 @@ installQuasarPlugin({ plugins: { Dialog } });
 describe('BuzzerPage', () => {
   it('should mount component properly', () => {
     const { wrapper } = mountBuzzerPage();
-    expect(wrapper.exists()).to.be.true;
+    expect(wrapper.exists()).toBe(true);
   });
 
   describe('preparing', () => {
@@ -58,7 +58,7 @@ describe('BuzzerPage', () => {
       const gameStore = useGameStore();
 
       const btm = wrapper.find(selector('btn-game-start'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
@@ -208,7 +208,7 @@ describe('BuzzerPage', () => {
       expect(gameStore.state?.name).toBe('running');
 
       const btm = wrapper.find(selector('btn-game-cancel'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
@@ -263,7 +263,7 @@ describe('BuzzerPage', () => {
       const { gameStore } = await initializeStoreWithDevice(buzzer);
 
       const btm = wrapper.find(selector('btn-game-reopen'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
@@ -303,7 +303,7 @@ describe('BuzzerPage', () => {
         selector('btn-game-reopen'),
       );
       expect(buttons.length).toBe(1);
-      expect(buttons[0].props().disable).to.be.true;
+      expect(buttons[0]!.props().disable).toBe(true);
     });
 
     it('should transition to preparing on restart', async () => {
@@ -311,7 +311,7 @@ describe('BuzzerPage', () => {
       const { gameStore } = await initializeStoreWithDevice(buzzer);
 
       const btm = wrapper.find(selector('btn-game-restart'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
@@ -348,7 +348,7 @@ describe('BuzzerPage', () => {
       const { gameStore } = await initializeStoreWithDevice(buzzer);
 
       const btm = wrapper.find(selector('btn-game-reopen'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('running');
@@ -359,7 +359,7 @@ describe('BuzzerPage', () => {
       const { gameStore } = await initializeStoreWithDevice(buzzer);
 
       const btm = wrapper.find(selector('btn-game-restart'));
-      expect(btm.exists()).to.be.true;
+      expect(btm.exists()).toBe(true);
       await btm.trigger('click');
 
       expect(gameStore.state?.name).toBe('preparing');
@@ -386,7 +386,7 @@ describe('BuzzerPage', () => {
         selector('btn-game-reopen'),
       );
       expect(buttons.length).toBe(1);
-      expect(buttons[0].props().disable).to.be.true;
+      expect(buttons[0]!.props().disable).toBe(true);
     });
 
     it.todo('should update the points');

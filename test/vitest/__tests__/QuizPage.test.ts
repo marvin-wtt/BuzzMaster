@@ -5,8 +5,8 @@ import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue
 import { Dialog, QBtn, type QIcon } from 'quasar';
 import { BuzzerButton, type IDongle } from 'src/plugins/buzzer/types';
 import { useGameStore } from 'stores/game-store';
-import { createDevice } from 'app/test/vitest/utils/buzzer';
-import { selector } from 'app/test/vitest/utils/element-selector';
+import { createDevice } from '../utils/buzzer';
+import { selector } from '../utils/element-selector';
 import type {
   QuizCompleteState,
   QuizRunningChangeAlwaysState,
@@ -14,9 +14,9 @@ import type {
   QuizRunningChangeNeverState,
   QuizRunningState,
 } from 'app/common/gameState/QuizState';
-import { mountPage, mountWithStore } from 'app/test/vitest/utils/mount';
-import { installTeleportTarget } from 'app/test/vitest/install-teleport-target';
-import { installFakeTimer } from 'app/test/vitest/install-timer';
+import { mountPage, mountWithStore } from '../utils/mount';
+import { installTeleportTarget } from '../install-teleport-target';
+import { installFakeTimer } from '../install-timer';
 import { nextTick } from 'vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';

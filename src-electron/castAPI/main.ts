@@ -1,9 +1,10 @@
 import { type BrowserWindow, ipcMain, type IpcMainEvent } from 'electron';
+import log from 'electron-log/main';
 
 type CastWindowFactory = () => Promise<BrowserWindow>;
 
 export default (windowFactory: CastWindowFactory) => {
-  ipcMain.on('cast:toggle', () => void toggle());
+  ipcMain.on('cast:toggle', toggle);
   ipcMain.on('cast:updateGameState', forwardTo('onGameStateUpdate'));
   ipcMain.on('cast:updateGameSettings', forwardTo('onGameSettingsUpdate'));
   ipcMain.on('cast:updateLocale', forwardTo('onLocaleUpdate'));
@@ -15,9 +16,15 @@ export default (windowFactory: CastWindowFactory) => {
     return castWindow === undefined || castWindow.isDestroyed();
   }
 
-  async function toggle() {
+  function toggle() {
     if (isCastWindowClosed()) {
-      castWindow = await windowFactory();
+      windowFactory()
+        .then((window) => {
+          castWindow = window;
+        })
+        .catch((reason) => {
+          log.error(`Failed to create cast window: ${reason}`);
+        });
     } else {
       castWindow.close();
     }

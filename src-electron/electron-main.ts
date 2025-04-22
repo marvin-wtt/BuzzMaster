@@ -5,7 +5,7 @@ import initCastApiHandler from 'app/src-electron/castAPI/main';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'node:url';
-import log from 'electron-log';
+import log from 'electron-log/main';
 
 import './electron-updater';
 
@@ -166,7 +166,7 @@ app
     await createWindow();
   })
   .catch((reason) => {
-    console.error(`Failed to start application: ${reason}`);
+    log.error(`Failed to start application: ${reason}`);
   });
 
 app.on('window-all-closed', () => {
@@ -178,7 +178,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow().catch((reason) => {
-      console.error(`Failed to create window: ${reason}`);
+      log.error(`Failed to create window: ${reason}`);
     });
   }
 });

@@ -308,7 +308,7 @@
 
 <script lang="ts" setup>
 import { type QSelectOption, useQuasar } from 'quasar';
-import { computed, ref, toRaw, watch } from 'vue';
+import { computed, provide, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
@@ -321,7 +321,6 @@ import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from 'stores/updater-store';
-import { useAudio } from 'src/composables/audio';
 
 const router = useRouter();
 const route = useRoute();
@@ -330,7 +329,6 @@ const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
-const { masterVolume: volume } = useAudio();
 
 useBatterySavingStore();
 useUpdaterStore();
@@ -338,7 +336,10 @@ useUpdaterStore();
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
 const muted = ref<boolean>(false);
+const volume = ref<number>(1);
 const expandSettings = ref<boolean>(false);
+
+provide('masterVolume', volume);
 
 const devMode = process.env.DEV ?? false;
 

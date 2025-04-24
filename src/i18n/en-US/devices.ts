@@ -50,7 +50,7 @@ export default {
 
     field: {
       label: 'Controller Naming List',
-      hint: 'A .txt files with names separated by a new line',
+      hint: 'A .txt file with names separated by a new line',
     },
 
     action: {

@@ -6,10 +6,10 @@ export function useAudio() {
   function createAudio(src: string) {
     const audio = new Audio(src);
 
-    audio.volume = masterVolume.value / 200;
+    audio.volume = masterVolume.value;
 
     watch(masterVolume, (v) => {
-      audio.volume = v / 200;
+      audio.volume = v;
     });
 
     return audio;

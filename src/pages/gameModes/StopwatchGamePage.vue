@@ -227,7 +227,7 @@ const { t } = useI18n();
 const quasar = useQuasar();
 const { stopwatchSettings } = useGameSettingsStore();
 const { controllers, buzzer } = useBuzzer();
-const { createAudio } = useAudio();
+const { createAudio, cloneAudio } = useAudio();
 const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,
 });
@@ -325,8 +325,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
   event.controller.setLight(true);
 
   if (stopwatchSettings.playSounds) {
-    const clonedAudio = audio.cloneNode() as typeof audio;
-    clonedAudio.volume = audio.volume;
+    const clonedAudio = cloneAudio(audio);
     void clonedAudio.play();
   }
 

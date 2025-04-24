@@ -9,17 +9,31 @@ function scaleVolume(x: number): number {
 export function useAudio() {
   const masterVolume = inject('masterVolume', ref(1.0));
 
+  const audios: HTMLAudioElement[] = [];
+
+  watch(masterVolume, () => {
+    audios.forEach(updateVolume);
+  });
+
+  function updateVolume(audio: HTMLAudioElement) {
+    audio.volume = scaleVolume(masterVolume.value);
+  }
+
   function createAudio(src: string) {
     const audio = new Audio(src);
-
-    audio.volume = scaleVolume(masterVolume.value);
-
-    watch(masterVolume, (v) => {
-      audio.volume = scaleVolume(v);
-    });
+    updateVolume(audio);
+    audios.push(audio);
 
     return audio;
   }
 
-  return { createAudio, masterVolume };
+  function cloneAudio(audio: HTMLAudioElement) {
+    const clone = audio.cloneNode(true) as HTMLAudioElement;
+    updateVolume(clone);
+    audios.push(clone);
+
+    return clone;
+  }
+
+  return { createAudio, cloneAudio, masterVolume };
 }

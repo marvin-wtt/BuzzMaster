@@ -181,10 +181,12 @@ import TimerAnimated from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
 import AudioBeep from 'components/AudioBeep.vue';
 import TextDynamic from 'components/TextDynamic.vue';
+import { useAudio } from 'src/composables/audio';
 
 const quasar = useQuasar();
 const { t } = useI18n();
 const { buzzerSettings } = useGameSettingsStore();
+const { createAudio } = useAudio();
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
   updateRate: 100,
@@ -196,7 +198,7 @@ const { gameState, transition, onStateEntry, onStateExit } =
     name: 'preparing',
   });
 
-const audio = new Audio('sounds/buzzer.mp3');
+const audio = createAudio('sounds/buzzer.mp3');
 
 onBeforeMount(async () => {
   await buzzer.reset();

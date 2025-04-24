@@ -166,12 +166,37 @@
               rounded
               size="sm"
               class="settings-button bg-primary"
-              :icon="muted ? 'volume_off' : 'volume_up'"
-              @click="toggleMute"
+              :icon="volumeIcon"
             >
               <q-tooltip>
                 {{ muted ? t('toolbar.unmute') : t('toolbar.mute') }}
               </q-tooltip>
+
+              <q-menu
+                anchor="bottom middle"
+                self="top middle"
+              >
+                <q-item style="min-width: 150px">
+                  <q-item-section side>
+                    <q-btn
+                      :icon="volumeIcon"
+                      dense
+                      flat
+                      rounded
+                      size="sm"
+                      @click="toggleMute"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-slider
+                      v-model="volume"
+                      :min="0"
+                      :step="0.01"
+                      :max="1"
+                    />
+                  </q-item-section>
+                </q-item>
+              </q-menu>
             </q-btn>
 
             <app-update-btn
@@ -282,7 +307,7 @@
 
 <script lang="ts" setup>
 import { type QSelectOption, useQuasar } from 'quasar';
-import { computed, ref, toRaw, watch } from 'vue';
+import { computed, provide, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
@@ -303,13 +328,17 @@ const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
+
 useBatterySavingStore();
 useUpdaterStore();
 
 const toggleDarkMode = quasar.dark.toggle;
 const pinned = ref<boolean>(false);
 const muted = ref<boolean>(false);
+const volume = ref<number>(1);
 const expandSettings = ref<boolean>(false);
+
+provide('masterVolume', volume);
 
 const devMode = process.env.DEV ?? false;
 
@@ -321,6 +350,10 @@ const title = computed<string | undefined>(() => {
   return 'title' in route.meta && typeof route.meta.title === 'string'
     ? route.meta.title
     : undefined;
+});
+
+const volumeIcon = computed<string>(() => {
+  return muted.value || volume.value === 0 ? 'volume_off' : 'volume_up';
 });
 
 const supportedLanguages: QSelectOption[] = [

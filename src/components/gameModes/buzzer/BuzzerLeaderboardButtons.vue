@@ -27,9 +27,11 @@ import { onBeforeMount, ref } from 'vue';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { IController } from 'src/plugins/buzzer/types';
+import { useAudio } from 'src/composables/audio';
 
 const leaderboardStore = useLeaderboardStore();
 const { buzzerSettings } = useGameSettingsStore();
+const { createAudio } = useAudio();
 
 const props = defineProps<{
   controller: IController;
@@ -39,8 +41,8 @@ const emit = defineEmits<{
   (e: 'update', correct: boolean | undefined, points: number | undefined): void;
 }>();
 
-const audioCorrect = new Audio('sounds/answer-correct.mp3');
-const audioWrong = new Audio('sounds/answer-wrong.mp3');
+const audioCorrect = createAudio('sounds/answer-correct.mp3');
+const audioWrong = createAudio('sounds/answer-wrong.mp3');
 
 onBeforeMount(() => {
   audioCorrect.load();

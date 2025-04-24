@@ -74,6 +74,11 @@ const intervalId = setInterval(() => {
     return;
   }
 
+  if (leaderboard.value.length / pageSize.value <= 1) {
+    pageNumber.value = 1;
+    return;
+  }
+
   animationToggle.value = !animationToggle.value;
 
   if (pageNumber.value >= leaderboard.value.length / pageSize.value) {

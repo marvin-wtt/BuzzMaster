@@ -179,7 +179,6 @@
                 <q-item style="min-width: 150px">
                   <q-item-section side>
                     <q-btn
-                      v-model="muted"
                       :icon="volumeIcon"
                       dense
                       flat

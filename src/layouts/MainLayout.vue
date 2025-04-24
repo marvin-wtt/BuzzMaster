@@ -166,7 +166,7 @@
               rounded
               size="sm"
               class="settings-button bg-primary"
-              :icon="muted ? 'volume_off' : 'volume_up'"
+              :icon="volumeIcon"
             >
               <q-tooltip>
                 {{ muted ? t('toolbar.unmute') : t('toolbar.mute') }}
@@ -180,7 +180,7 @@
                   <q-item-section side>
                     <q-btn
                       v-model="muted"
-                      :icon="muted || volume === 0 ? 'volume_off' : 'volume_up'"
+                      :icon="volumeIcon"
                       dense
                       flat
                       rounded
@@ -351,6 +351,10 @@ const title = computed<string | undefined>(() => {
   return 'title' in route.meta && typeof route.meta.title === 'string'
     ? route.meta.title
     : undefined;
+});
+
+const volumeIcon = computed<string>(() => {
+  return muted.value || volume.value === 0 ? 'volume_off' : 'volume_up';
 });
 
 const supportedLanguages: QSelectOption[] = [

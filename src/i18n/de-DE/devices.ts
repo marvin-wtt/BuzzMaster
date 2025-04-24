@@ -24,7 +24,7 @@ export default {
   },
 
   test: {
-    title: 'Controllers testen',
+    title: 'Controller testen',
 
     action: {
       complete: 'Fertig',

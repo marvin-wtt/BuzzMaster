@@ -24,6 +24,7 @@ declare module 'vue-i18n' {
 export default defineBoot(({ app }) => {
   const i18n = createI18n({
     locale: 'en-US',
+    // @TODO kann in vue-i18n v12 entfernt werden, legacyAPI entfällt
     legacy: false,
     messages,
   });

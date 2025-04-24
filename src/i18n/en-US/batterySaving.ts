@@ -12,7 +12,7 @@ export default {
   },
 
   notification: {
-    message: 'One or more controllers are about to turn off.',
+    message: 'One or more controller are about to turn off.',
 
     action: {
       more: 'Show more',

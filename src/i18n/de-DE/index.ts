@@ -11,8 +11,8 @@ export default {
 
   action: {
     start: 'Start',
-    devices: 'Devices',
-    leaderboard: 'Leaderboard',
+    devices: 'Geräte',
+    leaderboard: 'Rangliste',
   },
 
   cast,

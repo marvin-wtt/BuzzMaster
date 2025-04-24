@@ -2,6 +2,9 @@
 
 <script lang="ts" setup>
 import { onBeforeMount, watch } from 'vue';
+import { useAudio } from 'src/composables/audio';
+
+const { createAudio } = useAudio();
 
 interface Props {
   time: number;
@@ -14,8 +17,8 @@ const props = withDefaults(defineProps<Props>(), {
   startAt: 10,
 });
 
-const shortBeep = new Audio('sounds/beep-sec.mp3');
-const longBeep = new Audio('sounds/beep-end.mp3');
+const shortBeep = createAudio('sounds/beep-sec.mp3');
+const longBeep = createAudio('sounds/beep-end.mp3');
 
 onBeforeMount(() => {
   loadAudio();

@@ -221,11 +221,13 @@ import type { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEnt
 import BeepTimer from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
+import { useAudio } from 'src/composables/audio';
 
 const { t } = useI18n();
 const quasar = useQuasar();
 const { stopwatchSettings } = useGameSettingsStore();
 const { controllers, buzzer } = useBuzzer();
+const { createAudio } = useAudio();
 const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,
 });
@@ -235,7 +237,7 @@ const { gameState, transition, createEvent, onStateEntry, onStateExit } =
     name: 'preparing',
   });
 
-const audio = new Audio('sounds/stopwatch-ping.mp3');
+const audio = createAudio('sounds/stopwatch-ping.mp3');
 
 onBeforeMount(async () => {
   await buzzer.reset();
@@ -324,6 +326,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   if (stopwatchSettings.playSounds) {
     const clonedAudio = audio.cloneNode() as typeof audio;
+    clonedAudio.volume = audio.volume;
     void clonedAudio.play();
   }
 

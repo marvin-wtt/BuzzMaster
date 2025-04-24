@@ -19,9 +19,11 @@ import type { BuzzerButton } from 'src/plugins/buzzer/types';
 import { onBeforeMount, ref } from 'vue';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useAudio } from 'src/composables/audio';
 
 const leaderboardStore = useLeaderboardStore();
 const { quizSettings } = useGameSettingsStore();
+const { createAudio } = useAudio();
 
 const correctAnswers = ref<Set<BuzzerButton>>(new Set());
 const props = defineProps<{
@@ -33,7 +35,7 @@ const emit = defineEmits<{
 }>();
 
 let audioPlayed = false;
-const audioCorrect = new Audio('sounds/answer-correct.mp3');
+const audioCorrect = createAudio('sounds/answer-correct.mp3');
 
 onBeforeMount(() => {
   audioCorrect.load();

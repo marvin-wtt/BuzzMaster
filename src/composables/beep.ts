@@ -5,14 +5,17 @@ import {
   toValue,
   watch,
 } from 'vue';
+import { useAudio } from 'src/composables/audio';
 
 export function useBeep(
   time: Ref<number>,
   startTime: MaybeRefOrGetter<number>,
   silent: MaybeRefOrGetter<boolean>,
 ) {
-  const shortBeep = new Audio('sounds/beep-sec.mp3');
-  const longBeep = new Audio('sounds/beep-end.mp3');
+  const { createAudio } = useAudio();
+
+  const shortBeep = createAudio('sounds/beep-sec.mp3');
+  const longBeep = createAudio('sounds/beep-end.mp3');
 
   onBeforeMount(() => {
     loadAudio();

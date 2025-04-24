@@ -167,11 +167,36 @@
               size="sm"
               class="settings-button bg-primary"
               :icon="muted ? 'volume_off' : 'volume_up'"
-              @click="toggleMute"
             >
               <q-tooltip>
                 {{ muted ? t('toolbar.unmute') : t('toolbar.mute') }}
               </q-tooltip>
+
+              <q-menu
+                anchor="bottom middle"
+                self="top middle"
+              >
+                <q-item style="min-width: 150px">
+                  <q-item-section side>
+                    <q-btn
+                      v-model="muted"
+                      :icon="muted || volume === 0 ? 'volume_off' : 'volume_up'"
+                      dense
+                      flat
+                      rounded
+                      size="sm"
+                      @click="toggleMute"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-slider
+                      v-model="volume"
+                      :min="0"
+                      :max="100"
+                    />
+                  </q-item-section>
+                </q-item>
+              </q-menu>
             </q-btn>
 
             <app-update-btn
@@ -295,6 +320,7 @@ import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from 'stores/updater-store';
+import { useAudio } from 'src/composables/audio';
 
 const router = useRouter();
 const route = useRoute();
@@ -303,6 +329,8 @@ const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
+const { masterVolume: volume } = useAudio();
+
 useBatterySavingStore();
 useUpdaterStore();
 

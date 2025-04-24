@@ -40,6 +40,7 @@ export type IController = {
   buttons: Record<BuzzerButton, boolean>;
   update: (value: ButtonState) => void;
 };
+
 export enum BuzzerButton {
   RED = 0,
   BLUE = 1,

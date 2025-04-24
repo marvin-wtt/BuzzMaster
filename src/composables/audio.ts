@@ -19,20 +19,43 @@ export function useAudio() {
     audio.volume = scaleVolume(masterVolume.value);
   }
 
+  function initAudio(audio: HTMLAudioElement) {
+    audio.addEventListener('ended', () => {
+      removeAudio(audio);
+    });
+
+    audio.addEventListener('play', () => {
+      updateVolume(audio);
+      addAudio(audio);
+    });
+  }
+
   function createAudio(src: string) {
     const audio = new Audio(src);
-    updateVolume(audio);
-    audios.push(audio);
+    initAudio(audio);
 
     return audio;
   }
 
   function cloneAudio(audio: HTMLAudioElement) {
     const clone = audio.cloneNode(true) as HTMLAudioElement;
-    updateVolume(clone);
-    audios.push(clone);
+    initAudio(clone);
 
     return clone;
+  }
+
+  function addAudio(audio: HTMLAudioElement) {
+    const index = audios.indexOf(audio);
+    if (index === -1) {
+      audios.push(audio);
+    }
+  }
+
+  function removeAudio(audio: HTMLAudioElement) {
+    const index = audios.indexOf(audio);
+    if (index > -1) {
+      audios.splice(index, 1);
+    }
   }
 
   return { createAudio, cloneAudio, masterVolume };

@@ -5,7 +5,7 @@
     :color
     :thickness
     show-value
-    :animation-speed="600"
+    :animation-speed="10"
     class="fit"
   >
     <slot />

@@ -15,7 +15,6 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
 
   name: string;
   controllers: IController[];
-  energySavingAt: number | null | undefined = undefined;
 
   constructor(public device: IDevice) {
     super();

@@ -54,11 +54,23 @@ export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
  */
 const findHidDevice = (hidDevice: HIDDevice): IDevice => {
   // NOTE: Devices need to be added at src-electron/electron-amin.ts too.
-  if (matchHidDevice(hidDevice, 0x054c, 0x02)) {
+  if (
+    matchHidDevice(
+      hidDevice,
+      PlayStation2Device.VENDOR_ID,
+      PlayStation2Device.PRODUCT_ID,
+    )
+  ) {
     return new PlayStation2Device(hidDevice);
   }
 
-  if (matchHidDevice(hidDevice, 0x054c, 0x1000)) {
+  if (
+    matchHidDevice(
+      hidDevice,
+      PlayStation3Device.VENDOR_ID,
+      PlayStation3Device.PRODUCT_ID,
+    )
+  ) {
     return new PlayStation3Device(hidDevice);
   }
 

@@ -49,6 +49,9 @@ export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
       const originalController = originalDongle.controllers[i]!;
       const controller = newDongle.controllers[i]!;
 
+      // Manually copying properties to ensure only the intended attributes are restored.
+      // If new attributes are added to the controller object in the future, they should
+      // be explicitly restored here to maintain consistency.
       controller.id = originalController.id;
       controller.name = originalController.name;
       controller.disabled = originalController.disabled;

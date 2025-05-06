@@ -8,6 +8,7 @@ import { reactive } from 'vue';
 import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
 
 export class Controller implements IController {
+  // The 'id' property is writable to allow the 'restoreDongle' function to update controller IDs.
   id = crypto.randomUUID();
   readonly buttons: Record<BuzzerButton, boolean> = reactive({
     [BuzzerButton.RED]: false,

@@ -8,7 +8,7 @@ import { reactive } from 'vue';
 import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
 
 export class Controller implements IController {
-  readonly id = crypto.randomUUID();
+  id = crypto.randomUUID();
   readonly buttons: Record<BuzzerButton, boolean> = reactive({
     [BuzzerButton.RED]: false,
     [BuzzerButton.BLUE]: false,

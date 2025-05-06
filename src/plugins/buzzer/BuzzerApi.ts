@@ -52,8 +52,6 @@ export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
       controller.id = originalController.id;
       controller.name = originalController.name;
       controller.disabled = originalController.disabled;
-      controller.energySavingAt = originalController.energySavingAt;
-      controller.buttons = originalController.buttons;
     }
 
     // Remove dongle from disconnected devices

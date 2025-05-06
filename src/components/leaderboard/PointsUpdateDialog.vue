@@ -23,6 +23,7 @@
           :label="t('leaderboard.update.field.label')"
           :hint="t('leaderboard.update.field.hint', { points: roundedPoints })"
           :prefix="inputPrefix"
+          autofocus
           outlined
           rounded
           :error
@@ -74,7 +75,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent();
 const { t } = useI18n();
 
-const inputValue = ref<string>(' ');
+const inputValue = ref<string>('');
 const replaceMode = ref<boolean>(false);
 
 const error = computed<boolean>(() => {
@@ -118,12 +119,11 @@ const numericInput = computed<number | undefined>(() => {
 
 type Operand = '*' | '/' | '+' | '-';
 const operand = computed<Operand | undefined>(() => {
-  const str = inputValue.value;
-  if (str === undefined || str.length === 0) {
+  const op = inputValue.value.trim()?.charAt(0);
+  if (op === undefined || op.length !== 1) {
     return undefined;
   }
 
-  const op = str.charAt(0);
   if (!['*', '/', '+', '-'].includes(op)) {
     return undefined;
   }

@@ -5,6 +5,7 @@ import {
   type LightApi,
 } from 'src/plugins/buzzer/types';
 import { reactive } from 'vue';
+import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
 
 export class Controller implements IController {
   readonly id = crypto.randomUUID();
@@ -39,5 +40,9 @@ export class Controller implements IController {
         `Failed to set light of controller ${this.name}: ${reason}`,
       );
     });
+  }
+
+  find(): void {
+    FindCoordinator.start(this);
   }
 }

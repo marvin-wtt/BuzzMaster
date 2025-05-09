@@ -427,9 +427,42 @@ function openDevTools() {
   window.windowAPI.openDevTools();
 }
 
-async function closeApp() {
-  await buzzer.reset();
-  window.windowAPI?.close();
+window.addEventListener('keydown', (event) => {
+  const { key, altKey } = event;
+  if (altKey && key === 'F4') {
+    event.preventDefault();
+    closeApp();
+  }
+});
+
+function closeApp() {
+  quasar
+    .dialog({
+      title: t('exit.title'),
+      message: t('exit.message'),
+      ok: {
+        label: t('exit.action.ok'),
+        color: 'primary',
+        rounded: true,
+      },
+      cancel: {
+        label: t('exit.action.cancel'),
+        color: 'primary',
+        outline: true,
+        rounded: true,
+      },
+      persistent: true,
+    })
+    .onOk(() => {
+      buzzer
+        .reset()
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          window.windowAPI.close();
+        });
+    });
 }
 
 function toggleCast() {

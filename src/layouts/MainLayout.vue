@@ -307,7 +307,15 @@
 
 <script lang="ts" setup>
 import { type QSelectOption, useQuasar } from 'quasar';
-import { computed, provide, ref, toRaw, watch } from 'vue';
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  provide,
+  ref,
+  toRaw,
+  watch,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
@@ -427,13 +435,21 @@ function openDevTools() {
   window.windowAPI.openDevTools();
 }
 
-window.addEventListener('keydown', (event) => {
+onMounted(() => {
+  window.addEventListener('keydown', keyDownListener);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', keyDownListener);
+});
+
+function keyDownListener(event: KeyboardEvent) {
   const { key, altKey } = event;
   if (altKey && key === 'F4') {
     event.preventDefault();
     closeApp();
   }
-});
+}
 
 function closeApp() {
   quasar

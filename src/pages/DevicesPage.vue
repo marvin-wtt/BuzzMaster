@@ -36,8 +36,28 @@
               size="xs"
               flat
               round
-              @click.stop="findDongle(dongle)"
-            />
+              @click.stop="dongle.find()"
+            >
+              <q-tooltip>
+                {{ t('devices.item.dongle.find') }}
+              </q-tooltip>
+            </q-btn>
+          </q-item-section>
+          <q-item-section
+            v-if="disconnectedDongles.length > 0"
+            side
+          >
+            <q-btn
+              icon="history"
+              size="xs"
+              flat
+              round
+              @click.stop="onRestoreDongle(dongle)"
+            >
+              <q-tooltip>
+                {{ t('devices.item.dongle.history') }}
+              </q-tooltip>
+            </q-btn>
           </q-item-section>
         </template>
         <template v-slot:default>
@@ -66,8 +86,12 @@
                   size="xs"
                   flat
                   round
-                  @click="findDevice(controller)"
-                />
+                  @click="controller.find()"
+                >
+                  <q-tooltip>
+                    {{ t('devices.item.controller.find') }}
+                  </q-tooltip>
+                </q-btn>
               </q-item-section>
               <q-item-section side>
                 <q-btn
@@ -76,7 +100,11 @@
                   flat
                   round
                   @click="editControllerName(controller)"
-                />
+                >
+                  <q-tooltip>
+                    {{ t('devices.item.controller.edit') }}
+                  </q-tooltip>
+                </q-btn>
               </q-item-section>
               <q-item-section side>
                 <q-btn
@@ -89,7 +117,15 @@
                   flat
                   round
                   @click="controller.disabled = !controller.disabled"
-                />
+                >
+                  <q-tooltip>
+                    {{
+                      controller.disabled
+                        ? t('devices.item.controller.enable')
+                        : t('devices.item.controller.disable')
+                    }}
+                  </q-tooltip>
+                </q-btn>
               </q-item-section>
             </q-item>
           </q-list>
@@ -182,79 +218,24 @@ import DongleNameImportDialog from 'components/devices/DongleNameImportDialog.vu
 import { Dongle } from 'src/plugins/buzzer/Dongle';
 import { config } from 'src/config';
 import DongleMissingDialog from 'components/devices/DongleMissingDialog.vue';
+import DongleRestoreDialog from 'components/devices/DongleRestoreDialog.vue';
 
 const quasar = useQuasar();
 const { t } = useI18n();
-const { dongles, buzzer } = useBuzzer();
+const { dongles, buzzer, disconnectedDongles, restoreDongle } = useBuzzer();
 
 onUnmounted(async () => {
-  await cancelFindDevice();
+  await buzzer.reset();
 });
 
-const FIND_DEVICE_INTERVAL = 500;
-const FIND_DEVICE_TIMEOUT = 5000;
-
-let findTimerId:
-  | {
-      intervalId: NodeJS.Timeout;
-      timeoutId: NodeJS.Timeout;
-    }
-  | undefined = undefined;
-
-const findDevice = async (controller: IController) => {
-  await cancelFindDevice();
-  let toggle = true;
-  const intervalId = setInterval(() => {
-    controller.setLight(toggle);
-    toggle = !toggle;
-  }, FIND_DEVICE_INTERVAL);
-
-  const timeoutId = setTimeout(() => {
-    clearInterval(intervalId);
-    controller.setLight(false);
-
-    // Remove from list
-    findTimerId = undefined;
-  }, FIND_DEVICE_TIMEOUT);
-
-  // Add ids so the timers can be canceled externally
-  findTimerId = {
-    intervalId,
-    timeoutId,
-  };
-};
-
-const findDongle = async (dongle: IDongle) => {
-  await cancelFindDevice();
-  let toggle = true;
-  const intervalId = setInterval(() => {
-    dongle.controllers.forEach((controller) => controller.setLight(toggle));
-    toggle = !toggle;
-  }, FIND_DEVICE_INTERVAL);
-
-  const timeoutId = setTimeout(() => {
-    clearInterval(intervalId);
-    dongle.controllers.forEach((controller) => controller.setLight(false));
-
-    // Remove from list
-    findTimerId = undefined;
-  }, FIND_DEVICE_TIMEOUT);
-
-  // Add ids so the timers can be canceled externally
-  findTimerId = {
-    intervalId,
-    timeoutId,
-  };
-};
-
-const cancelFindDevice = async () => {
-  if (!findTimerId) {
-    return;
-  }
-
-  clearInterval(findTimerId.intervalId);
-  clearTimeout(findTimerId.timeoutId);
-  await buzzer.reset();
+const onRestoreDongle = (dongle: IDongle) => {
+  quasar
+    .dialog({
+      component: DongleRestoreDialog,
+    })
+    .onOk((selectedDongle: IDongle) => {
+      restoreDongle(selectedDongle, dongle);
+    });
 };
 
 const hasEnabledController = computed<boolean>(() => {
@@ -325,7 +306,7 @@ const getButtonColor = (controller: IController): NamedColor => {
 };
 
 const startBuzzerTest = async () => {
-  await cancelFindDevice();
+  await buzzer.reset();
 
   quasar
     .dialog({

@@ -226,6 +226,10 @@ const disableContinue = computed<boolean>(() => {
     return false;
   }
 
+  if (buzzerSettings.value.multipleAttempts) {
+    return false;
+  }
+
   const pressedControllers = gameState.value.pressedControllers;
 
   return !controllers.value.some(

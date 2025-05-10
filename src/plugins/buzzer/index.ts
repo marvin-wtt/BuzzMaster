@@ -23,7 +23,9 @@ export const useBuzzer = () => {
   return {
     controllers,
     dongles: buzzerApi.dongles,
+    disconnectedDongles: buzzerApi.disconnectedDongles,
     buzzer: buzzerApi,
+    restoreDongle: buzzerApi.restoreDongle.bind(buzzerApi),
   };
 };
 

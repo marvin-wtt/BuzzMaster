@@ -7,6 +7,7 @@ import type {
 } from 'src/plugins/buzzer/types';
 import { Controller } from 'src/plugins/buzzer/Controller';
 import { ButtonEventEmitter } from 'src/plugins/buzzer/ButtonEventEmitter';
+import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
 
 export class Dongle extends ButtonEventEmitter implements IDongle {
   // Keep track of the total dongle count to give each dongle a unique name
@@ -15,7 +16,6 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
 
   name: string;
   controllers: IController[];
-  energySavingAt: number | null | undefined = undefined;
 
   constructor(public device: IDevice) {
     super();
@@ -69,6 +69,10 @@ export class Dongle extends ButtonEventEmitter implements IDongle {
         this.emit('change', event);
         this.emit(state.pressed ? 'press' : 'release', event);
       });
+  }
+
+  find(): void {
+    FindCoordinator.start(this.controllers);
   }
 
   private updateControllerLight(controllerIndex: number) {

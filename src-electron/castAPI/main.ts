@@ -31,7 +31,7 @@ export default (windowFactory: CastWindowFactory) => {
   }
 
   function forwardTo(name: string) {
-    return (event: IpcMainEvent, ...args: unknown[]) => {
+    return (_event: IpcMainEvent, ...args: unknown[]) => {
       if (isCastWindowClosed()) {
         return;
       }

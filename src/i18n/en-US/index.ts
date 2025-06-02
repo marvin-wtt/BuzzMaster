@@ -15,6 +15,15 @@ export default {
     leaderboard: 'Leaderboard',
   },
 
+  exit: {
+    title: 'Exit Buzz Master',
+    message: 'Are you sure you want to quit Buzz Master?',
+    action: {
+      ok: 'Exit',
+      cancel: 'Cancel',
+    },
+  },
+
   cast,
   batterySaving,
   devices,

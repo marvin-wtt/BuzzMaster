@@ -15,6 +15,15 @@ export default {
     leaderboard: 'Rangliste',
   },
 
+  exit: {
+    title: 'Buzz Master beenden',
+    message: 'Möchtest du Buzz Master wirklich schließen?',
+    action: {
+      ok: 'Beenden',
+      cancel: 'Abbrechen',
+    },
+  },
+
   cast,
   batterySaving,
   devices,

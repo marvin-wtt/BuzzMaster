@@ -6,15 +6,6 @@ import electronUpdater, {
 } from 'electron-updater';
 import type { AppUpdate } from 'app/common';
 
-app
-  .whenReady()
-  .then(async () => {
-    await startAutoUpdater();
-  })
-  .catch((reason) => {
-    console.error(`Failed to start application: ${reason}`);
-  });
-
 function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
   // It is a workaround for ESM compatibility issues, see https://github.com/electron-userland/electron-builder/issues/7976.
@@ -28,6 +19,13 @@ const startAutoUpdater = async () => {
   autoUpdater.autoDownload = false;
   await autoUpdater.checkForUpdates();
 };
+
+app
+  .whenReady()
+  .then(startAutoUpdater)
+  .catch((reason) => {
+    console.error(`Failed to start application: ${reason}`);
+  });
 
 let cancellationToken: CancellationToken | undefined;
 
@@ -56,16 +54,16 @@ autoUpdater.on('update-not-available', (info) => {
     info,
   });
 });
-autoUpdater.on('error', (err) => {
+autoUpdater.on('error', (error) => {
   send({
     name: 'error',
-    error: err,
+    error,
   });
 });
-autoUpdater.on('download-progress', (progressObj) => {
+autoUpdater.on('download-progress', (info) => {
   send({
     name: 'download-progress',
-    info: progressObj,
+    info,
   });
 });
 

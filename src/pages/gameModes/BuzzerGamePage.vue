@@ -182,10 +182,12 @@ import { useTimer } from 'src/composables/timer';
 import AudioBeep from 'components/AudioBeep.vue';
 import TextDynamic from 'components/TextDynamic.vue';
 import { useAudio } from 'src/composables/audio';
+import { storeToRefs } from 'pinia';
 
 const quasar = useQuasar();
 const { t } = useI18n();
-const { buzzerSettings } = useGameSettingsStore();
+const quizSettingsStore = useGameSettingsStore();
+const { buzzerSettings } = storeToRefs(quizSettingsStore);
 const { createAudio } = useAudio();
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
@@ -224,6 +226,10 @@ const disableContinue = computed<boolean>(() => {
     return false;
   }
 
+  if (buzzerSettings.value.multipleAttempts) {
+    return false;
+  }
+
   const pressedControllers = gameState.value.pressedControllers;
 
   return !controllers.value.some(
@@ -237,7 +243,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
   }
 
   if (
-    !buzzerSettings.multipleAttempts &&
+    !buzzerSettings.value.multipleAttempts &&
     state.pressedControllers.includes(event.controller.id)
   ) {
     return;
@@ -245,7 +251,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   event.controller.setLight(true);
 
-  if (buzzerSettings.playSounds) {
+  if (buzzerSettings.value.playSounds) {
     void audio.play();
   }
 
@@ -257,7 +263,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
   return {
     game: 'buzzer',
     name: 'answering',
-    time: buzzerSettings.answerTime,
+    time: buzzerSettings.value.answerTime,
     controller: event.controller.id,
     pressedControllers,
   };

@@ -36,22 +36,27 @@ const items = computed<MenuItem[]>(() => [
   {
     routeName: 'buzzer-game',
     label: t('gameMode.action.buzzer'),
-    icon: 'radio_button_checked',
+    icon: 'sym_o_radio_button_checked',
   },
   {
     routeName: 'quiz-game',
     label: t('gameMode.action.quiz'),
-    icon: 'format_list_numbered',
+    icon: 'sym_o_format_list_numbered',
   },
   {
     routeName: 'stopwatch-game',
     label: t('gameMode.action.stopwatch'),
-    icon: 'timer',
+    icon: 'sym_o_timer',
   },
   {
     routeName: 'viewing-rate-game',
     label: t('gameMode.action.viewingRate'),
-    icon: 'trending_up',
+    icon: 'sym_o_trending_up',
+  },
+  {
+    routeName: 'pong-game',
+    label: t('gameMode.action.pong'),
+    icon: 'sym_o_sports_tennis',
   },
 ]);
 </script>

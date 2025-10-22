@@ -95,6 +95,14 @@ const routes: RouteRecordRaw[] = [
               title: 'gameMode.viewingRate.title',
             },
           },
+          {
+            path: 'pong',
+            name: 'pong-game',
+            component: () => import('pages/gameModes/ArcadePongGamePage.vue'),
+            meta: {
+              title: 'gameMode.pong.title',
+            },
+          },
         ],
       },
     ],

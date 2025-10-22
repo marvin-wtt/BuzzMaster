@@ -69,8 +69,7 @@
   },
   "overrides": {
     "@quasar/quasar-app-extension-testing-unit-vitest": {
-      "vitest": "^3.0.0",
-      "@vitest/ui": "^3.0.0"
+      "happy-dom": "^20.0.8"
     }
   },
   "engines": {

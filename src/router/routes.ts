@@ -98,7 +98,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'pong',
             name: 'pong-game',
-            component: () => import('pages/gameModes/ArcadePongGamePage.vue'),
+            component: () => import('pages/gameModes/PongGamePage.vue'),
             meta: {
               title: 'gameMode.pong.title',
             },

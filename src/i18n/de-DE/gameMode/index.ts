@@ -13,6 +13,14 @@ export default {
     viewingRate: 'Einschaltquote',
   },
 
+  section: {
+    show: 'Show',
+    games: 'Spiele',
+    utilities: 'Nützliches',
+  },
+
+  noEntries: 'Keine Einträge in dieser Sektion verfügbar',
+
   buzzer,
   quiz,
   stopwatch,

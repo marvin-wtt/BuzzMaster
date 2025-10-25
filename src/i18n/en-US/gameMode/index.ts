@@ -15,6 +15,14 @@ export default {
     pong: 'Pong',
   },
 
+  section: {
+    show: 'Show',
+    games: 'Games',
+    utilities: 'Utilities',
+  },
+
+  noEntries: 'No Entries available in this section',
+
   buzzer,
   quiz,
   stopwatch,

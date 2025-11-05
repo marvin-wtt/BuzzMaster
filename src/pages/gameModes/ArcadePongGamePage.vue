@@ -1,6 +1,67 @@
+<!-- PongGamePage.vue -->
 <template>
   <q-page class="flex flex-center text-white">
-    <div class="column items-center q-pa-sm">
+    <div
+      v-if="gameState.name === 'preparing'"
+      class="column"
+    >
+      <q-list separator>
+        <q-item
+          v-for="controller in controllers"
+          :key="controller.id"
+        >
+          <q-item-section class="col-shrink">
+            <q-btn
+              label="L"
+              :outline="!gameState.left.controllerIds.includes(controller.id)"
+              :color="
+                gameState.left.controllerIds.includes(controller.id)
+                  ? 'primary'
+                  : undefined
+              "
+              round
+              @click="toggleTeamAssignment(controller.id, 'left')"
+            />
+          </q-item-section>
+          <q-item-section class="col-grow text-center">
+            {{ controller.name }}
+          </q-item-section>
+          <q-item-section class="col-shrink">
+            <q-btn
+              label="R"
+              :outline="!gameState.right.controllerIds.includes(controller.id)"
+              :color="
+                gameState.right.controllerIds.includes(controller.id)
+                  ? 'primary'
+                  : undefined
+              "
+              round
+              @click="toggleTeamAssignment(controller.id, 'right')"
+            />
+          </q-item-section>
+        </q-item>
+      </q-list>
+
+      <div>
+        <q-btn
+          :label="t('gameMode.pong.action.start')"
+          :disable="
+            gameState.left.controllerIds.length === 0 ||
+            gameState.right.controllerIds.length === 0
+          "
+          color="primary"
+          rounded
+          data-testid="btn-start"
+          @click="start()"
+        />
+      </div>
+    </div>
+
+    <div
+      v-else
+      class="column items-center q-pa-sm"
+    >
+      {{ ball.speed }}
       <div class="relative-position">
         <pong-renderer
           :frameA="interp.frameA ?? null"
@@ -25,25 +86,36 @@
 
       <div class="row q-gutter-sm q-mt-md">
         <q-btn
-          v-if="!running"
+          v-if="gameState.name === 'completed'"
           color="primary"
-          label="Start Game"
+          label="Restart Game"
           rounded
-          @click="startGame"
+          data-testid="btn-start"
+          @click="start()"
         />
         <q-btn
-          v-else
+          v-else-if="gameState.name === 'running'"
           color="primary"
           label="Pause Game"
           rounded
-          @click="togglePause"
+          data-testid="btn-pause"
+          @click="pause()"
+        />
+        <q-btn
+          v-else-if="gameState.name === 'paused'"
+          color="primary"
+          label="Resume"
+          rounded
+          data-testid="btn-resume"
+          @click="resume()"
         />
         <q-btn
           flat
           color="grey-5"
           label="Reset"
           rounded
-          @click="resetMatch"
+          data-testid="btn-reset"
+          @click="reset()"
         />
       </div>
     </div>
@@ -55,6 +127,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import PongRenderer from 'components/gameModes/pong/PongRenderer.vue';
+
 import type {
   Team,
   Ball,
@@ -62,15 +135,26 @@ import type {
   StageFrame,
 } from 'components/gameModes/pong/PongTypes';
 
-const { controllers } = useBuzzer();
+import { useGameState } from 'src/composables/gameState';
+import type {
+  PongState,
+  PongPreparingState,
+  PongRunningState,
+  PongPaused,
+  PongEnded,
+} from 'app/common/gameState/PongState';
+import { useI18n } from 'vue-i18n';
 
-onMounted(() => {
-  // seed a frame so the renderer has something to draw
-  pushFrame(snapshotFrame());
-});
-onUnmounted(() => {
-  cancelAnimationFrame(rafId);
-});
+const { controllers } = useBuzzer();
+const { t } = useI18n();
+
+const { gameState, transition, onStateEntry, onStateExit } =
+  useGameState<PongState>({
+    game: 'pong',
+    name: 'preparing',
+    left: { controllerIds: [] },
+    right: { controllerIds: [] },
+  });
 
 /** Constants */
 const WIDTH = 800;
@@ -81,22 +165,23 @@ const PADDLE_SPEED = 4;
 const BALL_START_SPEED = 1;
 const MAX_BALL_SPEED = 12;
 const MAX_BOUNCE_ANGLE = Math.PI / 4; // 45°
+const TARGET_SCORE = 7; // end a match at this score
 
 /** Timing: fixed-step sim at 120 Hz; render with small delay for interpolation */
 const SIM_HZ = 120;
 const DT_MS = 1000 / SIM_HZ; // ~8.33 ms
 const BUFFER_MS = 70; // render “behind” latest sim time
 
-/** Authoritative state */
-let running = false;
+/** Authoritative sim state (local-only; mirrored to gameState via frames) */
 let tick = 0;
 let simEpoch = 0; // wall clock ms when sim started
 let accumulator = 0;
-let rafId = 0;
+let rafId: number = 0;
 let lastWallNow = 0;
 
+/** Teams & Ball (reactive so renderer can watch) */
 const left: Team = reactive({
-  controllerIds: [controllers.value[0]!.id], // fill based on your app’s team assignment
+  controllerIds: [],
   score: 0,
   paddle: {
     x: 20,
@@ -106,8 +191,9 @@ const left: Team = reactive({
     speed: PADDLE_SPEED,
   },
 });
+
 const right: Team = reactive({
-  controllerIds: [controllers.value[1]!.id],
+  controllerIds: [],
   score: 0,
   paddle: {
     x: WIDTH - 30,
@@ -117,11 +203,12 @@ const right: Team = reactive({
     speed: PADDLE_SPEED,
   },
 });
+
 const ball: Ball = reactive({
   x: WIDTH / 2,
   y: HEIGHT / 2,
-  vx: BALL_START_SPEED * (Math.random() > 0.5 ? 1 : -1),
-  vy: (Math.random() - 0.5) * 6,
+  vx: BALL_START_SPEED,
+  vy: 0,
   radius: 8,
   speed: BALL_START_SPEED,
 });
@@ -134,6 +221,7 @@ const overlayText = ref('Click Start');
 const frames: StageFrame[] = reactive([]);
 const MAX_FRAMES = 256;
 
+/** --- Frame helpers --- */
 function snapshotFrame(): StageFrame {
   return {
     tick,
@@ -143,12 +231,23 @@ function snapshotFrame(): StageFrame {
     ball: { ...ball },
   };
 }
+
+const updateRunningFrame = transition(
+  'running',
+  (state, frame: StageFrame): PongRunningState => {
+    return { ...state, frame };
+  },
+);
+
 function pushFrame(frame: StageFrame) {
+  // mirror into state machine
+  updateRunningFrame(frame);
+
   frames.push(frame);
   while (frames.length > MAX_FRAMES) frames.shift();
 }
 
-/** Interp selection */
+/** Interp selection for renderer */
 const interp = computed(() => {
   const now = performance.now();
   const renderSimTime = Math.max(0, now - simEpoch - BUFFER_MS);
@@ -157,6 +256,7 @@ const interp = computed(() => {
 
   let A = frames[0];
   let B = frames[frames.length - 1];
+
   for (let i = frames.length - 2; i >= 0; i--) {
     if (frames[i]!.simTime <= renderSimTime) {
       A = frames[i];
@@ -167,7 +267,7 @@ const interp = computed(() => {
   return { frameA: A, frameB: B, renderSimTime };
 });
 
-/** Helpers */
+/** Utils */
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
@@ -183,6 +283,7 @@ function flashControllers(controllerIds: string[]) {
     toggle = !toggle;
     if (count === 0) {
       clearInterval(interval);
+      cs.forEach((c) => c.setLight(false));
     }
     count--;
   }, 150);
@@ -235,6 +336,7 @@ function handlePaddleBounce(p: Paddle, isLeft: boolean) {
   ball.vy = ball.speed * Math.sin(angle);
 }
 
+/** One fixed-step tick */
 function stepOnce() {
   applyInput();
 
@@ -281,14 +383,22 @@ function stepOnce() {
     resetBall();
   }
 
+  // End condition
+  if (left.score >= TARGET_SCORE || right.score >= TARGET_SCORE) {
+    completeMatch();
+    return; // stop ticking; state exit will cancel RAF
+  }
+
   // Bookkeeping
   tick++;
   pushFrame(snapshotFrame());
 }
 
-/** Fixed-step loop */
+/** Fixed-step loop (runs only in 'running') */
 function frameLoop(now: number) {
-  if (!running) return;
+  if (gameState.value.name !== 'running') {
+    return;
+  }
   const elapsed = now - lastWallNow;
   lastWallNow = now;
   accumulator += elapsed;
@@ -300,43 +410,173 @@ function frameLoop(now: number) {
   rafId = requestAnimationFrame(frameLoop);
 }
 
-/** Controls */
-function startGame() {
-  if (running) return;
-  running = true;
+/** === Transitions === */
+
+/** Preparing -> Running (assign teams & start) */
+const start = transition(
+  'preparing',
+  (state: PongPreparingState): PongRunningState => {
+    left.controllerIds = state.left.controllerIds;
+    right.controllerIds = state.right.controllerIds;
+
+    // reset sim
+    resetMatchInternals({ keepScores: false });
+
+    // seed first frame
+    const frame = snapshotFrame();
+
+    return {
+      game: 'pong',
+      name: 'running',
+      frame,
+    };
+  },
+);
+
+const toggleTeamAssignment = transition(
+  'preparing',
+  (
+    state: PongPreparingState,
+    controllerId: string,
+    side: 'left' | 'right',
+  ): PongPreparingState => {
+    // Snapshot originals to detect "toggle off"
+    const wasInLeft = state.left.controllerIds.includes(controllerId);
+    const wasInRight = state.right.controllerIds.includes(controllerId);
+    const wasInSide = side === 'left' ? wasInLeft : wasInRight;
+
+    // Start from copies and remove controller from BOTH teams
+    const leftIds = state.left.controllerIds.filter(
+      (id) => id !== controllerId,
+    );
+    const rightIds = state.right.controllerIds.filter(
+      (id) => id !== controllerId,
+    );
+
+    // If the controller wasn't already in the target side, assign it there; otherwise toggle OFF
+    if (!wasInSide) {
+      if (side === 'left') leftIds.push(controllerId);
+      else rightIds.push(controllerId);
+    }
+
+    return {
+      game: 'pong',
+      name: 'preparing',
+      left: { controllerIds: leftIds },
+      right: { controllerIds: rightIds },
+    };
+  },
+);
+
+/** Running -> Paused */
+const pause = transition('running', (state: PongRunningState): PongPaused => {
+  return { game: 'pong', name: 'paused', frame: state.frame };
+});
+
+/** Paused -> Running */
+const resume = transition('paused', (state: PongPaused): PongRunningState => {
+  const frame = state.frame ?? snapshotFrame();
+  // re-sync timing
+  const now = performance.now();
+  simEpoch = now - (frame?.simTime ?? tick * DT_MS);
+  lastWallNow = now;
+  accumulator = 0;
+  return { game: 'pong', name: 'running', frame };
+});
+
+/** Running/Paused/Completed -> Preparing */
+const reset = transition(
+  ['running', 'paused', 'completed'],
+  (): PongPreparingState => {
+    resetMatchInternals({ keepScores: false });
+    return {
+      game: 'pong',
+      name: 'preparing',
+      left: { controllerIds: [] },
+      right: { controllerIds: [] },
+    };
+  },
+);
+
+/** Running -> Completed */
+const complete = transition('running', (state: PongRunningState): PongEnded => {
+  return {
+    game: 'pong',
+    name: 'completed',
+    frame: state.frame ?? snapshotFrame(),
+  };
+});
+
+/** Imperative helper when score hits target */
+function completeMatch() {
+  complete(); // transition to completed
+}
+
+/** === State entry/exit side effects === */
+onStateEntry('preparing', () => {
+  showOverlay.value = true;
+  overlayText.value = 'Click Start';
+  // ensure there is at least one frame for renderer
+  if (frames.length === 0) pushFrame(snapshotFrame());
+});
+
+onStateEntry('running', (state) => {
   showOverlay.value = false;
   overlayText.value = '';
-  if (frames.length === 0) pushFrame(snapshotFrame());
 
   const now = performance.now();
-  simEpoch = now - tick * DT_MS;
+  // if we transitioned from paused/preparing we must resync timing
+  const baseSim = state.frame?.simTime ?? tick * DT_MS;
+  simEpoch = now - baseSim;
   lastWallNow = now;
   accumulator = 0;
 
+  // kick RAF
   rafId = requestAnimationFrame(frameLoop);
-}
-function togglePause() {
-  if (!running) {
-    startGame();
-    return;
-  }
-  running = false;
+});
+
+onStateExit('running', () => {
+  cancelAnimationFrame(rafId);
+});
+
+onStateEntry('paused', () => {
   showOverlay.value = true;
   overlayText.value = 'Paused';
-  cancelAnimationFrame(rafId);
-}
-function resetMatch() {
-  running = false;
+});
+
+onStateEntry('completed', () => {
+  showOverlay.value = true;
+  overlayText.value = 'Game Over';
+});
+
+/** === Local controls that call transitions === */
+function resetMatchInternals(opts: { keepScores: boolean }) {
   cancelAnimationFrame(rafId);
   tick = 0;
   frames.splice(0, frames.length);
-  left.score = 0;
-  right.score = 0;
+
+  if (!opts.keepScores) {
+    left.score = 0;
+    right.score = 0;
+  }
+
   left.paddle.y = HEIGHT / 2 - PADDLE_HEIGHT / 2;
   right.paddle.y = HEIGHT / 2 - PADDLE_HEIGHT / 2;
   resetBall();
+
+  // push initial frame for renderer (even when not running)
   pushFrame(snapshotFrame());
-  showOverlay.value = true;
-  overlayText.value = 'Click Start';
 }
+
+/** Mount/unmount */
+onMounted(() => {
+  // seed a frame so the renderer has something to draw
+  pushFrame(snapshotFrame());
+});
+
+onUnmounted(() => {
+  cancelAnimationFrame(rafId);
+  // turn off any lights left on
+  controllers.value.forEach((c) => c.setLight(false));
+});
 </script>

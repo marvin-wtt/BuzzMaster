@@ -375,7 +375,7 @@ const supportedLanguages: QSelectOption[] = [
   },
   {
     value: 'es-ES',
-    label: 'Espagnol',
+    label: 'Español',
   },
 ];
 

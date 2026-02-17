@@ -1,0 +1,16 @@
+export default {
+  batterySaving: 'Mostrar Ahorro de Batería',
+  cast: 'Abrir Cast',
+  close: 'Cerrar ventana',
+  darkMode: 'Interruptor modo Oscuro',
+  language: 'Cambiar idioma',
+  leaderboard: 'Mostrar Clasificación',
+  maximize: 'Maximizar ventana',
+  minimize: 'Minimizar ventana',
+  mute: 'Silenciar',
+  unmute: 'Con Sonido',
+  pin: 'Anclar ventana siempre delante',
+  settings: 'Interruptor de Ajustes',
+  unpin: 'Desanclar ventana',
+  updater: 'Buscar Actualizaciones',
+};

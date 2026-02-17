@@ -81,7 +81,7 @@ export default {
       1: 'Abre el administrador de dispositivos',
       2: 'Botón derecho sobre el dispositivo y luego sobre “Actualizar controlador”',
       3: 'Selecciona “Examinar mi pc en busca de controladores”',
-      4: 'Selecciona “Elegir en una listra de controladores disponibles en el equipo”',
+      4: 'Selecciona “Elegir en una lista de controladores disponibles en el equipo”',
       5: 'de la lista, selecciona “USB Input Device” o “USB HID Device” pulsa en “Aceptar”',
     },
 

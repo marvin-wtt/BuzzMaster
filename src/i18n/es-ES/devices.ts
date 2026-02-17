@@ -79,7 +79,7 @@ export default {
       'Sige estos pasos para actualizar el driver manualmente:',
     steps: {
       1: 'Abre el administrador de dispositivos',
-      2: 'Bontón derecho sobre el dispositivo y luego sobre “Actualizar controlador”',
+      2: 'Botón derecho sobre el dispositivo y luego sobre “Actualizar controlador”',
       3: 'Selecciona “Examinar mi pc en busca de controladores”',
       4: 'Selecciona “Elegir en luna listra de controladores disponibles en el equipo”',
       5: 'de la lista, selecciona “USB Input Device” o “USB HID Device” pulsa en “Aceptar”',

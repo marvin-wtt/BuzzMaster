@@ -1,5 +1,5 @@
 export default {
-  batterySaving: 'Show Battery Saving',
+  batterySaving: 'Mostrar Ahorro de Batería',
   cast: 'Abrir Cast',
   close: 'Cerrar ventana',
   darkMode: 'Interruptor modo Oscuro',

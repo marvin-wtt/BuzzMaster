@@ -10,7 +10,7 @@ export default {
   title: 'Cast',
 
   toolbar: {
-    close: 'Cerrar ventata',
+    close: 'Cerrar ventana',
     darkMode: 'Modo Oscuro',
     transparent: 'Ventana transparente',
   },

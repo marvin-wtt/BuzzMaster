@@ -1,5 +1,5 @@
 export default {
-  title: 'Stopwatch',
+  title: 'Contrareloj',
 
   controllersReady: '{count} Controladores listos!',
   disqualified: 'Desq',
@@ -11,7 +11,7 @@ export default {
     resume: 'Continuar',
     stop: 'Fin',
     cancel: 'Cancelar',
-    quickPlay: 'Juego rapido',
+    quickPlay: 'Juego rápido',
     reset: 'Resetear',
   },
 

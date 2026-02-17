@@ -18,7 +18,7 @@ export default {
 
     rule: {
       onlyNumbers: 'Solo se permiten caracteres numericos',
-      missingOperand: 'Falta simbolo (ejemp. +2)',
+      missingOperand: 'Falta símbolo (ejemp. +2)',
       divZero: 'No se puede dividir por cero',
     },
 

@@ -75,13 +75,13 @@ export default {
   missing: {
     title: '¿El dispositivo no aparece?',
     description:
-      'Es posible que los dispositivos Buzz de PlayStation 2 se este reconociendo como un concentrador USB dañado en lugar de un dispositivo HID. ' +
-      'Sige estos pasos para actualizar el driver manualmente:',
+      'Es posible que los dispositivos Buzz de PlayStation 2 se esté reconociendo como un concentrador USB dañado en lugar de un dispositivo HID. ' +
+      'Sigue estos pasos para actualizar el driver manualmente:',
     steps: {
       1: 'Abre el administrador de dispositivos',
-      2: 'Bontón derecho sobre el dispositivo y luego sobre “Actualizar controlador”',
+      2: 'Botón derecho sobre el dispositivo y luego sobre “Actualizar controlador”',
       3: 'Selecciona “Examinar mi pc en busca de controladores”',
-      4: 'Selecciona “Elegir en luna listra de controladores disponibles en el equipo”',
+      4: 'Selecciona “Elegir en una listra de controladores disponibles en el equipo”',
       5: 'de la lista, selecciona “USB Input Device” o “USB HID Device” pulsa en “Aceptar”',
     },
 

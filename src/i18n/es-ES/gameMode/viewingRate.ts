@@ -1,5 +1,5 @@
 export default {
-  title: 'Viewing Rate',
+  title: 'Tasa de visualización',
 
   controllersReady: '{count} Controladores listos!',
   currentlyViewing: 'Actualmente viendo',
@@ -29,7 +29,7 @@ export default {
 
   error: {
     newController: {
-      message: 'Los nuevos controladores seran excluidos del juego.',
+      message: 'Los nuevos controladores serán excluidos del juego.',
       caption: 'Controladores: ',
     },
   },

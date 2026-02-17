@@ -17,7 +17,7 @@ export default {
 
   exit: {
     title: 'Salir de Buzz Master',
-    message: '¿Estas seguro que quieres salir de Buzz Master?',
+    message: '¿Estás seguro que quieres salir de Buzz Master?',
     action: {
       ok: 'Salir',
       cancel: 'Cancelar',

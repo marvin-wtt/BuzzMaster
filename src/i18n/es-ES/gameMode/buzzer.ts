@@ -20,12 +20,12 @@ export default {
       answerTime: 'Tiempo de respuesta',
       multipleAttempts: 'Permitir múltiples intentos por equipo',
       playSounds: 'Reproducir sonidos',
-      beepAt: 'Iniciar pitido de cuenta atras en',
+      beepAt: 'Iniciar pitido de cuenta atrás en',
       points: 'Puntos',
       pointsCorrect: 'Respuesta Correcta',
       pointsWrong: {
         label: 'Respuesta Incorrecta',
-        hint: 'Introduce un numero negativo para restar puntos',
+        hint: 'Introduce un número negativo para restar puntos',
       },
     },
 

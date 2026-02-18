@@ -5,9 +5,11 @@ import {
   type LightApi,
 } from 'src/plugins/buzzer/types';
 import { reactive } from 'vue';
+import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
 
 export class Controller implements IController {
-  readonly id = crypto.randomUUID();
+  // The 'id' property is writable to allow the 'restoreDongle' function to update controller IDs.
+  id = crypto.randomUUID();
   readonly buttons: Record<BuzzerButton, boolean> = reactive({
     [BuzzerButton.RED]: false,
     [BuzzerButton.BLUE]: false,
@@ -39,5 +41,9 @@ export class Controller implements IController {
         `Failed to set light of controller ${this.name}: ${reason}`,
       );
     });
+  }
+
+  find(): void {
+    FindCoordinator.start(this);
   }
 }

@@ -222,10 +222,12 @@ import BeepTimer from 'components/TimerAnimated.vue';
 import { useTimer } from 'src/composables/timer';
 import { useGameState } from 'src/composables/gameState';
 import { useAudio } from 'src/composables/audio';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const quasar = useQuasar();
-const { stopwatchSettings } = useGameSettingsStore();
+const quizSettingsStore = useGameSettingsStore();
+const { stopwatchSettings } = storeToRefs(quizSettingsStore);
 const { controllers, buzzer } = useBuzzer();
 const { createAudio, cloneAudio } = useAudio();
 const { time, stopTimer, startTimer, exactTime } = useTimer({
@@ -324,7 +326,7 @@ const listener = transition('running', (state, event: ButtonEvent) => {
 
   event.controller.setLight(true);
 
-  if (stopwatchSettings.playSounds) {
+  if (stopwatchSettings.value.playSounds) {
     const clonedAudio = cloneAudio(audio);
     void clonedAudio.play();
   }

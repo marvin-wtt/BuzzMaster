@@ -2,12 +2,14 @@ import type TypedEmitter from 'typed-emitter';
 
 export type IBuzzerApi = IButtonEventEmitter & {
   dongles: IDongle[];
+  disconnectedDongles: IDongle[];
   reset: () => Promise<void>;
   addDevice: (device: IDevice) => Promise<void>;
   removeDevice: (deviceId: string) => void;
+  restoreDongle: (originalDongle: IDongle, newDongle: IDongle) => void;
 };
 
-export type IBuzzerPlugin = (api: IBuzzerApi) => Promise<void> | void;
+export type IBuzzerPlugin = (api: IBuzzerApi) => Promise<void>;
 
 export type LightApi = {
   updateLight: (value: boolean) => Promise<void>;
@@ -29,6 +31,7 @@ export type IDongle = IButtonEventEmitter & {
   device: IDevice;
   controllers: IController[];
   reset: () => Promise<void> | void;
+  find: () => void;
 };
 
 export type IController = {
@@ -39,6 +42,7 @@ export type IController = {
   setLight: (value: boolean) => void;
   buttons: Record<BuzzerButton, boolean>;
   update: (value: ButtonState) => void;
+  find: () => void;
 };
 
 export enum BuzzerButton {

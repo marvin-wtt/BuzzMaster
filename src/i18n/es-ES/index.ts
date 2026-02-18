@@ -10,17 +10,17 @@ export default {
   app_name: 'Buzz Master',
 
   action: {
-    start: 'Start',
-    devices: 'Geräte',
-    leaderboard: 'Rangliste',
+    start: 'Empezar',
+    devices: 'Dispositivos',
+    leaderboard: 'Clasificación',
   },
 
   exit: {
-    title: 'Buzz Master beenden',
-    message: 'Möchtest du Buzz Master wirklich schließen?',
+    title: 'Salir de Buzz Master',
+    message: '¿Estás seguro que quieres salir de Buzz Master?',
     action: {
-      ok: 'Beenden',
-      cancel: 'Abbrechen',
+      ok: 'Salir',
+      cancel: 'Cancelar',
     },
   },
 

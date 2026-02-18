@@ -56,20 +56,14 @@ Follow these steps to update the driver manually:
 ## Development
 
 ```sh
-git clode https://github.com/marvin-wtt/BuzzMaster
-cd buzzmaster
 npm install
-```
-
-Run in development mode:
-
-```sh
 npm run dev
 ```
 
 Build executable for production:
 
 ```sh
+npm ci
 npm run build
 ```
 
@@ -83,4 +77,4 @@ Please refer to the [LICENCE](LICENCE) file for licensing information.
 
 ## Credits
 
-Icons designed by drawingfreddie
+Logo designed by drawingfreddie

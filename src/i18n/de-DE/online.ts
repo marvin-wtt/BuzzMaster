@@ -1,9 +1,9 @@
 export default {
-  title: '@:app_name Demo',
+  title: '@:app_name Online',
   message:
-    "Dies ist eine Demo-Version von @:{'app_name'} mit eingeschränkten Funktionen. Wir empfehlen, stattdessen die neueste Version herunterzuladen.",
+    "Dies ist eine Online-Version von @:{'app_name'} mit eingeschränkten Funktionen. Wir empfehlen, stattdessen die neueste Version herunterzuladen.",
   permissions:
-    'Um die Demo-Version zu nutzen, musst du allen Buzzer-Geräten die erforderlichen Berechtigungen erteilen.',
+    'Um die Online-Version zu nutzen, musst du allen Buzzer-Geräten die erforderlichen Berechtigungen erteilen.',
   help: 'Wenn das Gerät von deinem Browser nicht erkannt wird, überprüfe bitte die Geräteseite zur Fehlerbehebung.',
   unsupported:
     'Es tut uns leid, aber dein Browser unterstützt die erforderlichen Funktionen nicht. Unterstützte Browser sind:',

@@ -9,24 +9,24 @@
       style="max-width: 22rem"
     >
       <q-card-section class="text-h5">
-        {{ t('demo.title') }}
+        {{ t('online.title') }}
       </q-card-section>
 
       <q-card-section v-if="isSupported">
-        <p>{{ t('demo.message') }}</p>
-        <p>{{ t('demo.permissions') }}</p>
+        <p>{{ t('online.message') }}</p>
+        <p>{{ t('online.permissions') }}</p>
         <p>
-          <i>{{ t('demo.help') }}</i>
+          <i>{{ t('online.help') }}</i>
         </p>
 
         <q-checkbox
           v-model="openNewWindow"
-          :label="t('demo.open')"
+          :label="t('online.open')"
         />
       </q-card-section>
 
       <q-card-section v-else>
-        {{ t('demo.unsupported') }}
+        {{ t('online.unsupported') }}
 
         <ul>
           <li>Chrome >= 89</li>
@@ -37,7 +37,7 @@
 
       <q-card-actions align="center">
         <q-btn
-          :label="t('demo.action.ok')"
+          :label="t('online.action.ok')"
           color="primary"
           rounded
           :disable="!isSupported"

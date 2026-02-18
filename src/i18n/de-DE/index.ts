@@ -5,7 +5,7 @@ import batterySaving from './batterySaving';
 import cast from './cast';
 import updater from './updater';
 import toolbar from './toolbar';
-import demo from './demo';
+import online from './online';
 
 export default {
   app_name: 'Buzz Master',
@@ -33,5 +33,5 @@ export default {
 
   toolbar,
   updater,
-  demo,
+  online,
 };

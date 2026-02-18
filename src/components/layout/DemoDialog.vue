@@ -1,6 +1,7 @@
 <template>
   <q-dialog
     ref="dialogRef"
+    :persistent="!isSupported"
     @hide="onDialogHide"
   >
     <q-card
@@ -17,18 +18,28 @@
         <p>
           <i>{{ t('demo.help') }}</i>
         </p>
+
+        <q-checkbox
+          v-model="openNewWindow"
+          :label="t('demo.open')"
+        />
       </q-card-section>
 
-      <q-card v-else>
+      <q-card-section v-else>
         {{ t('demo.unsupported') }}
-      </q-card>
+
+        <ul>
+          <li>Chrome >= 89</li>
+          <li>Edge >= 89</li>
+          <li>Opera >= 75</li>
+        </ul>
+      </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
           :label="t('demo.action.ok')"
           color="primary"
           rounded
-          :loading
           :disable="!isSupported"
           @click="requestPermissions"
         />
@@ -40,49 +51,43 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { PlayStation2Device } from 'src/plugins/buzzer/hid/PlayStation2Device';
-import { PlayStation3Device } from 'src/plugins/buzzer/hid/PlayStation3Device';
 import { computed, ref } from 'vue';
+import { requestBuzzerDevicePermissions } from 'src/plugins/buzzer/permission';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
 const quasar = useQuasar();
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
-const loading = ref<boolean>(false);
 
+const openNewWindow = ref<boolean>(true);
+
+// See https://developer.mozilla.org/de/docs/Web/API/HID#browser-kompatibilit%C3%A4t
 const isSupported = computed<boolean>(() => {
-  return (
-    quasar.platform.is.chrome ||
-    quasar.platform.is.edge ||
-    quasar.platform.is.opera
-  );
+  if (!quasar.platform.is.desktop) {
+    return false;
+  }
+
+  const version = quasar.platform.is.versionNumber;
+  if (quasar.platform.is.chrome || quasar.platform.is.edge) {
+    return version === undefined || version >= 89;
+  }
+
+  if (quasar.platform.is.opera) {
+    return version === undefined || version >= 75;
+  }
+
+  return false;
 });
 
 async function requestPermissions() {
-  loading.value = true;
   try {
-    await navigator.hid.requestDevice({
-      filters: [
-        {
-          vendorId: PlayStation2Device.VENDOR_ID,
-          productId: PlayStation2Device.PRODUCT_ID,
-        },
-        {
-          vendorId: PlayStation3Device.VENDOR_ID,
-          productId: PlayStation3Device.PRODUCT_ID,
-        },
-      ],
-    });
-
-    window.open('/', 'MsgWindow', 'width=500,height=800');
-  } catch (reason: unknown) {
-    console.error(reason);
-  } finally {
-    loading.value = false;
+    await requestBuzzerDevicePermissions();
+  } catch (error: unknown) {
+    console.error(error);
   }
 
-  onDialogOK();
+  onDialogOK(openNewWindow.value);
 }
 </script>
 

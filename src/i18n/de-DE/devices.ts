@@ -21,7 +21,8 @@ export default {
 
     missing: {
       label: 'Gerät wird nicht angezeigt?',
-      button: 'Hilfe',
+      help: 'Hilfe',
+      add: 'Hinzufügen',
     },
 
     test: {

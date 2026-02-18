@@ -333,7 +333,7 @@ import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from 'stores/updater-store';
-import BrowserPermissionRequestDialog from 'components/layout/BrowserPermissionRequestDialog.vue';
+import DemoDialog from 'components/layout/DemoDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -369,14 +369,6 @@ const title = computed<string | undefined>(() => {
 const volumeIcon = computed<string>(() => {
   return muted.value || volume.value === 0 ? 'volume_off' : 'volume_up';
 });
-
-if (!quasar.platform.is.electron) {
-  onMounted(() => {
-    quasar.dialog({
-      component: BrowserPermissionRequestDialog,
-    });
-  });
-}
 
 const supportedLanguages: QSelectOption[] = [
   {
@@ -455,6 +447,22 @@ function openDevTools() {
 
 onMounted(() => {
   window.addEventListener('keydown', keyDownListener);
+
+  if (!quasar.platform.is.electron && route.query.gameWindow !== 'true') {
+    quasar
+      .dialog({
+        component: DemoDialog,
+      })
+      .onOk((openNewWindow: boolean) => {
+        if (openNewWindow) {
+          window.open(
+            '/#/?gameWindow=true',
+            'GameWindow',
+            'width=500,height=800',
+          );
+        }
+      });
+  }
 });
 
 onUnmounted(() => {

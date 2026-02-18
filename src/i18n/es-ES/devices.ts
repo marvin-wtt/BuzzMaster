@@ -21,7 +21,8 @@ export default {
 
     missing: {
       label: '¿El dispositivo no aparece?',
-      button: 'Ayuda',
+      help: 'Ayuda',
+      add: 'Agregar',
     },
 
     test: {

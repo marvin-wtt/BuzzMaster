@@ -2,6 +2,11 @@
 
 BuzzMaster is a user-friendly application for hosting quiz shows with physical input devices, such as PlayStation buzzers.
 
+## Online Version
+
+The online version of BuzzMaster can be found [here](https://marvin-wtt.github.io/BuzzMaster/#/).
+Some features might not be available in the online version.
+
 ## Key Features
 
 ### Buzzer Questions

@@ -455,8 +455,9 @@ onMounted(() => {
       })
       .onOk((openNewWindow: boolean) => {
         if (openNewWindow) {
+          const url = router.resolve({ name: 'home' });
           window.open(
-            '/#/?gameWindow=true',
+            url.href + '?gameWindow=true',
             'GameWindow',
             'width=500,height=800',
           );

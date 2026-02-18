@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
-    "@intlify/unplugin-vue-i18n": "^6.0.8",
+    "@intlify/unplugin-vue-i18n": "^11.0.7",
     "@pinia/testing": "^1.0.1",
     "@quasar/app-vite": "^2.2.0",
     "@quasar/cli": "^2.5.0",

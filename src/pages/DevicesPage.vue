@@ -147,7 +147,7 @@
       </q-item>
 
       <!-- Missing controllers hint -->
-      <q-item v-if="quasar.platform.is.win">
+      <q-item v-if="quasar.platform.is.win || !quasar.platform.is.electron">
         <q-item-section>
           <q-item-label>
             {{ t('devices.item.missing.label') }}
@@ -346,15 +346,15 @@ const updateDongleNamingList = () => {
     });
 };
 
-function showMissingDongleHelp() {
+const showMissingDongleHelp = () => {
   quasar.dialog({
     component: DongleMissingDialog,
   });
-}
+};
 
-async function requestDevicePermissions() {
+const requestDevicePermissions = async () => {
   await requestBuzzerDevicePermissions();
-}
+};
 </script>
 
 <style scoped></style>

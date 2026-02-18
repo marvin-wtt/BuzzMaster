@@ -62,7 +62,7 @@ const { t } = useI18n();
 
 const openNewWindow = ref<boolean>(true);
 
-// See https://developer.mozilla.org/de/docs/Web/API/HID#browser-kompatibilit%C3%A4t
+// See https://developer.mozilla.org/en-US/docs/Web/API/HID#browser_compatibility
 const isSupported = computed<boolean>(() => {
   if (!quasar.platform.is.desktop) {
     return false;

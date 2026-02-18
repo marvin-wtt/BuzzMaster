@@ -333,7 +333,7 @@ import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from 'stores/updater-store';
-import DemoDialog from 'components/layout/DemoDialog.vue';
+import OnlineDialog from 'components/layout/OnlineDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -451,7 +451,7 @@ onMounted(() => {
   if (!quasar.platform.is.electron && route.query.gameWindow !== 'true') {
     quasar
       .dialog({
-        component: DemoDialog,
+        component: OnlineDialog,
       })
       .onOk((openNewWindow: boolean) => {
         if (openNewWindow) {

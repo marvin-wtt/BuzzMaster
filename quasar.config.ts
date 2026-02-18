@@ -12,6 +12,10 @@ import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig((ctx) => {
+  const isSpa = ctx.modeName === 'spa';
+  const isGhPages = process.env.GH_PAGES === 'true';
+  const repo = process.env.GH_PAGES_REPO || '';
+
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
@@ -61,7 +65,7 @@ export default defineConfig((ctx) => {
       // vueDevtools,
       // vueOptionsAPI: false,
 
-      // publicPath: '/',
+      publicPath: isSpa && isGhPages ? `/${repo}/` : '/',
       // analyze: true,
       // env: {},
       // envFolder: ''

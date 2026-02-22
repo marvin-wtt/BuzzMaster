@@ -8,6 +8,7 @@ const send =
   };
 
 const senderAPI: CastSenderAPI = {
+  ready: send('ready'),
   toggle: send('toggle'),
   updateGameState: send('updateGameState'),
   updateGameSettings: send('updateGameSettings'),

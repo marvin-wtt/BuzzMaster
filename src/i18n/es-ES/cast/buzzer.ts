@@ -1,6 +1,6 @@
 export default {
   preparing: {
-    title: 'Buzzer',
+    title: 'Pulsador',
 
     settings: {
       attempts: 'Intentos',

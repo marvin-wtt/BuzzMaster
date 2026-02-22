@@ -448,7 +448,12 @@ function openDevTools() {
 onMounted(() => {
   window.addEventListener('keydown', keyDownListener);
 
-  if (!quasar.platform.is.electron && route.query.gameWindow !== 'true') {
+  if (quasar.platform.is.electron) {
+    // Send the initial state of the game store for the cast window
+    sendGameState(gameStore.state);
+    sendGameSettings(gameSettingsStore.gameSettings);
+    sendControllerNames(controllerNames.value);
+  } else if (route.query.gameWindow !== 'true') {
     quasar
       .dialog({
         component: OnlineDialog,
@@ -509,14 +514,7 @@ function closeApp() {
 }
 
 function toggleCast() {
-  window.castAPI.toggle();
-  // Send data in case it's the initial open
-  setTimeout(() => {
-    sendGameState(gameStore.state);
-    sendGameSettings(gameSettingsStore.gameSettings);
-    sendControllerNames(controllerNames.value);
-    window.castAPI.updateLocale(locale.value);
-  }, 1000);
+  window.castAPI?.toggle();
 }
 
 const controllerNames = computed<Record<string, string>>(() => {

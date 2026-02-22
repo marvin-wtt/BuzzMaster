@@ -4,6 +4,12 @@
   </q-page>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  window.castAPI.ready();
+});
+</script>
 
 <style scoped></style>

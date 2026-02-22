@@ -4,6 +4,7 @@ import type { GameSettings } from 'app/common/gameSettings';
 export type CastAPI = CastSenderAPI & CastReceiverAPI;
 
 export interface CastSenderAPI {
+  ready: () => void;
   toggle: () => void;
   updateGameState: (state: GameState | undefined) => void;
   updateGameSettings: (settings: GameSettings) => void;

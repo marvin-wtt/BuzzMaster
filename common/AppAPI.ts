@@ -6,6 +6,8 @@ import type {
 
 export type AppAPI = {
   getVersion: () => Promise<string>;
+  getLocale: () => Promise<string>;
+  setLocale: (locale: string) => void;
 
   onUpdateInfo: (callback: (data: AppUpdate) => void) => void;
   checkForUpdate: () => void;

@@ -2,6 +2,7 @@ import { defineBoot } from '#q-app/wrappers';
 import { createI18n } from 'vue-i18n';
 
 import messages from 'src/i18n';
+import { watch } from 'vue';
 
 export type MessageLanguages = keyof typeof messages;
 // Type-define 'en-US' as the master schema for the resource
@@ -21,13 +22,25 @@ declare module 'vue-i18n' {
 }
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
-export default defineBoot(({ app }) => {
+export default defineBoot(async ({ app }) => {
+  const locale = window.appAPI?.getLocale
+    ? await window.appAPI.getLocale()
+    : 'en-US';
+
   const i18n = createI18n({
-    locale: 'en-US',
+    locale,
     // @TODO kann in vue-i18n v12 entfernt werden, legacyAPI entfällt
     legacy: false,
     messages,
   });
+
+  if (window.appAPI?.getLocale !== undefined) {
+    watch(i18n.global.locale, (value, oldValue) => {
+      if (oldValue !== value) {
+        window.appAPI.setLocale(value);
+      }
+    });
+  }
 
   // Set i18n instance on app
   app.use(i18n);

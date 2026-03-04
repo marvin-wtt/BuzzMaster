@@ -9,7 +9,7 @@ export type IBuzzerApi = IButtonEventEmitter & {
   restoreDongle: (originalDongle: IDongle, newDongle: IDongle) => void;
 };
 
-export type IBuzzerPlugin = (api: IBuzzerApi) => Promise<void> | void;
+export type IBuzzerPlugin = (api: IBuzzerApi) => Promise<void>;
 
 export type LightApi = {
   updateLight: (value: boolean) => Promise<void>;

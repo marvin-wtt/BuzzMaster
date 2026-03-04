@@ -1,6 +1,6 @@
 <!-- PongGamePage.vue -->
 <template>
-  <q-page class="flex flex-center text-white">
+  <q-page>
     <div
       v-if="gameState.name === 'preparing'"
       class="column"
@@ -59,7 +59,7 @@
 
     <div
       v-else
-      class="column items-center q-pa-sm"
+      class="column items-center text-white q-pa-sm"
     >
       {{ ball.speed }}
       <div class="relative-position">
@@ -244,7 +244,9 @@ function pushFrame(frame: StageFrame) {
   updateRunningFrame(frame);
 
   frames.push(frame);
-  while (frames.length > MAX_FRAMES) frames.shift();
+  while (frames.length > MAX_FRAMES) {
+    frames.shift();
+  }
 }
 
 /** Interp selection for renderer */
@@ -252,7 +254,9 @@ const interp = computed(() => {
   const now = performance.now();
   const renderSimTime = Math.max(0, now - simEpoch - BUFFER_MS);
 
-  if (frames.length === 0) return { frameA: null, frameB: null, renderSimTime };
+  if (frames.length === 0) {
+    return { frameA: null, frameB: null, renderSimTime };
+  }
 
   let A = frames[0];
   let B = frames[frames.length - 1];
@@ -323,8 +327,11 @@ function applyInput() {
 
 function handlePaddleBounce(p: Paddle, isLeft: boolean) {
   // Position correction
-  if (isLeft) ball.x = p.x + p.width + ball.radius;
-  else ball.x = p.x - ball.radius;
+  if (isLeft) {
+    ball.x = p.x + p.width + ball.radius;
+  } else {
+    ball.x = p.x - ball.radius;
+  }
 
   const pCenter = p.y + p.height / 2;
   const collide = (ball.y - pCenter) / (p.height / 2); // [-1..1]

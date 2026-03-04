@@ -36,7 +36,11 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') },
+      {
+        path: '',
+        name: 'home',
+        component: () => import('pages/IndexPage.vue'),
+      },
       {
         path: 'leaderboard',
         name: 'leaderboard',
@@ -98,7 +102,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'pong',
             name: 'pong-game',
-            component: () => import('pages/gameModes/ArcadePongGamePage.vue'),
+            component: () => import('pages/gameModes/PongGamePage.vue'),
             meta: {
               title: 'gameMode.pong.title',
             },

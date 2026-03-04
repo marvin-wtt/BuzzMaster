@@ -21,7 +21,8 @@ export default {
 
     missing: {
       label: 'Device not showing up?',
-      button: 'Help',
+      help: 'Help',
+      add: 'Add',
     },
 
     test: {

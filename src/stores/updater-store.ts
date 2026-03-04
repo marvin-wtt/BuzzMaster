@@ -8,8 +8,16 @@ export const useUpdaterStore = defineStore('updater', () => {
   const quasar = useQuasar();
   const { t } = useI18n();
 
-  const version = ref<string>();
+  const version = ref<string>('');
   const status = ref<AppUpdate>();
+
+  // Updates only available on desktop
+  if (!quasar.platform.is.electron) {
+    return {
+      status,
+      version,
+    };
+  }
 
   watch(status, () => {
     sendNotification();

@@ -38,7 +38,12 @@
       </div>
     </div>
 
-    <div class="self-center q-pa-sm">v{{ version }}</div>
+    <div
+      v-if="quasar.platform.is.electron"
+      class="self-center q-pa-sm"
+    >
+      v{{ version }}
+    </div>
   </q-page>
 </template>
 
@@ -46,7 +51,9 @@
 import { useI18n } from 'vue-i18n';
 import { useUpdaterStore } from 'stores/updater-store';
 import { storeToRefs } from 'pinia';
+import { useQuasar } from 'quasar';
 
+const quasar = useQuasar();
 const { t } = useI18n();
 const updaterStore = useUpdaterStore();
 const { version } = storeToRefs(updaterStore);

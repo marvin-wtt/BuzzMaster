@@ -147,20 +147,36 @@
       </q-item>
 
       <!-- Missing controllers hint -->
-      <q-item v-if="quasar.platform.is.win">
+      <q-item v-if="quasar.platform.is.win || !quasar.platform.is.electron">
         <q-item-section>
           <q-item-label>
             {{ t('devices.item.missing.label') }}
           </q-item-label>
         </q-item-section>
-        <q-item-section side>
+        <q-item-section
+          v-if="quasar.platform.is.win"
+          side
+        >
           <q-btn
             icon="question_mark"
-            :aria-label="t('devices.item.missing.button')"
+            :aria-label="t('devices.item.missing.help')"
             outline
             round
             dense
             @click="showMissingDongleHelp"
+          />
+        </q-item-section>
+        <q-item-section
+          v-if="!quasar.platform.is.electron"
+          side
+        >
+          <q-btn
+            icon="add"
+            :aria-label="t('devices.item.missing.add')"
+            outline
+            round
+            dense
+            @click="requestDevicePermissions"
           />
         </q-item-section>
       </q-item>
@@ -219,6 +235,7 @@ import { Dongle } from 'src/plugins/buzzer/Dongle';
 import { config } from 'src/config';
 import DongleMissingDialog from 'components/devices/DongleMissingDialog.vue';
 import DongleRestoreDialog from 'components/devices/DongleRestoreDialog.vue';
+import { requestBuzzerDevicePermissions } from 'src/plugins/buzzer/permission';
 
 const quasar = useQuasar();
 const { t } = useI18n();
@@ -333,6 +350,10 @@ const showMissingDongleHelp = () => {
   quasar.dialog({
     component: DongleMissingDialog,
   });
+};
+
+const requestDevicePermissions = async () => {
+  await requestBuzzerDevicePermissions();
 };
 </script>
 

@@ -2,6 +2,11 @@
 
 BuzzMaster is a user-friendly application for hosting quiz shows with physical input devices, such as PlayStation buzzers.
 
+## Online Version
+
+The online version of BuzzMaster can be found [here](https://marvin-wtt.github.io/BuzzMaster/#/).
+Some features might not be available in the online version.
+
 ## Key Features
 
 ### Buzzer Questions
@@ -51,20 +56,14 @@ Follow these steps to update the driver manually:
 ## Development
 
 ```sh
-git clode https://github.com/marvin-wtt/BuzzMaster
-cd buzzmaster
 npm install
-```
-
-Run in development mode:
-
-```sh
 npm run dev
 ```
 
 Build executable for production:
 
 ```sh
+npm ci
 npm run build
 ```
 
@@ -78,4 +77,4 @@ Please refer to the [LICENCE](LICENCE) file for licensing information.
 
 ## Credits
 
-Icons designed by drawingfreddie
+Logo designed by drawingfreddie

@@ -46,6 +46,7 @@
           </q-btn>
 
           <q-btn
+            v-if="quasar.platform.is.electron"
             :aria-label="t('toolbar.cast')"
             key="cast"
             dense
@@ -69,6 +70,7 @@
           >
             <!-- Pin -->
             <q-btn
+              v-if="quasar.platform.is.electron"
               :aria-label="pinned ? t('toolbar.unpin') : t('toolbar.pin')"
               dense
               flat
@@ -85,7 +87,7 @@
 
             <!-- Dev tools -->
             <q-btn
-              v-if="devMode"
+              v-if="devMode && quasar.platform.is.electron"
               aria-label="DevTools"
               dense
               flat
@@ -200,6 +202,7 @@
             </q-btn>
 
             <app-update-btn
+              v-if="quasar.platform.is.electron"
               dense
               flat
               rounded
@@ -227,49 +230,51 @@
           </q-tooltip>
         </q-btn>
 
-        <q-separator
-          vertical
-          spaced
-          inset
-          dark
-        />
+        <template v-if="quasar.platform.is.electron">
+          <q-separator
+            vertical
+            spaced
+            inset
+            dark
+          />
 
-        <q-btn
-          :aria-label="t('toolbar.minimize')"
-          dense
-          round
-          flat
-          icon="minimize"
-          @click="minimize"
-        >
-          <q-tooltip :delay="1000">
-            {{ t('toolbar.minimize') }}
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          :aria-label="t('toolbar.maximize')"
-          dense
-          flat
-          round
-          icon="crop_square"
-          @click="toggleMaximize"
-        >
-          <q-tooltip :delay="1000">
-            {{ t('toolbar.maximize') }}
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          :aria-label="t('toolbar.close')"
-          dense
-          flat
-          round
-          icon="close"
-          @click="closeApp"
-        >
-          <q-tooltip :delay="1000">
-            {{ t('toolbar.close') }}
-          </q-tooltip>
-        </q-btn>
+          <q-btn
+            :aria-label="t('toolbar.minimize')"
+            dense
+            round
+            flat
+            icon="minimize"
+            @click="minimize"
+          >
+            <q-tooltip :delay="1000">
+              {{ t('toolbar.minimize') }}
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            :aria-label="t('toolbar.maximize')"
+            dense
+            flat
+            round
+            icon="crop_square"
+            @click="toggleMaximize"
+          >
+            <q-tooltip :delay="1000">
+              {{ t('toolbar.maximize') }}
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            :aria-label="t('toolbar.close')"
+            dense
+            flat
+            round
+            icon="close"
+            @click="closeApp"
+          >
+            <q-tooltip :delay="1000">
+              {{ t('toolbar.close') }}
+            </q-tooltip>
+          </q-btn>
+        </template>
       </q-bar>
 
       <div
@@ -328,6 +333,7 @@ import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from 'stores/updater-store';
+import OnlineDialog from 'components/layout/OnlineDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -372,6 +378,10 @@ const supportedLanguages: QSelectOption[] = [
   {
     value: 'de-DE',
     label: 'Deutsch',
+  },
+  {
+    value: 'es-ES',
+    label: 'Español',
   },
 ];
 
@@ -437,6 +447,28 @@ function openDevTools() {
 
 onMounted(() => {
   window.addEventListener('keydown', keyDownListener);
+
+  if (quasar.platform.is.electron) {
+    // Send the initial state of the game store for the cast window
+    sendGameState(gameStore.state);
+    sendGameSettings(gameSettingsStore.gameSettings);
+    sendControllerNames(controllerNames.value);
+  } else if (route.query.gameWindow !== 'true') {
+    quasar
+      .dialog({
+        component: OnlineDialog,
+      })
+      .onOk((openNewWindow: boolean) => {
+        if (openNewWindow) {
+          const url = router.resolve({ name: 'home' });
+          window.open(
+            url.href + '?gameWindow=true',
+            'GameWindow',
+            'width=500,height=800',
+          );
+        }
+      });
+  }
 });
 
 onUnmounted(() => {
@@ -482,14 +514,7 @@ function closeApp() {
 }
 
 function toggleCast() {
-  window.castAPI.toggle();
-  // Send data in case it's the initial open
-  setTimeout(() => {
-    sendGameState(gameStore.state);
-    sendGameSettings(gameSettingsStore.gameSettings);
-    sendControllerNames(controllerNames.value);
-    window.castAPI.updateLocale(locale.value);
-  }, 1000);
+  window.castAPI?.toggle();
 }
 
 const controllerNames = computed<Record<string, string>>(() => {
@@ -506,10 +531,12 @@ function sendControllerNames(controllers: Record<string, string>) {
   window.castAPI.updateControllers(toRaw(controllers));
 }
 
-watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
-watch(() => gameStore.state, sendGameState);
-watch(() => gameSettingsStore.gameSettings, sendGameSettings);
-watch(controllerNames, sendControllerNames);
+if (quasar.platform.is.electron) {
+  watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
+  watch(() => gameStore.state, sendGameState);
+  watch(() => gameSettingsStore.gameSettings, sendGameSettings);
+  watch(controllerNames, sendControllerNames);
+}
 
 function sendGameState(state: GameState | undefined) {
   window.castAPI.updateGameState(toValue(state));

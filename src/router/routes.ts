@@ -84,6 +84,14 @@ const routes: RouteRecordRaw[] = [
             },
           },
           {
+            path: 'simon',
+            name: 'simon-game',
+            component: () => import('pages/gameModes/SimonGamePage.vue'),
+            meta: {
+              title: 'gameMode.simon.title',
+            },
+          },
+          {
             path: 'stopwatch',
             name: 'stopwatch-game',
             component: () => import('pages/gameModes/StopwatchGamePage.vue'),

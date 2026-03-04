@@ -44,6 +44,11 @@ const items = computed<MenuItem[]>(() => [
     icon: 'format_list_numbered',
   },
   {
+    routeName: 'simon-game',
+    label: t('gameMode.action.simon'),
+    icon: 'grid_view',
+  },
+  {
     routeName: 'stopwatch-game',
     label: t('gameMode.action.stopwatch'),
     icon: 'timer',

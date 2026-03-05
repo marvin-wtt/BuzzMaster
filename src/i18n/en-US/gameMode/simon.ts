@@ -3,6 +3,8 @@ export default {
 
   round: 'Round {round}',
 
+  players: '{n} Players',
+
   playerStatus: 'Player status',
 
   action: {

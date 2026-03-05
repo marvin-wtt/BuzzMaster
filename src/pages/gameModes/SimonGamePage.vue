@@ -28,27 +28,7 @@
         <simon-pad
           v-else
           :buttons="SIMON_BUTTONS"
-          :timer="20"
         />
-      </div>
-
-      <!-- Per-player status -->
-      <div
-        v-if="gameState.name !== 'preparing' && gameState.name !== 'gameOver'"
-        class="column q-gutter-xs"
-      >
-        <div class="text-subtitle2">{{ t('gameMode.simon.playerStatus') }}</div>
-        <div class="row q-gutter-sm">
-          <q-chip
-            v-for="c in controllers"
-            :key="c.id"
-            v-show="gameState.players.includes(c.id)"
-            :color="chipColor(c.id)"
-            text-color="white"
-          >
-            {{ c.name }}
-          </q-chip>
-        </div>
       </div>
 
       <!-- Actions -->
@@ -68,11 +48,19 @@
           :label="t('gameMode.simon.action.nextRound')"
           @click="nextRound()"
         />
-        <q-btn
-          v-if="gameState.name !== 'preparing'"
+        <safe-delete-btn
+          v-if="gameState.name === 'input'"
+          :label="t('gameMode.simon.action.restart')"
           outline
           rounded
+          @click="restart()"
+        />
+
+        <q-btn
+          v-else-if="gameState.name !== 'preparing'"
           :label="t('gameMode.simon.action.restart')"
+          outline
+          rounded
           @click="restart()"
         />
       </div>
@@ -89,14 +77,20 @@ import { useGameState } from 'src/composables/gameState';
 import type { SimonState } from 'app/common/gameState/SimonState';
 import { useControllerFlasher } from 'src/composables/controllerFlasher';
 import SimonPad from 'components/gameModes/SimonPad.vue';
+import { useAudio } from 'src/composables/audio';
+import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 
 const { t } = useI18n();
 const { controllers, buzzer } = useBuzzer();
-const flasher = useControllerFlasher();
+const { createAudio } = useAudio();
+const flasher = useControllerFlasher({
+  onMs: 75,
+  offMs: 75,
+});
 
 const SIMON_BUTTONS: BuzzerButton[] = [
-  BuzzerButton.ORANGE,
   BuzzerButton.BLUE,
+  BuzzerButton.ORANGE,
   BuzzerButton.GREEN,
   BuzzerButton.YELLOW,
 ];
@@ -113,9 +107,20 @@ const { gameState, transition, onStateEntry, onStateExit } =
     players: [],
   });
 
+const sounds = {
+  blue: createAudio('sounds/simon/blue.mp3'),
+  orange: createAudio('sounds/simon/orange.mp3'),
+  green: createAudio('sounds/simon/green.mp3'),
+  yellow: createAudio('sounds/simon/yellow.mp3'),
+};
+
 onBeforeMount(async () => {
   await buzzer.reset();
   buzzer.on('press', onPress);
+
+  for (const sound of Object.values(sounds)) {
+    sound.load();
+  }
 });
 
 onUnmounted(async () => {
@@ -129,43 +134,9 @@ const randomSimonButton = (): BuzzerButton => {
   return SIMON_BUTTONS[i]!;
 };
 
-const controllerStatus = (
-  controllerId: string,
-): 'done' | 'failed' | 'playing' | undefined => {
-  const state = gameState.value;
-
-  if (state.name === 'roundOver') {
-    return state.survivors.includes(controllerId) ? 'done' : 'failed';
-  }
-
-  if (state.name === 'input') {
-    const progress = state.inputIndex[controllerId] ?? 0;
-    if (progress === -1) {
-      return 'failed';
-    }
-    if (progress === state.sequence.length) {
-      return 'done';
-    }
-    return 'playing';
-  }
-
-  return undefined;
-};
-
-const chipColor = (controllerId: string) => {
-  const status = controllerStatus(controllerId);
-
-  switch (status) {
-    case 'done':
-      return 'green';
-    case 'failed':
-      return 'red';
-    case 'playing':
-      return 'blue-grey';
-    default:
-      return 'grey-7';
-  }
-};
+onStateEntry('preparing', async () => {
+  await buzzer.reset();
+});
 
 const start = transition('preparing', () => {
   const players = controllers.value.map((c) => c.id);
@@ -221,7 +192,9 @@ const clearHighlightTimeouts = () => {
 
 onUnmounted(clearHighlightTimeouts);
 
-onStateEntry('showing', () => {
+onStateEntry('showing', async () => {
+  await buzzer.reset();
+
   scheduleHighlight(SHOW_ON_MS);
 });
 
@@ -245,6 +218,8 @@ const updateHighlight = transition('showing', (state) => {
   if (!state.showing) {
     scheduleHighlight(SHOW_ON_MS);
 
+    playButtonSound(state.sequence[state.stepIndex]!);
+
     return {
       ...state,
       showing: true,
@@ -260,13 +235,26 @@ const updateHighlight = transition('showing', (state) => {
   };
 });
 
-onStateEntry('input', (state) => {
-  flasher.stopAll();
-
-  for (const controller of controllers.value) {
-    const on = !state.players.includes(controller.id);
-    controller.setLight(on);
+const getButtonAudio = (button: BuzzerButton) => {
+  switch (button) {
+    case BuzzerButton.BLUE:
+      return sounds.blue;
+    case BuzzerButton.ORANGE:
+      return sounds.orange;
+    case BuzzerButton.GREEN:
+      return sounds.green;
+    case BuzzerButton.YELLOW:
+      return sounds.yellow;
   }
+};
+
+const playButtonSound = (button: BuzzerButton) => {
+  const sound = getButtonAudio(button);
+  void sound.play();
+};
+
+onStateEntry('input', () => {
+  flasher.stopAll();
 });
 
 const onPress = transition('input', (state, event: ButtonEvent) => {
@@ -279,10 +267,11 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
     return;
   }
 
+  // Idx is -1 for invalid input
   const idx = state.inputIndex[id] ?? 0;
 
   // Ignore inputs for controllers that already failed or completed the sequence
-  if (idx > state.sequence.length) {
+  if (idx === -1 || idx >= state.sequence.length) {
     return;
   }
 
@@ -291,13 +280,12 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
     inputIndex[id] = idx + 1;
 
     if (inputIndex[id] === state.sequence.length) {
-      flasher.flash(event.controller, 3);
+      event.controller.setLight(true);
     } else {
       flasher.flash(event.controller, 1);
     }
   } else {
-    // Light always on for invalid input
-    event.controller.setLight(true);
+    flasher.flash(event.controller, 5);
 
     inputIndex[id] = -1;
   }
@@ -336,7 +324,6 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
 
   return {
     ...state,
-    round: state.round + 1,
     inputIndex,
   };
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { mountPage } from 'app/test/vitest/utils/mount';
 import BuzzerQuestionPage from 'pages/gameModes/BuzzerGamePage.vue';
-import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
+import { installQuasarPlugin } from 'app/test/vitest/install-quasar';
 import { Dialog, type QBtn } from 'quasar';
 import { useGameStore } from 'stores/game-store';
 import { selector } from 'app/test/vitest/utils/element-selector';

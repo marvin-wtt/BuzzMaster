@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { mountPage } from 'app/test/vitest/utils/mount';
-import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
+import { installQuasarPlugin } from 'app/test/vitest/install-quasar';
 import { Dialog } from 'quasar';
 import StopwatchQuestionPage from 'pages/gameModes/StopwatchGamePage.vue';
 import { useGameStore } from 'stores/game-store';

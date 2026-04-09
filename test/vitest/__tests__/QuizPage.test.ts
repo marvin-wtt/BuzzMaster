@@ -1,4 +1,4 @@
-import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-vitest';
+import { installQuasarPlugin } from 'app/test/vitest/install-quasar';
 import { describe, expect, it, vi } from 'vitest';
 import QuizQuestionPage from 'pages/gameModes/QuizGamePage.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';

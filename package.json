@@ -59,6 +59,7 @@
     "eslint": "^10.2.0",
     "eslint-plugin-vue": "^10.8.0",
     "globals": "^17.4.0",
+    "happy-dom": "^20.8.9",
     "lodash-es": "^4.18.1",
     "prettier": "^3.8.1",
     "typed-emitter": "^2.1.0",

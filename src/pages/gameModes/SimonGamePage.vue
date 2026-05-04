@@ -250,7 +250,7 @@ const getButtonAudio = (button: BuzzerButton) => {
 
 const playButtonSound = (button: BuzzerButton) => {
   const sound = getButtonAudio(button);
-  void sound.play();
+  void sound?.play();
 };
 
 onStateEntry('input', () => {

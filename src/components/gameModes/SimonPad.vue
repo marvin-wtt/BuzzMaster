@@ -40,8 +40,8 @@ function buttonColor(button: BuzzerButton): string {
 
 <style scoped>
 .stack-pad {
-  --width: 220px;
-  --bar-h: 54px;
+  --width: 240px;
+  --bar-h: 56px;
   --gap: 14px;
   --radius: 18px;
 
@@ -54,13 +54,22 @@ function buttonColor(button: BuzzerButton): string {
   flex-direction: column;
   gap: var(--gap);
 
-  padding: 14px;
-  border-radius: 22px;
-  background: #0e0f12;
+  padding: 16px;
+  border-radius: 26px;
+
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(255, 255, 255, 0.06),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #12131a, #0b0c10);
 
   box-shadow:
-    0 18px 55px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    0 20px 65px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 10px 22px rgba(255, 255, 255, 0.03),
+    inset 0 -18px 28px rgba(0, 0, 0, 0.45);
 }
 
 .bar {
@@ -69,13 +78,12 @@ function buttonColor(button: BuzzerButton): string {
   position: relative;
   overflow: hidden;
 
-  /* calm default */
-  filter: brightness(0.82) saturate(0.95);
+  filter: brightness(0.78) saturate(0.95);
   opacity: 0.92;
 
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 -18px 28px rgba(0, 0, 0, 0.28);
+    inset 0 -18px 28px rgba(0, 0, 0, 0.3);
 
   transition:
     filter 120ms ease,
@@ -84,7 +92,37 @@ function buttonColor(button: BuzzerButton): string {
     box-shadow 120ms ease;
 }
 
-/* Active highlight: brighter + subtle outer glow */
+.bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.07) 22%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  opacity: 0.5;
+  transform: translateX(-14%);
+  pointer-events: none;
+}
+
+.bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0) 6px
+  );
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
 .bar.active {
   opacity: 1;
   filter: brightness(1.55) saturate(1.25);
@@ -93,11 +131,18 @@ function buttonColor(button: BuzzerButton): string {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.22),
     inset 0 -18px 28px rgba(0, 0, 0, 0.16),
-    0 0 0 6px rgba(255, 255, 255, 0.05),
-    0 14px 40px rgba(0, 0, 0, 0.45);
+    0 10px 34px rgba(0, 0, 0, 0.45);
 }
 
-/* Optional: if highlight is null, keep it extra calm */
+.bar.active::before {
+  opacity: 0.7;
+}
+
+.stack:has(.bar.active) .bar:not(.active) {
+  filter: brightness(0.72) saturate(0.9);
+  opacity: 0.86;
+}
+
 .bar:not(.active) {
   transform: scale(1);
 }

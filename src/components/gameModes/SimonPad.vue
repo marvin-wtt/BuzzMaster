@@ -25,15 +25,15 @@ const { highlight = null, buttons } = defineProps<{
 function buttonColor(button: BuzzerButton): string {
   switch (button) {
     case BuzzerButton.BLUE:
-      return 'bg-blue';
+      return 'bar--blue';
     case BuzzerButton.ORANGE:
-      return 'bg-orange';
+      return 'bar--orange';
     case BuzzerButton.GREEN:
-      return 'bg-green';
+      return 'bar--green';
     case BuzzerButton.YELLOW:
-      return 'bg-yellow';
+      return 'bar--yellow';
     case BuzzerButton.RED:
-      return 'bg-red';
+      return 'bar--red';
   }
 }
 </script>
@@ -42,8 +42,8 @@ function buttonColor(button: BuzzerButton): string {
 .stack-pad {
   --width: 240px;
   --bar-h: 56px;
-  --gap: 14px;
-  --radius: 18px;
+  --gap: 10px;
+  --radius: 16px;
 
   width: var(--width);
   pointer-events: none;
@@ -54,23 +54,19 @@ function buttonColor(button: BuzzerButton): string {
   flex-direction: column;
   gap: var(--gap);
 
-  padding: 16px;
-  border-radius: 26px;
+  padding: 14px;
+  border-radius: 24px;
 
-  background:
-    radial-gradient(
-      circle at 30% 20%,
-      rgba(255, 255, 255, 0.06),
-      transparent 55%
-    ),
-    linear-gradient(180deg, #12131a, #0b0c10);
+  background: linear-gradient(160deg, #17181f 0%, #0c0d11 100%);
 
   box-shadow:
-    0 20px 65px rgba(0, 0, 0, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-    inset 0 10px 22px rgba(255, 255, 255, 0.03),
-    inset 0 -18px 28px rgba(0, 0, 0, 0.45);
+    0 24px 72px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5);
 }
+
+/* ── Bar base ───────────────────────────────────── */
 
 .bar {
   height: var(--bar-h);
@@ -78,72 +74,70 @@ function buttonColor(button: BuzzerButton): string {
   position: relative;
   overflow: hidden;
 
-  filter: brightness(0.78) saturate(0.95);
-  opacity: 0.92;
+  filter: brightness(0.72) saturate(0.85);
 
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 -18px 28px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 -12px 20px rgba(0, 0, 0, 0.35);
 
   transition:
-    filter 120ms ease,
-    transform 120ms ease,
-    opacity 120ms ease,
-    box-shadow 120ms ease;
+    filter 130ms ease,
+    transform 130ms ease,
+    box-shadow 130ms ease;
 }
 
+/* Top-left gloss */
 .bar::before {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.22),
-    rgba(255, 255, 255, 0.07) 22%,
-    rgba(255, 255, 255, 0) 58%
+    130deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.05) 28%,
+    rgba(255, 255, 255, 0) 55%
   );
-  opacity: 0.5;
-  transform: translateX(-14%);
   pointer-events: none;
 }
 
-.bar::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.035) 0px,
-    rgba(255, 255, 255, 0.035) 1px,
-    rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0) 6px
-  );
-  opacity: 0.1;
-  mix-blend-mode: overlay;
-  pointer-events: none;
+/* ── Colors ─────────────────────────────────────── */
+
+.bar--blue {
+  background: #1565c0;
+  --glow: rgba(33, 150, 243, 0.65);
 }
+.bar--orange {
+  background: #e65100;
+  --glow: rgba(255, 138, 0, 0.65);
+}
+.bar--green {
+  background: #2e7d32;
+  --glow: rgba(76, 175, 80, 0.65);
+}
+.bar--yellow {
+  background: #f9a825;
+  --glow: rgba(255, 224, 50, 0.65);
+}
+.bar--red {
+  background: #b71c1c;
+  --glow: rgba(244, 67, 54, 0.65);
+}
+
+/* ── Active ─────────────────────────────────────── */
 
 .bar.active {
-  opacity: 1;
-  filter: brightness(1.55) saturate(1.25);
-  transform: scale(1.02);
+  filter: brightness(1.6) saturate(1.3);
+  transform: scaleY(1.04);
 
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-    inset 0 -18px 28px rgba(0, 0, 0, 0.16),
-    0 10px 34px rgba(0, 0, 0, 0.45);
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 28px 4px var(--glow);
 }
 
 .bar.active::before {
-  opacity: 0.7;
+  opacity: 1.5;
 }
 
+/* Dim inactive bars while one is lit */
 .stack:has(.bar.active) .bar:not(.active) {
-  filter: brightness(0.72) saturate(0.9);
-  opacity: 0.86;
-}
-
-.bar:not(.active) {
-  transform: scale(1);
+  filter: brightness(0.48) saturate(0.6);
 }
 </style>

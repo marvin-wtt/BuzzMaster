@@ -21,6 +21,7 @@ export interface SimonShowingState {
   round: number;
   sequence: BuzzerButton[];
   players: string[];
+  playerNames: Record<string, string>;
 
   stepIndex: number;
   showing: boolean;
@@ -32,8 +33,11 @@ export interface SimonInputState {
   round: number;
   sequence: BuzzerButton[];
   players: string[];
+  playerNames: Record<string, string>;
 
   inputIndex: Record<string, number>;
+  timeLimit: number;
+  startTime: number;
 }
 
 export interface SimonRoundOverState {
@@ -42,6 +46,7 @@ export interface SimonRoundOverState {
   round: number;
   sequence: BuzzerButton[];
   players: string[];
+  playerNames: Record<string, string>;
   survivors: string[];
 }
 

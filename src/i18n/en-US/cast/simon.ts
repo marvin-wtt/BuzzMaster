@@ -3,6 +3,7 @@ export default {
   players: '{n} players',
   survivors: '{n} survive',
   winner: 'Winner: {name}',
+  step: '{step} / {total}',
   phase: {
     unknown: 'Waiting',
     preparing: 'Get ready',
@@ -19,5 +20,9 @@ export default {
     roundOver: 'Next round soon',
     winner: 'We have a winner!',
     gameOver: 'Game over',
+  },
+  player: {
+    done: 'Done',
+    out: 'Out',
   },
 };

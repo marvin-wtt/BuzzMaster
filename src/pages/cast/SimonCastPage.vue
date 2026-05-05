@@ -27,83 +27,130 @@
                 <span class="phase-text">{{ phaseLabel }}</span>
               </div>
 
-              <div class="meta">
-                <transition
-                  name="fade"
-                  mode="out-in"
-                >
-                  <div
-                    :key="metaKey"
-                    class="meta-inner"
-                  >
-                    <span
-                      v-if="playerCount !== null"
-                      class="meta-item"
-                    >
-                      {{ t('cast.simon.players', { n: playerCount }) }}
-                    </span>
-                    <span
-                      v-if="survivorCount !== null"
-                      class="meta-item"
-                    >
-                      {{ t('cast.simon.survivors', { n: survivorCount }) }}
-                    </span>
-                    <span
-                      v-if="winnerName"
-                      class="meta-item meta-winner"
-                    >
-                      {{ t('cast.simon.winner', { name: winnerName }) }}
-                    </span>
-                  </div>
-                </transition>
+              <div
+                v-if="playerCount !== null"
+                class="meta-item"
+              >
+                {{ t('cast.simon.players', { n: playerCount }) }}
+              </div>
+
+              <div
+                v-if="survivorCount !== null"
+                class="meta-item"
+              >
+                {{ t('cast.simon.survivors', { n: survivorCount }) }}
               </div>
             </div>
           </div>
         </transition>
       </header>
 
-      <!-- Main stage -->
+      <!-- Main stage: winner hero on gameOver, normal pad layout otherwise -->
       <main class="stage">
-        <div
-          class="pad-stage"
-          :class="{
-            'pad-stage--showing': state?.name === 'showing',
-            'pad-stage--input': state?.name === 'input',
-            'pad-stage--gameover': state?.name === 'gameOver',
-          }"
+        <transition
+          name="fade"
+          mode="out-in"
         >
-          <div class="pad-frame">
-            <SimonPad
-              :buttons="SIMON_BUTTONS"
-              :highlight="highlight"
-              class="pad"
-            />
+          <!-- Game over: winner takes over the entire stage -->
+          <div
+            v-if="state?.name === 'gameOver'"
+            key="gameover"
+            class="winner-hero"
+          >
+            <div class="winner-label">
+              {{ winnerName ? t('cast.simon.callout.winner') : t('cast.simon.callout.gameOver') }}
+            </div>
+            <div
+              v-if="winnerName"
+              class="winner-name"
+            >
+              {{ winnerName }}
+            </div>
           </div>
 
-          <!-- big callout text -->
-          <transition
-            name="fade"
-            mode="out-in"
+          <!-- All other states: pad + info layout -->
+          <div
+            v-else
+            key="playing"
+            class="pad-stage"
+            :class="{
+              'pad-stage--showing': state?.name === 'showing',
+              'pad-stage--input': state?.name === 'input',
+            }"
           >
-            <div
-              :key="calloutKey"
-              class="callout"
-            >
-              {{ calloutText }}
+            <div class="pad-frame">
+              <SimonPad
+                :buttons="SIMON_BUTTONS"
+                :highlight="highlight"
+                :style="PAD_STYLE"
+                class="pad"
+              />
             </div>
-          </transition>
-        </div>
+
+            <!-- Callout: only animates on phase change, not on every button flash -->
+            <transition
+              name="fade"
+              mode="out-in"
+            >
+              <div
+                :key="calloutKey"
+                class="callout"
+              >
+                {{ calloutText }}
+              </div>
+            </transition>
+
+            <!-- Step counter: updates reactively without animation -->
+            <div
+              v-if="showingStep !== null"
+              class="step-counter"
+            >
+              {{ showingStep }}
+            </div>
+
+            <!-- Countdown timer: derived from startTime + timeLimit, no IPC needed -->
+            <div
+              v-if="remainingTime !== null"
+              class="countdown"
+            >
+              <timer-animated :time="remainingTime" />
+            </div>
+
+            <!-- Player progress during input -->
+            <div
+              v-if="playerProgress.length > 0"
+              class="players-grid"
+            >
+              <div
+                v-for="player in playerProgress"
+                :key="player.id"
+                class="player-row"
+                :class="player.statusClass"
+              >
+                <span class="player-label">{{ player.label }}</span>
+                <div class="player-track">
+                  <div
+                    class="player-fill"
+                    :style="{ width: player.pct + '%' }"
+                  />
+                </div>
+                <span class="player-info">{{ player.text }}</span>
+              </div>
+            </div>
+          </div>
+        </transition>
       </main>
     </div>
   </q-page>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCastStore } from 'stores/cast-store';
 import type { SimonState } from 'app/common/gameState/SimonState';
 import SimonPad from 'components/gameModes/SimonPad.vue';
+import TimerAnimated from 'components/TimerAnimated.vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 
 const { t } = useI18n();
@@ -116,8 +163,37 @@ const SIMON_BUTTONS: BuzzerButton[] = [
   BuzzerButton.YELLOW,
 ];
 
+const PAD_STYLE = {
+  '--width': '100%',
+  '--bar-h': '72px',
+};
+
 const state = computed<SimonState | undefined>(() => {
   return castStore.gameState as SimonState | undefined;
+});
+
+// Local clock for countdown — runs only during timed input phases, no IPC needed
+const now = ref(Date.now());
+let nowInterval: ReturnType<typeof setInterval> | null = null;
+
+watch(
+  () => state.value,
+  (s) => {
+    if (nowInterval) {
+      clearInterval(nowInterval);
+      nowInterval = null;
+    }
+    if (s?.name === 'input' && s.timeLimit > 0) {
+      nowInterval = setInterval(() => {
+        now.value = Date.now();
+      }, 100);
+    }
+  },
+  { immediate: true },
+);
+
+onUnmounted(() => {
+  if (nowInterval) clearInterval(nowInterval);
 });
 
 const safeRound = computed(() => {
@@ -126,41 +202,66 @@ const safeRound = computed(() => {
 
 const highlight = computed<BuzzerButton | null>(() => {
   const s = state.value;
-  if (!s || s.name !== 'showing') {
-    return null;
-  }
+  if (!s || s.name !== 'showing' || !s.showing) return null;
+  if (s.stepIndex < 0 || s.stepIndex >= s.sequence.length) return null;
+  return s.sequence[s.stepIndex] ?? null;
+});
 
-  const idx = s.stepIndex;
-  if (!s.showing) {
-    return null;
-  }
-  if (idx < 0 || idx >= s.sequence.length) {
-    return null;
-  }
+const showingStep = computed<string | null>(() => {
+  const s = state.value;
+  if (!s || s.name !== 'showing') return null;
+  const step = s.showing ? s.stepIndex + 1 : s.stepIndex;
+  if (step === 0) return null;
+  return t('cast.simon.step', { step, total: s.sequence.length });
+});
 
-  return s.sequence[idx] ?? null;
+const remainingTime = computed<number | null>(() => {
+  const s = state.value;
+  if (!s || s.name !== 'input' || s.timeLimit <= 0) return null;
+  return Math.max(0, s.timeLimit - (now.value - s.startTime) / 1000);
+});
+
+const playerProgress = computed(() => {
+  const s = state.value;
+  if (!s || s.name !== 'input') return [];
+  return s.players.map((id, i) => {
+    const raw = s.inputIndex[id] ?? 0;
+    const failed = raw === -1;
+    const done = raw === s.sequence.length;
+    const progress = failed ? 0 : raw;
+    const pct = s.sequence.length > 0 ? (progress / s.sequence.length) * 100 : 0;
+    const name = s.playerNames[id];
+    return {
+      id,
+      label: name ?? `P${i + 1}`,
+      progress,
+      total: s.sequence.length,
+      failed,
+      done,
+      pct,
+      statusClass: done ? 'player--done' : failed ? 'player--failed' : 'player--active',
+      text: done
+        ? t('cast.simon.player.done')
+        : failed
+          ? t('cast.simon.player.out')
+          : `${progress}/${s.sequence.length}`,
+    };
+  });
 });
 
 const phaseLabel = computed<string>(() => {
   const s = state.value;
-  if (!s) {
-    return t('cast.simon.phase.unknown');
-  }
+  if (!s) return t('cast.simon.phase.unknown');
 
   switch (s.name) {
-    case 'preparing':
-      return t('cast.simon.phase.preparing');
-    case 'showing':
-      return t('cast.simon.phase.showing');
-    case 'input':
-      return t('cast.simon.phase.input');
-    case 'roundOver':
-      return t('cast.simon.phase.roundOver');
-    case 'gameOver':
-      return t('cast.simon.phase.gameOver');
+    case 'preparing': return t('cast.simon.phase.preparing');
+    case 'showing':   return t('cast.simon.phase.showing');
+    case 'input':     return t('cast.simon.phase.input');
+    case 'roundOver': return t('cast.simon.phase.roundOver');
+    case 'gameOver':  return t('cast.simon.phase.gameOver');
   }
 
-  // @ts-expect-error: this should never happen, but TS doesn't know that'
+  // @ts-expect-error: exhaustive
   return '';
 });
 
@@ -171,61 +272,37 @@ const phaseClass = computed(() => {
 
 const calloutText = computed(() => {
   const s = state.value;
-  if (!s) {
-    return t('cast.simon.callout.waiting');
-  }
+  if (!s) return t('cast.simon.callout.waiting');
 
   switch (s.name) {
-    case 'preparing':
-      return t('cast.simon.callout.preparing');
-    case 'showing':
-      return t('cast.simon.callout.showing');
-    case 'input':
-      return t('cast.simon.callout.input');
-    case 'roundOver':
-      return t('cast.simon.callout.roundOver');
-    case 'gameOver':
-      return s.winner
-        ? t('cast.simon.callout.winner')
-        : t('cast.simon.callout.gameOver');
+    case 'preparing': return t('cast.simon.callout.preparing');
+    case 'showing':   return t('cast.simon.callout.showing');
+    case 'input':     return t('cast.simon.callout.input');
+    case 'roundOver': return t('cast.simon.callout.roundOver');
+    case 'gameOver':  return s.winner ? t('cast.simon.callout.winner') : t('cast.simon.callout.gameOver');
   }
 
-  // @ts-expect-error: this should never happen, but TS doesn't know that'
+  // @ts-expect-error: exhaustive
   return '';
 });
 
+// Show player count only during showing/input — not during roundOver (survivors shown instead)
+// and not during gameOver (winner hero shown)
 const playerCount = computed<number | null>(() => {
   const s = state.value;
-  if (!s) {
-    return null;
-  }
-
-  if (s.name === 'gameOver') {
-    return 1;
-  }
-
+  if (!s || s.name === 'preparing' || s.name === 'roundOver' || s.name === 'gameOver') return null;
   return s.players.length;
 });
 
 const survivorCount = computed<number | null>(() => {
   const s = state.value;
-  if (!s) {
-    return null;
-  }
-
-  if (s.name === 'roundOver') {
-    return s.survivors.length;
-  }
-
-  return null;
+  if (!s || s.name !== 'roundOver') return null;
+  return s.survivors.length;
 });
 
 const winnerName = computed<string>(() => {
   const s = state.value;
-  if (!s || s.name !== 'gameOver' || !s.winner) {
-    return '';
-  }
-  // If you have a controller name mapping in cast store, swap this:
+  if (!s || s.name !== 'gameOver' || !s.winner) return '';
   return s.winner;
 });
 
@@ -233,17 +310,14 @@ const headerKey = computed(() => {
   return `${state.value?.name ?? 'none'}-${safeRound.value}`;
 });
 
-const metaKey = computed(() => {
-  return `${playerCount.value ?? 'x'}-${survivorCount.value ?? 'x'}-${winnerName.value ?? ''}`;
-});
-
+// Fixed: was `${name}-${highlight}` which caused a fade flicker every ~300ms
+// during showing phase even though the callout text never changed.
 const calloutKey = computed(() => {
-  return `${state.value?.name ?? 'none'}-${highlight.value ?? 'none'}`;
+  return state.value?.name ?? 'none';
 });
 </script>
 
 <style scoped>
-/* Full-screen cast look */
 .cast-page {
   min-height: 100vh;
   background:
@@ -290,7 +364,8 @@ const calloutKey = computed(() => {
 .meta-row {
   display: flex;
   justify-content: center;
-  gap: 14px;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -323,7 +398,6 @@ const calloutKey = computed(() => {
   opacity: 0.9;
 }
 
-/* Phase accents (no fixed colors, just intensity) */
 .phase--showing .phase-dot {
   opacity: 1;
   animation: pulse 900ms ease-in-out infinite;
@@ -332,36 +406,15 @@ const calloutKey = computed(() => {
   opacity: 1;
   animation: pulse 1200ms ease-in-out infinite;
 }
-.phase--gameOver .phase-dot {
-  opacity: 1;
-}
-
-/* Meta */
-.meta {
-  display: inline-flex;
-  align-items: center;
-}
-
-.meta-inner {
-  display: inline-flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
 
 .meta-item {
-  padding: 10px 14px;
+  padding: 8px 14px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
   font-weight: 700;
   font-size: 13px;
   opacity: 0.9;
-}
-
-.meta-winner {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.07);
 }
 
 /* Stage */
@@ -371,6 +424,54 @@ const calloutKey = computed(() => {
   padding-bottom: 24px;
 }
 
+/* Winner hero (gameOver) */
+.winner-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  min-height: 400px;
+  padding: 48px 24px;
+}
+
+.winner-label {
+  font-size: clamp(14px, 1.8vw, 20px);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  text-align: center;
+}
+
+.winner-name {
+  font-size: clamp(56px, 9vw, 120px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-align: center;
+  text-shadow:
+    0 0 80px rgba(255, 255, 255, 0.4),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: winner-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes winner-glow {
+  0%, 100% {
+    text-shadow:
+      0 0 60px rgba(255, 255, 255, 0.3),
+      0 20px 60px rgba(0, 0, 0, 0.7);
+  }
+  50% {
+    text-shadow:
+      0 0 100px rgba(255, 255, 255, 0.65),
+      0 0 200px rgba(255, 255, 255, 0.15),
+      0 20px 60px rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Normal pad layout */
 .pad-stage {
   width: min(760px, 92vw);
   display: grid;
@@ -378,7 +479,6 @@ const calloutKey = computed(() => {
   gap: 18px;
 }
 
-/* slightly different “mood” by state */
 .pad-stage--showing .pad-frame {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
@@ -386,11 +486,7 @@ const calloutKey = computed(() => {
 .pad-stage--input .pad-frame {
   box-shadow: 0 26px 80px rgba(0, 0, 0, 0.5);
 }
-.pad-stage--gameover .pad-frame {
-  filter: saturate(0.95) brightness(0.95);
-}
 
-/* Frame around the pad, to look premium on cast */
 .pad-frame {
   width: min(420px, 70vw);
   aspect-ratio: 1 / 1;
@@ -408,13 +504,14 @@ const calloutKey = computed(() => {
     0 24px 80px rgba(0, 0, 0, 0.45);
   transition:
     transform 220ms ease,
-    box-shadow 220ms ease,
-    filter 220ms ease;
+    box-shadow 220ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pad {
   width: 100%;
-  height: 100%;
 }
 
 /* Callout */
@@ -427,10 +524,96 @@ const calloutKey = computed(() => {
   text-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
 }
 
+/* Step counter — updates without animation */
+.step-counter {
+  font-size: clamp(13px, 1.5vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  text-align: center;
+}
+
+/* Countdown */
+.countdown {
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+  text-align: center;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Player progress */
+.players-grid {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.player-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 52px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  transition:
+    background 250ms ease,
+    box-shadow 250ms ease,
+    opacity 250ms ease;
+}
+
+.player--done {
+  background: rgba(76, 175, 80, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(76, 175, 80, 0.3);
+}
+
+.player--failed {
+  opacity: 0.4;
+}
+
+.player-label {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.85;
+}
+
+.player-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.player-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.65);
+  transition: width 150ms ease;
+}
+
+.player--done .player-fill {
+  background: #4caf50;
+}
+
+.player-info {
+  font-weight: 700;
+  font-size: 13px;
+  text-align: right;
+  opacity: 0.85;
+}
+
 /* Animations */
 @keyframes pulse {
-  0%,
-  100% {
+  0%, 100% {
     transform: scale(1);
     box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.05);
   }
@@ -440,7 +623,6 @@ const calloutKey = computed(() => {
   }
 }
 
-/* Transitions */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition:
@@ -455,7 +637,7 @@ const calloutKey = computed(() => {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 180ms ease;
+  transition: opacity 220ms ease;
 }
 .fade-enter-from,
 .fade-leave-to {

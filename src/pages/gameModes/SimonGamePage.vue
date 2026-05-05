@@ -17,50 +17,200 @@
 
       <!-- 4 button visualization -->
       <div class="row justify-center">
-        <simon-pad
-          v-if="gameState.name === 'showing'"
-          :buttons="SIMON_BUTTONS"
-          :highlight="
-            gameState.showing ? gameState.sequence[gameState.stepIndex] : null
-          "
-        />
+        <div class="simon-pad-wrap">
+          <simon-pad
+            v-if="gameState.name === 'showing'"
+            :buttons="SIMON_BUTTONS"
+            :highlight="
+              gameState.showing ? gameState.sequence[gameState.stepIndex] : null
+            "
+          />
+          <simon-pad
+            v-else
+            :buttons="SIMON_BUTTONS"
+          />
+        </div>
+      </div>
 
-        <simon-pad
-          v-else
-          :buttons="SIMON_BUTTONS"
-        />
+      <!-- Input timer -->
+      <div
+        v-if="gameState.name === 'input' && gameState.timeLimit > 0"
+        class="row justify-center"
+      >
+        <timer-animated :time="inputTimer" />
+      </div>
+
+      <!-- Player status during input -->
+      <div
+        v-if="gameState.name === 'input'"
+        class="row justify-center"
+      >
+        <div
+          class="column q-gutter-xs"
+          style="min-width: 200px"
+        >
+          <div class="text-caption text-grey">
+            {{ t('gameMode.simon.playerStatus') }}
+          </div>
+          <div
+            v-for="player in inputPlayerStatus"
+            :key="player.id"
+            class="row items-center q-gutter-sm"
+          >
+            <span class="col text-body2 ellipsis">{{ player.name }}</span>
+            <q-badge
+              v-if="player.done"
+              color="positive"
+            >
+              {{ t('gameMode.simon.status.done') }}
+            </q-badge>
+            <q-badge
+              v-else-if="player.failed"
+              color="negative"
+            >
+              {{ t('gameMode.simon.status.out') }}
+            </q-badge>
+            <q-badge
+              v-else
+              color="grey-7"
+            >
+              {{ player.progress }}/{{ player.total }}
+            </q-badge>
+          </div>
+        </div>
+      </div>
+
+      <!-- Survivors during roundOver: summary + expandable list -->
+      <div
+        v-if="gameState.name === 'roundOver'"
+        class="column items-center q-gutter-xs"
+      >
+        <div class="row items-center q-gutter-sm">
+          <q-chip
+            icon="group"
+            color="positive"
+            text-color="white"
+            dense
+          >
+            {{
+              t('gameMode.simon.survived', {
+                n: gameState.survivors.length,
+                total: gameState.players.length,
+              })
+            }}
+          </q-chip>
+          <q-btn
+            flat
+            round
+            dense
+            size="sm"
+            :icon="showSurvivors ? 'expand_less' : 'expand_more'"
+            @click="showSurvivors = !showSurvivors"
+          />
+        </div>
+
+        <transition name="survivor-list">
+          <div
+            v-if="showSurvivors"
+            class="row justify-center q-gutter-xs"
+          >
+            <q-chip
+              v-for="id in gameState.survivors"
+              :key="id"
+              dense
+              color="positive"
+              text-color="white"
+              icon="check"
+            >
+              {{ gameState.playerNames[id] ?? id }}
+            </q-chip>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Winner during gameOver -->
+      <div
+        v-if="gameState.name === 'gameOver'"
+        class="row justify-center"
+      >
+        <div class="column items-center q-gutter-sm">
+          <div class="text-subtitle2 text-grey">
+            {{ t('gameMode.simon.winner') }}
+          </div>
+          <q-chip
+            v-if="gameState.winner"
+            icon="emoji_events"
+            color="positive"
+            text-color="white"
+            class="text-weight-bold text-body1"
+          >
+            {{ gameState.winner }}
+          </q-chip>
+          <span
+            v-else
+            class="text-body2 text-grey"
+          >
+            {{ t('gameMode.simon.noWinner') }}
+          </span>
+        </div>
       </div>
 
       <!-- Actions -->
-      <div class="row justify-center q-gutter-sm">
-        <q-btn
+      <div class="row justify-center">
+        <!-- Preparing -->
+        <div
           v-if="gameState.name === 'preparing'"
-          color="primary"
-          rounded
-          :label="t('gameMode.simon.action.start')"
-          :disable="controllers.length === 0"
-          @click="start()"
-        />
-        <q-btn
-          v-if="gameState.name === 'roundOver'"
-          color="primary"
-          rounded
-          :label="t('gameMode.simon.action.nextRound')"
-          @click="nextRound()"
-        />
+          class="column q-gutter-sm justify-center"
+        >
+          <q-btn
+            color="primary"
+            rounded
+            :label="t('gameMode.simon.action.start')"
+            :disable="controllers.length === 0"
+            @click="start()"
+          />
+          <q-btn
+            outline
+            rounded
+            :label="t('gameMode.simon.action.settings')"
+            @click="openSettings()"
+          />
+        </div>
+
+        <!-- Round over -->
+        <div
+          v-else-if="gameState.name === 'roundOver'"
+          class="column q-gutter-sm justify-center"
+        >
+          <q-btn
+            color="primary"
+            rounded
+            :label="t('gameMode.simon.action.nextRound')"
+            @click="nextRound()"
+          />
+          <q-btn
+            outline
+            rounded
+            :label="t('gameMode.simon.action.restart')"
+            @click="restart()"
+          />
+        </div>
+
+        <!-- Input: require confirmation to restart -->
         <safe-delete-btn
-          v-if="gameState.name === 'input'"
+          v-else-if="gameState.name === 'input'"
           :label="t('gameMode.simon.action.restart')"
           outline
           rounded
           @click="restart()"
         />
 
+        <!-- Showing / Game over -->
         <q-btn
-          v-else-if="gameState.name !== 'preparing'"
-          :label="t('gameMode.simon.action.restart')"
+          v-else
           outline
           rounded
+          :label="t('gameMode.simon.action.restart')"
           @click="restart()"
         />
       </div>
@@ -69,24 +219,43 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted } from 'vue';
+import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { BuzzerButton, type ButtonEvent } from 'src/plugins/buzzer/types';
 import { useGameState } from 'src/composables/gameState';
+import { useTimer } from 'src/composables/timer';
 import type { SimonState } from 'app/common/gameState/SimonState';
 import { useControllerFlasher } from 'src/composables/controllerFlasher';
 import SimonPad from 'components/gameModes/SimonPad.vue';
+import SimonSettingsDialog from 'components/gameModes/simon/SimonSettingsDialog.vue';
+import TimerAnimated from 'components/TimerAnimated.vue';
 import { useAudio } from 'src/composables/audio';
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
+import { useGameSettingsStore } from 'stores/game-settings-store';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
+const quasar = useQuasar();
 const { controllers, buzzer } = useBuzzer();
 const { createAudio } = useAudio();
 const flasher = useControllerFlasher({
   onMs: 75,
   offMs: 75,
 });
+const { simonSettings } = storeToRefs(useGameSettingsStore());
+const {
+  time: inputTimer,
+  startTimer,
+  stopTimer,
+} = useTimer({
+  direction: 'down',
+  updateRate: 10,
+});
+
+const BASE_SHOW_ON_MS = 520;
+const BASE_SHOW_OFF_MS = 260;
 
 const SIMON_BUTTONS: BuzzerButton[] = [
   BuzzerButton.BLUE,
@@ -94,9 +263,6 @@ const SIMON_BUTTONS: BuzzerButton[] = [
   BuzzerButton.GREEN,
   BuzzerButton.YELLOW,
 ];
-
-const SHOW_ON_MS = 520;
-const SHOW_OFF_MS = 260;
 
 const { gameState, transition, onStateEntry, onStateExit } =
   useGameState<SimonState>({
@@ -140,6 +306,7 @@ onStateEntry('preparing', async () => {
 
 const start = transition('preparing', () => {
   const players = controllers.value.map((c) => c.id);
+  const playerNames = Object.fromEntries(controllers.value.map((c) => [c.id, c.name]));
 
   const first = randomSimonButton();
   return {
@@ -148,6 +315,7 @@ const start = transition('preparing', () => {
     round: 1,
     sequence: [first],
     players,
+    playerNames,
     stepIndex: 0,
     showing: false,
   };
@@ -172,6 +340,7 @@ const nextRound = transition('roundOver', (state) => {
     round: state.round + 1,
     sequence: [...state.sequence, next],
     players: state.survivors,
+    playerNames: state.playerNames,
     showing: false,
     stepIndex: 0,
   };
@@ -179,8 +348,10 @@ const nextRound = transition('roundOver', (state) => {
 
 let highlightTimeout: NodeJS.Timeout | null = null;
 
-const scheduleHighlight = (timeout: number) => {
-  highlightTimeout = setTimeout(updateHighlight, timeout);
+const scheduleHighlight = (baseMs: number) => {
+  const speed =
+    simonSettings.value.showingSpeed > 0 ? simonSettings.value.showingSpeed : 1;
+  highlightTimeout = setTimeout(updateHighlight, baseMs / speed);
 };
 
 const clearHighlightTimeouts = () => {
@@ -195,28 +366,31 @@ onUnmounted(clearHighlightTimeouts);
 onStateEntry('showing', async () => {
   await buzzer.reset();
 
-  scheduleHighlight(SHOW_ON_MS);
+  scheduleHighlight(BASE_SHOW_ON_MS);
 });
 
 onStateExit('showing', clearHighlightTimeouts);
 
 const updateHighlight = transition('showing', (state) => {
   if (state.stepIndex >= state.sequence.length && state.showing === false) {
+    const timeLimit = simonSettings.value.answerTime + state.sequence.length;
+
     return {
       game: 'simon',
       name: 'input',
       round: state.round,
       sequence: state.sequence,
       players: state.players,
+      playerNames: state.playerNames,
       inputIndex: {},
-
-      status: {},
+      timeLimit,
+      startTime: Date.now(),
     };
   }
 
   // The order OFF -> ON
   if (!state.showing) {
-    scheduleHighlight(SHOW_ON_MS);
+    scheduleHighlight(BASE_SHOW_ON_MS);
 
     playButtonSound(state.sequence[state.stepIndex]!);
 
@@ -226,7 +400,7 @@ const updateHighlight = transition('showing', (state) => {
     };
   }
 
-  scheduleHighlight(SHOW_OFF_MS);
+  scheduleHighlight(BASE_SHOW_OFF_MS);
 
   return {
     ...state,
@@ -253,8 +427,78 @@ const playButtonSound = (button: BuzzerButton) => {
   void sound?.play();
 };
 
-onStateEntry('input', () => {
+onStateEntry('input', (state) => {
   flasher.stopAll();
+
+  if (state.timeLimit > 0) {
+    inputTimer.value = state.timeLimit;
+    startTimer();
+  }
+});
+
+onStateExit('input', () => {
+  stopTimer();
+});
+
+// Auto next round: kick off nextRound after a short delay when enabled
+let autoNextRoundTimeout: NodeJS.Timeout | null = null;
+
+const showSurvivors = ref(false);
+
+onStateEntry('roundOver', () => {
+  showSurvivors.value = false;
+  if (simonSettings.value.autoNextRound) {
+    autoNextRoundTimeout = setTimeout(() => {
+      nextRound();
+    }, 2000);
+  }
+});
+
+onStateExit('roundOver', () => {
+  if (autoNextRoundTimeout) {
+    clearTimeout(autoNextRoundTimeout);
+    autoNextRoundTimeout = null;
+  }
+});
+
+onUnmounted(() => {
+  if (autoNextRoundTimeout) clearTimeout(autoNextRoundTimeout);
+});
+
+const resolveWinner = (state: { playerNames: Record<string, string> }, id: string | undefined) => {
+  if (!id) return undefined;
+  return state.playerNames[id] ?? id;
+};
+
+const onInputTimeout = transition('input', (state) => {
+  const survivors = state.players.filter(
+    (p) => (state.inputIndex[p] ?? 0) === state.sequence.length,
+  );
+
+  if (survivors.length <= 1) {
+    return {
+      game: 'simon',
+      name: 'gameOver',
+      round: state.round,
+      winner: resolveWinner(state, survivors[0]),
+    };
+  }
+
+  return {
+    game: 'simon',
+    name: 'roundOver',
+    round: state.round,
+    sequence: state.sequence,
+    players: state.players,
+    playerNames: state.playerNames,
+    survivors,
+  };
+});
+
+watch(inputTimer, (val) => {
+  if (val <= 0) {
+    onInputTimeout();
+  }
 });
 
 const onPress = transition('input', (state, event: ButtonEvent) => {
@@ -308,7 +552,7 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
         game: 'simon',
         name: 'gameOver',
         round: state.round,
-        winner: survivors[0],
+        winner: resolveWinner(state, survivors[0]),
       };
     }
 
@@ -318,6 +562,7 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
       round: state.round,
       sequence: state.sequence,
       players: state.players,
+      playerNames: state.playerNames,
       survivors,
     };
   }
@@ -327,6 +572,42 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
     inputIndex,
   };
 });
+
+const inputPlayerStatus = computed(() => {
+  if (gameState.value.name !== 'input') return [];
+  const s = gameState.value;
+  return s.players.map((id) => {
+    const raw = s.inputIndex[id] ?? 0;
+    return {
+      id,
+      name: s.playerNames[id] ?? id,
+      failed: raw === -1,
+      done: raw === s.sequence.length,
+      progress: raw === -1 ? 0 : raw,
+      total: s.sequence.length,
+    };
+  });
+});
+
+const openSettings = () => {
+  quasar.dialog({ component: SimonSettingsDialog });
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+.simon-pad-wrap {
+  width: min(240px, 80vw);
+}
+
+.survivor-list-enter-active,
+.survivor-list-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.survivor-list-enter-from,
+.survivor-list-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>

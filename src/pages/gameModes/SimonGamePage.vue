@@ -40,92 +40,115 @@
         <timer-animated :time="inputTimer" />
       </div>
 
-      <!-- Player status during input -->
+      <!-- Player status during input: summary badges, hover for per-player detail -->
       <div
         v-if="gameState.name === 'input'"
         class="row justify-center"
       >
-        <div
-          class="column q-gutter-xs"
-          style="min-width: 200px"
-        >
-          <div class="text-caption text-grey">
-            {{ t('gameMode.simon.playerStatus') }}
-          </div>
-          <div
-            v-for="player in inputPlayerStatus"
-            :key="player.id"
-            class="row items-center q-gutter-sm"
-          >
-            <span class="col text-body2 ellipsis">{{ player.name }}</span>
+        <span class="cursor-help">
+          <div class="row q-gutter-xs items-center">
             <q-badge
-              v-if="player.done"
+              v-if="inputSummary.done > 0"
               color="positive"
             >
-              {{ t('gameMode.simon.status.done') }}
+              {{ t('gameMode.simon.summary.done', { n: inputSummary.done }) }}
             </q-badge>
             <q-badge
-              v-else-if="player.failed"
+              v-if="inputSummary.out > 0"
               color="negative"
             >
-              {{ t('gameMode.simon.status.out') }}
+              {{ t('gameMode.simon.summary.out', { n: inputSummary.out }) }}
             </q-badge>
             <q-badge
-              v-else
+              v-if="inputSummary.playing > 0"
               color="grey-7"
             >
-              {{ player.progress }}/{{ player.total }}
+              {{ t('gameMode.simon.summary.playing', { n: inputSummary.playing }) }}
             </q-badge>
           </div>
-        </div>
+
+          <q-tooltip :delay="150">
+            <div
+              class="tooltip-grid"
+              :style="{
+                gridTemplateColumns: inputPlayerStatus.length > 6 ? '1fr 1fr' : '1fr',
+              }"
+            >
+              <div
+                v-for="player in inputPlayerStatus"
+                :key="player.id"
+                class="tooltip-row"
+              >
+                <span class="tooltip-name">{{ player.name }}</span>
+                <q-badge
+                  v-if="player.done"
+                  color="positive"
+                >
+                  {{ t('gameMode.simon.status.done') }}
+                </q-badge>
+                <q-badge
+                  v-else-if="player.failed"
+                  color="negative"
+                >
+                  {{ t('gameMode.simon.status.out') }}
+                </q-badge>
+                <q-badge
+                  v-else
+                  color="grey-5"
+                >
+                  {{ player.progress }}/{{ player.total }}
+                </q-badge>
+              </div>
+            </div>
+          </q-tooltip>
+        </span>
       </div>
 
-      <!-- Survivors during roundOver: summary + expandable list -->
+      <!-- Round over: same pattern as input phase — summary + hover for full list -->
       <div
         v-if="gameState.name === 'roundOver'"
-        class="column items-center q-gutter-xs"
+        class="row justify-center"
       >
-        <div class="row items-center q-gutter-sm">
-          <q-chip
-            icon="group"
-            color="positive"
-            text-color="white"
-            dense
-          >
-            {{
-              t('gameMode.simon.survived', {
-                n: gameState.survivors.length,
-                total: gameState.players.length,
-              })
-            }}
-          </q-chip>
-          <q-btn
-            flat
-            round
-            dense
-            size="sm"
-            :icon="showSurvivors ? 'expand_less' : 'expand_more'"
-            @click="showSurvivors = !showSurvivors"
-          />
-        </div>
-
-        <transition name="survivor-list">
-          <div
-            v-if="showSurvivors"
-            class="row justify-center q-gutter-xs"
-          >
-            <q-chip
-              v-for="id in gameState.survivors"
-              :key="id"
-              dense
+        <span class="cursor-help">
+          <div class="row q-gutter-xs items-center">
+            <q-badge
+              v-if="roundOverSummary.survived > 0"
               color="positive"
-              text-color="white"
-              icon="check"
             >
-              {{ gameState.playerNames[id] ?? id }}
-            </q-chip>
+              {{ t('gameMode.simon.summary.survived', { n: roundOverSummary.survived }) }}
+            </q-badge>
+            <q-badge
+              v-if="roundOverSummary.eliminated > 0"
+              color="negative"
+            >
+              {{ t('gameMode.simon.summary.eliminated', { n: roundOverSummary.eliminated }) }}
+            </q-badge>
           </div>
-        </transition>
+
+          <q-tooltip :delay="150">
+            <div
+              class="tooltip-grid"
+              :style="{
+                gridTemplateColumns: roundOverPlayerStatus.length > 6 ? '1fr 1fr' : '1fr',
+              }"
+            >
+              <div
+                v-for="player in roundOverPlayerStatus"
+                :key="player.id"
+                class="tooltip-row"
+              >
+                <span class="tooltip-name">{{ player.name }}</span>
+                <q-badge :color="player.survived ? 'positive' : 'negative'">
+                  {{
+                    player.survived
+                      ? t('gameMode.simon.status.done')
+                      : t('gameMode.simon.status.out')
+                  }}
+                </q-badge>
+              </div>
+            </div>
+          </q-tooltip>
+        </span>
       </div>
 
       <!-- Winner during gameOver -->
@@ -219,7 +242,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
@@ -443,10 +466,7 @@ onStateExit('input', () => {
 // Auto next round: kick off nextRound after a short delay when enabled
 let autoNextRoundTimeout: NodeJS.Timeout | null = null;
 
-const showSurvivors = ref(false);
-
 onStateEntry('roundOver', () => {
-  showSurvivors.value = false;
   if (simonSettings.value.autoNextRound) {
     autoNextRoundTimeout = setTimeout(() => {
       nextRound();
@@ -589,6 +609,32 @@ const inputPlayerStatus = computed(() => {
   });
 });
 
+const inputSummary = computed(() => {
+  let done = 0;
+  let out = 0;
+  for (const p of inputPlayerStatus.value) {
+    if (p.done) done++;
+    else if (p.failed) out++;
+  }
+  return { done, out, playing: inputPlayerStatus.value.length - done - out };
+});
+
+const roundOverPlayerStatus = computed(() => {
+  if (gameState.value.name !== 'roundOver') return [];
+  const s = gameState.value;
+  const survivorSet = new Set(s.survivors);
+  return s.players.map((id) => ({
+    id,
+    name: s.playerNames[id] ?? id,
+    survived: survivorSet.has(id),
+  }));
+});
+
+const roundOverSummary = computed(() => ({
+  survived: roundOverPlayerStatus.value.filter((p) => p.survived).length,
+  eliminated: roundOverPlayerStatus.value.filter((p) => !p.survived).length,
+}));
+
 const openSettings = () => {
   quasar.dialog({ component: SimonSettingsDialog });
 };
@@ -599,15 +645,28 @@ const openSettings = () => {
   width: min(240px, 80vw);
 }
 
-.survivor-list-enter-active,
-.survivor-list-leave-active {
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
+/* Tooltip player grid — switches to 2 columns when > 6 players (via inline style) */
+.tooltip-grid {
+  display: grid;
+  gap: 2px 16px;
+  min-width: 160px;
 }
-.survivor-list-enter-from,
-.survivor-list-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
+
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1px 0;
 }
+
+.tooltip-name {
+  font-size: 12px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 </style>

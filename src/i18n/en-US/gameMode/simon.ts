@@ -16,6 +16,14 @@ export default {
     out: 'Out',
   },
 
+  summary: {
+    done: '{n} done',
+    out: '{n} out',
+    playing: '{n} playing',
+    survived: '{n} survived',
+    eliminated: '{n} eliminated',
+  },
+
   action: {
     start: 'Start',
     nextRound: 'Next Round',

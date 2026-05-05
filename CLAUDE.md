@@ -30,7 +30,7 @@ BuzzMaster is an **Electron + Quasar + Vue 3** desktop app for hosting quiz show
 The app spawns two Electron `BrowserWindow` instances:
 
 - **Main window** (`/`) — the host's control interface
-- **Cast window** (`/cast`) — the audience-facing display (always-on-top, transparent frame)
+- **Cast window** (`/cast`) — the audience-facing display (non-interactive, always-on-top, transparent frame)
 
 Windows communicate via Electron IPC channels defined in `src-electron/castAPI/`. The main window sends game state updates; the cast window mirrors them and routes to the appropriate cast page. The cast window stores a snapshot of the last received data so it can replay it when a new cast window is opened (`cast:ready` event).
 

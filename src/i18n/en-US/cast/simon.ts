@@ -25,4 +25,8 @@ export default {
     done: 'Done',
     out: 'Out',
   },
+  progress: {
+    done: '{n} done',
+    out: '{n} out',
+  },
 };

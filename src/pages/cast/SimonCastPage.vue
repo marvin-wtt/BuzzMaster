@@ -116,25 +116,38 @@
               <timer-animated :time="remainingTime" />
             </div>
 
-            <!-- Player progress during input -->
+            <!-- Anonymous aggregate progress (no individual names) -->
             <div
-              v-if="playerProgress.length > 0"
-              class="players-grid"
+              v-if="anonymousProgress !== null"
+              class="anon-progress"
             >
-              <div
-                v-for="player in playerProgress"
-                :key="player.id"
-                class="player-row"
-                :class="player.statusClass"
-              >
-                <span class="player-label">{{ player.label }}</span>
-                <div class="player-track">
-                  <div
-                    class="player-fill"
-                    :style="{ width: player.pct + '%' }"
-                  />
-                </div>
-                <span class="player-info">{{ player.text }}</span>
+              <div class="anon-bar">
+                <div
+                  class="anon-seg anon-seg--done"
+                  :style="{ flex: anonymousProgress.done }"
+                />
+                <div
+                  class="anon-seg anon-seg--playing"
+                  :style="{ flex: anonymousProgress.playing }"
+                />
+                <div
+                  class="anon-seg anon-seg--out"
+                  :style="{ flex: anonymousProgress.out }"
+                />
+              </div>
+              <div class="anon-legend">
+                <span
+                  v-if="anonymousProgress.done > 0"
+                  class="anon-done"
+                >
+                  {{ t('cast.simon.progress.done', { n: anonymousProgress.done }) }}
+                </span>
+                <span
+                  v-if="anonymousProgress.out > 0"
+                  class="anon-out"
+                >
+                  {{ t('cast.simon.progress.out', { n: anonymousProgress.out }) }}
+                </span>
               </div>
             </div>
           </div>
@@ -221,32 +234,18 @@ const remainingTime = computed<number | null>(() => {
   return Math.max(0, s.timeLimit - (now.value - s.startTime) / 1000);
 });
 
-const playerProgress = computed(() => {
+// Anonymous aggregate — no individual names, just counts per status bucket
+const anonymousProgress = computed<{ done: number; out: number; playing: number } | null>(() => {
   const s = state.value;
-  if (!s || s.name !== 'input') return [];
-  return s.players.map((id, i) => {
+  if (!s || s.name !== 'input' || s.players.length === 0) return null;
+  let done = 0;
+  let out = 0;
+  for (const id of s.players) {
     const raw = s.inputIndex[id] ?? 0;
-    const failed = raw === -1;
-    const done = raw === s.sequence.length;
-    const progress = failed ? 0 : raw;
-    const pct = s.sequence.length > 0 ? (progress / s.sequence.length) * 100 : 0;
-    const name = s.playerNames[id];
-    return {
-      id,
-      label: name ?? `P${i + 1}`,
-      progress,
-      total: s.sequence.length,
-      failed,
-      done,
-      pct,
-      statusClass: done ? 'player--done' : failed ? 'player--failed' : 'player--active',
-      text: done
-        ? t('cast.simon.player.done')
-        : failed
-          ? t('cast.simon.player.out')
-          : `${progress}/${s.sequence.length}`,
-    };
-  });
+    if (raw === s.sequence.length) done++;
+    else if (raw === -1) out++;
+  }
+  return { done, out, playing: s.players.length - done - out };
 });
 
 const phaseLabel = computed<string>(() => {
@@ -320,19 +319,8 @@ const calloutKey = computed(() => {
 <style scoped>
 .cast-page {
   min-height: 100vh;
-  background:
-    radial-gradient(
-      1200px 700px at 25% 20%,
-      rgba(255, 255, 255, 0.06),
-      transparent 60%
-    ),
-    radial-gradient(
-      1000px 600px at 80% 30%,
-      rgba(255, 255, 255, 0.05),
-      transparent 55%
-    ),
-    linear-gradient(180deg, #07080b 0%, #0b0c12 55%, #07080b 100%);
-  color: rgba(255, 255, 255, 0.92);
+  /* No background override — inherits from Quasar theme so light mode and
+     transparent window mode both work correctly. */
 }
 
 .cast-wrap {
@@ -386,8 +374,8 @@ const calloutKey = computed(() => {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.05);
+  background: currentColor;
+  opacity: 0.55;
 }
 
 .phase-text {
@@ -544,72 +532,43 @@ const calloutKey = computed(() => {
   text-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-/* Player progress */
-.players-grid {
-  width: 100%;
-  max-width: 520px;
+/* Anonymous aggregate progress bar */
+.anon-progress {
+  width: min(420px, 70vw);
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.player-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 52px;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
-  transition:
-    background 250ms ease,
-    box-shadow 250ms ease,
-    opacity 250ms ease;
-}
-
-.player--done {
-  background: rgba(76, 175, 80, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(76, 175, 80, 0.3);
-}
-
-.player--failed {
-  opacity: 0.4;
-}
-
-.player-label {
-  font-weight: 700;
-  font-size: 14px;
-  white-space: nowrap;
+.anon-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(128, 128, 128, 0.2);
   overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.85;
+  display: flex;
 }
 
-.player-track {
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: hidden;
+.anon-seg {
+  transition: flex 200ms ease;
+  min-width: 0;
 }
 
-.player-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.65);
-  transition: width 150ms ease;
+.anon-seg--done    { background: rgba(76, 175, 80, 0.85); }
+.anon-seg--playing { background: transparent; }
+.anon-seg--out     { background: rgba(239, 83, 80, 0.75); }
+
+.anon-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: clamp(11px, 1.2vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
 }
 
-.player--done .player-fill {
-  background: #4caf50;
-}
-
-.player-info {
-  font-weight: 700;
-  font-size: 13px;
-  text-align: right;
-  opacity: 0.85;
-}
+.anon-done { color: #66bb6a; }
+.anon-out  { color: #ef5350; }
 
 /* Animations */
 @keyframes pulse {

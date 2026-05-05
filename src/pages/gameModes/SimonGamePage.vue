@@ -3,20 +3,21 @@
     class="row"
     padding
   >
-    <div class="col-12 column q-gutter-md no-wrap">
-      <div class="row justify-center q-gutter-sm">
-        <q-chip>
-          {{ t('gameMode.simon.round', { round: gameState.round }) }}
-        </q-chip>
-        <q-chip
-          v-if="gameState.name !== 'preparing' && gameState.name !== 'gameOver'"
-        >
-          {{ t('gameMode.simon.players', { n: gameState.players.length }) }}
-        </q-chip>
-      </div>
+    <div class="col-12 column no-wrap">
+      <!-- Content -->
+      <div class="col-grow column items-center justify-center q-gutter-sm">
+        <div class="row q-gutter-sm">
+          <q-chip>
+            {{ t('gameMode.simon.round', { round: gameState.round }) }}
+          </q-chip>
+          <q-chip
+            v-if="gameState.name !== 'preparing' && gameState.name !== 'gameOver'"
+          >
+            {{ t('gameMode.simon.players', { n: gameState.players.length }) }}
+          </q-chip>
+        </div>
 
-      <!-- 4 button visualization -->
-      <div class="row justify-center">
+        <!-- 4 button visualization -->
         <div class="simon-pad-wrap">
           <simon-pad
             v-if="gameState.name === 'showing'"
@@ -30,22 +31,18 @@
             :buttons="SIMON_BUTTONS"
           />
         </div>
-      </div>
 
-      <!-- Input timer -->
-      <div
-        v-if="gameState.name === 'input' && gameState.timeLimit > 0"
-        class="row justify-center"
-      >
-        <timer-animated :time="inputTimer" />
-      </div>
+        <!-- Input timer -->
+        <timer-animated
+          v-if="gameState.name === 'input' && gameState.timeLimit > 0"
+          :time="inputTimer"
+        />
 
-      <!-- Player status during input: summary badges, hover for per-player detail -->
-      <div
-        v-if="gameState.name === 'input'"
-        class="row justify-center"
-      >
-        <span class="cursor-help">
+        <!-- Player status during input: summary badges, hover for per-player detail -->
+        <span
+          v-if="gameState.name === 'input'"
+          class="cursor-help"
+        >
           <div class="row q-gutter-xs items-center">
             <q-badge
               v-if="inputSummary.done > 0"
@@ -102,14 +99,12 @@
             </div>
           </q-tooltip>
         </span>
-      </div>
 
-      <!-- Round over: same pattern as input phase — summary + hover for full list -->
-      <div
-        v-if="gameState.name === 'roundOver'"
-        class="row justify-center"
-      >
-        <span class="cursor-help">
+        <!-- Round over: same pattern as input phase — summary + hover for full list -->
+        <span
+          v-if="gameState.name === 'roundOver'"
+          class="cursor-help"
+        >
           <div class="row q-gutter-xs items-center">
             <q-badge
               v-if="roundOverSummary.survived > 0"
@@ -149,14 +144,12 @@
             </div>
           </q-tooltip>
         </span>
-      </div>
 
-      <!-- Winner during gameOver -->
-      <div
-        v-if="gameState.name === 'gameOver'"
-        class="row justify-center"
-      >
-        <div class="column items-center q-gutter-sm">
+        <!-- Winner during gameOver -->
+        <div
+          v-if="gameState.name === 'gameOver'"
+          class="column items-center q-gutter-sm"
+        >
           <div class="text-subtitle2 text-grey">
             {{ t('gameMode.simon.winner') }}
           </div>
@@ -179,13 +172,10 @@
       </div>
 
       <!-- Actions -->
-      <div class="row justify-center">
-        <!-- Preparing -->
-        <div
-          v-if="gameState.name === 'preparing'"
-          class="column q-gutter-sm justify-center"
-        >
+      <div class="col-4 column q-gutter-y-sm justify-center content-center">
+        <template v-if="gameState.name === 'preparing'">
           <q-btn
+            class="self-center"
             color="primary"
             rounded
             :label="t('gameMode.simon.action.start')"
@@ -193,35 +183,35 @@
             @click="start()"
           />
           <q-btn
+            class="self-center"
             outline
             rounded
             :label="t('gameMode.simon.action.settings')"
             @click="openSettings()"
           />
-        </div>
+        </template>
 
-        <!-- Round over -->
-        <div
-          v-else-if="gameState.name === 'roundOver'"
-          class="column q-gutter-sm justify-center"
-        >
+        <template v-else-if="gameState.name === 'roundOver'">
           <q-btn
+            class="self-center"
             color="primary"
             rounded
             :label="t('gameMode.simon.action.nextRound')"
             @click="nextRound()"
           />
           <q-btn
+            class="self-center"
             outline
             rounded
             :label="t('gameMode.simon.action.restart')"
             @click="restart()"
           />
-        </div>
+        </template>
 
         <!-- Input: require confirmation to restart -->
         <safe-delete-btn
           v-else-if="gameState.name === 'input'"
+          class="self-center"
           :label="t('gameMode.simon.action.restart')"
           outline
           rounded
@@ -231,6 +221,7 @@
         <!-- Showing / Game over -->
         <q-btn
           v-else
+          class="self-center"
           outline
           rounded
           :label="t('gameMode.simon.action.restart')"

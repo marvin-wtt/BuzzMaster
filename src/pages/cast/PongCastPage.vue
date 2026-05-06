@@ -1,5 +1,5 @@
 <template>
-  <q-page class="pong-cast-page">
+  <q-page class="pong-cast-page column justify-center">
     <pong-preparing-cast
       v-if="state.name === 'preparing'"
       :state="state"
@@ -23,9 +23,4 @@ const castStore = useCastStore();
 const state = computed<PongState>(() => castStore.gameState as PongState);
 </script>
 
-<style scoped>
-.pong-cast-page {
-  background: #0a0a1a;
-  min-height: 100vh;
-}
-</style>
+<style scoped></style>

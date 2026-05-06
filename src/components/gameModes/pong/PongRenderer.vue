@@ -2,6 +2,7 @@
   <div
     ref="wrapper"
     class="canvas-wrapper"
+    :class="{ 'full-width': fullWidth }"
   >
     <canvas
       ref="canvas"
@@ -22,12 +23,14 @@ const {
   renderSimTime,
   leftColor = '#2196f3',
   rightColor = '#ff9800',
+  fullWidth = false,
 } = defineProps<{
   frameA: StageFrame | null;
   frameB: StageFrame | null;
   renderSimTime: number;
   leftColor?: string;
   rightColor?: string;
+  fullWidth?: boolean;
 }>();
 
 const WIDTH = 800;
@@ -42,7 +45,9 @@ onMounted(() => {
   draw();
 });
 
-watch(() => [frameA?.tick, frameB?.tick, renderSimTime] as const, draw, { flush: 'sync' });
+watch(() => [frameA?.tick, frameB?.tick, renderSimTime] as const, draw, {
+  flush: 'sync',
+});
 
 function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
@@ -195,12 +200,19 @@ function roundRect(
 </script>
 
 <style scoped>
+/* Game page: constrained by both viewport width and height minus surrounding UI */
 .canvas-wrapper {
   width: min(90vw, calc((100vh - 180px) * 1.6), 800px);
   aspect-ratio: 8 / 5;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Cast window: fill viewport minus the 64px score header */
+.canvas-wrapper.full-width {
+  width: min(100vw, calc((100vh - 64px) * 1.6));
+  max-width: none;
 }
 
 .pong-canvas {

@@ -7,7 +7,7 @@
       class="preparing-layout q-pa-md"
     >
       <div class="text-center q-mb-md">
-        <div class="text-h5 text-weight-bold text-white">
+        <div class="text-h5 text-weight-bold">
           {{ t('gameMode.pong.setup.title') }}
         </div>
         <div class="text-caption text-grey-5 q-mt-xs">
@@ -15,17 +15,17 @@
         </div>
       </div>
 
-      <!-- Team headers -->
-      <div class="row q-mb-xs text-weight-bold text-caption q-px-sm">
+      <!-- Team column labels -->
+      <div class="row items-center q-mb-xs q-px-xs">
         <div
-          class="col text-left"
+          class="team-label text-caption text-weight-bold"
           style="color: #2196f3"
         >
           ◄ {{ t('gameMode.pong.team.left') }}
         </div>
         <div class="col-grow" />
         <div
-          class="col text-right"
+          class="team-label text-caption text-weight-bold"
           style="color: #ff9800"
         >
           {{ t('gameMode.pong.team.right') }} ►
@@ -41,16 +41,14 @@
         <q-item
           v-for="controller in controllers"
           :key="controller.id"
+          dense
           class="controller-item"
         >
-          <!-- Left button -->
-          <q-item-section
-            side
-            class="q-pr-sm"
-          >
+          <!-- Left toggle -->
+          <q-item-section side>
             <q-btn
-              :label="t('gameMode.pong.team.left')"
-              :flat="!gameState.left.controllerIds.includes(controller.id)"
+              label="L"
+              :unelevated="gameState.left.controllerIds.includes(controller.id)"
               :outline="!gameState.left.controllerIds.includes(controller.id)"
               :style="
                 gameState.left.controllerIds.includes(controller.id)
@@ -58,54 +56,29 @@
                   : 'color:#2196f3; border-color:#2196f3'
               "
               dense
-              rounded
+              round
               size="sm"
               @click="handleTeamClick(controller.id, 'left')"
             />
           </q-item-section>
 
-          <!-- Controller name + status chip -->
+          <!-- Controller name (color = assigned team) -->
           <q-item-section class="text-center">
-            <div class="text-weight-medium text-white">
+            <span
+              class="text-weight-medium"
+              :style="controllerNameStyle(controller.id)"
+            >
               {{ controller.name }}
-            </div>
-            <div class="text-caption q-mt-xs">
-              <q-chip
-                v-if="gameState.left.controllerIds.includes(controller.id)"
-                dense
-                size="xs"
-                style="background: #2196f3; color: white"
-              >
-                {{ t('gameMode.pong.team.left') }}
-              </q-chip>
-              <q-chip
-                v-else-if="gameState.right.controllerIds.includes(controller.id)"
-                dense
-                size="xs"
-                style="background: #ff9800; color: white"
-              >
-                {{ t('gameMode.pong.team.right') }}
-              </q-chip>
-              <q-chip
-                v-else
-                dense
-                size="xs"
-                color="grey-8"
-                text-color="grey-5"
-              >
-                —
-              </q-chip>
-            </div>
+            </span>
           </q-item-section>
 
-          <!-- Right button -->
-          <q-item-section
-            side
-            class="q-pl-sm"
-          >
+          <!-- Right toggle -->
+          <q-item-section side>
             <q-btn
-              :label="t('gameMode.pong.team.right')"
-              :flat="!gameState.right.controllerIds.includes(controller.id)"
+              label="R"
+              :unelevated="
+                gameState.right.controllerIds.includes(controller.id)
+              "
               :outline="!gameState.right.controllerIds.includes(controller.id)"
               :style="
                 gameState.right.controllerIds.includes(controller.id)
@@ -113,7 +86,7 @@
                   : 'color:#ff9800; border-color:#ff9800'
               "
               dense
-              rounded
+              round
               size="sm"
               @click="handleTeamClick(controller.id, 'right')"
             />
@@ -303,7 +276,7 @@ const BUFFER_MS = 70;
 let tick = 0;
 let simEpoch = 0;
 let accumulator = 0;
-let rafId: number = 0;
+let simIntervalId: ReturnType<typeof setInterval> | null = null;
 let lastWallNow = 0;
 
 const left: Team = reactive({
@@ -628,17 +601,24 @@ function stepOnce() {
   pushFrame(snapshotFrame());
 }
 
-function frameLoop(now: number) {
-  if (gameState.value.name !== 'running') return;
-  const elapsed = now - lastWallNow;
-  lastWallNow = now;
-  accumulator += elapsed;
+function startSimLoop() {
+  lastWallNow = performance.now();
+  simIntervalId = setInterval(() => {
+    const now = performance.now();
+    accumulator += now - lastWallNow;
+    lastWallNow = now;
+    while (accumulator >= DT_MS) {
+      stepOnce();
+      accumulator -= DT_MS;
+    }
+  }, Math.floor(DT_MS));
+}
 
-  while (accumulator >= DT_MS) {
-    stepOnce();
-    accumulator -= DT_MS;
+function stopSimLoop() {
+  if (simIntervalId !== null) {
+    clearInterval(simIntervalId);
+    simIntervalId = null;
   }
-  rafId = requestAnimationFrame(frameLoop);
 }
 
 // ── Transitions ──
@@ -664,7 +644,9 @@ const toggleTeamAssignment = transition(
     const wasInRight = state.right.controllerIds.includes(controllerId);
     const wasInSide = side === 'left' ? wasInLeft : wasInRight;
 
-    const leftIds = state.left.controllerIds.filter((id) => id !== controllerId);
+    const leftIds = state.left.controllerIds.filter(
+      (id) => id !== controllerId,
+    );
     const rightIds = state.right.controllerIds.filter(
       (id) => id !== controllerId,
     );
@@ -682,6 +664,19 @@ const toggleTeamAssignment = transition(
     };
   },
 );
+
+function controllerNameStyle(id: string): string {
+  if (gameState.value.name !== 'preparing') {
+    return '';
+  }
+  if (gameState.value.left.controllerIds.includes(id)) {
+    return 'color:#2196f3';
+  }
+  if (gameState.value.right.controllerIds.includes(id)) {
+    return 'color:#ff9800';
+  }
+  return '';
+}
 
 function handleTeamClick(controllerId: string, side: 'left' | 'right') {
   const state = gameState.value;
@@ -725,16 +720,13 @@ const reset = transition(
   },
 );
 
-const complete = transition(
-  'running',
-  (state: PongRunningState): PongEnded => {
-    return {
-      game: 'pong',
-      name: 'completed',
-      frame: state.frame ?? snapshotFrame(),
-    };
-  },
-);
+const complete = transition('running', (state: PongRunningState): PongEnded => {
+  return {
+    game: 'pong',
+    name: 'completed',
+    frame: state.frame ?? snapshotFrame(),
+  };
+});
 
 function completeMatch() {
   playGameOver();
@@ -759,11 +751,11 @@ onStateEntry('running', (state) => {
   lastWallNow = now;
   accumulator = 0;
 
-  rafId = requestAnimationFrame(frameLoop);
+  startSimLoop();
 });
 
 onStateExit('running', () => {
-  cancelAnimationFrame(rafId);
+  stopSimLoop();
 });
 
 onStateEntry('paused', () => {
@@ -781,7 +773,7 @@ onStateEntry('completed', () => {
 });
 
 function resetMatchInternals(opts: { keepScores: boolean }) {
-  cancelAnimationFrame(rafId);
+  stopSimLoop();
   tick = 0;
   wallSoundCooldown = 0;
   frames.splice(0, frames.length);
@@ -803,7 +795,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  cancelAnimationFrame(rafId);
+  stopSimLoop();
   audioCtx?.close().catch(() => {});
   controllers.value.forEach((c) => c.setLight(false));
 });
@@ -819,18 +811,21 @@ onUnmounted(() => {
 .preparing-layout {
   display: flex;
   flex-direction: column;
-  max-width: 480px;
+  max-width: 420px;
   width: 100%;
   margin: 0 auto;
 }
 
+.team-label {
+  min-width: 48px;
+}
+
 .controller-list {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 
 .controller-item {
-  min-height: 64px;
+  min-height: 52px;
 }
 
 .game-layout {

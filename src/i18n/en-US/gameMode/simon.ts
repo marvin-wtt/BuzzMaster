@@ -45,6 +45,7 @@ export default {
         veryFast: 'Very Fast',
       },
       autoNextRound: 'Auto next round',
+      lastManStanding: 'Last man standing',
     },
 
     action: {

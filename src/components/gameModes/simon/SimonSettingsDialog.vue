@@ -8,7 +8,9 @@
       style="max-width: 20rem"
     >
       <q-card-section>
-        <span class="text-h5">{{ t('gameMode.simon.settings.title') }}</span>
+        <span class="text-h5">
+          {{ t('gameMode.simon.settings.title') }}
+        </span>
       </q-card-section>
 
       <q-card-section>
@@ -19,7 +21,11 @@
           <q-input
             v-model.number="settings.answerTime"
             :label="t('gameMode.simon.settings.field.answerTime')"
-            :hint="settings.answerTime === 0 ? t('gameMode.simon.settings.field.answerTimeDisabled') : ''"
+            :hint="
+              settings.answerTime === 0
+                ? t('gameMode.simon.settings.field.answerTimeDisabled')
+                : ''
+            "
             type="number"
             :rules="[(val: number) => val >= 0 || '≥ 0']"
             hide-bottom-space
@@ -48,6 +54,11 @@
           <q-toggle
             v-model="settings.autoNextRound"
             :label="t('gameMode.simon.settings.field.autoNextRound')"
+          />
+
+          <q-toggle
+            v-model="settings.lastManStanding"
+            :label="t('gameMode.simon.settings.field.lastManStanding')"
           />
         </q-form>
       </q-card-section>
@@ -83,10 +94,22 @@ const settings = ref<SimonSettings>(
 );
 
 const speedOptions = [
-  { label: t('gameMode.simon.settings.field.showingSpeedOption.slow'), value: 0.5 },
-  { label: t('gameMode.simon.settings.field.showingSpeedOption.normal'), value: 1 },
-  { label: t('gameMode.simon.settings.field.showingSpeedOption.fast'), value: 2 },
-  { label: t('gameMode.simon.settings.field.showingSpeedOption.veryFast'), value: 3 },
+  {
+    label: t('gameMode.simon.settings.field.showingSpeedOption.slow'),
+    value: 0.5,
+  },
+  {
+    label: t('gameMode.simon.settings.field.showingSpeedOption.normal'),
+    value: 1,
+  },
+  {
+    label: t('gameMode.simon.settings.field.showingSpeedOption.fast'),
+    value: 2,
+  },
+  {
+    label: t('gameMode.simon.settings.field.showingSpeedOption.veryFast'),
+    value: 3,
+  },
 ];
 
 const onOk = async () => {

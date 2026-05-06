@@ -254,7 +254,10 @@ import { useBuzzer } from 'src/plugins/buzzer';
 import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
-import type { SimonState } from 'app/common/gameState/SimonState';
+import type {
+  SimonInputState,
+  SimonState,
+} from 'app/common/gameState/SimonState';
 import { useControllerFlasher } from 'src/composables/controllerFlasher';
 import SimonPad from 'components/gameModes/SimonPad.vue';
 import SimonSettingsDialog from 'components/gameModes/simon/SimonSettingsDialog.vue';
@@ -403,7 +406,7 @@ onStateExit('showing', clearHighlightTimeouts);
 
 const updateHighlight = transition('showing', (state) => {
   if (state.stepIndex >= state.sequence.length && state.showing === false) {
-    const INITIAL_TIME_S = 2;
+    const INITIAL_TIME_S = 5;
     const timeLimit =
       INITIAL_TIME_S + simonSettings.value.answerTime * state.sequence.length;
 
@@ -505,20 +508,30 @@ onUnmounted(() => {
   if (autoNextRoundTimeout) clearTimeout(autoNextRoundTimeout);
 });
 
-const resolveWinner = (
-  state: { playerNames: Record<string, string> },
-  id: string | undefined,
-) => {
-  if (!id) return undefined;
+const resolveWinner = (state: SimonInputState, id: string | undefined) => {
+  if (!id) {
+    if (state.players.length > 1 || !simonSettings.value.lastManStanding) {
+      return undefined;
+    }
+
+    // If only one player was playing and lastManStanding is enabled, consider them the winner even if they failed on the last round
+    id = state.players[0]!;
+  }
+
   return state.playerNames[id] ?? id;
 };
+
+const isGameOver = (survivorCount: number) =>
+  simonSettings.value.lastManStanding
+    ? survivorCount === 0
+    : survivorCount <= 1;
 
 const onInputTimeout = transition('input', (state) => {
   const survivors = state.players.filter(
     (p) => (state.inputIndex[p] ?? 0) === state.sequence.length,
   );
 
-  if (survivors.length <= 1) {
+  if (isGameOver(survivors.length)) {
     return {
       game: 'simon',
       name: 'gameOver',
@@ -590,7 +603,7 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
       return progress === state.sequence.length;
     });
 
-    if (survivors.length <= 1) {
+    if (isGameOver(survivors.length)) {
       return {
         game: 'simon',
         name: 'gameOver',

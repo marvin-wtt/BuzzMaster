@@ -39,6 +39,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     answerTime: 1,
     showingSpeed: 1,
     autoNextRound: false,
+    lastManStanding: false,
   });
 
   const stopwatchSettings = ref<StopwatchSettings>({

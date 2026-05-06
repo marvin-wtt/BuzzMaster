@@ -58,7 +58,11 @@
             class="winner-hero"
           >
             <div class="winner-label">
-              {{ winnerName ? t('cast.simon.callout.winner') : t('cast.simon.callout.gameOver') }}
+              {{
+                winnerName
+                  ? t('cast.simon.callout.winner')
+                  : t('cast.simon.callout.gameOver')
+              }}
             </div>
             <div
               v-if="winnerName"
@@ -140,13 +144,17 @@
                   v-if="anonymousProgress.done > 0"
                   class="anon-done"
                 >
-                  {{ t('cast.simon.progress.done', { n: anonymousProgress.done }) }}
+                  {{
+                    t('cast.simon.progress.done', { n: anonymousProgress.done })
+                  }}
                 </span>
                 <span
                   v-if="anonymousProgress.out > 0"
                   class="anon-out"
                 >
-                  {{ t('cast.simon.progress.out', { n: anonymousProgress.out }) }}
+                  {{
+                    t('cast.simon.progress.out', { n: anonymousProgress.out })
+                  }}
                 </span>
               </div>
             </div>
@@ -235,7 +243,11 @@ const remainingTime = computed<number | null>(() => {
 });
 
 // Anonymous aggregate — no individual names, just counts per status bucket
-const anonymousProgress = computed<{ done: number; out: number; playing: number } | null>(() => {
+const anonymousProgress = computed<{
+  done: number;
+  out: number;
+  playing: number;
+} | null>(() => {
   const s = state.value;
   if (!s || s.name !== 'input' || s.players.length === 0) return null;
   let done = 0;
@@ -253,11 +265,16 @@ const phaseLabel = computed<string>(() => {
   if (!s) return t('cast.simon.phase.unknown');
 
   switch (s.name) {
-    case 'preparing': return t('cast.simon.phase.preparing');
-    case 'showing':   return t('cast.simon.phase.showing');
-    case 'input':     return t('cast.simon.phase.input');
-    case 'roundOver': return t('cast.simon.phase.roundOver');
-    case 'gameOver':  return t('cast.simon.phase.gameOver');
+    case 'preparing':
+      return t('cast.simon.phase.preparing');
+    case 'showing':
+      return t('cast.simon.phase.showing');
+    case 'input':
+      return t('cast.simon.phase.input');
+    case 'roundOver':
+      return t('cast.simon.phase.roundOver');
+    case 'gameOver':
+      return t('cast.simon.phase.gameOver');
   }
 
   // @ts-expect-error: exhaustive
@@ -274,11 +291,18 @@ const calloutText = computed(() => {
   if (!s) return t('cast.simon.callout.waiting');
 
   switch (s.name) {
-    case 'preparing': return t('cast.simon.callout.preparing');
-    case 'showing':   return t('cast.simon.callout.showing');
-    case 'input':     return t('cast.simon.callout.input');
-    case 'roundOver': return t('cast.simon.callout.roundOver');
-    case 'gameOver':  return s.winner ? t('cast.simon.callout.winner') : t('cast.simon.callout.gameOver');
+    case 'preparing':
+      return t('cast.simon.callout.preparing');
+    case 'showing':
+      return t('cast.simon.callout.showing');
+    case 'input':
+      return t('cast.simon.callout.input');
+    case 'roundOver':
+      return t('cast.simon.callout.roundOver');
+    case 'gameOver':
+      return s.winner
+        ? t('cast.simon.callout.winner')
+        : t('cast.simon.callout.gameOver');
   }
 
   // @ts-expect-error: exhaustive
@@ -289,7 +313,13 @@ const calloutText = computed(() => {
 // and not during gameOver (winner hero shown)
 const playerCount = computed<number | null>(() => {
   const s = state.value;
-  if (!s || s.name === 'preparing' || s.name === 'roundOver' || s.name === 'gameOver') return null;
+  if (
+    !s ||
+    s.name === 'preparing' ||
+    s.name === 'roundOver' ||
+    s.name === 'gameOver'
+  )
+    return null;
   return s.players.length;
 });
 
@@ -446,7 +476,8 @@ const calloutKey = computed(() => {
 }
 
 @keyframes winner-glow {
-  0%, 100% {
+  0%,
+  100% {
     text-shadow:
       0 0 60px rgba(255, 255, 255, 0.3),
       0 20px 60px rgba(0, 0, 0, 0.7);
@@ -553,9 +584,15 @@ const calloutKey = computed(() => {
   min-width: 0;
 }
 
-.anon-seg--done    { background: rgba(76, 175, 80, 0.85); }
-.anon-seg--playing { background: transparent; }
-.anon-seg--out     { background: rgba(239, 83, 80, 0.75); }
+.anon-seg--done {
+  background: rgba(76, 175, 80, 0.85);
+}
+.anon-seg--playing {
+  background: transparent;
+}
+.anon-seg--out {
+  background: rgba(239, 83, 80, 0.75);
+}
 
 .anon-legend {
   display: flex;
@@ -567,12 +604,17 @@ const calloutKey = computed(() => {
   opacity: 0.7;
 }
 
-.anon-done { color: #66bb6a; }
-.anon-out  { color: #ef5350; }
+.anon-done {
+  color: #66bb6a;
+}
+.anon-out {
+  color: #ef5350;
+}
 
 /* Animations */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.05);
   }

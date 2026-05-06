@@ -36,7 +36,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
   });
 
   const simonSettings = ref<SimonSettings>({
-    answerTime: 10,
+    answerTime: 1,
     showingSpeed: 1,
     autoNextRound: false,
   });

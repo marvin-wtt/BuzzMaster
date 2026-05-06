@@ -11,7 +11,9 @@
             {{ t('gameMode.simon.round', { round: gameState.round }) }}
           </q-chip>
           <q-chip
-            v-if="gameState.name !== 'preparing' && gameState.name !== 'gameOver'"
+            v-if="
+              gameState.name !== 'preparing' && gameState.name !== 'gameOver'
+            "
           >
             {{ t('gameMode.simon.players', { n: gameState.players.length }) }}
           </q-chip>
@@ -39,7 +41,7 @@
         />
 
         <!-- Player status during input: summary badges, hover for per-player detail -->
-        <span
+        <div
           v-if="gameState.name === 'input'"
           class="cursor-help"
         >
@@ -60,7 +62,9 @@
               v-if="inputSummary.playing > 0"
               color="grey-7"
             >
-              {{ t('gameMode.simon.summary.playing', { n: inputSummary.playing }) }}
+              {{
+                t('gameMode.simon.summary.playing', { n: inputSummary.playing })
+              }}
             </q-badge>
           </div>
 
@@ -68,7 +72,8 @@
             <div
               class="tooltip-grid"
               :style="{
-                gridTemplateColumns: inputPlayerStatus.length > 6 ? '1fr 1fr' : '1fr',
+                gridTemplateColumns:
+                  inputPlayerStatus.length > 6 ? '1fr 1fr' : '1fr',
               }"
             >
               <div
@@ -98,10 +103,10 @@
               </div>
             </div>
           </q-tooltip>
-        </span>
+        </div>
 
         <!-- Round over: same pattern as input phase — summary + hover for full list -->
-        <span
+        <div
           v-if="gameState.name === 'roundOver'"
           class="cursor-help"
         >
@@ -110,13 +115,21 @@
               v-if="roundOverSummary.survived > 0"
               color="positive"
             >
-              {{ t('gameMode.simon.summary.survived', { n: roundOverSummary.survived }) }}
+              {{
+                t('gameMode.simon.summary.survived', {
+                  n: roundOverSummary.survived,
+                })
+              }}
             </q-badge>
             <q-badge
               v-if="roundOverSummary.eliminated > 0"
               color="negative"
             >
-              {{ t('gameMode.simon.summary.eliminated', { n: roundOverSummary.eliminated }) }}
+              {{
+                t('gameMode.simon.summary.eliminated', {
+                  n: roundOverSummary.eliminated,
+                })
+              }}
             </q-badge>
           </div>
 
@@ -124,7 +137,8 @@
             <div
               class="tooltip-grid"
               :style="{
-                gridTemplateColumns: roundOverPlayerStatus.length > 6 ? '1fr 1fr' : '1fr',
+                gridTemplateColumns:
+                  roundOverPlayerStatus.length > 6 ? '1fr 1fr' : '1fr',
               }"
             >
               <div
@@ -143,7 +157,7 @@
               </div>
             </div>
           </q-tooltip>
-        </span>
+        </div>
 
         <!-- Winner during gameOver -->
         <div
@@ -237,7 +251,7 @@ import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
-import { BuzzerButton, type ButtonEvent } from 'src/plugins/buzzer/types';
+import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
 import { useGameState } from 'src/composables/gameState';
 import { useTimer } from 'src/composables/timer';
 import type { SimonState } from 'app/common/gameState/SimonState';
@@ -320,7 +334,9 @@ onStateEntry('preparing', async () => {
 
 const start = transition('preparing', () => {
   const players = controllers.value.map((c) => c.id);
-  const playerNames = Object.fromEntries(controllers.value.map((c) => [c.id, c.name]));
+  const playerNames = Object.fromEntries(
+    controllers.value.map((c) => [c.id, c.name]),
+  );
 
   const first = randomSimonButton();
   return {
@@ -387,7 +403,9 @@ onStateExit('showing', clearHighlightTimeouts);
 
 const updateHighlight = transition('showing', (state) => {
   if (state.stepIndex >= state.sequence.length && state.showing === false) {
-    const timeLimit = simonSettings.value.answerTime + state.sequence.length;
+    const INITIAL_TIME_S = 2;
+    const timeLimit =
+      INITIAL_TIME_S + simonSettings.value.answerTime * state.sequence.length;
 
     return {
       game: 'simon',
@@ -438,7 +456,18 @@ const getButtonAudio = (button: BuzzerButton) => {
 
 const playButtonSound = (button: BuzzerButton) => {
   const sound = getButtonAudio(button);
-  void sound?.play();
+
+  if (!sound) {
+    return;
+  }
+
+  const SOUND_SPEED_FACTOR = 0.6;
+  sound.playbackRate = Math.max(
+    simonSettings.value.showingSpeed * SOUND_SPEED_FACTOR,
+    1,
+  );
+
+  void sound.play();
 };
 
 onStateEntry('input', (state) => {
@@ -476,7 +505,10 @@ onUnmounted(() => {
   if (autoNextRoundTimeout) clearTimeout(autoNextRoundTimeout);
 });
 
-const resolveWinner = (state: { playerNames: Record<string, string> }, id: string | undefined) => {
+const resolveWinner = (
+  state: { playerNames: Record<string, string> },
+  id: string | undefined,
+) => {
   if (!id) return undefined;
   return state.playerNames[id] ?? id;
 };
@@ -658,6 +690,4 @@ const openSettings = () => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-
 </style>

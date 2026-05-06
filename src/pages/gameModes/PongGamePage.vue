@@ -1,48 +1,128 @@
 <!-- PongGamePage.vue -->
 <template>
-  <q-page>
+  <q-page class="pong-page">
+    <!-- ── Preparing ── -->
     <div
       v-if="gameState.name === 'preparing'"
-      class="column"
+      class="preparing-layout q-pa-md"
     >
-      <q-list separator>
+      <div class="text-center q-mb-md">
+        <div class="text-h5 text-weight-bold text-white">
+          {{ t('gameMode.pong.setup.title') }}
+        </div>
+        <div class="text-caption text-grey-5 q-mt-xs">
+          {{ t('gameMode.pong.setup.hint') }}
+        </div>
+      </div>
+
+      <!-- Team headers -->
+      <div class="row q-mb-xs text-weight-bold text-caption q-px-sm">
+        <div
+          class="col text-left"
+          style="color: #2196f3"
+        >
+          ◄ {{ t('gameMode.pong.team.left') }}
+        </div>
+        <div class="col-grow" />
+        <div
+          class="col text-right"
+          style="color: #ff9800"
+        >
+          {{ t('gameMode.pong.team.right') }} ►
+        </div>
+      </div>
+
+      <!-- Controller list -->
+      <q-list
+        bordered
+        rounded
+        class="controller-list q-mb-md"
+      >
         <q-item
           v-for="controller in controllers"
           :key="controller.id"
+          class="controller-item"
         >
-          <q-item-section class="col-shrink">
+          <!-- Left button -->
+          <q-item-section
+            side
+            class="q-pr-sm"
+          >
             <q-btn
-              label="L"
+              :label="t('gameMode.pong.team.left')"
+              :flat="!gameState.left.controllerIds.includes(controller.id)"
               :outline="!gameState.left.controllerIds.includes(controller.id)"
-              :color="
+              :style="
                 gameState.left.controllerIds.includes(controller.id)
-                  ? 'primary'
-                  : undefined
+                  ? 'background:#2196f3; color:white'
+                  : 'color:#2196f3; border-color:#2196f3'
               "
-              round
-              @click="toggleTeamAssignment(controller.id, 'left')"
+              dense
+              rounded
+              size="sm"
+              @click="handleTeamClick(controller.id, 'left')"
             />
           </q-item-section>
-          <q-item-section class="col-grow text-center">
-            {{ controller.name }}
+
+          <!-- Controller name + status chip -->
+          <q-item-section class="text-center">
+            <div class="text-weight-medium text-white">
+              {{ controller.name }}
+            </div>
+            <div class="text-caption q-mt-xs">
+              <q-chip
+                v-if="gameState.left.controllerIds.includes(controller.id)"
+                dense
+                size="xs"
+                style="background: #2196f3; color: white"
+              >
+                {{ t('gameMode.pong.team.left') }}
+              </q-chip>
+              <q-chip
+                v-else-if="gameState.right.controllerIds.includes(controller.id)"
+                dense
+                size="xs"
+                style="background: #ff9800; color: white"
+              >
+                {{ t('gameMode.pong.team.right') }}
+              </q-chip>
+              <q-chip
+                v-else
+                dense
+                size="xs"
+                color="grey-8"
+                text-color="grey-5"
+              >
+                —
+              </q-chip>
+            </div>
           </q-item-section>
-          <q-item-section class="col-shrink">
+
+          <!-- Right button -->
+          <q-item-section
+            side
+            class="q-pl-sm"
+          >
             <q-btn
-              label="R"
+              :label="t('gameMode.pong.team.right')"
+              :flat="!gameState.right.controllerIds.includes(controller.id)"
               :outline="!gameState.right.controllerIds.includes(controller.id)"
-              :color="
+              :style="
                 gameState.right.controllerIds.includes(controller.id)
-                  ? 'primary'
-                  : undefined
+                  ? 'background:#ff9800; color:white'
+                  : 'color:#ff9800; border-color:#ff9800'
               "
-              round
-              @click="toggleTeamAssignment(controller.id, 'right')"
+              dense
+              rounded
+              size="sm"
+              @click="handleTeamClick(controller.id, 'right')"
             />
           </q-item-section>
         </q-item>
       </q-list>
 
-      <div>
+      <!-- Start button -->
+      <div class="row justify-center q-mt-sm">
         <q-btn
           :label="t('gameMode.pong.action.start')"
           :disable="
@@ -51,68 +131,117 @@
           "
           color="primary"
           rounded
+          unelevated
+          size="md"
           data-testid="btn-start"
           @click="start()"
         />
       </div>
+
+      <div
+        v-if="
+          gameState.left.controllerIds.length === 0 ||
+          gameState.right.controllerIds.length === 0
+        "
+        class="text-caption text-grey-5 text-center q-mt-sm"
+      >
+        {{ t('gameMode.pong.setup.startHint') }}
+      </div>
     </div>
 
+    <!-- ── Running / Paused / Completed ── -->
     <div
       v-else
-      class="column items-center text-white q-pa-sm"
+      class="game-layout column items-center q-pa-sm"
     >
-      {{ ball.speed }}
-      <div class="relative-position">
+      <!-- Canvas + overlay wrapper -->
+      <div class="relative-position canvas-container">
         <pong-renderer
           :frameA="interp.frameA ?? null"
           :frameB="interp.frameB ?? null"
           :renderSimTime="interp.renderSimTime"
-          :width="WIDTH"
-          :height="HEIGHT"
+          leftColor="#2196f3"
+          rightColor="#ff9800"
         />
 
-        <!-- Overlay -->
-        <div
-          v-if="showOverlay"
-          class="absolute-full flex flex-center bg-black bg-opacity-70 text-h5 text-weight-medium"
-        >
-          {{ overlayText }}
+        <!-- State overlay -->
+        <transition name="fade">
+          <div
+            v-if="showOverlay"
+            class="absolute-full flex flex-center overlay-bg"
+          >
+            <div class="text-center">
+              <div class="overlay-text">{{ overlayText }}</div>
+              <div
+                v-if="gameState.name === 'completed'"
+                class="winner-text q-mt-sm"
+              >
+                {{ winnerText }}
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Controls hint -->
+      <div class="controls-hint row q-gutter-lg q-mt-sm justify-center">
+        <div class="row items-center q-gutter-xs">
+          <q-badge
+            style="background: #2196f3"
+            rounded
+          />
+          <span class="text-caption text-grey-4">
+            {{ t('gameMode.pong.team.left') }}
+          </span>
+        </div>
+        <div class="text-caption text-grey-6">
+          {{ t('gameMode.pong.controls.upButtons') }} = ↑ &nbsp;
+          {{ t('gameMode.pong.controls.downButtons') }} = ↓
+        </div>
+        <div class="row items-center q-gutter-xs">
+          <q-badge
+            style="background: #ff9800"
+            rounded
+          />
+          <span class="text-caption text-grey-4">
+            {{ t('gameMode.pong.team.right') }}
+          </span>
         </div>
       </div>
 
-      <div class="text-grey-5 text-center q-mt-md">
-        <div>Controls via buzzers (BLUE/ORANGE = Up, GREEN/YELLOW = Down)</div>
-      </div>
-
-      <div class="row q-gutter-sm q-mt-md">
+      <!-- Action buttons -->
+      <div class="row q-gutter-sm q-mt-sm justify-center">
         <q-btn
           v-if="gameState.name === 'completed'"
           color="primary"
-          label="Restart Game"
+          :label="t('gameMode.pong.action.restart')"
           rounded
+          unelevated
           data-testid="btn-start"
           @click="start()"
         />
         <q-btn
           v-else-if="gameState.name === 'running'"
           color="primary"
-          label="Pause Game"
+          :label="t('gameMode.pong.action.pause')"
           rounded
+          unelevated
           data-testid="btn-pause"
           @click="pause()"
         />
         <q-btn
           v-else-if="gameState.name === 'paused'"
           color="primary"
-          label="Resume"
+          :label="t('gameMode.pong.action.resume')"
           rounded
+          unelevated
           data-testid="btn-resume"
           @click="resume()"
         />
         <q-btn
           flat
           color="grey-5"
-          label="Reset"
+          :label="t('gameMode.pong.action.reset')"
           rounded
           data-testid="btn-reset"
           @click="reset()"
@@ -164,22 +293,19 @@ const PADDLE_HEIGHT = 100;
 const PADDLE_SPEED = 4;
 const BALL_START_SPEED = 1;
 const MAX_BALL_SPEED = 12;
-const MAX_BOUNCE_ANGLE = Math.PI / 4; // 45°
-const TARGET_SCORE = 7; // end a match at this score
+const MAX_BOUNCE_ANGLE = Math.PI / 4;
+const TARGET_SCORE = 7;
 
-/** Timing: fixed-step sim at 120 Hz; render with small delay for interpolation */
 const SIM_HZ = 120;
-const DT_MS = 1000 / SIM_HZ; // ~8.33 ms
-const BUFFER_MS = 70; // render “behind” latest sim time
+const DT_MS = 1000 / SIM_HZ;
+const BUFFER_MS = 70;
 
-/** Authoritative sim state (local-only; mirrored to gameState via frames) */
 let tick = 0;
-let simEpoch = 0; // wall clock ms when sim started
+let simEpoch = 0;
 let accumulator = 0;
 let rafId: number = 0;
 let lastWallNow = 0;
 
-/** Teams & Ball (reactive so renderer can watch) */
 const left: Team = reactive({
   controllerIds: [],
   score: 0,
@@ -213,15 +339,98 @@ const ball: Ball = reactive({
   speed: BALL_START_SPEED,
 });
 
-/** UI overlay */
-const showOverlay = ref(true);
-const overlayText = ref('Click Start');
+const showOverlay = ref(false);
+const overlayText = ref('');
+const winnerText = ref('');
 
-/** Interpolation buffer (ring) */
 const frames: StageFrame[] = reactive([]);
 const MAX_FRAMES = 256;
 
-/** --- Frame helpers --- */
+// ── Web Audio sounds ──
+let audioCtx: AudioContext | null = null;
+
+function getAudioCtx(): AudioContext {
+  if (!audioCtx) audioCtx = new AudioContext();
+  return audioCtx;
+}
+
+function playPaddleHit() {
+  try {
+    const c = getAudioCtx();
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.type = 'square';
+    osc.frequency.value = 480;
+    g.gain.setValueAtTime(0.12, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06);
+    osc.start(c.currentTime);
+    osc.stop(c.currentTime + 0.06);
+  } catch {
+    // ignore audio errors
+  }
+}
+
+function playWallHit() {
+  try {
+    const c = getAudioCtx();
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.connect(g);
+    g.connect(c.destination);
+    osc.type = 'square';
+    osc.frequency.value = 240;
+    g.gain.setValueAtTime(0.08, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.05);
+    osc.start(c.currentTime);
+    osc.stop(c.currentTime + 0.05);
+  } catch {
+    // ignore audio errors
+  }
+}
+
+function playScore() {
+  try {
+    const c = getAudioCtx();
+    [440, 550, 660].forEach((freq, i) => {
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.connect(g);
+      g.connect(c.destination);
+      osc.frequency.value = freq;
+      const st = c.currentTime + i * 0.1;
+      g.gain.setValueAtTime(0.18, st);
+      g.gain.exponentialRampToValueAtTime(0.001, st + 0.15);
+      osc.start(st);
+      osc.stop(st + 0.15);
+    });
+  } catch {
+    // ignore audio errors
+  }
+}
+
+function playGameOver() {
+  try {
+    const c = getAudioCtx();
+    [660, 550, 440, 330].forEach((freq, i) => {
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.connect(g);
+      g.connect(c.destination);
+      osc.frequency.value = freq;
+      const st = c.currentTime + i * 0.18;
+      g.gain.setValueAtTime(0.22, st);
+      g.gain.exponentialRampToValueAtTime(0.001, st + 0.22);
+      osc.start(st);
+      osc.stop(st + 0.22);
+    });
+  } catch {
+    // ignore audio errors
+  }
+}
+
+// ── Frame helpers ──
 function snapshotFrame(): StageFrame {
   return {
     tick,
@@ -240,16 +449,13 @@ const updateRunningFrame = transition(
 );
 
 function pushFrame(frame: StageFrame) {
-  // mirror into state machine
   updateRunningFrame(frame);
-
   frames.push(frame);
   while (frames.length > MAX_FRAMES) {
     frames.shift();
   }
 }
 
-/** Interp selection for renderer */
 const interp = computed(() => {
   const now = performance.now();
   const renderSimTime = Math.max(0, now - simEpoch - BUFFER_MS);
@@ -271,15 +477,32 @@ const interp = computed(() => {
   return { frameA: A, frameB: B, renderSimTime };
 });
 
-/** Utils */
+// ── Utils ──
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
-/** Visual feedback on scoring */
+// LED blink: 1 pulse = left, 2 pulses = right
+function blinkForTeam(controllerId: string, side: 'left' | 'right') {
+  const c = controllers.value.find((x) => x.id === controllerId);
+  if (!c) return;
+
+  const pulses = side === 'left' ? 1 : 2;
+  let step = 0;
+  const totalSteps = pulses * 2; // on + off per pulse
+
+  const iv = setInterval(() => {
+    c.setLight(step % 2 === 0);
+    step++;
+    if (step >= totalSteps) {
+      clearInterval(iv);
+      c.setLight(false);
+    }
+  }, 200);
+}
+
 function flashControllers(controllerIds: string[]) {
   const cs = controllers.value.filter((c) => controllerIds.includes(c.id));
-
   let toggle = true;
   let count = 5;
   const interval = setInterval(() => {
@@ -293,7 +516,7 @@ function flashControllers(controllerIds: string[]) {
   }, 150);
 }
 
-/** Mechanics */
+// ── Mechanics ──
 function resetBall() {
   ball.x = WIDTH / 2;
   ball.y = HEIGHT / 2;
@@ -311,7 +534,6 @@ function getTeamAction(team: Team) {
       const up = c.buttons[BuzzerButton.BLUE] || c.buttons[BuzzerButton.ORANGE];
       const down =
         c.buttons[BuzzerButton.GREEN] || c.buttons[BuzzerButton.YELLOW];
-
       return up && !down ? -1 : down && !up ? 1 : 0;
     })
     .map((v) => v / team.controllerIds.length)
@@ -326,7 +548,6 @@ function applyInput() {
 }
 
 function handlePaddleBounce(p: Paddle, isLeft: boolean) {
-  // Position correction
   if (isLeft) {
     ball.x = p.x + p.width + ball.radius;
   } else {
@@ -334,20 +555,22 @@ function handlePaddleBounce(p: Paddle, isLeft: boolean) {
   }
 
   const pCenter = p.y + p.height / 2;
-  const collide = (ball.y - pCenter) / (p.height / 2); // [-1..1]
+  const collide = (ball.y - pCenter) / (p.height / 2);
   const angle = MAX_BOUNCE_ANGLE * clamp(collide, -1, 1);
   const direction = isLeft ? 1 : -1;
 
   ball.speed = Math.min(ball.speed * 1.05, MAX_BALL_SPEED);
   ball.vx = direction * ball.speed * Math.cos(angle);
   ball.vy = ball.speed * Math.sin(angle);
+
+  playPaddleHit();
 }
 
-/** One fixed-step tick */
+let wallSoundCooldown = 0;
+
 function stepOnce() {
   applyInput();
 
-  // Integrate
   ball.x += ball.vx;
   ball.y += ball.vy;
 
@@ -355,6 +578,10 @@ function stepOnce() {
   if (ball.y - ball.radius < 0 || ball.y + ball.radius > HEIGHT) {
     ball.vy *= -1;
     ball.y = clamp(ball.y, ball.radius, HEIGHT - ball.radius);
+    if (tick > wallSoundCooldown) {
+      playWallHit();
+      wallSoundCooldown = tick + 4;
+    }
   }
 
   // Left paddle
@@ -382,30 +609,27 @@ function stepOnce() {
   // Scoring
   if (ball.x < 0) {
     right.score++;
+    playScore();
     flashControllers(right.controllerIds);
     resetBall();
   } else if (ball.x > WIDTH) {
     left.score++;
+    playScore();
     flashControllers(left.controllerIds);
     resetBall();
   }
 
-  // End condition
   if (left.score >= TARGET_SCORE || right.score >= TARGET_SCORE) {
     completeMatch();
-    return; // stop ticking; state exit will cancel RAF
+    return;
   }
 
-  // Bookkeeping
   tick++;
   pushFrame(snapshotFrame());
 }
 
-/** Fixed-step loop (runs only in 'running') */
 function frameLoop(now: number) {
-  if (gameState.value.name !== 'running') {
-    return;
-  }
+  if (gameState.value.name !== 'running') return;
   const elapsed = now - lastWallNow;
   lastWallNow = now;
   accumulator += elapsed;
@@ -417,26 +641,15 @@ function frameLoop(now: number) {
   rafId = requestAnimationFrame(frameLoop);
 }
 
-/** === Transitions === */
-
-/** Preparing -> Running (assign teams & start) */
+// ── Transitions ──
 const start = transition(
   'preparing',
   (state: PongPreparingState): PongRunningState => {
     left.controllerIds = state.left.controllerIds;
     right.controllerIds = state.right.controllerIds;
-
-    // reset sim
     resetMatchInternals({ keepScores: false });
-
-    // seed first frame
     const frame = snapshotFrame();
-
-    return {
-      game: 'pong',
-      name: 'running',
-      frame,
-    };
+    return { game: 'pong', name: 'running', frame };
   },
 );
 
@@ -447,20 +660,15 @@ const toggleTeamAssignment = transition(
     controllerId: string,
     side: 'left' | 'right',
   ): PongPreparingState => {
-    // Snapshot originals to detect "toggle off"
     const wasInLeft = state.left.controllerIds.includes(controllerId);
     const wasInRight = state.right.controllerIds.includes(controllerId);
     const wasInSide = side === 'left' ? wasInLeft : wasInRight;
 
-    // Start from copies and remove controller from BOTH teams
-    const leftIds = state.left.controllerIds.filter(
-      (id) => id !== controllerId,
-    );
+    const leftIds = state.left.controllerIds.filter((id) => id !== controllerId);
     const rightIds = state.right.controllerIds.filter(
       (id) => id !== controllerId,
     );
 
-    // If the controller wasn't already in the target side, assign it there; otherwise toggle OFF
     if (!wasInSide) {
       if (side === 'left') leftIds.push(controllerId);
       else rightIds.push(controllerId);
@@ -475,15 +683,28 @@ const toggleTeamAssignment = transition(
   },
 );
 
-/** Running -> Paused */
+function handleTeamClick(controllerId: string, side: 'left' | 'right') {
+  const state = gameState.value;
+  if (state.name !== 'preparing') return;
+
+  const wasInSide =
+    side === 'left'
+      ? state.left.controllerIds.includes(controllerId)
+      : state.right.controllerIds.includes(controllerId);
+
+  toggleTeamAssignment(controllerId, side);
+
+  if (!wasInSide) {
+    blinkForTeam(controllerId, side);
+  }
+}
+
 const pause = transition('running', (state: PongRunningState): PongPaused => {
   return { game: 'pong', name: 'paused', frame: state.frame };
 });
 
-/** Paused -> Running */
 const resume = transition('paused', (state: PongPaused): PongRunningState => {
   const frame = state.frame ?? snapshotFrame();
-  // re-sync timing
   const now = performance.now();
   simEpoch = now - (frame?.simTime ?? tick * DT_MS);
   lastWallNow = now;
@@ -491,7 +712,6 @@ const resume = transition('paused', (state: PongPaused): PongRunningState => {
   return { game: 'pong', name: 'running', frame };
 });
 
-/** Running/Paused/Completed -> Preparing */
 const reset = transition(
   ['running', 'paused', 'completed'],
   (): PongPreparingState => {
@@ -505,25 +725,27 @@ const reset = transition(
   },
 );
 
-/** Running -> Completed */
-const complete = transition('running', (state: PongRunningState): PongEnded => {
-  return {
-    game: 'pong',
-    name: 'completed',
-    frame: state.frame ?? snapshotFrame(),
-  };
-});
+const complete = transition(
+  'running',
+  (state: PongRunningState): PongEnded => {
+    return {
+      game: 'pong',
+      name: 'completed',
+      frame: state.frame ?? snapshotFrame(),
+    };
+  },
+);
 
-/** Imperative helper when score hits target */
 function completeMatch() {
-  complete(); // transition to completed
+  playGameOver();
+  complete();
 }
 
-/** === State entry/exit side effects === */
+// ── State entry/exit ──
 onStateEntry('preparing', () => {
-  showOverlay.value = true;
-  overlayText.value = 'Click Start';
-  // ensure there is at least one frame for renderer
+  showOverlay.value = false;
+  overlayText.value = '';
+  winnerText.value = '';
   if (frames.length === 0) pushFrame(snapshotFrame());
 });
 
@@ -532,13 +754,11 @@ onStateEntry('running', (state) => {
   overlayText.value = '';
 
   const now = performance.now();
-  // if we transitioned from paused/preparing we must resync timing
   const baseSim = state.frame?.simTime ?? tick * DT_MS;
   simEpoch = now - baseSim;
   lastWallNow = now;
   accumulator = 0;
 
-  // kick RAF
   rafId = requestAnimationFrame(frameLoop);
 });
 
@@ -548,18 +768,22 @@ onStateExit('running', () => {
 
 onStateEntry('paused', () => {
   showOverlay.value = true;
-  overlayText.value = 'Paused';
+  overlayText.value = t('gameMode.pong.overlay.paused');
 });
 
 onStateEntry('completed', () => {
   showOverlay.value = true;
-  overlayText.value = 'Game Over';
+  overlayText.value = t('gameMode.pong.overlay.gameOver');
+  winnerText.value =
+    left.score >= TARGET_SCORE
+      ? `${t('gameMode.pong.team.left')} wins! 🎉`
+      : `${t('gameMode.pong.team.right')} wins! 🎉`;
 });
 
-/** === Local controls that call transitions === */
 function resetMatchInternals(opts: { keepScores: boolean }) {
   cancelAnimationFrame(rafId);
   tick = 0;
+  wallSoundCooldown = 0;
   frames.splice(0, frames.length);
 
   if (!opts.keepScores) {
@@ -571,19 +795,85 @@ function resetMatchInternals(opts: { keepScores: boolean }) {
   right.paddle.y = HEIGHT / 2 - PADDLE_HEIGHT / 2;
   resetBall();
 
-  // push initial frame for renderer (even when not running)
   pushFrame(snapshotFrame());
 }
 
-/** Mount/unmount */
 onMounted(() => {
-  // seed a frame so the renderer has something to draw
   pushFrame(snapshotFrame());
 });
 
 onUnmounted(() => {
   cancelAnimationFrame(rafId);
-  // turn off any lights left on
+  audioCtx?.close().catch(() => {});
   controllers.value.forEach((c) => c.setLight(false));
 });
 </script>
+
+<style scoped>
+.pong-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.preparing-layout {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.controller-list {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.controller-item {
+  min-height: 64px;
+}
+
+.game-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-container {
+  display: inline-flex;
+}
+
+.overlay-bg {
+  background: rgba(0, 0, 0, 0.72);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.overlay-text {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.05em;
+}
+
+.winner-text {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.controls-hint {
+  opacity: 0.7;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

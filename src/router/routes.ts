@@ -30,6 +30,11 @@ const routes: RouteRecordRaw[] = [
         name: 'cast-stopwatch',
         component: () => import('pages/cast/StopwatchCastPage.vue'),
       },
+      {
+        path: 'pong',
+        name: 'cast-pong',
+        component: () => import('pages/cast/PongCastPage.vue'),
+      },
     ],
   },
   {

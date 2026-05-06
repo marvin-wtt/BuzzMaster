@@ -1,5 +1,6 @@
 <template>
   <q-page
+    v-if="state"
     class="cast-page"
     padding
   >
@@ -53,7 +54,7 @@
         >
           <!-- Game over: winner takes over the entire stage -->
           <div
-            v-if="state?.name === 'gameOver'"
+            v-if="state.name === 'gameOver'"
             key="gameover"
             class="winner-hero"
           >
@@ -78,15 +79,18 @@
             key="playing"
             class="pad-stage"
             :class="{
-              'pad-stage--showing': state?.name === 'showing',
-              'pad-stage--input': state?.name === 'input',
+              'pad-stage--showing': state.name === 'showing',
+              'pad-stage--input': state.name === 'input',
             }"
           >
             <div class="pad-frame">
               <SimonPad
                 :buttons="SIMON_BUTTONS"
                 :highlight="highlight"
-                :style="PAD_STYLE"
+                :style="{
+                  '--width': '100%',
+                  '--bar-h': '72px',
+                }"
                 class="pad"
               />
             </div>
@@ -183,11 +187,6 @@ const SIMON_BUTTONS: BuzzerButton[] = [
   BuzzerButton.GREEN,
   BuzzerButton.YELLOW,
 ];
-
-const PAD_STYLE = {
-  '--width': '100%',
-  '--bar-h': '72px',
-};
 
 const state = computed<SimonState | undefined>(() => {
   return castStore.gameState as SimonState | undefined;

@@ -402,23 +402,50 @@ function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
-// LED blink: 1 pulse = left, 2 pulses = right
-function blinkForTeam(controllerId: string, side: 'left' | 'right') {
-  const c = controllers.value.find((x) => x.id === controllerId);
-  if (!c) return;
+// LED blink: single shared loop — 1 pulse = left, 2 pulses = right
+// left cycle  (4 steps × 200 ms = 800 ms):  ON OFF OFF OFF
+// right cycle (6 steps × 200 ms = 1200 ms): ON OFF ON OFF OFF OFF
+const blinkAssignments = new Map<string, 'left' | 'right'>();
+let blinkLoopId: ReturnType<typeof setInterval> | null = null;
+let blinkTick = 0;
 
-  const pulses = side === 'left' ? 1 : 2;
-  let step = 0;
-  const totalSteps = pulses * 2; // on + off per pulse
+function blinkLightOn(side: 'left' | 'right', tick: number): boolean {
+  if (side === 'left') return tick % 4 === 0;
+  const t = tick % 6;
+  return t === 0 || t === 2;
+}
 
-  const iv = setInterval(() => {
-    c.setLight(step % 2 === 0);
-    step++;
-    if (step >= totalSteps) {
-      clearInterval(iv);
-      c.setLight(false);
-    }
+function startBlinking(controllerId: string, side: 'left' | 'right') {
+  blinkAssignments.set(controllerId, side);
+  if (blinkLoopId !== null) {
+    return;
+  }
+  blinkTick = 0;
+  blinkLoopId = setInterval(() => {
+    blinkAssignments.forEach((s, id) => {
+      controllers.value
+        .find((c) => c.id === id)
+        ?.setLight(blinkLightOn(s, blinkTick));
+    });
+    blinkTick++;
   }, 200);
+}
+
+function stopBlinking(controllerId: string) {
+  blinkAssignments.delete(controllerId);
+  controllers.value.find((c) => c.id === controllerId)?.setLight(false);
+  if (blinkAssignments.size === 0) {
+    stopAllBlinking();
+  }
+}
+
+function stopAllBlinking() {
+  if (blinkLoopId !== null) {
+    clearInterval(blinkLoopId);
+    blinkLoopId = null;
+  }
+  blinkAssignments.clear();
+  controllers.value.forEach((c) => c.setLight(false));
 }
 
 function flashControllers(controllerIds: string[]) {
@@ -668,7 +695,9 @@ function handleTeamClick(controllerId: string, side: 'left' | 'right') {
   toggleTeamAssignment(controllerId, side);
 
   if (!wasInSide) {
-    blinkForTeam(controllerId, side);
+    startBlinking(controllerId, side);
+  } else {
+    stopBlinking(controllerId);
   }
 }
 
@@ -716,7 +745,7 @@ const complete = transition('running', (state: PongRunningState): PongEnded => {
     name: 'completed',
     left: state.left,
     right: state.right,
-    frame: state.frame ?? snapshotFrame(),
+    frame: snapshotFrame(),
   };
 });
 
@@ -740,6 +769,10 @@ onStateEntry('preparing', () => {
   overlayText.value = '';
   winnerText.value = '';
   if (frames.length === 0) pushFrame(snapshotFrame());
+});
+
+onStateExit('preparing', () => {
+  stopAllBlinking();
 });
 
 onStateEntry('running', (state) => {
@@ -800,7 +833,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopSimLoop();
-  controllers.value.forEach((c) => c.setLight(false));
+  stopAllBlinking();
 });
 </script>
 

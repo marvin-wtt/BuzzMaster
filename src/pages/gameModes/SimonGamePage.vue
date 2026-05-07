@@ -444,6 +444,12 @@ const updateHighlight = transition('showing', (state) => {
   };
 });
 
+const getPerceivedVolume = (volume: number) => {
+  const curveK = 9;
+
+  return 1 - Math.log(1 + curveK * (1 - volume)) / Math.log(1 + curveK);
+};
+
 const playButtonSound = (button: BuzzerButton) => {
   const frequency = BUTTON_FREQUENCIES[button];
   if (frequency === undefined) return;
@@ -452,30 +458,53 @@ const playButtonSound = (button: BuzzerButton) => {
 
   const speed =
     simonSettings.value.showingSpeed > 0 ? simonSettings.value.showingSpeed : 1;
+
   const duration = BASE_SHOW_ON_MS / speed / 1000;
+  const now = audioCtx.currentTime;
+
+  const volume = getPerceivedVolume(masterVolume.value);
+  if (volume <= 0) return;
 
   const oscillator = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  oscillator.connect(gain);
+  const filter = audioCtx.createBiquadFilter();
+
+  oscillator.connect(filter);
+  filter.connect(gain);
   gain.connect(audioCtx.destination);
 
-  oscillator.type = 'sine';
-  oscillator.frequency.value = frequency;
+  // Triangle is warmer than sine, but less harsh than square.
+  oscillator.type = 'triangle';
 
-  const curveK = 9;
-  const vol =
-    1 - Math.log(1 + curveK * (1 - masterVolume.value)) / Math.log(1 + curveK);
-  const now = audioCtx.currentTime;
-  const attack = 0.01;
-  const release = Math.min(0.05, duration * 0.15);
+  // Small pitch glide gives the sound a more game-like character.
+  oscillator.frequency.setValueAtTime(frequency * 0.985, now);
+  oscillator.frequency.exponentialRampToValueAtTime(frequency, now + 0.025);
 
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(vol, now + attack);
-  gain.gain.setValueAtTime(vol, now + duration - release);
-  gain.gain.linearRampToValueAtTime(0, now + duration);
+  // Slight low-pass filtering makes it less sharp.
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(1800, now);
+  filter.Q.setValueAtTime(0.8, now);
+
+  const attack = Math.min(0.015, duration * 0.1);
+  const decay = Math.min(0.06, duration * 0.25);
+  const release = Math.min(0.08, duration * 0.25);
+
+  const peakVolume = volume * 0.35;
+  const sustainVolume = volume * 0.22;
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(peakVolume, now + attack);
+  gain.gain.exponentialRampToValueAtTime(sustainVolume, now + attack + decay);
+
+  gain.gain.setValueAtTime(
+    sustainVolume,
+    now + Math.max(attack + decay, duration - release),
+  );
+
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
   oscillator.start(now);
-  oscillator.stop(now + duration + 0.01);
+  oscillator.stop(now + duration + 0.02);
 };
 
 onStateEntry('input', (state) => {

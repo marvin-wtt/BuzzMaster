@@ -377,20 +377,26 @@ function pushFrame(frame: StageFrame) {
 }
 
 const interp = computed(() => {
+  if (frames.length === 0) {
+    return { frameA: null, frameB: null, renderSimTime: 0 };
+  }
+
+  const lastFrame = frames[frames.length - 1]!;
+
+  if (gameState.value.name !== 'running') {
+    return { frameA: lastFrame, frameB: lastFrame, renderSimTime: lastFrame.simTime };
+  }
+
   const now = performance.now();
   const renderSimTime = Math.max(0, now - simEpoch - BUFFER_MS);
 
-  if (frames.length === 0) {
-    return { frameA: null, frameB: null, renderSimTime };
-  }
-
-  let A = frames[0];
-  let B = frames[frames.length - 1];
+  let A: StageFrame = lastFrame;
+  let B: StageFrame = lastFrame;
 
   for (let i = frames.length - 2; i >= 0; i--) {
     if (frames[i]!.simTime <= renderSimTime) {
-      A = frames[i];
-      B = frames[i + 1] ?? frames[i];
+      A = frames[i]!;
+      B = frames[i + 1] ?? frames[i]!;
       break;
     }
   }
@@ -402,13 +408,9 @@ function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
 }
 
-// LED blink: single shared loop — 1 pulse = left, 2 pulses = right
-// left cycle  (4 steps × 200 ms = 800 ms):  ON OFF OFF OFF
-// right cycle (6 steps × 200 ms = 1200 ms): ON OFF ON OFF OFF OFF
-// Tick is derived from wall time so throttled tabs stay in sync.
 const blinkAssignments = new Map<string, 'left' | 'right'>();
 let blinkLoopId: ReturnType<typeof setInterval> | null = null;
-let blinkStartTime = 0;
+let blinkTick = 0;
 
 function blinkLightOn(side: 'left' | 'right', tick: number): boolean {
   if (side === 'left') return tick % 4 === 0;
@@ -419,12 +421,14 @@ function blinkLightOn(side: 'left' | 'right', tick: number): boolean {
 function startBlinking(controllerId: string, side: 'left' | 'right') {
   blinkAssignments.set(controllerId, side);
   if (blinkLoopId !== null) return;
-  blinkStartTime = performance.now();
+  blinkTick = 0;
   blinkLoopId = setInterval(() => {
-    const tick = Math.floor((performance.now() - blinkStartTime) / 200);
     blinkAssignments.forEach((s, id) => {
-      controllers.value.find((c) => c.id === id)?.setLight(blinkLightOn(s, tick));
+      controllers.value
+        .find((c) => c.id === id)
+        ?.setLight(blinkLightOn(s, blinkTick));
     });
+    blinkTick++;
   }, 200);
 }
 
@@ -568,16 +572,15 @@ function stepOnce() {
     resetBall();
   }
 
+  tick++;
+  pushFrame(snapshotFrame());
+
   if (
     left.score >= gameSettingsStore.pongSettings.rounds ||
     right.score >= gameSettingsStore.pongSettings.rounds
   ) {
     completeMatch();
-    return;
   }
-
-  tick++;
-  pushFrame(snapshotFrame());
 }
 
 function startSimLoop() {
@@ -765,7 +768,6 @@ onStateEntry('preparing', () => {
   showOverlay.value = false;
   overlayText.value = '';
   winnerText.value = '';
-  if (frames.length === 0) pushFrame(snapshotFrame());
 });
 
 onStateExit('preparing', () => {

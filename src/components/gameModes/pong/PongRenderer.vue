@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import type { StageFrame } from 'components/gameModes/pong/PongTypes';
 
 const {
@@ -39,14 +39,19 @@ const HEIGHT = 500;
 const wrapper = ref<HTMLDivElement | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
 let ctx: CanvasRenderingContext2D | null = null;
+let rafId: number | null = null;
 
 onMounted(() => {
   ctx = canvas.value?.getContext('2d') ?? null;
-  draw();
+  const loop = () => {
+    draw();
+    rafId = requestAnimationFrame(loop);
+  };
+  rafId = requestAnimationFrame(loop);
 });
 
-watch(() => [frameA?.tick, frameB?.tick, renderSimTime] as const, draw, {
-  flush: 'sync',
+onUnmounted(() => {
+  if (rafId !== null) cancelAnimationFrame(rafId);
 });
 
 function clamp01(x: number) {

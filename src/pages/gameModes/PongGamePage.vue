@@ -405,9 +405,10 @@ function clamp(v: number, min: number, max: number) {
 // LED blink: single shared loop — 1 pulse = left, 2 pulses = right
 // left cycle  (4 steps × 200 ms = 800 ms):  ON OFF OFF OFF
 // right cycle (6 steps × 200 ms = 1200 ms): ON OFF ON OFF OFF OFF
+// Tick is derived from wall time so throttled tabs stay in sync.
 const blinkAssignments = new Map<string, 'left' | 'right'>();
 let blinkLoopId: ReturnType<typeof setInterval> | null = null;
-let blinkTick = 0;
+let blinkStartTime = 0;
 
 function blinkLightOn(side: 'left' | 'right', tick: number): boolean {
   if (side === 'left') return tick % 4 === 0;
@@ -417,17 +418,13 @@ function blinkLightOn(side: 'left' | 'right', tick: number): boolean {
 
 function startBlinking(controllerId: string, side: 'left' | 'right') {
   blinkAssignments.set(controllerId, side);
-  if (blinkLoopId !== null) {
-    return;
-  }
-  blinkTick = 0;
+  if (blinkLoopId !== null) return;
+  blinkStartTime = performance.now();
   blinkLoopId = setInterval(() => {
+    const tick = Math.floor((performance.now() - blinkStartTime) / 200);
     blinkAssignments.forEach((s, id) => {
-      controllers.value
-        .find((c) => c.id === id)
-        ?.setLight(blinkLightOn(s, blinkTick));
+      controllers.value.find((c) => c.id === id)?.setLight(blinkLightOn(s, tick));
     });
-    blinkTick++;
   }, 200);
 }
 

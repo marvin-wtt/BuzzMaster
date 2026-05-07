@@ -56,6 +56,7 @@ async function createWindow() {
       sandbox: true,
       contextIsolation: true,
       preload: electronPreload,
+      backgroundThrottling: false,
     },
   });
 
@@ -126,6 +127,7 @@ async function createCastWindow() {
       sandbox: true,
       contextIsolation: true,
       preload: electronPreload,
+      backgroundThrottling: false,
     },
   });
 

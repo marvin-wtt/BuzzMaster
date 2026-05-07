@@ -7,6 +7,7 @@ import type { SimonSettings } from 'app/common/gameSettings/SimonSettings';
 import type { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
 import type { GameSettings } from 'app/common/gameSettings';
 import type { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
+import type { PongSettings } from 'app/common/gameSettings/PongSettings';
 
 export const useGameSettingsStore = defineStore('gameSettings', () => {
   const buzzerSettings = ref<BuzzerSettings>({
@@ -51,12 +52,19 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     readyCheck: true,
   });
 
+  const pongSettings = ref<PongSettings>({
+    rounds: 7,
+    speed: 'normal',
+    pointsForWin: 1,
+  });
+
   const gameSettings = computed<GameSettings>(() => ({
     buzzer: buzzerSettings.value,
     quiz: quizSettings.value,
     simon: simonSettings.value,
     stopwatch: stopwatchSettings.value,
     viewingRate: viewingRateSettings.value,
+    pong: pongSettings.value,
   }));
 
   return {
@@ -67,6 +75,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     simonSettings,
     stopwatchSettings,
     viewingRateSettings,
+    pongSettings,
   };
 });
 

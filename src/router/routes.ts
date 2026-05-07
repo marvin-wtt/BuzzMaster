@@ -35,6 +35,11 @@ const routes: RouteRecordRaw[] = [
         name: 'cast-stopwatch',
         component: () => import('pages/cast/StopwatchCastPage.vue'),
       },
+      {
+        path: 'pong',
+        name: 'cast-pong',
+        component: () => import('pages/cast/PongCastPage.vue'),
+      },
     ],
   },
   {
@@ -110,6 +115,14 @@ const routes: RouteRecordRaw[] = [
             component: () => import('pages/gameModes/ViewingRateGamePage.vue'),
             meta: {
               title: 'gameMode.viewingRate.title',
+            },
+          },
+          {
+            path: 'pong',
+            name: 'pong-game',
+            component: () => import('pages/gameModes/PongGamePage.vue'),
+            meta: {
+              title: 'gameMode.pong.title',
             },
           },
         ],

@@ -4,6 +4,7 @@ import type { StopwatchState } from 'app/common/gameState/StopwatchState';
 import type { LeaderboardState } from 'app/common/gameState/LeaderboardState';
 import type { ViewingRateState } from 'app/common/gameState/ViewingRateState';
 import type { SimonState } from 'app/common/gameState/SimonState';
+import type { PongState } from 'app/common/gameState/PongState';
 
 export type GameState =
   | BuzzerState
@@ -11,4 +12,5 @@ export type GameState =
   | StopwatchState
   | LeaderboardState
   | ViewingRateState
+  | PongState
   | SimonState;

@@ -270,7 +270,7 @@ import { storeToRefs } from 'pinia';
 const { t } = useI18n();
 const quasar = useQuasar();
 const { controllers, buzzer } = useBuzzer();
-const { createAudio } = useAudio();
+const { masterVolume } = useAudio();
 const flasher = useControllerFlasher({
   onMs: 75,
   offMs: 75,
@@ -304,25 +304,25 @@ const { gameState, transition, onStateEntry, onStateExit } =
     players: [],
   });
 
-const sounds = {
-  blue: createAudio('sounds/simon/blue.mp3'),
-  orange: createAudio('sounds/simon/orange.mp3'),
-  green: createAudio('sounds/simon/green.mp3'),
-  yellow: createAudio('sounds/simon/yellow.mp3'),
+const BUTTON_FREQUENCIES: Partial<Record<BuzzerButton, number>> = {
+  [BuzzerButton.YELLOW]: 329.628, // E4
+  [BuzzerButton.GREEN]: 440.0, // A4
+  [BuzzerButton.ORANGE]: 554.365, // C#5
+  [BuzzerButton.BLUE]: 659.255, // E5
 };
+
+let audioCtx: AudioContext | null = null;
 
 onBeforeMount(async () => {
   await buzzer.reset();
   buzzer.on('press', onPress);
-
-  for (const sound of Object.values(sounds)) {
-    sound.load();
-  }
 });
 
 onUnmounted(async () => {
   buzzer.removeListener('press', onPress);
   await buzzer.reset();
+  void audioCtx?.close();
+  audioCtx = null;
 });
 
 const randomSimonButton = (): BuzzerButton => {
@@ -444,33 +444,38 @@ const updateHighlight = transition('showing', (state) => {
   };
 });
 
-const getButtonAudio = (button: BuzzerButton) => {
-  switch (button) {
-    case BuzzerButton.BLUE:
-      return sounds.blue;
-    case BuzzerButton.ORANGE:
-      return sounds.orange;
-    case BuzzerButton.GREEN:
-      return sounds.green;
-    case BuzzerButton.YELLOW:
-      return sounds.yellow;
-  }
-};
-
 const playButtonSound = (button: BuzzerButton) => {
-  const sound = getButtonAudio(button);
+  const frequency = BUTTON_FREQUENCIES[button];
+  if (frequency === undefined) return;
 
-  if (!sound) {
-    return;
-  }
+  audioCtx ??= new AudioContext();
 
-  const SOUND_SPEED_FACTOR = 0.6;
-  sound.playbackRate = Math.max(
-    simonSettings.value.showingSpeed * SOUND_SPEED_FACTOR,
-    1,
-  );
+  const speed =
+    simonSettings.value.showingSpeed > 0 ? simonSettings.value.showingSpeed : 1;
+  const duration = BASE_SHOW_ON_MS / speed / 1000;
 
-  void sound.play();
+  const oscillator = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  oscillator.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  oscillator.type = 'sine';
+  oscillator.frequency.value = frequency;
+
+  const curveK = 9;
+  const vol =
+    1 - Math.log(1 + curveK * (1 - masterVolume.value)) / Math.log(1 + curveK);
+  const now = audioCtx.currentTime;
+  const attack = 0.01;
+  const release = Math.min(0.05, duration * 0.15);
+
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(vol, now + attack);
+  gain.gain.setValueAtTime(vol, now + duration - release);
+  gain.gain.linearRampToValueAtTime(0, now + duration);
+
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.01);
 };
 
 onStateEntry('input', (state) => {

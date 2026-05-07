@@ -30,6 +30,19 @@
             outlined
             rounded
           />
+
+          <q-input
+            v-model.number="settings.pointsForWin"
+            :label="t('gameMode.pong.settings.field.pointsForWin')"
+            type="number"
+            :min="0"
+            outlined
+            rounded
+          >
+            <template #prepend>
+              <q-icon name="emoji_events" />
+            </template>
+          </q-input>
         </q-form>
       </q-card-section>
 

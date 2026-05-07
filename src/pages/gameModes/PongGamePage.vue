@@ -38,6 +38,11 @@
         rounded
         class="controller-list q-mb-md"
       >
+        <q-item v-if="controllers.length === 0">
+          <q-item-section class="text-center text-grey-5 text-caption q-py-sm">
+            {{ t('gameMode.pong.setup.noControllers') }}
+          </q-item-section>
+        </q-item>
         <q-item
           v-for="controller in controllers"
           :key="controller.id"
@@ -197,8 +202,8 @@
             :label="t('gameMode.pong.action.restart')"
             rounded
             unelevated
-            data-testid="btn-start"
-            @click="start()"
+            data-testid="btn-restart"
+            @click="restart()"
           />
           <q-btn
             v-else-if="gameState.name === 'running'"
@@ -257,12 +262,19 @@ import type {
 } from 'app/common/gameState/PongState';
 import { useI18n } from 'vue-i18n';
 import { useGameSettingsStore } from 'stores/game-settings-store';
-import { PONG_SPEED_CONFIGS } from 'app/common/gameSettings/PongSettings';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
+import type {
+  PongSpeedConfig,
+  PongSpeedPreset,
+} from 'app/common/gameSettings/PongSettings';
+import { usePongAudio } from 'components/gameModes/pong/pong-audtio';
 
 const { controllers } = useBuzzer();
 const { t } = useI18n();
 const quasar = useQuasar();
 const gameSettingsStore = useGameSettingsStore();
+const leaderboardStore = useLeaderboardStore();
+const audio = usePongAudio();
 
 const { gameState, transition, onStateEntry, onStateExit } =
   useGameState<PongState>({
@@ -281,17 +293,12 @@ const PADDLE_SPEED = 4;
 const MAX_BALL_SPEED = 12;
 const MAX_BOUNCE_ANGLE = Math.PI / 4;
 
-function openSettings() {
-  quasar.dialog({ component: PongSettingsDialog });
-}
-
-function getSpeedConfig() {
-  return PONG_SPEED_CONFIGS[gameSettingsStore.pongSettings.speed];
-}
-
-function getTargetScore() {
-  return gameSettingsStore.pongSettings.rounds;
-}
+const PONG_SPEED_CONFIGS: Record<PongSpeedPreset, PongSpeedConfig> = {
+  slow: { initialSpeed: 1.0, speedIncrement: 1.03 },
+  normal: { initialSpeed: 2.0, speedIncrement: 1.05 },
+  fast: { initialSpeed: 3.0, speedIncrement: 1.07 },
+  turbo: { initialSpeed: 5.0, speedIncrement: 1.1 },
+};
 
 const SIM_HZ = 120;
 const DT_MS = 1000 / SIM_HZ;
@@ -342,90 +349,6 @@ const winnerText = ref('');
 
 const frames: StageFrame[] = reactive([]);
 const MAX_FRAMES = 256;
-
-// ── Web Audio sounds ──
-let audioCtx: AudioContext | null = null;
-
-function getAudioCtx(): AudioContext {
-  if (!audioCtx) audioCtx = new AudioContext();
-  return audioCtx;
-}
-
-function playPaddleHit() {
-  try {
-    const c = getAudioCtx();
-    const osc = c.createOscillator();
-    const g = c.createGain();
-    osc.connect(g);
-    g.connect(c.destination);
-    osc.type = 'square';
-    osc.frequency.value = 480;
-    g.gain.setValueAtTime(0.12, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.06);
-    osc.start(c.currentTime);
-    osc.stop(c.currentTime + 0.06);
-  } catch {
-    // ignore audio errors
-  }
-}
-
-function playWallHit() {
-  try {
-    const c = getAudioCtx();
-    const osc = c.createOscillator();
-    const g = c.createGain();
-    osc.connect(g);
-    g.connect(c.destination);
-    osc.type = 'square';
-    osc.frequency.value = 240;
-    g.gain.setValueAtTime(0.08, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.05);
-    osc.start(c.currentTime);
-    osc.stop(c.currentTime + 0.05);
-  } catch {
-    // ignore audio errors
-  }
-}
-
-function playScore() {
-  try {
-    const c = getAudioCtx();
-    [440, 550, 660].forEach((freq, i) => {
-      const osc = c.createOscillator();
-      const g = c.createGain();
-      osc.connect(g);
-      g.connect(c.destination);
-      osc.frequency.value = freq;
-      const st = c.currentTime + i * 0.1;
-      g.gain.setValueAtTime(0.18, st);
-      g.gain.exponentialRampToValueAtTime(0.001, st + 0.15);
-      osc.start(st);
-      osc.stop(st + 0.15);
-    });
-  } catch {
-    // ignore audio errors
-  }
-}
-
-function playGameOver() {
-  try {
-    const c = getAudioCtx();
-    [660, 550, 440, 330].forEach((freq, i) => {
-      const osc = c.createOscillator();
-      const g = c.createGain();
-      osc.connect(g);
-      g.connect(c.destination);
-      osc.frequency.value = freq;
-      const st = c.currentTime + i * 0.18;
-      g.gain.setValueAtTime(0.22, st);
-      g.gain.exponentialRampToValueAtTime(0.001, st + 0.22);
-      osc.start(st);
-      osc.stop(st + 0.22);
-    });
-  } catch {
-    // ignore audio errors
-  }
-}
 
 // ── Frame helpers ──
 function snapshotFrame(): StageFrame {
@@ -517,7 +440,8 @@ function flashControllers(controllerIds: string[]) {
 function resetBall() {
   ball.x = WIDTH / 2;
   ball.y = HEIGHT / 2;
-  ball.speed = getSpeedConfig().initialSpeed;
+  ball.speed =
+    PONG_SPEED_CONFIGS[gameSettingsStore.pongSettings.speed].initialSpeed;
   const dir = Math.random() > 0.5 ? 1 : -1;
   const angle = (Math.random() - 0.5) * (Math.PI / 6);
   ball.vx = dir * ball.speed * Math.cos(angle);
@@ -557,13 +481,14 @@ function handlePaddleBounce(p: Paddle, isLeft: boolean) {
   const direction = isLeft ? 1 : -1;
 
   ball.speed = Math.min(
-    ball.speed * getSpeedConfig().speedIncrement,
+    ball.speed *
+      PONG_SPEED_CONFIGS[gameSettingsStore.pongSettings.speed].speedIncrement,
     MAX_BALL_SPEED,
   );
   ball.vx = direction * ball.speed * Math.cos(angle);
   ball.vy = ball.speed * Math.sin(angle);
 
-  playPaddleHit();
+  audio.playPaddleHit();
 }
 
 let wallSoundCooldown = 0;
@@ -579,7 +504,7 @@ function stepOnce() {
     ball.vy *= -1;
     ball.y = clamp(ball.y, ball.radius, HEIGHT - ball.radius);
     if (tick > wallSoundCooldown) {
-      playWallHit();
+      audio.playWallHit();
       wallSoundCooldown = tick + 4;
     }
   }
@@ -609,17 +534,20 @@ function stepOnce() {
   // Scoring
   if (ball.x < 0) {
     right.score++;
-    playScore();
+    audio.playScore();
     flashControllers(right.controllerIds);
     resetBall();
   } else if (ball.x > WIDTH) {
     left.score++;
-    playScore();
+    audio.playScore();
     flashControllers(left.controllerIds);
     resetBall();
   }
 
-  if (left.score >= getTargetScore() || right.score >= getTargetScore()) {
+  if (
+    left.score >= gameSettingsStore.pongSettings.rounds ||
+    right.score >= gameSettingsStore.pongSettings.rounds
+  ) {
     completeMatch();
     return;
   }
@@ -648,15 +576,38 @@ function stopSimLoop() {
   }
 }
 
+function openSettings() {
+  quasar.dialog({ component: PongSettingsDialog });
+}
+
 // ── Transitions ──
 const start = transition(
   'preparing',
   (state: PongPreparingState): PongRunningState => {
-    left.controllerIds = state.left.controllerIds;
-    right.controllerIds = state.right.controllerIds;
     resetMatchInternals({ keepScores: false });
     const frame = snapshotFrame();
-    return { game: 'pong', name: 'running', frame };
+    return {
+      game: 'pong',
+      name: 'running',
+      left: state.left,
+      right: state.right,
+      frame,
+    };
+  },
+);
+
+const restart = transition(
+  'completed',
+  (state: PongEnded): PongRunningState => {
+    resetMatchInternals({ keepScores: false });
+    const frame = snapshotFrame();
+    return {
+      game: 'pong',
+      name: 'running',
+      left: state.left,
+      right: state.right,
+      frame,
+    };
   },
 );
 
@@ -722,7 +673,13 @@ function handleTeamClick(controllerId: string, side: 'left' | 'right') {
 }
 
 const pause = transition('running', (state: PongRunningState): PongPaused => {
-  return { game: 'pong', name: 'paused', frame: state.frame };
+  return {
+    game: 'pong',
+    name: 'paused',
+    left: state.left,
+    right: state.right,
+    frame: state.frame,
+  };
 });
 
 const resume = transition('paused', (state: PongPaused): PongRunningState => {
@@ -731,7 +688,13 @@ const resume = transition('paused', (state: PongPaused): PongRunningState => {
   simEpoch = now - (frame?.simTime ?? tick * DT_MS);
   lastWallNow = now;
   accumulator = 0;
-  return { game: 'pong', name: 'running', frame };
+  return {
+    game: 'pong',
+    name: 'running',
+    left: state.left,
+    right: state.right,
+    frame,
+  };
 });
 
 const reset = transition(
@@ -751,12 +714,23 @@ const complete = transition('running', (state: PongRunningState): PongEnded => {
   return {
     game: 'pong',
     name: 'completed',
+    left: state.left,
+    right: state.right,
     frame: state.frame ?? snapshotFrame(),
   };
 });
 
 function completeMatch() {
-  playGameOver();
+  audio.playGameOver();
+
+  const points = gameSettingsStore.pongSettings.pointsForWin;
+  if (points > 0) {
+    const winner = left.score > right.score ? left : right;
+    winner.controllerIds.forEach((id) =>
+      leaderboardStore.addPoints(id, points),
+    );
+  }
+
   complete();
 }
 
@@ -769,6 +743,9 @@ onStateEntry('preparing', () => {
 });
 
 onStateEntry('running', (state) => {
+  left.controllerIds = state.left.controllerIds;
+  right.controllerIds = state.right.controllerIds;
+
   showOverlay.value = false;
   overlayText.value = '';
 
@@ -794,7 +771,7 @@ onStateEntry('completed', () => {
   showOverlay.value = true;
   overlayText.value = t('gameMode.pong.overlay.gameOver');
   winnerText.value =
-    left.score >= getTargetScore()
+    left.score >= gameSettingsStore.pongSettings.rounds
       ? `${t('gameMode.pong.team.left')} wins! 🎉`
       : `${t('gameMode.pong.team.right')} wins! 🎉`;
 });
@@ -823,7 +800,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopSimLoop();
-  audioCtx?.close().catch(() => {});
   controllers.value.forEach((c) => c.setLight(false));
 });
 </script>
@@ -849,6 +825,8 @@ onUnmounted(() => {
 
 .controller-list {
   border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .controller-item {

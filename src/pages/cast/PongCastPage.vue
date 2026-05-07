@@ -7,6 +7,10 @@
       v-if="state.name === 'preparing'"
       :state="state"
     />
+    <pong-completed-cast
+      v-else-if="state.name === 'completed'"
+      :state="state"
+    />
     <pong-running-cast
       v-else
       :state="state"
@@ -20,6 +24,7 @@ import { useCastStore } from 'stores/cast-store';
 import type { PongState } from 'app/common/gameState/PongState';
 import PongPreparingCast from 'components/cast/pong/PongPreparingCast.vue';
 import PongRunningCast from 'components/cast/pong/PongRunningCast.vue';
+import PongCompletedCast from 'components/cast/pong/PongCompletedCast.vue';
 
 const castStore = useCastStore();
 

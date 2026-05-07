@@ -20,11 +20,16 @@
           {{ t('cast.pong.preparing.waitingForTeams') }}
         </div>
         <div
-          v-for="name in leftNames"
-          :key="name"
-          class="controller-name text-subtitle1 q-mb-xs"
+          class="names-container"
+          :class="{ 'names-two-col': leftNames.length > 4 }"
         >
-          {{ name }}
+          <div
+            v-for="name in leftNames"
+            :key="name"
+            class="controller-name text-subtitle1 q-mb-xs"
+          >
+            {{ name }}
+          </div>
         </div>
       </div>
 
@@ -50,11 +55,16 @@
           {{ t('cast.pong.preparing.waitingForTeams') }}
         </div>
         <div
-          v-for="name in rightNames"
-          :key="name"
-          class="controller-name text-subtitle1 q-mb-xs"
+          class="names-container"
+          :class="{ 'names-two-col': rightNames.length > 4 }"
         >
-          {{ name }}
+          <div
+            v-for="name in rightNames"
+            :key="name"
+            class="controller-name text-subtitle1 q-mb-xs"
+          >
+            {{ name }}
+          </div>
         </div>
       </div>
     </div>
@@ -167,10 +177,25 @@ const rightNames = computed(() =>
   max-width: 100%;
 }
 
+.names-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.names-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 8px;
+  align-items: start;
+}
+
 .controller-name {
   padding: 3px 10px;
   border-radius: 6px;
   background: rgba(128, 128, 128, 0.1);
+  text-align: center;
 }
 
 .btn-badge {

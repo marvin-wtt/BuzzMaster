@@ -22,12 +22,6 @@
               <div class="overlay-text">
                 {{ overlayLabel }}
               </div>
-              <div
-                v-if="winnerLabel"
-                class="winner-label q-mt-sm"
-              >
-                {{ winnerLabel }}
-              </div>
             </div>
           </div>
         </transition>
@@ -43,43 +37,22 @@ import PongRenderer from 'components/gameModes/pong/PongRenderer.vue';
 import type {
   PongRunningState,
   PongPaused,
-  PongEnded,
 } from 'app/common/gameState/PongState';
 import type { StageFrame } from 'components/gameModes/pong/PongTypes';
 
 const { t } = useI18n();
 
 const props = defineProps<{
-  state: PongRunningState | PongPaused | PongEnded;
+  state: PongRunningState | PongPaused;
 }>();
-
-const TARGET_SCORE = 7;
 
 const frame = computed<StageFrame | null>(() => props.state.frame ?? null);
 
-const showOverlay = computed(() => {
-  return props.state.name === 'paused' || props.state.name === 'completed';
-});
+const showOverlay = computed(() => props.state.name === 'paused');
 
-const overlayLabel = computed(() => {
-  if (props.state.name === 'paused') {
-    return t('cast.pong.running.paused');
-  }
-  if (props.state.name === 'completed') {
-    return t('cast.pong.running.gameOver');
-  }
-  return '';
-});
-
-const winnerLabel = computed(() => {
-  if (props.state.name !== 'completed') return '';
-  const f = frame.value;
-  if (!f) return '';
-  if (f.left.score >= TARGET_SCORE) {
-    return `${t('cast.pong.running.left')} ${t('cast.pong.running.wins')}`;
-  }
-  return `${t('cast.pong.running.right')} ${t('cast.pong.running.wins')}`;
-});
+const overlayLabel = computed(() =>
+  props.state.name === 'paused' ? t('cast.pong.running.paused') : '',
+);
 </script>
 
 <style scoped>

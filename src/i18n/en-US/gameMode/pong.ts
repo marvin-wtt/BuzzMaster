@@ -19,6 +19,7 @@ export default {
     title: 'Team Setup',
     hint: 'Assign controllers to teams, then start',
     startHint: 'Both teams need at least one controller',
+    noControllers: 'No controllers connected',
   },
 
   controls: {
@@ -39,6 +40,7 @@ export default {
     field: {
       rounds: 'Rounds to win',
       speed: 'Ball speed',
+      pointsForWin: 'Points for winning team',
     },
     speed: {
       slow: 'Slow',

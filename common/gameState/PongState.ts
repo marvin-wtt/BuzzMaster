@@ -16,17 +16,23 @@ export interface PongPreparingState extends PongStateBase {
 
 export interface PongRunningState extends PongStateBase {
   name: 'running';
+  left: Pick<Team, 'controllerIds'>;
+  right: Pick<Team, 'controllerIds'>;
   frame: StageFrame | null;
 }
 
 export interface PongPaused extends PongStateBase {
   name: 'paused';
+  left: Pick<Team, 'controllerIds'>;
+  right: Pick<Team, 'controllerIds'>;
   frame: StageFrame | null;
 }
 
 export interface PongEnded extends PongStateBase {
   name: 'completed';
   frame: StageFrame | null;
+  left: Pick<Team, 'controllerIds'>;
+  right: Pick<Team, 'controllerIds'>;
 }
 
 export interface Paddle {

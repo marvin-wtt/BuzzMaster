@@ -47,6 +47,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
   const pongSettings = ref<PongSettings>({
     rounds: 7,
     speed: 'normal',
+    pointsForWin: 1,
   });
 
   const gameSettings = computed<GameSettings>(() => ({

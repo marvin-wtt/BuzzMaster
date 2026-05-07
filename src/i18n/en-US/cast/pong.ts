@@ -15,7 +15,11 @@ export default {
     left: 'Left',
     right: 'Right',
     paused: 'Paused',
+  },
+  completed: {
     gameOver: 'Game Over!',
+    left: 'Left',
+    right: 'Right',
     wins: 'wins!',
   },
 };

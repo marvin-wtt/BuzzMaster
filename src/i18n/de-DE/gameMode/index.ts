@@ -2,6 +2,7 @@ import buzzer from './buzzer';
 import quiz from './quiz';
 import stopwatch from './stopwatch';
 import viewingRate from './viewingRate';
+import pong from './pong';
 
 export default {
   title: 'Spielmodus',
@@ -11,6 +12,7 @@ export default {
     quiz: 'Quiz',
     stopwatch: 'Stoppuhr',
     viewingRate: 'Einschaltquote',
+    pong: 'Pong',
   },
 
   section: {
@@ -25,4 +27,5 @@ export default {
   quiz,
   stopwatch,
   viewingRate,
+  pong,
 };

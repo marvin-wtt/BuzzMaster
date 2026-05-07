@@ -5,9 +5,11 @@ export default {
     waitingForTeams: 'Warte auf Teamzuweisung…',
     controls: {
       title: 'Steuerung',
-      upButtons: 'Blau / Orange',
+      blue: 'Blau',
+      orange: 'Orange',
       up: '↑ Nach oben',
-      downButtons: 'Grün / Gelb',
+      green: 'Grün',
+      yellow: 'Gelb',
       down: '↓ Nach unten',
     },
   },

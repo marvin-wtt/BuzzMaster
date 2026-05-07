@@ -384,7 +384,11 @@ const interp = computed(() => {
   const lastFrame = frames[frames.length - 1]!;
 
   if (gameState.value.name !== 'running') {
-    return { frameA: lastFrame, frameB: lastFrame, renderSimTime: lastFrame.simTime };
+    return {
+      frameA: lastFrame,
+      frameB: lastFrame,
+      renderSimTime: lastFrame.simTime,
+    };
   }
 
   const now = performance.now();

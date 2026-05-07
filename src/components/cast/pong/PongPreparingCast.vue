@@ -34,7 +34,9 @@
       </div>
 
       <!-- VS divider -->
-      <div class="col-auto vs-divider column items-center justify-center q-px-sm">
+      <div
+        class="col-auto vs-divider column items-center justify-center q-px-sm"
+      >
         <div class="text-h4 text-weight-bold text-grey-5">
           {{ t('cast.pong.preparing.vs') }}
         </div>
@@ -80,30 +82,34 @@
             <q-badge
               class="btn-badge"
               style="background: #1976d2"
-              label="Blue"
+              :label="t('cast.pong.preparing.controls.blue')"
             />
             <q-badge
               class="btn-badge"
               style="background: #e65100"
-              label="Orange"
+              :label="t('cast.pong.preparing.controls.orange')"
             />
           </div>
-          <div class="text-body1">{{ t('cast.pong.preparing.controls.up') }}</div>
+          <div class="text-body1">
+            {{ t('cast.pong.preparing.controls.up') }}
+          </div>
         </div>
         <div class="col-auto column items-center">
           <div class="row q-gutter-xs q-mb-xs">
             <q-badge
               class="btn-badge"
               style="background: #388e3c"
-              label="Green"
+              :label="t('cast.pong.preparing.controls.green')"
             />
             <q-badge
               class="btn-badge"
               style="background: #f9a825; color: #000"
-              label="Yellow"
+              :label="t('cast.pong.preparing.controls.yellow')"
             />
           </div>
-          <div class="text-body1">{{ t('cast.pong.preparing.controls.down') }}</div>
+          <div class="text-body1">
+            {{ t('cast.pong.preparing.controls.down') }}
+          </div>
         </div>
       </div>
     </div>

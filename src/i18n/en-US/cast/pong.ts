@@ -5,9 +5,11 @@ export default {
     waitingForTeams: 'Waiting for team assignment…',
     controls: {
       title: 'Controls',
-      upButtons: 'Blue / Orange',
+      blue: 'Blue',
+      orange: 'Orange',
       up: '↑ Move Up',
-      downButtons: 'Green / Yellow',
+      green: 'Green',
+      yellow: 'Yellow',
       down: '↓ Move Down',
     },
   },

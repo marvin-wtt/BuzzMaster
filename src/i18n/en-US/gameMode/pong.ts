@@ -7,6 +7,7 @@ export default {
     resume: 'Resume',
     restart: 'Restart',
     reset: 'Reset',
+    settings: 'Settings',
   },
 
   team: {
@@ -31,5 +32,22 @@ export default {
   overlay: {
     paused: 'Paused',
     gameOver: 'Game Over',
+  },
+
+  settings: {
+    title: 'Pong Settings',
+    field: {
+      rounds: 'Rounds to win',
+      speed: 'Ball speed',
+    },
+    speed: {
+      slow: 'Slow',
+      normal: 'Normal',
+      fast: 'Fast',
+      turbo: 'Turbo',
+    },
+    action: {
+      ok: 'OK',
+    },
   },
 };

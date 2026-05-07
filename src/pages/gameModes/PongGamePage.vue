@@ -94,31 +94,37 @@
         </q-item>
       </q-list>
 
-      <!-- Start button -->
+      <!-- Start + Settings buttons -->
       <div class="row justify-center q-mt-sm">
-        <q-btn
-          :label="t('gameMode.pong.action.start')"
-          :disable="
-            gameState.left.controllerIds.length === 0 ||
-            gameState.right.controllerIds.length === 0
-          "
-          color="primary"
-          rounded
-          unelevated
-          size="md"
-          data-testid="btn-start"
-          @click="start()"
-        />
-      </div>
-
-      <div
-        v-if="
-          gameState.left.controllerIds.length === 0 ||
-          gameState.right.controllerIds.length === 0
-        "
-        class="text-caption text-grey-5 text-center q-mt-sm"
-      >
-        {{ t('gameMode.pong.setup.startHint') }}
+        <div class="column q-gutter-sm">
+          <q-btn
+            :label="t('gameMode.pong.action.start')"
+            :disable="
+              gameState.left.controllerIds.length === 0 ||
+              gameState.right.controllerIds.length === 0
+            "
+            color="primary"
+            rounded
+            unelevated
+            data-testid="btn-start"
+            @click="start()"
+          >
+            <q-tooltip
+              v-if="
+                gameState.left.controllerIds.length === 0 ||
+                gameState.right.controllerIds.length === 0
+              "
+            >
+              {{ t('gameMode.pong.setup.startHint') }}
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            :label="t('gameMode.pong.action.settings')"
+            outline
+            rounded
+            @click="openSettings()"
+          />
+        </div>
       </div>
     </div>
 
@@ -183,42 +189,44 @@
       </div>
 
       <!-- Action buttons -->
-      <div class="row q-gutter-sm q-mt-sm justify-center">
-        <q-btn
-          v-if="gameState.name === 'completed'"
-          color="primary"
-          :label="t('gameMode.pong.action.restart')"
-          rounded
-          unelevated
-          data-testid="btn-start"
-          @click="start()"
-        />
-        <q-btn
-          v-else-if="gameState.name === 'running'"
-          color="primary"
-          :label="t('gameMode.pong.action.pause')"
-          rounded
-          unelevated
-          data-testid="btn-pause"
-          @click="pause()"
-        />
-        <q-btn
-          v-else-if="gameState.name === 'paused'"
-          color="primary"
-          :label="t('gameMode.pong.action.resume')"
-          rounded
-          unelevated
-          data-testid="btn-resume"
-          @click="resume()"
-        />
-        <q-btn
-          flat
-          color="grey-5"
-          :label="t('gameMode.pong.action.reset')"
-          rounded
-          data-testid="btn-reset"
-          @click="reset()"
-        />
+      <div class="row justify-center q-mt-sm">
+        <div class="column q-gutter-sm">
+          <q-btn
+            v-if="gameState.name === 'completed'"
+            color="primary"
+            :label="t('gameMode.pong.action.restart')"
+            rounded
+            unelevated
+            data-testid="btn-start"
+            @click="start()"
+          />
+          <q-btn
+            v-else-if="gameState.name === 'running'"
+            color="primary"
+            :label="t('gameMode.pong.action.pause')"
+            rounded
+            unelevated
+            data-testid="btn-pause"
+            @click="pause()"
+          />
+          <q-btn
+            v-else-if="gameState.name === 'paused'"
+            color="primary"
+            :label="t('gameMode.pong.action.resume')"
+            rounded
+            unelevated
+            data-testid="btn-resume"
+            @click="resume()"
+          />
+          <q-btn
+            flat
+            color="grey-5"
+            :label="t('gameMode.pong.action.reset')"
+            rounded
+            data-testid="btn-reset"
+            @click="reset()"
+          />
+        </div>
       </div>
     </div>
   </q-page>
@@ -226,9 +234,11 @@
 
 <script lang="ts" setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { useQuasar } from 'quasar';
 import { useBuzzer } from 'src/plugins/buzzer';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import PongRenderer from 'components/gameModes/pong/PongRenderer.vue';
+import PongSettingsDialog from 'components/gameModes/pong/PongSettingsDialog.vue';
 
 import type {
   Team,
@@ -246,9 +256,13 @@ import type {
   PongEnded,
 } from 'app/common/gameState/PongState';
 import { useI18n } from 'vue-i18n';
+import { useGameSettingsStore } from 'stores/game-settings-store';
+import { PONG_SPEED_CONFIGS } from 'app/common/gameSettings/PongSettings';
 
 const { controllers } = useBuzzer();
 const { t } = useI18n();
+const quasar = useQuasar();
+const gameSettingsStore = useGameSettingsStore();
 
 const { gameState, transition, onStateEntry, onStateExit } =
   useGameState<PongState>({
@@ -264,10 +278,20 @@ const HEIGHT = 500;
 const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 100;
 const PADDLE_SPEED = 4;
-const BALL_START_SPEED = 1;
 const MAX_BALL_SPEED = 12;
 const MAX_BOUNCE_ANGLE = Math.PI / 4;
-const TARGET_SCORE = 7;
+
+function openSettings() {
+  quasar.dialog({ component: PongSettingsDialog });
+}
+
+function getSpeedConfig() {
+  return PONG_SPEED_CONFIGS[gameSettingsStore.pongSettings.speed];
+}
+
+function getTargetScore() {
+  return gameSettingsStore.pongSettings.rounds;
+}
 
 const SIM_HZ = 120;
 const DT_MS = 1000 / SIM_HZ;
@@ -306,10 +330,10 @@ const right: Team = reactive({
 const ball: Ball = reactive({
   x: WIDTH / 2,
   y: HEIGHT / 2,
-  vx: BALL_START_SPEED,
+  vx: 1,
   vy: 0,
   radius: 8,
-  speed: BALL_START_SPEED,
+  speed: 1,
 });
 
 const showOverlay = ref(false);
@@ -493,7 +517,7 @@ function flashControllers(controllerIds: string[]) {
 function resetBall() {
   ball.x = WIDTH / 2;
   ball.y = HEIGHT / 2;
-  ball.speed = BALL_START_SPEED;
+  ball.speed = getSpeedConfig().initialSpeed;
   const dir = Math.random() > 0.5 ? 1 : -1;
   const angle = (Math.random() - 0.5) * (Math.PI / 6);
   ball.vx = dir * ball.speed * Math.cos(angle);
@@ -532,7 +556,10 @@ function handlePaddleBounce(p: Paddle, isLeft: boolean) {
   const angle = MAX_BOUNCE_ANGLE * clamp(collide, -1, 1);
   const direction = isLeft ? 1 : -1;
 
-  ball.speed = Math.min(ball.speed * 1.05, MAX_BALL_SPEED);
+  ball.speed = Math.min(
+    ball.speed * getSpeedConfig().speedIncrement,
+    MAX_BALL_SPEED,
+  );
   ball.vx = direction * ball.speed * Math.cos(angle);
   ball.vy = ball.speed * Math.sin(angle);
 
@@ -592,7 +619,7 @@ function stepOnce() {
     resetBall();
   }
 
-  if (left.score >= TARGET_SCORE || right.score >= TARGET_SCORE) {
+  if (left.score >= getTargetScore() || right.score >= getTargetScore()) {
     completeMatch();
     return;
   }
@@ -767,7 +794,7 @@ onStateEntry('completed', () => {
   showOverlay.value = true;
   overlayText.value = t('gameMode.pong.overlay.gameOver');
   winnerText.value =
-    left.score >= TARGET_SCORE
+    left.score >= getTargetScore()
       ? `${t('gameMode.pong.team.left')} wins! 🎉`
       : `${t('gameMode.pong.team.right')} wins! 🎉`;
 });

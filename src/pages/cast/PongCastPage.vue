@@ -1,5 +1,8 @@
 <template>
-  <q-page class="pong-cast-page column justify-center">
+  <q-page
+    v-if="state"
+    class="pong-cast-page column justify-center"
+  >
     <pong-preparing-cast
       v-if="state.name === 'preparing'"
       :state="state"

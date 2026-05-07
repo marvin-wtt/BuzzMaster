@@ -21,6 +21,7 @@
             v-model.number="settings.answerTime"
             type="number"
             :rules="[isNumber]"
+            hide-bottom-space
             rounded
             outlined
           >
@@ -61,6 +62,7 @@
             v-model.number="settings.pointsCorrect"
             type="number"
             :rules="[isNumber]"
+            hide-bottom-space
             rounded
             outlined
           >

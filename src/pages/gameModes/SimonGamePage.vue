@@ -396,13 +396,25 @@ const clearHighlightTimeouts = () => {
 
 onUnmounted(clearHighlightTimeouts);
 
-onStateEntry('showing', async () => {
+onStateEntry('showing', async (state) => {
   await buzzer.reset();
+
+  // Turn on light for all players until sequence is complete
+  controllers.value
+    .filter((c) => state.players.includes(c.id))
+    .forEach((c) => c.setLight(true));
 
   scheduleHighlight(BASE_SHOW_ON_MS);
 });
 
-onStateExit('showing', clearHighlightTimeouts);
+onStateExit('showing', (state) => {
+  // Turn off lights again
+  controllers.value
+    .filter((c) => state.players.includes(c.id))
+    .forEach((c) => c.setLight(false));
+
+  clearHighlightTimeouts();
+});
 
 const updateHighlight = transition('showing', (state) => {
   if (state.stepIndex >= state.sequence.length && state.showing === false) {

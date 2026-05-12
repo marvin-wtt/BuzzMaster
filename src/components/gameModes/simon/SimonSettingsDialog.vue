@@ -60,6 +60,25 @@
             v-model="settings.lastManStanding"
             :label="t('gameMode.simon.settings.field.lastManStanding')"
           />
+
+          <q-input
+            v-model.number="settings.winnerPoints"
+            :label="t('gameMode.simon.settings.field.winnerPoints')"
+            :hint="
+              settings.winnerPoints === 0
+                ? t('gameMode.simon.settings.field.winnerPointsDisabled')
+                : ''
+            "
+            type="number"
+            :rules="[(val: number) => val >= 0 || '≥ 0']"
+            hide-bottom-space
+            rounded
+            outlined
+          >
+            <template #prepend>
+              <q-icon name="emoji_events" />
+            </template>
+          </q-input>
         </q-form>
       </q-card-section>
 

@@ -265,6 +265,7 @@ import TimerAnimated from 'components/TimerAnimated.vue';
 import { useAudio } from 'src/composables/audio';
 import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
@@ -276,6 +277,7 @@ const flasher = useControllerFlasher({
   offMs: 75,
 });
 const { simonSettings } = storeToRefs(useGameSettingsStore());
+const leaderboardStore = useLeaderboardStore();
 const {
   time: inputTimer,
   startTimer,
@@ -349,6 +351,7 @@ const start = transition('preparing', () => {
     sequence: [first],
     players,
     playerNames,
+    eliminatedAt: {},
     stepIndex: 0,
     showing: false,
   };
@@ -374,6 +377,7 @@ const nextRound = transition('roundOver', (state) => {
     sequence: [...state.sequence, next],
     players: state.survivors,
     playerNames: state.playerNames,
+    eliminatedAt: state.eliminatedAt,
     showing: false,
     stepIndex: 0,
   };
@@ -429,6 +433,7 @@ const updateHighlight = transition('showing', (state) => {
       sequence: state.sequence,
       players: state.players,
       playerNames: state.playerNames,
+      eliminatedAt: state.eliminatedAt,
       inputIndex: {},
       timeLimit,
       startTime: Date.now(),
@@ -550,6 +555,30 @@ onStateExit('roundOver', () => {
   }
 });
 
+onStateEntry('gameOver', (state) => {
+  const { winnerPoints } = simonSettings.value;
+  if (winnerPoints <= 0) return;
+
+  const totalRounds = state.round;
+  const hasWinner = state.winner !== undefined;
+
+  for (const [playerId, eliminatedRound] of Object.entries(state.eliminatedAt)) {
+    // No winner: everyone eliminated in the final round shares full points
+    const points =
+      !hasWinner && eliminatedRound === totalRounds
+        ? winnerPoints
+        : Math.floor((winnerPoints * (eliminatedRound - 1)) / totalRounds);
+    leaderboardStore.addPoints(playerId, points);
+  }
+
+  if (hasWinner) {
+    const winnerId = state.players.find((p) => !(p in state.eliminatedAt));
+    if (winnerId !== undefined) {
+      leaderboardStore.addPoints(winnerId, winnerPoints);
+    }
+  }
+});
+
 onUnmounted(() => {
   if (autoNextRoundTimeout) clearTimeout(autoNextRoundTimeout);
 });
@@ -572,10 +601,25 @@ const isGameOver = (survivorCount: number) =>
     ? survivorCount === 0
     : survivorCount <= 1;
 
+const buildEliminatedAt = (
+  state: SimonInputState,
+  survivors: string[],
+): Record<string, number> => {
+  const survivorSet = new Set(survivors);
+  const eliminatedAt = { ...state.eliminatedAt };
+  for (const p of state.players) {
+    if (!survivorSet.has(p)) {
+      eliminatedAt[p] = state.round;
+    }
+  }
+  return eliminatedAt;
+};
+
 const onInputTimeout = transition('input', (state) => {
   const survivors = state.players.filter(
     (p) => (state.inputIndex[p] ?? 0) === state.sequence.length,
   );
+  const eliminatedAt = buildEliminatedAt(state, survivors);
 
   if (isGameOver(survivors.length)) {
     return {
@@ -583,6 +627,8 @@ const onInputTimeout = transition('input', (state) => {
       name: 'gameOver',
       round: state.round,
       winner: resolveWinner(state, survivors[0]),
+      players: state.players,
+      eliminatedAt,
     };
   }
 
@@ -593,6 +639,7 @@ const onInputTimeout = transition('input', (state) => {
     sequence: state.sequence,
     players: state.players,
     playerNames: state.playerNames,
+    eliminatedAt,
     survivors,
   };
 });
@@ -648,6 +695,7 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
 
       return progress === state.sequence.length;
     });
+    const eliminatedAt = buildEliminatedAt(state, survivors);
 
     if (isGameOver(survivors.length)) {
       return {
@@ -655,6 +703,8 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
         name: 'gameOver',
         round: state.round,
         winner: resolveWinner(state, survivors[0]),
+        players: state.players,
+        eliminatedAt,
       };
     }
 
@@ -665,6 +715,7 @@ const onPress = transition('input', (state, event: ButtonEvent) => {
       sequence: state.sequence,
       players: state.players,
       playerNames: state.playerNames,
+      eliminatedAt,
       survivors,
     };
   }

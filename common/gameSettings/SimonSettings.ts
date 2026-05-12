@@ -3,4 +3,5 @@ export interface SimonSettings {
   showingSpeed: number;
   autoNextRound: boolean;
   lastManStanding: boolean;
+  winnerPoints: number;
 }

@@ -41,6 +41,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     showingSpeed: 1,
     autoNextRound: false,
     lastManStanding: false,
+    winnerPoints: 0,
   });
 
   const stopwatchSettings = ref<StopwatchSettings>({

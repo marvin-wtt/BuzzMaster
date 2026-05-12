@@ -46,6 +46,8 @@ export default {
       },
       autoNextRound: 'Siguiente ronda automática',
       lastManStanding: 'Último en pie',
+      winnerPoints: 'Puntos del ganador',
+      winnerPointsDisabled: 'Puntuación desactivada',
     },
 
     action: {

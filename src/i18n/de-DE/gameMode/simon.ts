@@ -46,6 +46,8 @@ export default {
       },
       autoNextRound: 'Automatisch nächste Runde',
       lastManStanding: 'Letzter Überlebender',
+      winnerPoints: 'Gewinnerpunkte',
+      winnerPointsDisabled: 'Punktewertung deaktiviert',
     },
 
     action: {

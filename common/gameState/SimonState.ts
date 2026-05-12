@@ -22,6 +22,7 @@ export interface SimonShowingState {
   sequence: BuzzerButton[];
   players: string[];
   playerNames: Record<string, string>;
+  eliminatedAt: Record<string, number>;
 
   stepIndex: number;
   showing: boolean;
@@ -34,6 +35,7 @@ export interface SimonInputState {
   sequence: BuzzerButton[];
   players: string[];
   playerNames: Record<string, string>;
+  eliminatedAt: Record<string, number>;
 
   inputIndex: Record<string, number>;
   timeLimit: number;
@@ -47,6 +49,7 @@ export interface SimonRoundOverState {
   sequence: BuzzerButton[];
   players: string[];
   playerNames: Record<string, string>;
+  eliminatedAt: Record<string, number>;
   survivors: string[];
 }
 
@@ -55,4 +58,6 @@ export interface SimonGameOverState {
   name: 'gameOver';
   round: number;
   winner: string | undefined;
+  players: string[];
+  eliminatedAt: Record<string, number>;
 }

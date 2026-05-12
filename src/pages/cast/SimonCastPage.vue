@@ -71,6 +71,19 @@
             >
               {{ winnerName }}
             </div>
+            <div
+              v-if="gameOverScores.length > 0"
+              class="gameover-score-list"
+            >
+              <div
+                v-for="entry in gameOverScores"
+                :key="entry.id"
+                class="gameover-score-row"
+              >
+                <span class="gameover-score-name">{{ entry.name }}</span>
+                <span class="gameover-score-pts">+{{ entry.points }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- All other states: pad + info layout -->
@@ -180,6 +193,8 @@ import { BuzzerButton } from 'src/plugins/buzzer/types';
 
 const { t } = useI18n();
 const castStore = useCastStore();
+
+const winnerPoints = computed(() => castStore.gameSettings.simon?.winnerPoints ?? 0);
 
 const SIMON_BUTTONS: BuzzerButton[] = [
   BuzzerButton.BLUE,
@@ -332,6 +347,33 @@ const winnerName = computed<string>(() => {
   const s = state.value;
   if (!s || s.name !== 'gameOver' || !s.winner) return '';
   return s.winner;
+});
+
+const gameOverScores = computed(() => {
+  const s = state.value;
+  if (!s || s.name !== 'gameOver' || winnerPoints.value <= 0) return [];
+
+  const wp = winnerPoints.value;
+  const totalRounds = s.round;
+  const hasWinner = s.winner !== undefined;
+
+  return s.players
+    .map((id) => {
+      const eliminatedRound = s.eliminatedAt[id];
+      const isWinner = eliminatedRound === undefined;
+      const points = isWinner
+        ? wp
+        : !hasWinner && eliminatedRound === totalRounds
+          ? wp
+          : Math.floor((wp * ((eliminatedRound ?? 1) - 1)) / totalRounds);
+      return {
+        id,
+        name: castStore.controllers[id] ?? id,
+        points,
+      };
+    })
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 5);
 });
 
 const headerKey = computed(() => {
@@ -608,6 +650,41 @@ const calloutKey = computed(() => {
 }
 .anon-out {
   color: #ef5350;
+}
+
+/* Game-over score breakdown */
+.gameover-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+  width: min(360px, 80vw);
+}
+
+.gameover-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.gameover-score-name {
+  font-size: clamp(11px, 1.3vw, 15px);
+  font-weight: 600;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gameover-score-pts {
+  font-size: clamp(11px, 1.3vw, 15px);
+  font-weight: 700;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 /* Animations */

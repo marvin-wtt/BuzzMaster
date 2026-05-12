@@ -46,6 +46,8 @@ export default {
       },
       autoNextRound: 'Auto next round',
       lastManStanding: 'Last man standing',
+      winnerPoints: 'Winner points',
+      winnerPointsDisabled: 'Scoring disabled',
     },
 
     action: {

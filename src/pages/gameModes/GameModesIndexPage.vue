@@ -81,6 +81,11 @@ const sections = computed<MenuSection[]>(() => [
     key: 'games',
     items: [
       {
+        routeName: 'simon-game',
+        label: t('gameMode.action.simon'),
+        icon: 'grid_view',
+      },
+      {
         routeName: 'pong-game',
         label: t('gameMode.action.pong'),
         icon: 'sym_o_sports_tennis',

@@ -122,7 +122,10 @@
       <div class="row justify-center q-col-gutter-lg">
         <div class="col-auto column items-center q-gutter-xs">
           <div class="row q-gutter-xs items-center">
-            <div class="blink-dot" style="background: #2196f3" />
+            <div
+              class="blink-dot"
+              style="background: #2196f3"
+            />
           </div>
           <div
             class="text-body1"
@@ -133,8 +136,14 @@
         </div>
         <div class="col-auto column items-center q-gutter-xs">
           <div class="row q-gutter-xs items-center">
-            <div class="blink-dot" style="background: #ff9800" />
-            <div class="blink-dot" style="background: #ff9800" />
+            <div
+              class="blink-dot"
+              style="background: #ff9800"
+            />
+            <div
+              class="blink-dot"
+              style="background: #ff9800"
+            />
           </div>
           <div
             class="text-body1"

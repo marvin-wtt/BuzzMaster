@@ -1,5 +1,6 @@
 <template>
   <q-page
+    v-if="state"
     class="row justify-center"
     padding
   >

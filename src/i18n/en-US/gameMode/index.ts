@@ -3,6 +3,7 @@ import quiz from './quiz';
 import stopwatch from './stopwatch';
 import viewingRate from './viewingRate';
 import pong from './pong';
+import simon from './simon';
 
 export default {
   title: 'Game Mode',
@@ -10,6 +11,7 @@ export default {
   action: {
     buzzer: 'Buzzer',
     quiz: 'Quiz',
+    simon: 'Simon',
     stopwatch: 'Stopwatch',
     viewingRate: 'Viewing Rate',
     pong: 'Pong',
@@ -25,6 +27,7 @@ export default {
 
   buzzer,
   quiz,
+  simon,
   stopwatch,
   viewingRate,
   pong,

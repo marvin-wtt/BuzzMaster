@@ -26,6 +26,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/cast/QuizCastPage.vue'),
       },
       {
+        path: 'simon',
+        name: 'cast-simon',
+        component: () => import('pages/cast/SimonCastPage.vue'),
+      },
+      {
         path: 'stopwatch',
         name: 'cast-stopwatch',
         component: () => import('pages/cast/StopwatchCastPage.vue'),
@@ -86,6 +91,14 @@ const routes: RouteRecordRaw[] = [
             component: () => import('pages/gameModes/QuizGamePage.vue'),
             meta: {
               title: 'gameMode.quiz.title',
+            },
+          },
+          {
+            path: 'simon',
+            name: 'simon-game',
+            component: () => import('pages/gameModes/SimonGamePage.vue'),
+            meta: {
+              title: 'gameMode.simon.title',
             },
           },
           {

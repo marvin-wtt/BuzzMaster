@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import type { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
 import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { SimonSettings } from 'app/common/gameSettings/SimonSettings';
 import type { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
 import type { GameSettings } from 'app/common/gameSettings';
 import type { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
@@ -35,6 +36,14 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     pointsWrong: 0,
   });
 
+  const simonSettings = ref<SimonSettings>({
+    answerTime: 1,
+    showingSpeed: 1,
+    autoNextRound: false,
+    lastManStanding: false,
+    winnerPoints: 0,
+  });
+
   const stopwatchSettings = ref<StopwatchSettings>({
     playSounds: true,
   });
@@ -53,6 +62,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
   const gameSettings = computed<GameSettings>(() => ({
     buzzer: buzzerSettings.value,
     quiz: quizSettings.value,
+    simon: simonSettings.value,
     stopwatch: stopwatchSettings.value,
     viewingRate: viewingRateSettings.value,
     pong: pongSettings.value,
@@ -63,6 +73,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
 
     buzzerSettings,
     quizSettings,
+    simonSettings,
     stopwatchSettings,
     viewingRateSettings,
     pongSettings,

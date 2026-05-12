@@ -1,5 +1,6 @@
 <template>
   <q-page
+    v-if="state"
     class="column"
     padding
   >
@@ -65,7 +66,7 @@ const state = computed<LeaderboardState>(() => {
 });
 
 const leaderboard = computed<LeaderboardEntry[]>(() => {
-  return state.value.entries;
+  return state.value?.entries ?? [];
 });
 
 const intervalId = setInterval(() => {

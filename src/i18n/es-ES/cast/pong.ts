@@ -12,6 +12,11 @@ export default {
       yellow: 'Amarillo',
       down: '↓ Mover abajo',
     },
+    blink: {
+      title: 'Luz del control',
+      left: '1 parpadeo = Equipo izquierdo',
+      right: '2 parpadeos = Equipo derecho',
+    },
   },
   running: {
     left: 'Izquierda',

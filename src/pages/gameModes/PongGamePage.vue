@@ -24,6 +24,19 @@
           ◄ {{ t('gameMode.pong.team.left') }}
         </div>
         <div class="col-grow" />
+        <q-btn
+          flat
+          round
+          dense
+          icon="shuffle"
+          :disable="controllers.length === 0"
+          class="text-grey-5"
+          size="sm"
+          @click="handleRandomAssign()"
+        >
+          <q-tooltip>{{ t('gameMode.pong.action.randomAssign') }}</q-tooltip>
+        </q-btn>
+        <div class="col-grow" />
         <div
           class="team-label text-caption text-weight-bold"
           style="color: #ff9800"
@@ -685,6 +698,33 @@ function controllerNameStyle(id: string): string {
     return 'color:#ff9800';
   }
   return '';
+}
+
+const randomAssignTeams = transition(
+  'preparing',
+  (state: PongPreparingState): PongPreparingState => {
+    const ids = [...controllers.value.map((c) => c.id)];
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j]!, ids[i]!];
+    }
+    const mid = Math.ceil(ids.length / 2);
+    return {
+      game: 'pong',
+      name: 'preparing',
+      left: { controllerIds: ids.slice(0, mid) },
+      right: { controllerIds: ids.slice(mid) },
+    };
+  },
+);
+
+function handleRandomAssign() {
+  stopAllBlinking();
+  randomAssignTeams();
+  const state = gameState.value;
+  if (state.name !== 'preparing') return;
+  state.left.controllerIds.forEach((id) => startBlinking(id, 'left'));
+  state.right.controllerIds.forEach((id) => startBlinking(id, 'right'));
 }
 
 function handleTeamClick(controllerId: string, side: 'left' | 'right') {

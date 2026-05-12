@@ -700,23 +700,20 @@ function controllerNameStyle(id: string): string {
   return '';
 }
 
-const randomAssignTeams = transition(
-  'preparing',
-  (state: PongPreparingState): PongPreparingState => {
-    const ids = [...controllers.value.map((c) => c.id)];
-    for (let i = ids.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [ids[i], ids[j]] = [ids[j]!, ids[i]!];
-    }
-    const mid = Math.ceil(ids.length / 2);
-    return {
-      game: 'pong',
-      name: 'preparing',
-      left: { controllerIds: ids.slice(0, mid) },
-      right: { controllerIds: ids.slice(mid) },
-    };
-  },
-);
+const randomAssignTeams = transition('preparing', (): PongPreparingState => {
+  const ids = [...controllers.value.map((c) => c.id)];
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j]!, ids[i]!];
+  }
+  const mid = Math.ceil(ids.length / 2);
+  return {
+    game: 'pong',
+    name: 'preparing',
+    left: { controllerIds: ids.slice(0, mid) },
+    right: { controllerIds: ids.slice(mid) },
+  };
+});
 
 function handleRandomAssign() {
   stopAllBlinking();

@@ -2,183 +2,180 @@
   <q-page
     v-if="state"
     class="cast-page"
-    padding
   >
-    <div class="cast-wrap">
-      <!-- Header -->
-      <header class="cast-header">
-        <transition
-          name="slide-fade"
-          mode="out-in"
+    <header class="cast-header">
+      <transition
+        name="slide-fade"
+        mode="out-in"
+      >
+        <div
+          :key="headerKey"
+          class="header-inner"
         >
-          <div
-            :key="headerKey"
-            class="header-inner"
-          >
-            <div class="round">
-              {{ t('cast.simon.round', { round: safeRound }) }}
-            </div>
-
-            <div class="meta-row">
-              <div
-                class="phase-pill"
-                :class="phaseClass"
-              >
-                <span class="phase-dot" />
-                <span class="phase-text">{{ phaseLabel }}</span>
-              </div>
-
-              <div
-                v-if="playerCount !== null"
-                class="meta-item"
-              >
-                {{ t('cast.simon.players', { n: playerCount }) }}
-              </div>
-
-              <div
-                v-if="survivorCount !== null"
-                class="meta-item"
-              >
-                {{ t('cast.simon.survivors', { n: survivorCount }) }}
-              </div>
-            </div>
-          </div>
-        </transition>
-      </header>
-
-      <!-- Main stage: winner hero on gameOver, normal pad layout otherwise -->
-      <main class="stage">
-        <transition
-          name="fade"
-          mode="out-in"
-        >
-          <!-- Game over: winner takes over the entire stage -->
-          <div
-            v-if="state.name === 'gameOver'"
-            key="gameover"
-            class="winner-hero"
-          >
-            <div class="winner-label">
-              {{
-                winnerName
-                  ? t('cast.simon.callout.winner')
-                  : t('cast.simon.callout.gameOver')
-              }}
-            </div>
-            <div
-              v-if="winnerName"
-              class="winner-name"
-            >
-              {{ winnerName }}
-            </div>
-            <div
-              v-if="gameOverScores.length > 0"
-              class="gameover-score-list"
-            >
-              <div
-                v-for="entry in gameOverScores"
-                :key="entry.id"
-                class="gameover-score-row"
-              >
-                <span class="gameover-score-name">{{ entry.name }}</span>
-                <span class="gameover-score-pts">+{{ entry.points }}</span>
-              </div>
-            </div>
+          <div class="round">
+            {{ t('cast.simon.round', { round: safeRound }) }}
           </div>
 
-          <!-- All other states: pad + info layout -->
+          <div class="meta-row">
+            <div
+              class="phase-pill"
+              :class="phaseClass"
+            >
+              <span class="phase-dot" />
+              <span class="phase-text">{{ phaseLabel }}</span>
+            </div>
+
+            <div
+              v-if="playerCount !== null"
+              class="meta-item"
+            >
+              {{ t('cast.simon.players', { n: playerCount }) }}
+            </div>
+
+            <div
+              v-if="survivorCount !== null"
+              class="meta-item"
+            >
+              {{ t('cast.simon.survivors', { n: survivorCount }) }}
+            </div>
+          </div>
+        </div>
+      </transition>
+    </header>
+
+    <main class="stage">
+      <transition
+        name="fade"
+        mode="out-in"
+      >
+        <div
+          v-if="state.name === 'gameOver'"
+          key="gameover"
+          class="winner-hero"
+        >
+          <div class="winner-label text-center">
+            {{
+              winnerName
+                ? t('cast.simon.callout.winner')
+                : t('cast.simon.callout.gameOver')
+            }}
+          </div>
           <div
-            v-else
-            key="playing"
-            class="pad-stage"
-            :class="{
-              'pad-stage--showing': state.name === 'showing',
-              'pad-stage--input': state.name === 'input',
-            }"
+            v-if="winnerName"
+            class="winner-name text-center"
           >
-            <div class="pad-frame">
-              <SimonPad
-                :buttons="SIMON_BUTTONS"
-                :highlight="highlight"
-                :style="{
-                  '--width': '100%',
-                  '--bar-h': '72px',
-                }"
-                class="pad"
+            {{ winnerName }}
+          </div>
+          <div
+            v-if="eliminationHistogram.length > 0"
+            class="histogram"
+          >
+            <div
+              v-for="(bar, index) in eliminationHistogram"
+              :key="bar.round"
+              class="hist-row"
+              :style="{ '--i': index }"
+            >
+              <span class="hist-label">
+                {{ t('cast.simon.round', { round: bar.round }) }}
+              </span>
+              <div class="hist-track">
+                <div
+                  class="hist-bar"
+                  :class="{
+                    'hist-bar--primary': index === eliminationHistogram.length - 1,
+                  }"
+                  :style="{ '--pct': bar.pct }"
+                />
+              </div>
+              <span class="hist-pts">+{{ bar.points }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else
+          key="playing"
+          class="pad-stage"
+          :class="{
+            'pad-stage--showing': state.name === 'showing',
+            'pad-stage--input': state.name === 'input',
+          }"
+        >
+          <div class="pad-frame">
+            <SimonPad
+              :buttons="SIMON_BUTTONS"
+              :highlight="highlight"
+              :style="{
+                '--width': '100%',
+                '--bar-h': '72px',
+              }"
+              class="pad"
+            />
+          </div>
+
+          <transition
+            name="fade"
+            mode="out-in"
+          >
+            <div
+              :key="calloutKey"
+              class="callout"
+            >
+              {{ calloutText }}
+            </div>
+          </transition>
+
+          <div
+            v-if="showingStep !== null"
+            class="step-counter"
+          >
+            {{ showingStep }}
+          </div>
+
+          <div
+            v-if="remainingTime !== null"
+            class="countdown"
+          >
+            <timer-animated :time="remainingTime" />
+          </div>
+
+          <div
+            v-if="anonymousProgress !== null"
+            class="anon-progress"
+          >
+            <div class="anon-bar">
+              <div
+                class="anon-seg anon-seg--done"
+                :style="{ flex: anonymousProgress.done }"
+              />
+              <div
+                class="anon-seg anon-seg--playing"
+                :style="{ flex: anonymousProgress.playing }"
+              />
+              <div
+                class="anon-seg anon-seg--out"
+                :style="{ flex: anonymousProgress.out }"
               />
             </div>
-
-            <!-- Callout: only animates on phase change, not on every button flash -->
-            <transition
-              name="fade"
-              mode="out-in"
-            >
-              <div
-                :key="calloutKey"
-                class="callout"
+            <div class="anon-legend">
+              <span
+                v-if="anonymousProgress.done > 0"
+                class="anon-done"
               >
-                {{ calloutText }}
-              </div>
-            </transition>
-
-            <!-- Step counter: updates reactively without animation -->
-            <div
-              v-if="showingStep !== null"
-              class="step-counter"
-            >
-              {{ showingStep }}
-            </div>
-
-            <!-- Countdown timer: derived from startTime + timeLimit, no IPC needed -->
-            <div
-              v-if="remainingTime !== null"
-              class="countdown"
-            >
-              <timer-animated :time="remainingTime" />
-            </div>
-
-            <!-- Anonymous aggregate progress (no individual names) -->
-            <div
-              v-if="anonymousProgress !== null"
-              class="anon-progress"
-            >
-              <div class="anon-bar">
-                <div
-                  class="anon-seg anon-seg--done"
-                  :style="{ flex: anonymousProgress.done }"
-                />
-                <div
-                  class="anon-seg anon-seg--playing"
-                  :style="{ flex: anonymousProgress.playing }"
-                />
-                <div
-                  class="anon-seg anon-seg--out"
-                  :style="{ flex: anonymousProgress.out }"
-                />
-              </div>
-              <div class="anon-legend">
-                <span
-                  v-if="anonymousProgress.done > 0"
-                  class="anon-done"
-                >
-                  {{
-                    t('cast.simon.progress.done', { n: anonymousProgress.done })
-                  }}
-                </span>
-                <span
-                  v-if="anonymousProgress.out > 0"
-                  class="anon-out"
-                >
-                  {{
-                    t('cast.simon.progress.out', { n: anonymousProgress.out })
-                  }}
-                </span>
-              </div>
+                {{ t('cast.simon.progress.done', { n: anonymousProgress.done }) }}
+              </span>
+              <span
+                v-if="anonymousProgress.out > 0"
+                class="anon-out"
+              >
+                {{ t('cast.simon.progress.out', { n: anonymousProgress.out }) }}
+              </span>
             </div>
           </div>
-        </transition>
-      </main>
-    </div>
+        </div>
+      </transition>
+    </main>
   </q-page>
 </template>
 
@@ -194,8 +191,6 @@ import { BuzzerButton } from 'src/plugins/buzzer/types';
 const { t } = useI18n();
 const castStore = useCastStore();
 
-const winnerPoints = computed(() => castStore.gameSettings.simon?.winnerPoints ?? 0);
-
 const SIMON_BUTTONS: BuzzerButton[] = [
   BuzzerButton.BLUE,
   BuzzerButton.ORANGE,
@@ -207,7 +202,6 @@ const state = computed<SimonState | undefined>(() => {
   return castStore.gameState as SimonState | undefined;
 });
 
-// Local clock for countdown — runs only during timed input phases, no IPC needed
 const now = ref(Date.now());
 let nowInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -228,12 +222,12 @@ watch(
 );
 
 onUnmounted(() => {
-  if (nowInterval) clearInterval(nowInterval);
+  if (nowInterval) {
+    clearInterval(nowInterval);
+  }
 });
 
-const safeRound = computed(() => {
-  return state.value?.round ?? 0;
-});
+const safeRound = computed(() => state.value?.round ?? 0);
 
 const highlight = computed<BuzzerButton | null>(() => {
   const s = state.value;
@@ -256,7 +250,6 @@ const remainingTime = computed<number | null>(() => {
   return Math.max(0, s.timeLimit - (now.value - s.startTime) / 1000);
 });
 
-// Anonymous aggregate — no individual names, just counts per status bucket
 const anonymousProgress = computed<{
   done: number;
   out: number;
@@ -268,8 +261,11 @@ const anonymousProgress = computed<{
   let out = 0;
   for (const id of s.players) {
     const raw = s.inputIndex[id] ?? 0;
-    if (raw === s.sequence.length) done++;
-    else if (raw === -1) out++;
+    if (raw === s.sequence.length) {
+      done++;
+    } else if (raw === -1) {
+      out++;
+    }
   }
   return { done, out, playing: s.players.length - done - out };
 });
@@ -323,8 +319,6 @@ const calloutText = computed(() => {
   return '';
 });
 
-// Show player count only during showing/input — not during roundOver (survivors shown instead)
-// and not during gameOver (winner hero shown)
 const playerCount = computed<number | null>(() => {
   const s = state.value;
   if (
@@ -332,8 +326,9 @@ const playerCount = computed<number | null>(() => {
     s.name === 'preparing' ||
     s.name === 'roundOver' ||
     s.name === 'gameOver'
-  )
+  ) {
     return null;
+  }
   return s.players.length;
 });
 
@@ -349,7 +344,11 @@ const winnerName = computed<string>(() => {
   return s.winner;
 });
 
-const gameOverScores = computed(() => {
+const winnerPoints = computed(
+  () => castStore.gameSettings.simon?.winnerPoints ?? 0,
+);
+
+const eliminationHistogram = computed(() => {
   const s = state.value;
   if (!s || s.name !== 'gameOver' || winnerPoints.value <= 0) return [];
 
@@ -357,64 +356,64 @@ const gameOverScores = computed(() => {
   const totalRounds = s.round;
   const hasWinner = s.winner !== undefined;
 
-  return s.players
-    .map((id) => {
-      const eliminatedRound = s.eliminatedAt[id];
-      const isWinner = eliminatedRound === undefined;
-      const points = isWinner
-        ? wp
-        : !hasWinner && eliminatedRound === totalRounds
-          ? wp
-          : Math.floor((wp * ((eliminatedRound ?? 1) - 1)) / totalRounds);
-      return {
-        id,
-        name: castStore.controllers[id] ?? id,
-        points,
-      };
-    })
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 5);
+  const countByRound: Record<number, number> = {};
+  for (const round of Object.values(s.eliminatedAt)) {
+    countByRound[round] = (countByRound[round] ?? 0) + 1;
+  }
+
+  const rounds = Object.keys(countByRound)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  if (rounds.length === 0) return [];
+
+  const pointsForRound = (round: number): number =>
+    !hasWinner && round === totalRounds
+      ? wp
+      : Math.floor((wp * (round - 1)) / totalRounds);
+
+  const maxPts = Math.max(...rounds.map(pointsForRound));
+
+  return rounds.map((round) => {
+    const pts = pointsForRound(round);
+    return {
+      round,
+      count: countByRound[round]!,
+      points: pts,
+      pct: maxPts > 0 ? pts / maxPts : 0,
+      isPeak: pts === maxPts,
+    };
+  });
 });
 
-const headerKey = computed(() => {
-  return `${state.value?.name ?? 'none'}-${safeRound.value}`;
-});
+const headerKey = computed(() => `${state.value?.name ?? 'none'}-${safeRound.value}`);
 
-// Fixed: was `${name}-${highlight}` which caused a fade flicker every ~300ms
-// during showing phase even though the callout text never changed.
-const calloutKey = computed(() => {
-  return state.value?.name ?? 'none';
-});
+// Keyed only on phase name — not on highlight — to avoid flicker every ~300ms during showing
+const calloutKey = computed(() => state.value?.name ?? 'none');
 </script>
 
 <style scoped>
 .cast-page {
-  min-height: 100vh;
-  /* No background override — inherits from Quasar theme so light mode and
-     transparent window mode both work correctly. */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.cast-wrap {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 28px;
-}
-
-/* Header */
 .cast-header {
-  padding-top: 8px;
+  padding: clamp(6px, 1.2vh, 16px) clamp(16px, 3vw, 40px);
+  flex-shrink: 0;
 }
 
 .header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .round {
   font-weight: 800;
-  font-size: clamp(34px, 4.5vw, 64px);
+  font-size: clamp(22px, 4.5vw, 64px);
   letter-spacing: 0.02em;
   text-align: center;
   text-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
@@ -431,8 +430,8 @@ const calloutKey = computed(() => {
 .phase-pill {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: clamp(6px, 0.8vh, 10px) 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   box-shadow:
@@ -476,40 +475,41 @@ const calloutKey = computed(() => {
   opacity: 0.9;
 }
 
-/* Stage */
 .stage {
+  flex: 1;
   display: grid;
   place-items: center;
-  padding-bottom: 24px;
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(10px, 2vh, 28px) clamp(16px, 3vw, 40px);
 }
 
-/* Winner hero (gameOver) */
 .winner-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 20px;
+  justify-content: space-between;
+  gap: clamp(10px, 2.5vh, 24px);
   width: 100%;
-  min-height: 400px;
-  padding: 48px 24px;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: clamp(16px, 3vh, 40px) 16px;
 }
 
 .winner-label {
-  font-size: clamp(14px, 1.8vw, 20px);
+  font-size: clamp(12px, 1.8vw, 20px);
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   opacity: 0.6;
-  text-align: center;
 }
 
 .winner-name {
-  font-size: clamp(56px, 9vw, 120px);
+  font-size: clamp(32px, 7vw, 100px);
   font-weight: 900;
   letter-spacing: -0.02em;
   line-height: 1;
-  text-align: center;
   text-shadow:
     0 0 80px rgba(255, 255, 255, 0.4),
     0 20px 60px rgba(0, 0, 0, 0.7);
@@ -531,7 +531,6 @@ const calloutKey = computed(() => {
   }
 }
 
-/* Normal pad layout */
 .pad-stage {
   width: min(760px, 92vw);
   display: grid;
@@ -574,7 +573,6 @@ const calloutKey = computed(() => {
   width: 100%;
 }
 
-/* Callout */
 .callout {
   font-size: clamp(18px, 2.2vw, 26px);
   font-weight: 700;
@@ -584,7 +582,6 @@ const calloutKey = computed(() => {
   text-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
 }
 
-/* Step counter — updates without animation */
 .step-counter {
   font-size: clamp(13px, 1.5vw, 18px);
   font-weight: 600;
@@ -594,7 +591,6 @@ const calloutKey = computed(() => {
   text-align: center;
 }
 
-/* Countdown */
 .countdown {
   font-size: clamp(32px, 4vw, 56px);
   font-weight: 800;
@@ -604,7 +600,6 @@ const calloutKey = computed(() => {
   text-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-/* Anonymous aggregate progress bar */
 .anon-progress {
   width: min(420px, 70vw);
   display: flex;
@@ -652,51 +647,92 @@ const calloutKey = computed(() => {
   color: #ef5350;
 }
 
-/* Game-over score breakdown */
-.gameover-score-list {
+.histogram {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 16px;
-  width: min(360px, 80vw);
-}
-
-.gameover-score-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.gameover-score-name {
-  font-size: clamp(11px, 1.3vw, 15px);
-  font-weight: 600;
-  opacity: 0.7;
+  gap: clamp(5px, 1vh, 10px);
+  width: min(520px, 88vw);
+  margin-top: clamp(16px, 4vh, 48px);
+  min-height: 0;
+  flex-shrink: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.hist-row {
+  display: grid;
+  grid-template-columns: 6ch 1fr auto;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  animation: hist-row-in 350ms ease forwards;
+  animation-delay: calc(var(--i) * 70ms + 100ms);
+}
+
+.hist-label {
+  font-size: clamp(10px, 1.2vw, 14px);
+  font-weight: 600;
+  opacity: 0.55;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.hist-track {
+  height: clamp(16px, 2.2vh, 26px);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.hist-bar {
+  height: 100%;
+  width: 0;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+  animation: grow-bar 650ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i) * 70ms + 280ms);
+}
+
+.hist-bar--primary {
+  background: var(--q-primary);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--q-primary) 50%, transparent);
+}
+
+.hist-pts {
+  font-size: clamp(10px, 1.2vw, 14px);
+  font-weight: 700;
+  opacity: 0.75;
   white-space: nowrap;
 }
 
-.gameover-score-pts {
-  font-size: clamp(11px, 1.3vw, 15px);
-  font-weight: 700;
-  opacity: 0.7;
-  flex-shrink: 0;
+@keyframes grow-bar {
+  from {
+    width: 0;
+  }
+  to {
+    width: calc(var(--pct) * 100%);
+  }
 }
 
-/* Animations */
+@keyframes hist-row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes pulse {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08);
   }
   50% {
     transform: scale(1.12);
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.07);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.12);
   }
 }
 

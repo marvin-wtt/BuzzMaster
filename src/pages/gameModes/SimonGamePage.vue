@@ -562,7 +562,9 @@ onStateEntry('gameOver', (state) => {
   const totalRounds = state.round;
   const hasWinner = state.winner !== undefined;
 
-  for (const [playerId, eliminatedRound] of Object.entries(state.eliminatedAt)) {
+  for (const [playerId, eliminatedRound] of Object.entries(
+    state.eliminatedAt,
+  )) {
     // No winner: everyone eliminated in the final round shares full points
     const points =
       !hasWinner && eliminatedRound === totalRounds

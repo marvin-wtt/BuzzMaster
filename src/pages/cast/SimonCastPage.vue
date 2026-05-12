@@ -83,7 +83,8 @@
                 <div
                   class="hist-bar"
                   :class="{
-                    'hist-bar--primary': index === eliminationHistogram.length - 1,
+                    'hist-bar--primary':
+                      index === eliminationHistogram.length - 1,
                   }"
                   :style="{ '--pct': bar.pct }"
                 />
@@ -163,7 +164,9 @@
                 v-if="anonymousProgress.done > 0"
                 class="anon-done"
               >
-                {{ t('cast.simon.progress.done', { n: anonymousProgress.done }) }}
+                {{
+                  t('cast.simon.progress.done', { n: anonymousProgress.done })
+                }}
               </span>
               <span
                 v-if="anonymousProgress.out > 0"
@@ -386,7 +389,9 @@ const eliminationHistogram = computed(() => {
   });
 });
 
-const headerKey = computed(() => `${state.value?.name ?? 'none'}-${safeRound.value}`);
+const headerKey = computed(
+  () => `${state.value?.name ?? 'none'}-${safeRound.value}`,
+);
 
 // Keyed only on phase name — not on highlight — to avoid flicker every ~300ms during showing
 const calloutKey = computed(() => state.value?.name ?? 'none');

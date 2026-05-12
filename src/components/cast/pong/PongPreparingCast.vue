@@ -72,7 +72,7 @@
     </div>
 
     <!-- Controls explanation -->
-    <div class="controls-section q-pa-md">
+    <div class="controls-section q-pa-md q-mb-md">
       <div class="text-subtitle1 text-grey-5 text-center q-mb-sm">
         {{ t('cast.pong.preparing.controls.title') }}
       </div>
@@ -109,6 +109,38 @@
           </div>
           <div class="text-body1">
             {{ t('cast.pong.preparing.controls.down') }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blink indicator legend -->
+    <div class="controls-section q-pa-md">
+      <div class="text-subtitle1 text-grey-5 text-center q-mb-sm">
+        {{ t('cast.pong.preparing.blink.title') }}
+      </div>
+      <div class="row justify-center q-col-gutter-lg">
+        <div class="col-auto column items-center q-gutter-xs">
+          <div class="row q-gutter-xs items-center">
+            <div class="blink-dot" style="background: #2196f3" />
+          </div>
+          <div
+            class="text-body1"
+            style="color: #2196f3"
+          >
+            {{ t('cast.pong.preparing.blink.left') }}
+          </div>
+        </div>
+        <div class="col-auto column items-center q-gutter-xs">
+          <div class="row q-gutter-xs items-center">
+            <div class="blink-dot" style="background: #ff9800" />
+            <div class="blink-dot" style="background: #ff9800" />
+          </div>
+          <div
+            class="text-body1"
+            style="color: #ff9800"
+          >
+            {{ t('cast.pong.preparing.blink.right') }}
           </div>
         </div>
       </div>
@@ -208,5 +240,11 @@ const rightNames = computed(() =>
   font-size: 0.85rem;
   padding: 6px 12px;
   border-radius: 4px;
+}
+
+.blink-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
 }
 </style>

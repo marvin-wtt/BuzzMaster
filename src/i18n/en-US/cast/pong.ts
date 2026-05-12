@@ -12,6 +12,11 @@ export default {
       yellow: 'Yellow',
       down: '↓ Move Down',
     },
+    blink: {
+      title: 'Controller Light',
+      left: '1 blink = Left team',
+      right: '2 blinks = Right team',
+    },
   },
   running: {
     left: 'Left',

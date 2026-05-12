@@ -8,6 +8,7 @@ export default {
     restart: 'Neustart',
     reset: 'Zurücksetzen',
     settings: 'Einstellungen',
+    randomAssign: 'Zufällige Teams',
   },
 
   team: {

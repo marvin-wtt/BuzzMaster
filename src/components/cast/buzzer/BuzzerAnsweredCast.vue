@@ -12,10 +12,7 @@
         key="check"
         class="points-info column"
       >
-        <div
-          class="text-h3 text-center q-py-md"
-          style="word-break: break-all"
-        >
+        <div class="text-h3 text-center q-py-md controller-name">
           {{ controllers[props.state.controller] }}
         </div>
         <q-separator />
@@ -73,6 +70,10 @@ setTimeout(() => {
 </script>
 
 <style scoped>
+.controller-name {
+  word-break: break-all;
+}
+
 .check-cross,
 .points-info {
   transition:

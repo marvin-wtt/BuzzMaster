@@ -7,7 +7,7 @@
   >
     <q-header
       v-if="showAppBar"
-      class="bg-grey"
+      :class="darkMode ? 'bg-grey-10' : 'bg-grey-2'"
       elevated
       @mouseenter="onMouseEnter"
       @mouseleave="onMouseLeave"
@@ -125,8 +125,10 @@ function setTransparent() {
 </script>
 
 <style>
+@import '@fontsource-variable/inter';
+
 * {
-  font-family: sans-serif;
+  font-family: 'Inter Variable', sans-serif;
 }
 
 body.body--dark {

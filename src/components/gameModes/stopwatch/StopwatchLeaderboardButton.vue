@@ -10,10 +10,10 @@
 </template>
 
 <script lang="ts" setup>
-import StopwatchPointsDialog from 'components/gameModes/stopwatch/StopwatchPointsDialog.vue';
+import StopwatchPointsDialog from '@/components/gameModes/stopwatch/StopwatchPointsDialog.vue';
 import { useQuasar } from 'quasar';
-import { useLeaderboardStore } from 'stores/leaderboard-store';
-import type { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
+import { useLeaderboardStore } from '@/stores/leaderboard-store';
+import type { StopwatchEntry } from '@/components/gameModes/stopwatch/StopwatchEntry';
 
 const quasar = useQuasar();
 const leaderboardStore = useLeaderboardStore();

@@ -13,11 +13,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { computed } from 'vue';
-import type { StopwatchState } from 'app/common/gameState/StopwatchState';
-import StopwatchPreparingCast from 'components/cast/stopwatch/StopwatchPreparingCast.vue';
-import StopwatchRunningCast from 'components/cast/stopwatch/StopwatchRunningCast.vue';
+import type { StopwatchState } from '@/../common/gameState/StopwatchState';
+import StopwatchPreparingCast from '@/components/cast/stopwatch/StopwatchPreparingCast.vue';
+import StopwatchRunningCast from '@/components/cast/stopwatch/StopwatchRunningCast.vue';
 
 const castStore = useCastStore();
 

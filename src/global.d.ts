@@ -1,4 +1,4 @@
-import type { AppAPI, WindowAPI, CastAPI } from 'app/common';
+import type { AppAPI, WindowAPI, CastAPI } from '@/../common';
 
 export {};
 

@@ -36,9 +36,9 @@
 </template>
 
 <script lang="ts" setup>
-import CrossCheck from 'components/CrossCheck.vue';
+import CrossCheck from '@/components/CrossCheck.vue';
 import { computed } from 'vue';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton } from '@/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 
 const { n } = useI18n();

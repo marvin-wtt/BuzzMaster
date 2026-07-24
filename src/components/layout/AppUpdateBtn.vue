@@ -200,7 +200,7 @@ import { computed, ref, useAttrs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { format } from 'quasar';
 import type { UpdateInfo } from 'electron-updater';
-import { useUpdaterStore } from 'stores/updater-store';
+import { useUpdaterStore } from '@/stores/updater-store';
 import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();

@@ -20,9 +20,9 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import QuizResultBar from 'components/gameModes/quiz/QuizResultBar.vue';
+import { BuzzerButton } from '@/plugins/buzzer/types';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import QuizResultBar from '@/components/gameModes/quiz/QuizResultBar.vue';
 
 const { quizSettings } = useGameSettingsStore();
 

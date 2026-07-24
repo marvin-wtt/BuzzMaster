@@ -84,7 +84,7 @@ import { useI18n } from 'vue-i18n';
 import {
   type BatterySavingEntry,
   useBatterySavingStore,
-} from 'stores/battery-saving-store';
+} from '@/stores/battery-saving-store';
 import { computed, ref } from 'vue';
 
 defineEmits([...useDialogPluginComponent.emits]);

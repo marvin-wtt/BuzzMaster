@@ -1,17 +1,19 @@
 import { app, BrowserWindow } from 'electron';
-import initWindowApiHandler from 'app/src-electron/windowAPI/main';
-import initAppApiHandler from 'app/src-electron/appAPI/main';
-import initCastApiHandler from 'app/src-electron/castAPI/main';
+import initWindowApiHandler from '@/../src-electron/windowAPI/main';
+import initAppApiHandler from '@/../src-electron/appAPI/main';
+import initCastApiHandler from '@/../src-electron/castAPI/main';
 import path from 'path';
 import os from 'os';
-import { fileURLToPath } from 'node:url';
 import log from 'electron-log';
+import {
+  registerQuasarRuntime,
+  resolveElectronAssetsPath,
+} from '#q-app/electron/main';
 
 import './electron-updater';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
-const currentDir = fileURLToPath(new URL('.', import.meta.url));
 const singleInstanceLock = app.requestSingleInstanceLock();
 let mainWindow: BrowserWindow | undefined;
 
@@ -24,29 +26,22 @@ if (!singleInstanceLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
+    log.info('Application is already running, restoring window.');
+
+    const mainWindow = BrowserWindow.getAllWindows().find(
+      (win) => !win.isDestroyed(),
+    );
     mainWindow?.restore();
-    mainWindow?.center();
     mainWindow?.focus();
   });
 }
 
-function getPreloadPath(name: string): string {
-  return path.resolve(
-    currentDir,
-    path.join(
-      process.env.QUASAR_ELECTRON_PRELOAD_FOLDER!,
-      name + process.env.QUASAR_ELECTRON_PRELOAD_EXTENSION,
-    ),
-  );
-}
-
 async function createWindow() {
-  const electronPreload = getPreloadPath('electron-preload');
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
+    icon: resolveElectronAssetsPath('icons/icon.png'), // tray icon
     width: 500,
     minWidth: 400,
     height: 800,
@@ -55,7 +50,7 @@ async function createWindow() {
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
-      preload: electronPreload,
+      preload: path.join(import.meta.dirname, 'electron-preload.cjs'),
       backgroundThrottling: false,
     },
   });
@@ -88,13 +83,13 @@ async function createWindow() {
     return false;
   });
 
-  if (process.env.DEV) {
-    await mainWindow.loadURL(process.env.APP_URL);
+  if (import.meta.env.QUASAR_DEV) {
+    await mainWindow.loadURL(import.meta.env.QUASAR_APP_URL);
   } else {
     await mainWindow.loadFile('index.html');
   }
 
-  if (process.env.DEBUGGING) {
+  if (import.meta.env.QUASAR_DEBUG) {
     // if on DEV or Production with debug enabled
     mainWindow.webContents.openDevTools();
   } else {
@@ -106,7 +101,6 @@ async function createWindow() {
 }
 
 async function createCastWindow() {
-  const electronPreload = getPreloadPath('electron-preload');
   /**
    * Initial window options
    */
@@ -116,7 +110,7 @@ async function createCastWindow() {
 
   const window = new BrowserWindow({
     parent: mainWindow,
-    icon: path.resolve(currentDir, 'icons/icon.png'), // tray icon
+    icon: resolveElectronAssetsPath('icons/icon.png'), // tray icon
     width: 500,
     minWidth: 400,
     height: 800,
@@ -126,15 +120,15 @@ async function createCastWindow() {
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
-      preload: electronPreload,
+      preload: path.join(import.meta.dirname, 'electron-preload.cjs'),
       backgroundThrottling: false,
     },
   });
 
   const defaultRoute = '#/cast';
 
-  if (process.env.DEV) {
-    await window.loadURL(process.env.APP_URL + defaultRoute);
+  if (import.meta.env.QUASAR_DEV) {
+    await window.loadURL(import.meta.env.QUASAR_APP_URL + defaultRoute);
   } else {
     await window
       .loadFile('index.html')
@@ -145,7 +139,7 @@ async function createCastWindow() {
       );
   }
 
-  if (process.env.DEBUGGING) {
+  if (import.meta.env.QUASAR_DEBUG) {
     // if on DEV or Production with debug enabled
     window.webContents.openDevTools();
   } else {
@@ -163,13 +157,14 @@ async function createCastWindow() {
 app
   .whenReady()
   .then(async () => {
+    registerQuasarRuntime();
     initAppApiHandler();
     initWindowApiHandler();
     initCastApiHandler(createCastWindow);
     await createWindow();
   })
-  .catch((reason) => {
-    log.error(`Failed to start application: ${reason}`);
+  .catch((reason: unknown) => {
+    log.error(`Failed to start application: ${String(reason)}`);
   });
 
 app.on('window-all-closed', () => {

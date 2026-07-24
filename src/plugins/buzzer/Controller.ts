@@ -3,9 +3,9 @@ import {
   BuzzerButton,
   type IController,
   type LightApi,
-} from 'src/plugins/buzzer/types';
+} from '@/plugins/buzzer/types';
 import { reactive } from 'vue';
-import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
+import { FindCoordinator } from '@/plugins/buzzer/utils/FindCoordinator';
 
 export class Controller implements IController {
   // The 'id' property is writable to allow the 'restoreDongle' function to update controller IDs.

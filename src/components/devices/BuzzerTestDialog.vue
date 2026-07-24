@@ -79,10 +79,10 @@ import {
   type ButtonEvent,
   BuzzerButton,
   type IController,
-} from 'src/plugins/buzzer/types';
-import { useBuzzer } from 'src/plugins/buzzer';
+} from '@/plugins/buzzer/types';
+import { useBuzzer } from '@/plugins/buzzer';
 import { computed, onMounted, onUnmounted, reactive } from 'vue';
-import { buzzerButtonColor } from 'components/buttonColors';
+import { buzzerButtonColor } from '@/components/buttonColors';
 import { useI18n } from 'vue-i18n';
 
 defineEmits([...useDialogPluginComponent.emits]);

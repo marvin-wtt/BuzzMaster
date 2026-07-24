@@ -41,10 +41,10 @@
 </template>
 
 <script lang="ts" setup>
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import { BuzzerButton } from '@/plugins/buzzer/types';
 import { computed, ref } from 'vue';
-import { buzzerButtonColor } from 'components/buttonColors';
+import { buzzerButtonColor } from '@/components/buttonColors';
 
 const { quizSettings } = useGameSettingsStore();
 

@@ -1,5 +1,5 @@
-import { PlayStation2Device } from 'src/plugins/buzzer/hid/PlayStation2Device';
-import { PlayStation3Device } from 'src/plugins/buzzer/hid/PlayStation3Device';
+import { PlayStation2Device } from '@/plugins/buzzer/hid/PlayStation2Device';
+import { PlayStation3Device } from '@/plugins/buzzer/hid/PlayStation3Device';
 
 export async function requestBuzzerDevicePermissions() {
   const devices = await navigator.hid.requestDevice({

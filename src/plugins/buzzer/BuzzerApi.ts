@@ -1,8 +1,8 @@
-import type { IBuzzerApi, IDevice, IDongle } from 'src/plugins/buzzer/types';
+import type { IBuzzerApi, IDevice, IDongle } from '@/plugins/buzzer/types';
 import { reactive } from 'vue';
-import { Dongle } from 'src/plugins/buzzer/Dongle';
-import { ButtonEventEmitter } from 'src/plugins/buzzer/ButtonEventEmitter';
-import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
+import { Dongle } from '@/plugins/buzzer/Dongle';
+import { ButtonEventEmitter } from '@/plugins/buzzer/ButtonEventEmitter';
+import { FindCoordinator } from '@/plugins/buzzer/utils/FindCoordinator';
 
 export class BuzzerApi extends ButtonEventEmitter implements IBuzzerApi {
   dongles = reactive<IDongle[]>([]);

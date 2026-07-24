@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
-import { mountPage } from 'app/test/vitest/utils/mount';
-import BuzzerQuestionPage from 'pages/gameModes/BuzzerGamePage.vue';
-import { installQuasarPlugin } from 'app/test/vitest/install-quasar';
+import { mountPage } from '@/../test/vitest/utils/mount';
+import BuzzerQuestionPage from '@/pages/gameModes/BuzzerGamePage.vue';
+import { installQuasarPlugin } from '@/../test/vitest/install-quasar';
 import { Dialog, type QBtn } from 'quasar';
-import { useGameStore } from 'stores/game-store';
-import { selector } from 'app/test/vitest/utils/element-selector';
+import { useGameStore } from '@/stores/game-store';
+import { selector } from '@/../test/vitest/utils/element-selector';
 import { nextTick } from 'vue';
-import { createDevice } from 'app/test/vitest/utils/buzzer';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
-import type { BuzzerAnsweringState } from 'app/common/gameState/BuzzerState';
-import { installFakeTimer } from 'app/test/vitest/install-timer';
-import type { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { createDevice } from '@/../test/vitest/utils/buzzer';
+import { BuzzerButton } from '@/plugins/buzzer/types';
+import type { BuzzerAnsweringState } from '@/../common/gameState/BuzzerState';
+import { installFakeTimer } from '@/../test/vitest/install-timer';
+import type { BuzzerApi } from '@/plugins/buzzer/BuzzerApi';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 
 const mountBuzzerPage = () => mountPage(BuzzerQuestionPage);
 

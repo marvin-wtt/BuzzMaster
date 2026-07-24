@@ -4,7 +4,7 @@ import electronUpdater, {
   type AppUpdater,
   type CancellationToken,
 } from 'electron-updater';
-import type { AppUpdate } from 'app/common';
+import type { AppUpdate } from '@/../common';
 
 function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.

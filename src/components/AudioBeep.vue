@@ -2,7 +2,7 @@
 
 <script lang="ts" setup>
 import { onBeforeMount, watch } from 'vue';
-import { useAudio } from 'src/composables/audio';
+import { useAudio } from '@/composables/audio';
 
 const { createAudio } = useAudio();
 

@@ -82,12 +82,12 @@
 </template>
 
 <script lang="ts" setup>
-import ControllerLogo from 'components/ControllerLogo.vue';
-import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import ControllerLogo from '@/components/ControllerLogo.vue';
+import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { computed } from 'vue';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton } from '@/plugins/buzzer/types';
 
 const { t } = useI18n();
 const castStore = useCastStore();

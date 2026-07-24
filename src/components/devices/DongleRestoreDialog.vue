@@ -101,9 +101,9 @@
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { useBuzzer } from 'src/plugins/buzzer';
+import { useBuzzer } from '@/plugins/buzzer';
 import { ref } from 'vue';
-import type { IDongle } from 'src/plugins/buzzer/types';
+import type { IDongle } from '@/plugins/buzzer/types';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

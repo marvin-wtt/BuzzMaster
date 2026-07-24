@@ -1,9 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
-import type { GameState } from 'app/common/gameState';
+import type { GameState } from '@/../common/gameState';
 import { useRouter } from 'vue-router';
-import type { GameSettings } from 'app/common/gameSettings';
+import type { GameSettings } from '@/../common/gameSettings';
 
 export const useCastStore = defineStore('cast', () => {
   const { locale } = useI18n();

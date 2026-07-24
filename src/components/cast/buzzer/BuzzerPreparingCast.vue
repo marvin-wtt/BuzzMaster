@@ -76,10 +76,10 @@
 </template>
 
 <script lang="ts" setup>
-import ControllerLogo from 'components/ControllerLogo.vue';
-import type { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
+import ControllerLogo from '@/components/ControllerLogo.vue';
+import type { BuzzerSettings } from '@/../common/gameSettings/BuzzerSettings';
 import { useI18n } from 'vue-i18n';
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { computed } from 'vue';
 
 const { t } = useI18n();

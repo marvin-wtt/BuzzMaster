@@ -1,9 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { useBuzzer } from 'src/plugins/buzzer';
+import { useBuzzer } from '@/plugins/buzzer';
 import { useQuasar } from 'quasar';
 import { computed, ref } from 'vue';
-import type { IController } from 'src/plugins/buzzer/types';
-import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
+import type { IController } from '@/plugins/buzzer/types';
+import BatterySavingDialog from '@/components/layout/BatterySavingDialog.vue';
 import { useI18n } from 'vue-i18n';
 
 type BatteryState = 'awake' | 'drowsy' | 'sleeping' | 'unknown';

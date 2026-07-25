@@ -156,19 +156,19 @@
 </template>
 
 <script lang="ts" setup>
-import TimerAnimated from 'components/TimerAnimated.vue';
-import CircleTimer from 'components/CircleTimer.vue';
-import PulseCircle from 'components/PulseCircle.vue';
-import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
-import QuizLeaderboardButtons from 'components/gameModes/quiz/QuizLeaderboardButtons.vue';
-import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
+import TimerAnimated from '@/components/TimerAnimated.vue';
+import CircleTimer from '@/components/CircleTimer.vue';
+import PulseCircle from '@/components/PulseCircle.vue';
+import QuizSettingsDialog from '@/components/gameModes/quiz/QuizSettingsDialog.vue';
+import QuizLeaderboardButtons from '@/components/gameModes/quiz/QuizLeaderboardButtons.vue';
+import QuizResultModeToggle from '@/components/gameModes/quiz/QuizResultModeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
-import { useBuzzer } from 'src/plugins/buzzer';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
-import TransitionFade from 'components/TransitionFade.vue';
-import { buzzerButtonColor } from 'components/buttonColors';
+import { useBuzzer } from '@/plugins/buzzer';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import { type ButtonEvent, BuzzerButton } from '@/plugins/buzzer/types';
+import TransitionFade from '@/components/TransitionFade.vue';
+import { buzzerButtonColor } from '@/components/buttonColors';
 import { useI18n } from 'vue-i18n';
 import type {
   QuizRunningChangeAlwaysState,
@@ -177,12 +177,12 @@ import type {
   QuizRunningState,
   QuizRunningStateBase,
   QuizState,
-} from 'app/common/gameState/QuizState';
-import { useGameState } from 'src/composables/gameState';
-import { useTimer } from 'src/composables/timer';
-import AudioBeep from 'components/AudioBeep.vue';
-import QuizResultTable from 'components/gameModes/quiz/QuizResultTable.vue';
-import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
+} from '@/../common/gameState/QuizState';
+import { useGameState } from '@/composables/gameState';
+import { useTimer } from '@/composables/timer';
+import AudioBeep from '@/components/AudioBeep.vue';
+import QuizResultTable from '@/components/gameModes/quiz/QuizResultTable.vue';
+import QuizResultBarChart from '@/components/gameModes/quiz/QuizResultBarChart.vue';
 import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();

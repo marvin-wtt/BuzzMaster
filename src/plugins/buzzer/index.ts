@@ -3,9 +3,9 @@ import {
   type IBuzzerApi,
   type IBuzzerPlugin,
   type IController,
-} from 'src/plugins/buzzer/types';
-import { initHidDeviceManager } from 'src/plugins/buzzer/hid';
-import { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
+} from '@/plugins/buzzer/types';
+import { initHidDeviceManager } from '@/plugins/buzzer/hid';
+import { BuzzerApi } from '@/plugins/buzzer/BuzzerApi';
 
 export const useBuzzer = () => {
   const buzzerApi = inject<IBuzzerApi>('buzzer');

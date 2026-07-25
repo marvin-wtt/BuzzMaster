@@ -200,28 +200,28 @@
 </template>
 
 <script lang="ts" setup>
-import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
-import StopwatchSettingsDialog from 'components/gameModes/stopwatch/StopwatchSettingsDialog.vue';
+import SafeDeleteBtn from '@/components/SafeDeleteBtn.vue';
+import StopwatchSettingsDialog from '@/components/gameModes/stopwatch/StopwatchSettingsDialog.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
-import { useBuzzer } from 'src/plugins/buzzer';
+import { useBuzzer } from '@/plugins/buzzer';
 import {
   type ButtonEvent,
   BuzzerButton,
   type IController,
-} from 'src/plugins/buzzer/types';
+} from '@/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
-import StopwatchLeaderboardButton from 'components/gameModes/stopwatch/StopwatchLeaderboardButton.vue';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import StopwatchLeaderboardButton from '@/components/gameModes/stopwatch/StopwatchLeaderboardButton.vue';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useQuasar } from 'quasar';
 import type {
   StopwatchRunningState,
   StopwatchState,
-} from 'app/common/gameState/StopwatchState';
-import type { StopwatchEntry } from 'components/gameModes/stopwatch/StopwatchEntry';
-import BeepTimer from 'components/TimerAnimated.vue';
-import { useTimer } from 'src/composables/timer';
-import { useGameState } from 'src/composables/gameState';
-import { useAudio } from 'src/composables/audio';
+} from '@/../common/gameState/StopwatchState';
+import type { StopwatchEntry } from '@/components/gameModes/stopwatch/StopwatchEntry';
+import BeepTimer from '@/components/TimerAnimated.vue';
+import { useTimer } from '@/composables/timer';
+import { useGameState } from '@/composables/gameState';
+import { useAudio } from '@/composables/audio';
 import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();

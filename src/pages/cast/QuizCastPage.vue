@@ -17,13 +17,13 @@
 </template>
 
 <script lang="ts" setup>
-import QuizPreparingCast from 'components/cast/quiz/QuizPreparingCast.vue';
+import QuizPreparingCast from '@/components/cast/quiz/QuizPreparingCast.vue';
 
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { computed } from 'vue';
-import type { QuizState } from 'app/common/gameState/QuizState';
-import QuizRunningCast from 'components/cast/quiz/QuizRunningCast.vue';
-import QuizCompletedCast from 'components/cast/quiz/QuizCompletedCast.vue';
+import type { QuizState } from '@/../common/gameState/QuizState';
+import QuizRunningCast from '@/components/cast/quiz/QuizRunningCast.vue';
+import QuizCompletedCast from '@/components/cast/quiz/QuizCompletedCast.vue';
 
 const castStore = useCastStore();
 

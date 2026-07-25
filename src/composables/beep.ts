@@ -5,7 +5,7 @@ import {
   toValue,
   watch,
 } from 'vue';
-import { useAudio } from 'src/composables/audio';
+import { useAudio } from '@/composables/audio';
 
 export function useBeep(
   time: Ref<number>,

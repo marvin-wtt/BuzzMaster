@@ -66,10 +66,10 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
-import { useLeaderboardStore } from 'stores/leaderboard-store';
+import { useLeaderboardStore } from '@/stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useLeaderboardDialogs } from 'src/composables/leaderboard';
+import { useLeaderboardDialogs } from '@/composables/leaderboard';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

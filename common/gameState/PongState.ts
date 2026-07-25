@@ -1,8 +1,5 @@
 export type PongState =
-  | PongPreparingState
-  | PongRunningState
-  | PongPaused
-  | PongEnded;
+  PongPreparingState | PongRunningState | PongPaused | PongEnded;
 
 export interface PongStateBase {
   game: 'pong';

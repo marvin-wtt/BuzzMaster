@@ -52,7 +52,7 @@
 import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { computed, ref } from 'vue';
-import { requestBuzzerDevicePermissions } from 'src/plugins/buzzer/permission';
+import { requestBuzzerDevicePermissions } from '@/plugins/buzzer/permission';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

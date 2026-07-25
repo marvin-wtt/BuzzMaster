@@ -2,9 +2,9 @@ import type {
   IBuzzerApi,
   IDevice,
   IBuzzerPlugin,
-} from 'src/plugins/buzzer/types';
-import { PlayStation2Device } from 'src/plugins/buzzer/hid/PlayStation2Device';
-import { PlayStation3Device } from 'src/plugins/buzzer/hid/PlayStation3Device';
+} from '@/plugins/buzzer/types';
+import { PlayStation2Device } from '@/plugins/buzzer/hid/PlayStation2Device';
+import { PlayStation3Device } from '@/plugins/buzzer/hid/PlayStation3Device';
 
 // Maps all hidDevices to the corresponding buzzer devices to, so we can remove
 //  the dongle once the device disconnects

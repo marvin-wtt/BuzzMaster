@@ -39,10 +39,10 @@
 
 <script lang="ts" setup>
 import { QForm, useDialogPluginComponent } from 'quasar';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
-import type { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
+import type { StopwatchSettings } from '@/../common/gameSettings/StopwatchSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

@@ -322,18 +322,18 @@ import {
   watch,
 } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useBuzzer } from 'src/plugins/buzzer';
+import { useBuzzer } from '@/plugins/buzzer';
 import { useRoute, useRouter } from 'vue-router';
-import LeaderboardDialog from 'components/leaderboard/LeaderboardDialog.vue';
-import { useBatterySavingStore } from 'stores/battery-saving-store';
-import BatterySavingDialog from 'components/layout/BatterySavingDialog.vue';
-import { useGameStore } from 'stores/game-store';
-import type { GameState } from 'app/common/gameState';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import type { GameSettings } from 'app/common/gameSettings';
-import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
-import { useUpdaterStore } from 'stores/updater-store';
-import OnlineDialog from 'components/layout/OnlineDialog.vue';
+import LeaderboardDialog from '@/components/leaderboard/LeaderboardDialog.vue';
+import { useBatterySavingStore } from '@/stores/battery-saving-store';
+import BatterySavingDialog from '@/components/layout/BatterySavingDialog.vue';
+import { useGameStore } from '@/stores/game-store';
+import type { GameState } from '@/../common/gameState';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import type { GameSettings } from '@/../common/gameSettings';
+import AppUpdateBtn from '@/components/layout/AppUpdateBtn.vue';
+import { useUpdaterStore } from '@/stores/updater-store';
+import OnlineDialog from '@/components/layout/OnlineDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -354,7 +354,7 @@ const expandSettings = ref<boolean>(false);
 
 provide('masterVolume', volume);
 
-const devMode = process.env.DEV ?? false;
+const devMode = import.meta.env.QUASAR_DEV ?? false;
 
 const darkMode = computed<boolean>(() => {
   return quasar.dark.isActive;

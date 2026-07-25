@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import type { StageFrame } from 'components/gameModes/pong/PongTypes';
+import type { StageFrame } from '@/components/gameModes/pong/PongTypes';
 
 const {
   frameA,

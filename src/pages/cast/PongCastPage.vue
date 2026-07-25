@@ -20,11 +20,11 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { useCastStore } from 'stores/cast-store';
-import type { PongState } from 'app/common/gameState/PongState';
-import PongPreparingCast from 'components/cast/pong/PongPreparingCast.vue';
-import PongRunningCast from 'components/cast/pong/PongRunningCast.vue';
-import PongCompletedCast from 'components/cast/pong/PongCompletedCast.vue';
+import { useCastStore } from '@/stores/cast-store';
+import type { PongState } from '@/../common/gameState/PongState';
+import PongPreparingCast from '@/components/cast/pong/PongPreparingCast.vue';
+import PongRunningCast from '@/components/cast/pong/PongRunningCast.vue';
+import PongCompletedCast from '@/components/cast/pong/PongCompletedCast.vue';
 
 const castStore = useCastStore();
 

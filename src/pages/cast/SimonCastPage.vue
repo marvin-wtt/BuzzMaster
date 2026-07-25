@@ -185,11 +185,11 @@
 <script lang="ts" setup>
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useCastStore } from 'stores/cast-store';
-import type { SimonState } from 'app/common/gameState/SimonState';
-import SimonPad from 'components/gameModes/SimonPad.vue';
-import TimerAnimated from 'components/TimerAnimated.vue';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { useCastStore } from '@/stores/cast-store';
+import type { SimonState } from '@/../common/gameState/SimonState';
+import SimonPad from '@/components/gameModes/SimonPad.vue';
+import TimerAnimated from '@/components/TimerAnimated.vue';
+import { BuzzerButton } from '@/plugins/buzzer/types';
 
 const { t } = useI18n();
 const castStore = useCastStore();

@@ -14,12 +14,12 @@
 </template>
 
 <script lang="ts" setup>
-import { buzzerButtonColor } from 'components/buttonColors';
-import type { BuzzerButton } from 'src/plugins/buzzer/types';
+import { buzzerButtonColor } from '@/components/buttonColors';
+import type { BuzzerButton } from '@/plugins/buzzer/types';
 import { onBeforeMount, ref } from 'vue';
-import { useLeaderboardStore } from 'stores/leaderboard-store';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import { useAudio } from 'src/composables/audio';
+import { useLeaderboardStore } from '@/stores/leaderboard-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import { useAudio } from '@/composables/audio';
 
 const leaderboardStore = useLeaderboardStore();
 const { quizSettings } = useGameSettingsStore();

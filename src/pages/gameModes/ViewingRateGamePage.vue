@@ -182,22 +182,22 @@
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { storeToRefs } from 'pinia';
-import { useBuzzer } from 'src/plugins/buzzer';
-import { useTimer } from 'src/composables/timer';
-import { useGameState } from 'src/composables/gameState';
+import { useBuzzer } from '@/plugins/buzzer';
+import { useTimer } from '@/composables/timer';
+import { useGameState } from '@/composables/gameState';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import type {
   ViewingRateRunningState,
   ViewingRateState,
-} from 'app/common/gameState/ViewingRateState';
-import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
-import TimerAnimated from 'components/TimerAnimated.vue';
-import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
-import ViewingRateResultItem from 'components/gameModes/viewingRate/ViewingRateResultItem.vue';
+} from '@/../common/gameState/ViewingRateState';
+import { type ButtonEvent, BuzzerButton } from '@/plugins/buzzer/types';
+import TimerAnimated from '@/components/TimerAnimated.vue';
+import SafeDeleteBtn from '@/components/SafeDeleteBtn.vue';
+import ViewingRateResultItem from '@/components/gameModes/viewingRate/ViewingRateResultItem.vue';
 import { useQuasar } from 'quasar';
-import ViewingRateSettingsDialog from 'components/gameModes/viewingRate/ViewingRateSettingsDialog.vue';
+import ViewingRateSettingsDialog from '@/components/gameModes/viewingRate/ViewingRateSettingsDialog.vue';
 
 const quasar = useQuasar();
 const { t } = useI18n();

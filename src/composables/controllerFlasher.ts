@@ -1,6 +1,6 @@
 import { onUnmounted } from 'vue';
-import { useBuzzer } from 'src/plugins/buzzer';
-import type { IController } from 'src/plugins/buzzer/types';
+import { useBuzzer } from '@/plugins/buzzer';
+import type { IController } from '@/plugins/buzzer/types';
 
 type Timer = ReturnType<typeof setTimeout>;
 

@@ -1,5 +1,5 @@
 import { type IpcMainEvent, BrowserWindow, ipcMain } from 'electron';
-import type { WindowAPI } from 'app/common/WindowAPI';
+import type { WindowAPI } from '@/../common/WindowAPI';
 
 type Handler = Record<
   keyof WindowAPI,

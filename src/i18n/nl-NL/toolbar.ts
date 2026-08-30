@@ -1,0 +1,16 @@
+export default {
+  batterySaving: 'Toon batterijbesparing',
+  cast: 'Open Cast',
+  close: 'Venster sluiten',
+  darkMode: 'Donkere modus in-/uitschakelen',
+  language: 'Taal wijzigen',
+  leaderboard: 'Toon scorebord',
+  maximize: 'Venster maximaliseren',
+  minimize: 'Venster minimaliseren',
+  mute: 'Geluid dempen',
+  unmute: 'Geluid aanzetten',
+  pin: 'Venster vastzetten',
+  settings: 'Instellingen in-/uitschakelen',
+  unpin: 'Venster losmaken',
+  updater: 'Zoeken naar updates',
+};

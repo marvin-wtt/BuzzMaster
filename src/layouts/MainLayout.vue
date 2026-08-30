@@ -383,6 +383,10 @@ const supportedLanguages: QSelectOption[] = [
     value: 'es-ES',
     label: 'Español',
   },
+  {
+    value: 'nl-NL',
+    label: 'Nederlands',
+  },
 ];
 
 const updateLocale = (l: string) => {

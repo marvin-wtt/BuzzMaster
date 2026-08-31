@@ -12,6 +12,8 @@ import type {
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
+  QuizOrderingCompleteState,
+  QuizOrderingRunningState,
   QuizRunningState,
 } from 'app/common/gameState/QuizState';
 import { mountPage, mountWithStore } from 'app/test/vitest/utils/mount';
@@ -20,6 +22,7 @@ import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 
 const mountQuizPage = () => mountPage(QuizQuestionPage);
 
@@ -693,6 +696,128 @@ describe('QuizPage', () => {
       });
     });
 
+    describe('ordering', () => {
+      const sequence = [
+        BuzzerButton.BLUE,
+        BuzzerButton.GREEN,
+        BuzzerButton.YELLOW,
+      ];
+
+      const initializeStore = async (...dongles: IDongle[]) => {
+        const gameStore = useGameStore();
+        const controllers = dongles
+          .flatMap((value) => value.controllers)
+          .map((value) => value.id);
+
+        gameStore.transition({
+          game: 'quiz',
+          name: 'running',
+          time: 5,
+          mode: 'ordering',
+          controllers,
+          result: {},
+        });
+        await nextTick();
+
+        return gameStore;
+      };
+
+      it('should start without a correct order', async () => {
+        const { wrapper } = mountQuizPage();
+        const { quizSettings } = useGameSettingsStore();
+        const gameStore = useGameStore();
+        quizSettings.mode = 'ordering';
+        quizSettings.activeButtons = [...sequence];
+
+        await wrapper.find(selector('btn-game-start')).trigger('click');
+
+        const state = gameStore.state as QuizOrderingRunningState;
+        expect(state.mode).toBe('ordering');
+        expect(state.result).toEqual({});
+      });
+
+      it('should store a submitted sequence', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer, 1);
+        const gameStore = await initializeStore(getDongle());
+
+        sequence.forEach((button) => pressAndRelease(0, button));
+
+        const state = gameStore.state as QuizOrderingCompleteState;
+        expect(state.name).toBe('completed');
+        expect(state.result[getController(0).id]).toEqual(sequence);
+        expect(state.correct).toBeUndefined();
+      });
+
+      it('should store a differently ordered sequence', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer, 1);
+        const gameStore = await initializeStore(getDongle());
+
+        pressAndRelease(0, BuzzerButton.GREEN);
+        pressAndRelease(0, BuzzerButton.BLUE);
+        pressAndRelease(0, BuzzerButton.YELLOW);
+
+        const state = gameStore.state as QuizOrderingCompleteState;
+        expect(state.result[getController(0).id]).toEqual([
+          BuzzerButton.GREEN,
+          BuzzerButton.BLUE,
+          BuzzerButton.YELLOW,
+        ]);
+      });
+
+      it('should ignore a button that was already used', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer, 1);
+        const gameStore = await initializeStore(getDongle());
+
+        pressAndRelease(0, BuzzerButton.GREEN);
+        pressAndRelease(0, BuzzerButton.GREEN);
+        pressAndRelease(0, BuzzerButton.BLUE);
+        pressAndRelease(0, BuzzerButton.YELLOW);
+
+        const state = gameStore.state as QuizOrderingCompleteState;
+        expect(state.result[getController(0).id]).toEqual([
+          BuzzerButton.GREEN,
+          BuzzerButton.BLUE,
+          BuzzerButton.YELLOW,
+        ]);
+      });
+
+      it('should reset the current sequence with the red button', async () => {
+        const { buzzer } = mountQuizPage();
+        const { pressAndRelease, getController, getDongle } =
+          await createDevice(buzzer, 1);
+        const gameStore = await initializeStore(getDongle());
+        const controllerId = getController(0).id;
+
+        pressAndRelease(0, BuzzerButton.GREEN);
+        pressAndRelease(0, BuzzerButton.RED);
+
+        let state = gameStore.state as QuizOrderingRunningState;
+        expect(state.result[controllerId]).toBeUndefined();
+
+        sequence.forEach((button) => pressAndRelease(0, button));
+        const completed = gameStore.state as QuizOrderingCompleteState;
+        expect(completed.result[controllerId]).toEqual(sequence);
+      });
+
+      it('should mark unfinished controllers incorrect when time expires', async () => {
+        const { buzzer } = mountQuizPage();
+        const { getController, getDongle } = await createDevice(buzzer, 1);
+        const gameStore = await initializeStore(getDongle());
+
+        await vi.advanceTimersByTimeAsync(5000);
+
+        const state = gameStore.state as QuizOrderingCompleteState;
+        expect(state.name).toBe('completed');
+        expect(state.result[getController(0).id]).toBeUndefined();
+      });
+    });
+
     describe.todo('sounds', () => {
       it.todo('should play sounds if enabled');
       it.todo('should not play sounds if disabled');
@@ -755,6 +880,141 @@ describe('QuizPage', () => {
       await initializeStore();
 
       expect(wrapper.find(selector('result')).exists()).toBe(true);
+    });
+
+    describe('ordering', () => {
+      const sequence = [
+        BuzzerButton.BLUE,
+        BuzzerButton.GREEN,
+        BuzzerButton.YELLOW,
+      ];
+
+      const initializeOrderingStore = async () => {
+        const gameStore = useGameStore();
+        const { quizSettings } = useGameSettingsStore();
+        quizSettings.activeButtons = [...sequence];
+        gameStore.transition({
+          game: 'quiz',
+          name: 'completed',
+          mode: 'ordering',
+          controllers: [],
+          result: {},
+        });
+        await nextTick();
+
+        return gameStore;
+      };
+
+      it('should place the correct order selector before the actions', async () => {
+        const { wrapper } = mountQuizPage();
+        await initializeOrderingStore();
+
+        const testIds = wrapper
+          .findAll('[data-testid]')
+          .map((element) => element.attributes('data-testid'));
+
+        expect(testIds.indexOf('ordering-result')).toBeLessThan(
+          testIds.indexOf('ordering-correct-selector'),
+        );
+        expect(testIds.indexOf('ordering-correct-selector')).toBeLessThan(
+          testIds.indexOf('btn-game-quick-play'),
+        );
+      });
+
+      it('should select the correct order as soon as it is complete', async () => {
+        const { wrapper } = mountQuizPage();
+        const gameStore = await initializeOrderingStore();
+
+        for (const button of sequence) {
+          await wrapper
+            .find(selector(`ordering-correct-${button}`))
+            .trigger('click');
+        }
+
+        const state = gameStore.state as QuizOrderingCompleteState;
+        expect(state.correct).toEqual(sequence);
+      });
+
+      it('should reset the moderator order and its points', async () => {
+        const { wrapper, buzzer } = mountQuizPage();
+        const { getController, getDongle } = await createDevice(buzzer, 2);
+        const gameStore = useGameStore();
+        const leaderboardStore = useLeaderboardStore();
+        const { quizSettings } = useGameSettingsStore();
+        const controller0 = getController(0);
+        const controller1 = getController(1);
+        const otherSequence = [
+          BuzzerButton.GREEN,
+          BuzzerButton.BLUE,
+          BuzzerButton.YELLOW,
+        ];
+        quizSettings.activeButtons = [...sequence];
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsWrong = -5;
+        gameStore.transition({
+          game: 'quiz',
+          name: 'completed',
+          mode: 'ordering',
+          controllers: getDongle().controllers.map(
+            (controller) => controller.id,
+          ),
+          result: {
+            [controller0.id]: sequence,
+            [controller1.id]: otherSequence,
+          },
+        });
+        await nextTick();
+
+        for (const button of sequence) {
+          await wrapper
+            .find(selector(`ordering-correct-${button}`))
+            .trigger('click');
+        }
+
+        expect(
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller0.id,
+          )?.value,
+        ).toBe(10);
+        expect(
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller1.id,
+          )?.value,
+        ).toBe(-5);
+
+        await wrapper.find(selector('ordering-correct-reset')).trigger('click');
+
+        expect(
+          (gameStore.state as QuizOrderingCompleteState).correct,
+        ).toBeUndefined();
+        expect(
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller0.id,
+          )?.value,
+        ).toBe(0);
+        expect(
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller1.id,
+          )?.value,
+        ).toBe(0);
+
+        for (const button of otherSequence) {
+          await wrapper
+            .find(selector(`ordering-correct-${button}`))
+            .trigger('click');
+        }
+
+        expect(
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller0.id,
+          )?.value,
+        ).toBe(-5);
+        expect(
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller1.id,
+          )?.value,
+        ).toBe(10);
+      });
     });
 
     it('should transition to preparing on restart', async () => {

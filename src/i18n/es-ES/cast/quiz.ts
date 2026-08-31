@@ -17,12 +17,22 @@ export default {
         wrong: 'Incorrecto',
         points: '{n} pts.',
       },
+      ordering:
+        'Pulsa los botones de colores en el orden correcto. Rojo reinicia.',
     },
   },
 
-  running: {},
+  running: {
+    ordering: 'Introduce una secuencia de {n} botones',
+    redResets: 'Rojo reinicia tu secuencia',
+  },
 
   completed: {
     points: 'Puntos',
+    correctOrder: 'Orden correcto',
+    waitingForCorrectOrder: 'Esperando el orden correcto',
+    waitingForModerator:
+      'El resultado aparecerá cuando el moderador lo seleccione.',
+    correctAnswers: 'Respuestas correctas',
   },
 };

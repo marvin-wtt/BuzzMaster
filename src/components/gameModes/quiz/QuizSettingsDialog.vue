@@ -24,7 +24,20 @@
             map-options
             outlined
             rounded
-          />
+          >
+            <template #option="{ itemProps, opt }">
+              <q-item v-bind="itemProps">
+                <q-item-section>
+                  <q-item-label>{{
+                    (opt as QSelectOption).label
+                  }}</q-item-label>
+                  <q-item-label caption>
+                    {{ (opt as QuizModeOption).description }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
 
           <q-select
             v-model="settings.activeButtons"
@@ -62,6 +75,7 @@
           </q-select>
 
           <q-select
+            v-if="settings.mode !== 'ordering'"
             v-model="settings.changeMode"
             :label="t('gameMode.quiz.settings.field.changeMode.label')"
             :options="changeModeOptions"
@@ -164,6 +178,7 @@ import { useI18n } from 'vue-i18n';
 import { isNumber } from 'lodash-es';
 import { computed, ref, toRaw } from 'vue';
 import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { QuizMode } from 'app/common/gameState/QuizState';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
@@ -212,18 +227,31 @@ const changeModeOptions = [
   },
 ];
 
-const modeOptions = [
+type QuizModeOption = QSelectOption & {
+  value: QuizMode;
+  description: string;
+};
+
+const modeOptions: QuizModeOption[] = [
   {
     label: t('gameMode.quiz.settings.field.mode.option.normal'),
     value: 'normal',
-  },
-  {
-    label: t('gameMode.quiz.settings.field.mode.option.survey'),
-    value: 'survey',
+    description: t('gameMode.quiz.settings.field.mode.description.normal'),
   },
   {
     label: t('gameMode.quiz.settings.field.mode.option.elimination'),
     value: 'elimination',
+    description: t('gameMode.quiz.settings.field.mode.description.elimination'),
+  },
+  {
+    label: t('gameMode.quiz.settings.field.mode.option.ordering'),
+    value: 'ordering',
+    description: t('gameMode.quiz.settings.field.mode.description.ordering'),
+  },
+  {
+    label: t('gameMode.quiz.settings.field.mode.option.survey'),
+    value: 'survey',
+    description: t('gameMode.quiz.settings.field.mode.description.survey'),
   },
 ];
 

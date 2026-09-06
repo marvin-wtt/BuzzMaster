@@ -52,7 +52,11 @@
                 class="q-my-xs row items-center justify-center"
               >
                 {{ castStore.controllers[controllerId] || controllerId }}
-                <span v-if="settings.mode === 'fastest-bonus'" class="text-weight-light q-ml-sm" style="opacity: 0.7;">
+                <span
+                  v-if="settings.mode === 'fastest-bonus'"
+                  class="text-weight-light q-ml-sm"
+                  style="opacity: 0.7"
+                >
                   ({{ elapsedTime(controllerId) }}s)
                 </span>
               </div>
@@ -103,7 +107,10 @@ const buttonControllers = computed<Record<BuzzerButton, string[]>>(() => {
   };
 
   Object.entries(props.state.result).forEach(([controllerId, btn]) => {
-    if (props.filterControllers && !props.filterControllers.includes(controllerId)) {
+    if (
+      props.filterControllers &&
+      !props.filterControllers.includes(controllerId)
+    ) {
       return;
     }
     const list = map[btn as number];

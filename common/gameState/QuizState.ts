@@ -3,7 +3,9 @@ import type { BuzzerButton } from 'src/plugins/buzzer/types';
 export type QuizState =
   | QuizPreparationState
   | QuizRunningState
-  | QuizCompleteState;
+  | QuizCompleteState
+  | QuizOrderingRunningState
+  | QuizOrderingCompleteState;
 
 export interface QuizStateBase {
   game: 'quiz';
@@ -13,11 +15,12 @@ export interface QuizPreparationState extends QuizStateBase {
   name: 'preparing';
 }
 
-export type QuizMode = 'normal' | 'survey' | 'elimination';
+export type QuizMode = QuizAnswerMode | 'ordering';
+export type QuizAnswerMode = 'normal' | 'survey' | 'elimination';
 
 export interface QuizRunningStateBase extends QuizStateBase {
   name: 'running';
-  mode: QuizMode;
+  mode: QuizAnswerMode;
   time: number;
   controllers: string[];
 }
@@ -45,8 +48,24 @@ export interface QuizRunningChangeConfirmState extends QuizRunningStateBase {
 
 export interface QuizCompleteState extends QuizStateBase {
   name: 'completed';
-  mode: QuizMode;
+  mode: QuizAnswerMode;
   controllers: string[];
   result: Record<string, BuzzerButton>;
+  correct?: BuzzerButton[] | undefined;
+}
+
+export interface QuizOrderingRunningState extends QuizStateBase {
+  name: 'running';
+  mode: 'ordering';
+  time: number;
+  controllers: string[];
+  result: Record<string, BuzzerButton[]>;
+}
+
+export interface QuizOrderingCompleteState extends QuizStateBase {
+  name: 'completed';
+  mode: 'ordering';
+  controllers: string[];
+  result: Record<string, BuzzerButton[]>;
   correct?: BuzzerButton[] | undefined;
 }

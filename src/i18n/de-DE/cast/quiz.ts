@@ -17,12 +17,22 @@ export default {
         wrong: 'Falsch',
         points: '{n} pkt.',
       },
+      ordering:
+        'Drücke die farbigen Tasten in der richtigen Reihenfolge. Rot setzt zurück.',
     },
   },
 
-  running: {},
+  running: {
+    ordering: 'Gib eine Folge aus {n} Tasten ein',
+    redResets: 'Rot setzt deine Eingabe zurück',
+  },
 
   completed: {
     points: 'Punkte',
+    correctOrder: 'Richtige Reihenfolge',
+    waitingForCorrectOrder: 'Warte auf die richtige Reihenfolge',
+    waitingForModerator:
+      'Das Ergebnis erscheint, sobald die Spielleitung es auswählt.',
+    correctAnswers: 'Richtige Antworten',
   },
 };

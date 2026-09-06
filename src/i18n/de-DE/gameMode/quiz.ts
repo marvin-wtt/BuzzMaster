@@ -44,6 +44,15 @@ export default {
           normal: 'Quiz',
           survey: 'Umfrage',
           elimination: 'Ausscheiden',
+          ordering: 'Reihenfolge',
+        },
+        description: {
+          normal: 'Richtige Antwort auswählen und Punkte vergeben.',
+          survey: 'Alle ausgewählten Antworten sammeln und anzeigen.',
+          elimination:
+            'Nur Spieler mit richtiger Antwort kommen in die nächste Runde.',
+          ordering:
+            'Reihenfolge eingeben und danach die richtige Lösung aufdecken.',
         },
       },
       points: 'Punkte',
@@ -60,5 +69,12 @@ export default {
     action: {
       ok: 'OK',
     },
+  },
+
+  ordering: {
+    submittedAnswers: 'Abgegebene Antworten',
+    noAnswer: 'Keine Antwort',
+    redResets: 'Rot setzt deine Eingabe zurück',
+    resetCorrectOrder: 'Richtige Reihenfolge zurücksetzen',
   },
 };

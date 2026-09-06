@@ -1,6 +1,12 @@
 <template>
   <div
-    v-if="settings.mode === 'survey'"
+    v-if="props.state.mode === 'ordering'"
+    class="col-12"
+  >
+    <quiz-ordering-completed-cast :state="props.state" />
+  </div>
+  <div
+    v-else-if="settings.mode === 'survey'"
     class="column justify-center"
   >
     <div class="col-8">
@@ -41,7 +47,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuizCompleteState } from 'app/common/gameState/QuizState';
+import type {
+  QuizCompleteState,
+  QuizOrderingCompleteState,
+} from 'app/common/gameState/QuizState';
 import { useCastStore } from 'stores/cast-store';
 import { computed } from 'vue';
 import type { BuzzerButton } from 'src/plugins/buzzer/types';
@@ -49,12 +58,13 @@ import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import QuizCompletedResult from 'components/cast/quiz/QuizCompletedResult.vue';
 import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
+import QuizOrderingCompletedCast from 'components/cast/quiz/QuizOrderingCompletedCast.vue';
 
 const { t } = useI18n();
 const castStore = useCastStore();
 
 const props = defineProps<{
-  state: QuizCompleteState;
+  state: QuizCompleteState | QuizOrderingCompleteState;
 }>();
 
 const settings = computed<QuizSettings>(() => {
@@ -62,23 +72,33 @@ const settings = computed<QuizSettings>(() => {
 });
 
 const showResults = computed<boolean>(() => {
+  if (props.state.mode === 'ordering') {
+    return true;
+  }
   return props.state.correct !== undefined;
 });
 
 const correctButtons = computed<BuzzerButton[] | undefined>(() => {
+  if (props.state.mode === 'ordering') {
+    return undefined;
+  }
   return props.state.correct === undefined
     ? undefined
     : [...props.state.correct].sort();
 });
 
 const wrongButtons = computed<BuzzerButton[] | undefined>(() => {
-  if (!props.state.correct) {
+  if (props.state.mode === 'ordering') {
+    return undefined;
+  }
+  const correct = props.state.correct;
+  if (!correct) {
     return undefined;
   }
 
   const allButtons = settings.value.activeButtons;
 
-  return allButtons.filter((value) => !props.state.correct?.includes(value));
+  return allButtons.filter((value) => !correct.includes(value));
 });
 </script>
 

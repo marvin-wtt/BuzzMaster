@@ -7,8 +7,14 @@
       <!-- Content -->
       <div class="col-grow row justify-center no-wrap">
         <template v-if="gameState.name === 'completed'">
+          <quiz-ordering-result
+            v-if="gameState.mode === 'ordering'"
+            :state="gameState"
+            :controller-names="controllerNames"
+            data-testid="ordering-result"
+          />
           <quiz-result-table
-            v-if="quizSettings.presentationView === 'table'"
+            v-else-if="quizSettings.presentationView === 'table'"
             :answers="gameState.result"
             :controller-names="controllerNames"
             data-testid="result"
@@ -63,6 +69,14 @@
                 class="text-h2"
               />
             </circle-timer>
+            <div
+              v-if="
+                gameState.name === 'running' && gameState.mode === 'ordering'
+              "
+              class="q-mt-md"
+            >
+              {{ t('gameMode.quiz.ordering.redResets') }}
+            </div>
           </transition-fade>
         </div>
       </div>
@@ -92,7 +106,13 @@
             v-else-if="gameState.name === 'completed'"
             class="column col-xs-10 col-sm-7 col-md-6 col-lg-4 col-xl-3 q-gutter-y-sm"
           >
+            <quiz-ordering-buttons
+              v-if="gameState.mode === 'ordering'"
+              :correct="gameState.correct"
+              @update="onOrderingCorrectUpdate"
+            />
             <quiz-leaderboard-buttons
+              v-else
               :answers="gameState.result"
               @update="onPointsUpdate"
             />
@@ -152,7 +172,9 @@
   </q-page>
 
   <!-- Actions -->
-  <quiz-result-mode-toggle v-if="gameState.name === 'completed'" />
+  <quiz-result-mode-toggle
+    v-if="gameState.name === 'completed' && gameState.mode !== 'ordering'"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -176,6 +198,7 @@ import type {
   QuizRunningChangeNeverState,
   QuizRunningState,
   QuizRunningStateBase,
+  QuizOrderingRunningState,
   QuizState,
 } from 'app/common/gameState/QuizState';
 import { useGameState } from 'src/composables/gameState';
@@ -184,10 +207,14 @@ import AudioBeep from 'components/AudioBeep.vue';
 import QuizResultTable from 'components/gameModes/quiz/QuizResultTable.vue';
 import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
 import { storeToRefs } from 'pinia';
+import QuizOrderingButtons from 'components/gameModes/quiz/QuizOrderingButtons.vue';
+import QuizOrderingResult from 'components/gameModes/quiz/QuizOrderingResult.vue';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 
 const { t } = useI18n();
 const quasar = useQuasar();
 const quizSettingsStore = useGameSettingsStore();
+const leaderboardStore = useLeaderboardStore();
 const { quizSettings } = storeToRefs(quizSettingsStore);
 const { controllers, buzzer } = useBuzzer();
 const { time, stopTimer, startTimer } = useTimer({
@@ -212,6 +239,16 @@ onUnmounted(async () => {
 
 const tick = transition('running', (state, time: number) => {
   if (time <= 0) {
+    if (state.mode === 'ordering') {
+      return {
+        game: 'quiz',
+        name: 'completed',
+        controllers: state.controllers,
+        result: state.result,
+        mode: state.mode,
+      };
+    }
+
     return {
       game: 'quiz',
       name: 'completed',
@@ -291,6 +328,10 @@ const listener = transition('running', (state, event: ButtonEvent) => {
     return;
   }
 
+  if (state.mode === 'ordering') {
+    return buttonPressedOrdering(event, state);
+  }
+
   switch (state.answerChangeAllowed) {
     case 'always':
       return buttonPressedAnswerChangeAlways(event, state);
@@ -300,6 +341,65 @@ const listener = transition('running', (state, event: ButtonEvent) => {
       return buttonPressedAnswerChangeConfirm(event, state);
   }
 });
+
+const buttonPressedOrdering = (
+  event: ButtonEvent,
+  state: QuizOrderingRunningState,
+): QuizState | undefined => {
+  const controllerId = event.controller.id;
+  const previousAnswers = state.result[controllerId] ?? [];
+
+  if (previousAnswers.length >= quizSettings.value.activeButtons.length) {
+    return;
+  }
+
+  if (event.button === BuzzerButton.RED) {
+    const result = { ...state.result };
+    delete result[controllerId];
+    return {
+      ...state,
+      result,
+    };
+  }
+
+  if (!quizSettings.value.activeButtons.includes(event.button)) {
+    return;
+  }
+
+  if (previousAnswers.includes(event.button)) {
+    return;
+  }
+
+  const answer = [...previousAnswers, event.button];
+  const result = {
+    ...state.result,
+    [controllerId]: answer,
+  };
+  const answerComplete =
+    answer.length >= quizSettings.value.activeButtons.length;
+
+  if (answerComplete) {
+    event.controller.setLight(true);
+  }
+
+  const completedAnswers = Object.values(result).filter(
+    (value) => value.length >= quizSettings.value.activeButtons.length,
+  ).length;
+  if (completedAnswers >= state.controllers.length) {
+    return {
+      game: 'quiz',
+      name: 'completed',
+      mode: 'ordering',
+      controllers: state.controllers,
+      result,
+    };
+  }
+
+  return {
+    ...state,
+    result,
+  };
+};
 
 const buttonPressedAnswerChangeAlways = (
   event: ButtonEvent,
@@ -447,10 +547,23 @@ const openSettings = () => {
   });
 };
 
-const startGame = (controllerIds: string[]): QuizRunningState => {
+const startGame = (
+  controllerIds: string[],
+): QuizRunningState | QuizOrderingRunningState => {
   const answerChangeAllowed = quizSettings.value.changeMode;
   const time = quizSettings.value.answerTime;
   const mode = quizSettings.value.mode;
+
+  if (mode === 'ordering') {
+    return {
+      game: 'quiz',
+      name: 'running',
+      time,
+      mode,
+      controllers: controllerIds,
+      result: {},
+    };
+  }
 
   const nextState: QuizRunningStateBase = {
     game: 'quiz',
@@ -485,6 +598,9 @@ const start = transition('preparing', () => {
 });
 
 const nextRound = transition('completed', (state) => {
+  if (state.mode === 'ordering') {
+    return;
+  }
   if (state.correct === undefined) {
     return;
   }
@@ -508,6 +624,9 @@ const restart = transition(['running', 'completed'], () => {
 const onPointsUpdate = transition(
   'completed',
   (state, correct: BuzzerButton[] | undefined): QuizState => {
+    if (state.mode === 'ordering') {
+      return state;
+    }
     return {
       game: 'quiz',
       name: 'completed',
@@ -518,6 +637,52 @@ const onPointsUpdate = transition(
     };
   },
 );
+
+const onOrderingCorrectUpdate = transition(
+  'completed',
+  (state, correct: BuzzerButton[] | undefined): QuizState => {
+    if (state.mode !== 'ordering') {
+      return state;
+    }
+
+    const previousCorrect = state.correct;
+    if (previousCorrect) {
+      Object.entries(state.result).forEach(([controllerId, answer]) => {
+        leaderboardStore.addPoints(
+          controllerId,
+          -orderingPoints(answer, previousCorrect),
+        );
+      });
+    }
+
+    if (correct) {
+      Object.entries(state.result).forEach(([controllerId, answer]) => {
+        leaderboardStore.addPoints(
+          controllerId,
+          orderingPoints(answer, correct),
+        );
+      });
+    }
+
+    return {
+      ...state,
+      correct,
+    };
+  },
+);
+
+const orderingPoints = (
+  answer: BuzzerButton[],
+  correct: BuzzerButton[],
+): number => {
+  const isCorrect =
+    answer.length === correct.length &&
+    answer.every((button, index) => button === correct[index]);
+
+  return isCorrect
+    ? quizSettings.value.pointsCorrect
+    : quizSettings.value.pointsWrong;
+};
 
 const quickPlay = () => {
   restart();

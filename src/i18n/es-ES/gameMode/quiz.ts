@@ -44,6 +44,14 @@ export default {
           normal: 'Normal',
           survey: 'Supervivencia',
           elimination: 'Eliminación',
+          ordering: 'Orden',
+        },
+        description: {
+          normal: 'Elige la respuesta correcta y asigna puntos.',
+          survey: 'Recopila y muestra todas las respuestas seleccionadas.',
+          elimination:
+            'Solo los jugadores correctos avanzan a la siguiente ronda.',
+          ordering: 'Introduce un orden y después revela la solución correcta.',
         },
       },
       points: 'Puntos',
@@ -60,5 +68,12 @@ export default {
     action: {
       ok: 'Ok',
     },
+  },
+
+  ordering: {
+    submittedAnswers: 'Respuestas enviadas',
+    noAnswer: 'Sin respuesta',
+    redResets: 'Rojo reinicia tu secuencia',
+    resetCorrectOrder: 'Restablecer el orden correcto',
   },
 };

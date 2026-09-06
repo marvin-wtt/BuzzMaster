@@ -44,6 +44,13 @@ export default {
           normal: 'Normal',
           survey: 'Survey',
           elimination: 'Elimination',
+          ordering: 'Ordering',
+        },
+        description: {
+          normal: 'Choose the correct answer and award points.',
+          survey: 'Collect and present all selected answers.',
+          elimination: 'Only correct players advance to the next round.',
+          ordering: 'Submit an order, then reveal the correct order.',
         },
       },
       points: 'Points',
@@ -60,5 +67,12 @@ export default {
     action: {
       ok: 'Ok',
     },
+  },
+
+  ordering: {
+    submittedAnswers: 'Submitted answers',
+    noAnswer: 'No answer',
+    redResets: 'Red resets your sequence',
+    resetCorrectOrder: 'Reset correct order',
   },
 };

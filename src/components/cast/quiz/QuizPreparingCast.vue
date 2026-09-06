@@ -28,6 +28,14 @@
           >
           <q-item-section side> {{ settings.answerTime }} s </q-item-section>
         </q-item>
+        <q-item v-if="settings.mode === 'ordering'">
+          <q-item-section avatar>
+            <q-icon name="restart_alt" />
+          </q-item-section>
+          <q-item-section>
+            {{ t('cast.quiz.preparing.settings.ordering') }}
+          </q-item-section>
+        </q-item>
         <q-item>
           <q-item-section avatar>
             <q-icon name="swap_horiz" />
@@ -98,7 +106,9 @@ const settings = computed<QuizSettings>(() => {
 
 const buttons = computed(() => {
   return {
-    red: settings.value.changeMode === 'confirm',
+    red:
+      settings.value.changeMode === 'confirm' ||
+      settings.value.mode === 'ordering',
     blue: settings.value.activeButtons.includes(BuzzerButton.BLUE),
     orange: settings.value.activeButtons.includes(BuzzerButton.ORANGE),
     green: settings.value.activeButtons.includes(BuzzerButton.GREEN),

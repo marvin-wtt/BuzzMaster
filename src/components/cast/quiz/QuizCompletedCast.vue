@@ -16,17 +16,37 @@
     v-else
     class="column text-h2"
   >
-    <!-- Correct -->
-    <quiz-completed-result
-      symbol="check"
-      :buttons="correctButtons"
-      :show-result="showResults"
-      :points="settings.pointsCorrect"
-    >
-      {{ t('cast.quiz.completed.points') }}
-    </quiz-completed-result>
+    <!-- Fastest -->
+    <template v-if="settings.mode === 'fastest-bonus' && fastestControllers.length">
+      <quiz-completed-result
+        symbol="timer"
+        :buttons="fastestButtons"
+        :show-result="showResults"
+        :points="settings.pointsFastestBonus"
+        :state="props.state"
+        :filter-controllers="fastestControllers"
+      >
+        {{ t('cast.quiz.completed.points') }}
+      </quiz-completed-result>
 
-    <q-separator />
+      <q-separator />
+    </template>
+
+    <!-- Correct -->
+    <template v-if="correctButtonsFiltered && correctButtonsFiltered.length > 0">
+      <quiz-completed-result
+        symbol="check"
+        :buttons="correctButtonsFiltered"
+        :show-result="showResults"
+        :points="settings.pointsCorrect"
+        :state="props.state"
+        :filter-controllers="correctControllersWithoutFastest"
+      >
+        {{ t('cast.quiz.completed.points') }}
+      </quiz-completed-result>
+
+      <q-separator />
+    </template>
 
     <!-- Wrong -->
     <quiz-completed-result
@@ -34,6 +54,7 @@
       :buttons="wrongButtons"
       :show-result="showResults"
       :points="settings.pointsWrong"
+      :state="props.state"
     >
       {{ t('cast.quiz.completed.points') }}
     </quiz-completed-result>
@@ -65,10 +86,20 @@ const showResults = computed<boolean>(() => {
   return props.state.correct !== undefined;
 });
 
-const correctButtons = computed<BuzzerButton[] | undefined>(() => {
-  return props.state.correct === undefined
-    ? undefined
-    : [...props.state.correct].sort();
+const correctButtonsFiltered = computed<BuzzerButton[] | undefined>(() => {
+  if (props.state.correct === undefined) {
+    return undefined;
+  }
+
+  if (settings.value.mode !== 'fastest-bonus' || fastestControllers.value.length === 0) {
+    return [...props.state.correct].sort();
+  }
+
+  return [...props.state.correct].filter(btn => {
+    const nonFastestForBtn = correctControllersWithoutFastest.value.find(id => props.state.result[id] === btn);
+    const anyoneForBtn = Object.values(props.state.result).includes(btn);
+    return nonFastestForBtn || !anyoneForBtn;
+  }).sort();
 });
 
 const wrongButtons = computed<BuzzerButton[] | undefined>(() => {
@@ -79,6 +110,54 @@ const wrongButtons = computed<BuzzerButton[] | undefined>(() => {
   const allButtons = settings.value.activeButtons;
 
   return allButtons.filter((value) => !props.state.correct?.includes(value));
+});
+
+// Computes the fastest correct controllers in 'fastest-bonus' mode.
+// These controllers are extracted to be displayed in their own dedicated podium section on the cast screen.
+const fastestControllers = computed<string[]>(() => {
+  if (settings.value.mode !== 'fastest-bonus' || !props.state.correct) {
+    return [];
+  }
+
+  let fastest: string[] = [];
+  let maxTime = -1;
+  const correctSet = new Set(props.state.correct);
+
+  Object.entries(props.state.result).forEach(([controllerId, ans]) => {
+    if (correctSet.has(ans)) {
+      const time = props.state.answerTimes?.[controllerId] || 0;
+      if (time > maxTime) {
+        maxTime = time;
+        fastest = [controllerId];
+      } else if (time === maxTime) {
+        fastest.push(controllerId);
+      }
+    }
+  });
+
+  return fastest;
+});
+
+// Computes the remaining correct controllers, omitting the fastest ones.
+// This prevents the fastest players from being rendered twice (both in the fastest podium and the standard correct section).
+const correctControllersWithoutFastest = computed<string[]>(() => {
+  if (settings.value.mode !== 'fastest-bonus') {
+    return Object.keys(props.state.result);
+  }
+  return Object.keys(props.state.result).filter(id => !fastestControllers.value.includes(id));
+});
+
+const fastestButtons = computed<BuzzerButton[] | undefined>(() => {
+  if (!props.state.correct || fastestControllers.value.length === 0) return undefined;
+  
+  const buttons = new Set<BuzzerButton>();
+  fastestControllers.value.forEach(id => {
+    const btn = props.state.result[id];
+    if (btn !== undefined) {
+      buttons.add(btn);
+    }
+  });
+  return [...buttons].sort();
 });
 </script>
 

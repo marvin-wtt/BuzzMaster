@@ -51,6 +51,7 @@ describe('QuizPage', () => {
         name: 'completed',
         mode: 'normal',
         controllers: [],
+        answerTimes: {},
         result: {},
       });
 
@@ -177,6 +178,7 @@ describe('QuizPage', () => {
         answerChangeAllowed: 'always',
         mode: 'normal',
         controllers: [],
+        answerTimes: {},
         result: {},
       });
 
@@ -197,6 +199,7 @@ describe('QuizPage', () => {
         answerChangeAllowed: 'always',
         mode: 'normal',
         controllers: [],
+        answerTimes: {},
         result: {},
       });
       await nextTick();
@@ -214,6 +217,7 @@ describe('QuizPage', () => {
         answerChangeAllowed: 'always',
         mode: 'normal',
         controllers: [],
+        answerTimes: {},
         result: {},
       });
 
@@ -235,6 +239,7 @@ describe('QuizPage', () => {
         answerChangeAllowed: 'always',
         mode: 'normal',
         controllers: [],
+        answerTimes: {},
         result: {},
       });
       await nextTick();
@@ -261,6 +266,7 @@ describe('QuizPage', () => {
           answerChangeAllowed: 'never',
           mode: 'normal',
           controllers,
+          answerTimes: {},
           result: {},
         });
         // Wait for changes to apply
@@ -392,6 +398,7 @@ describe('QuizPage', () => {
           answerChangeAllowed: 'always',
           mode: 'normal',
           controllers,
+          answerTimes: {},
           result: {},
         });
         // Wait for changes to apply
@@ -508,6 +515,7 @@ describe('QuizPage', () => {
           answerChangeAllowed: 'confirm',
           mode: 'normal',
           controllers,
+          answerTimes: {},
           result: {},
           unconfirmed: {},
         });
@@ -712,6 +720,7 @@ describe('QuizPage', () => {
         name: 'completed',
         mode: 'normal',
         controllers,
+        answerTimes: {},
         result: {},
       });
       // Wait for changes to apply
@@ -735,6 +744,7 @@ describe('QuizPage', () => {
         name: 'completed',
         mode: 'normal',
         controllers,
+        answerTimes: {},
         result: {
           [controller0.id]: BuzzerButton.GREEN,
         },

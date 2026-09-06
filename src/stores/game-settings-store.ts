@@ -34,6 +34,8 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     presentationView: 'bar-chart',
     pointsCorrect: 0,
     pointsWrong: 0,
+    pointsFastestBonus: 5,
+    castShowControllers: false,
   });
 
   const simonSettings = ref<SimonSettings>({

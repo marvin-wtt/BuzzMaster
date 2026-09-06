@@ -44,6 +44,7 @@ export default {
           normal: 'Normal',
           survey: 'Survey',
           elimination: 'Elimination',
+          'fastest-bonus': 'Fastest Bonus',
         },
       },
       points: 'Points',
@@ -52,9 +53,11 @@ export default {
         label: 'Wrong answer',
         hint: 'Enter a negative number to subtract points',
       },
+      pointsFastestBonus: 'Points for fastest',
       sounds: 'Sounds',
       playSounds: 'Play sounds',
       beepAt: 'Start countdown beep at',
+      castShowControllers: 'Show player names on Cast Screen',
     },
 
     action: {

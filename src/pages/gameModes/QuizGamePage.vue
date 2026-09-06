@@ -94,6 +94,7 @@
           >
             <quiz-leaderboard-buttons
               :answers="gameState.result"
+              :answer-times="gameState.answerTimes"
               @update="onPointsUpdate"
             />
 
@@ -217,6 +218,7 @@ const tick = transition('running', (state, time: number) => {
       name: 'completed',
       controllers: state.controllers,
       result: state.result,
+      answerTimes: state.answerTimes,
       mode: state.mode,
     };
   }
@@ -314,6 +316,11 @@ const buttonPressedAnswerChangeAlways = (
     [event.controller.id]: event.button,
   };
 
+  const answerTimes = {
+    ...state.answerTimes,
+    [event.controller.id]: state.time,
+  };
+
   return {
     game: 'quiz',
     name: 'running',
@@ -322,6 +329,7 @@ const buttonPressedAnswerChangeAlways = (
     controllers: state.controllers,
     time: state.time,
     result,
+    answerTimes,
   };
 };
 
@@ -346,6 +354,11 @@ const buttonPressedAnswerChangeNever = (
     [event.controller.id]: event.button,
   };
 
+  const answerTimes = {
+    ...state.answerTimes,
+    [event.controller.id]: state.time,
+  };
+
   // Transition to completed if all controllers answered
   if (Object.keys(result).length >= state.controllers.length) {
     return {
@@ -354,6 +367,7 @@ const buttonPressedAnswerChangeNever = (
       mode: state.mode,
       controllers: state.controllers,
       result,
+      answerTimes,
     };
   }
 
@@ -365,6 +379,7 @@ const buttonPressedAnswerChangeNever = (
     mode: state.mode,
     time: state.time,
     result,
+    answerTimes,
   };
 };
 
@@ -392,6 +407,7 @@ const buttonPressedAnswerChangeConfirm = (
       mode: state.mode,
       time: state.time,
       result: state.result,
+      answerTimes: state.answerTimes,
       unconfirmed: {
         ...state.unconfirmed,
         [event.controller.id]: event.button,
@@ -418,6 +434,11 @@ const buttonPressedAnswerChangeConfirm = (
     [event.controller.id]: button,
   };
 
+  const answerTimes = {
+    ...state.answerTimes,
+    [event.controller.id]: state.time,
+  };
+
   // Transition to completed if all controllers confirmed
   if (Object.keys(result).length >= state.controllers.length) {
     return {
@@ -426,6 +447,7 @@ const buttonPressedAnswerChangeConfirm = (
       mode: state.mode,
       controllers: state.controllers,
       result,
+      answerTimes,
     };
   }
 
@@ -437,6 +459,7 @@ const buttonPressedAnswerChangeConfirm = (
     mode: state.mode,
     time: state.time,
     result,
+    answerTimes,
     unconfirmed,
   };
 };
@@ -466,6 +489,7 @@ const startGame = (controllerIds: string[]): QuizRunningState => {
       answerChangeAllowed,
       unconfirmed: {},
       result: {},
+      answerTimes: {},
     };
   }
 
@@ -473,6 +497,7 @@ const startGame = (controllerIds: string[]): QuizRunningState => {
     answerChangeAllowed,
     ...nextState,
     result: {},
+    answerTimes: {},
   };
 };
 
@@ -512,6 +537,7 @@ const onPointsUpdate = transition(
       game: 'quiz',
       name: 'completed',
       result: state.result,
+      answerTimes: state.answerTimes,
       mode: state.mode,
       controllers: state.controllers,
       correct,

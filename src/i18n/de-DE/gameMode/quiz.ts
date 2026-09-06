@@ -44,6 +44,7 @@ export default {
           normal: 'Quiz',
           survey: 'Umfrage',
           elimination: 'Ausscheiden',
+          'fastest-bonus': 'Schnellster Bonus',
         },
       },
       points: 'Punkte',
@@ -52,9 +53,11 @@ export default {
         label: 'Falsche Antwort',
         hint: 'Negative Zahl eintragen, um Punkte abzuziehen',
       },
+      pointsFastestBonus: 'Punkte für Schnellsten',
       sounds: 'Ton',
       playSounds: 'Ton abspielen',
       beepAt: 'Start des Countdown-Tons bei',
+      castShowControllers: 'Spielernamen auf Cast-Bildschirm',
     },
 
     action: {

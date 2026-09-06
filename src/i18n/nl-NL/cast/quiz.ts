@@ -21,5 +21,6 @@ export default {
   running: {},
   completed: {
     points: 'Punten',
+    fastestBonus: 'Snelheidsbonus',
   },
 };

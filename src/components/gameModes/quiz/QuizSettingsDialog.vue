@@ -118,6 +118,27 @@
                 <q-icon name="close" />
               </template>
             </q-input>
+
+            <q-input
+              v-if="settings.mode === 'fastest-bonus'"
+              v-model.number="settings.pointsFastestBonus"
+              :label="t('gameMode.quiz.settings.field.pointsFastestBonus')"
+              type="number"
+              :rules="[isNumber]"
+              hide-bottom-space
+              rounded
+              outlined
+            >
+              <template #prepend>
+                <q-icon name="speed" />
+              </template>
+            </q-input>
+
+            <q-toggle
+              v-model="settings.castShowControllers"
+              :label="t('gameMode.quiz.settings.field.castShowControllers')"
+              class="col-12"
+            />
           </template>
 
           <div class="text-h6">
@@ -224,6 +245,10 @@ const modeOptions = [
   {
     label: t('gameMode.quiz.settings.field.mode.option.elimination'),
     value: 'elimination',
+  },
+  {
+    label: t('gameMode.quiz.settings.field.mode.option.fastest-bonus'),
+    value: 'fastest-bonus',
   },
 ];
 

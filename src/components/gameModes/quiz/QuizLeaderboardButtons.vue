@@ -28,7 +28,10 @@ const { createAudio } = useAudio();
 const correctAnswers = ref<Set<BuzzerButton>>(new Set());
 const props = defineProps<{
   answers: Record<string, BuzzerButton>;
+  answerTimes?: Record<string, number>;
 }>();
+
+const grantedPoints = ref<Record<string, number>>({});
 
 const emit = defineEmits<{
   (e: 'update', correct: BuzzerButton[] | undefined): void;
@@ -42,45 +45,63 @@ onBeforeMount(() => {
 });
 
 const updateButtonPoints = async (button: BuzzerButton): Promise<void> => {
-  // No button was preciously pressed, so we assume all answers are wrong.
-  // Points for correct answers are refunded later
-  if (correctAnswers.value.size === 0) {
-    Object.keys(props.answers).forEach((controllerId) => {
-      leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong);
-    });
-  }
+  // Revert previously granted points
+  Object.entries(grantedPoints.value).forEach(([controllerId, pts]) => {
+    leaderboardStore.addPoints(controllerId, -pts);
+  });
 
+  // Toggle button correctness
   if (correctAnswers.value.has(button)) {
-    // Add wrong point and refund correct points
-    Object.keys(props.answers)
-      .filter((controllerId) => props.answers[controllerId] === button)
-      .forEach((controllerId) => {
-        leaderboardStore.addPoints(
-          controllerId,
-          quizSettings.pointsCorrect * -1,
-        );
-        leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong);
-      });
-
     correctAnswers.value.delete(button);
   } else {
-    // Add correct point and refund wrong points
-    Object.keys(props.answers)
-      .filter((controllerId) => props.answers[controllerId] === button)
-      .forEach((controllerId) => {
-        leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong * -1);
-        leaderboardStore.addPoints(controllerId, quizSettings.pointsCorrect);
-      });
-
     correctAnswers.value.add(button);
   }
 
-  // If all buzzers are unselected, no points are granted
-  if (correctAnswers.value.size === 0) {
-    Object.keys(props.answers).forEach((controllerId) => {
-      leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong * -1);
+  // Calculate new points
+  const newGrantedPoints: Record<string, number> = {};
+
+  if (correctAnswers.value.size > 0) {
+    let fastestControllers: string[] = [];
+    let maxTime = -1;
+
+    // Find the fastest correct controllers when in 'fastest-bonus' mode.
+    // The fastest players receive a distinct fixed point reward instead of the standard reward.
+    if (quizSettings.mode === 'fastest-bonus' && props.answerTimes) {
+      Object.entries(props.answers).forEach(([controllerId, ans]) => {
+        if (correctAnswers.value.has(ans)) {
+          const time = props.answerTimes![controllerId] || 0;
+          if (time > maxTime) {
+            maxTime = time;
+            fastestControllers = [controllerId];
+          } else if (time === maxTime) {
+            fastestControllers.push(controllerId);
+          }
+        }
+      });
+    }
+
+    // Assign points
+    Object.entries(props.answers).forEach(([controllerId, ans]) => {
+      if (correctAnswers.value.has(ans)) {
+        // If the controller is the fastest in fastest-bonus mode, award the fixed fastest bonus points.
+        // Otherwise, award the standard correct points.
+        let pts = quizSettings.pointsCorrect;
+        if (fastestControllers.includes(controllerId)) {
+          pts = quizSettings.pointsFastestBonus;
+        }
+        newGrantedPoints[controllerId] = pts;
+      } else {
+        newGrantedPoints[controllerId] = quizSettings.pointsWrong;
+      }
     });
   }
+
+  // Apply new points
+  Object.entries(newGrantedPoints).forEach(([controllerId, pts]) => {
+    leaderboardStore.addPoints(controllerId, pts);
+  });
+
+  grantedPoints.value = newGrantedPoints;
 
   emit(
     'update',

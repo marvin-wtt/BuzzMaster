@@ -29,11 +29,16 @@ $pulseMax: 1;
   margin: 15px;
   border-radius: 50%;
   aspect-ratio: 1 / 1;
-
-  box-shadow: 0 0 0 1px;
+  border: 1px solid var(--bm-line-strong);
+  background: var(--bm-surface);
+  color: var(--bm-dim);
 }
 
+/* While the question is open the ring breathes in the accent colour — the one
+   thing on screen that says "we are live". */
 .pulse {
+  border-color: var(--bm-accent);
+  color: var(--bm-ink);
   animation: t-pulse 2s infinite;
 }
 
@@ -58,12 +63,12 @@ $pulseMax: 1;
 @keyframes t-pulse {
   0% {
     transform: scale($pulseMin);
-    box-shadow: 0 0 0 0;
+    box-shadow: 0 0 0 0 var(--bm-accent-soft);
   }
 
   70% {
     transform: scale($pulseMax);
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 14px rgba(0, 0, 0, 0);
   }
 
   100% {

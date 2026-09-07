@@ -1,119 +1,133 @@
 <template>
-  <q-page
-    class="row justify-center content-center"
-    padding
-  >
-    <div
-      class="col-xs-10 col-sm-8 col-md-6 col-lg-4 col-xl-3 column q-gutter-y-md"
-    >
-      <div
+  <q-page class="row justify-center q-pa-md">
+    <div class="bm-modes column q-gutter-y-md">
+      <section
         v-for="section in sections"
         :key="section.key"
+        class="column q-gutter-y-xs"
       >
-        <div class="section-header full-width text-h5">
-          {{ section.label }}
+        <div class="bm-section">
+          {{ t(section.labelKey) }}
         </div>
-        <div class="row q-gutter-sm">
-          <div
-            v-for="item in section.items"
-            :key="item.routeName"
-            class="col-xs-12 col-sm-5 col-md-4 column q-gutter-col-md"
-          >
-            <q-btn
-              :to="{ name: item.routeName }"
-              :label="item.label"
-              :icon="item.icon"
-              color="primary"
-              rounded
-              stack
-            />
-          </div>
-          <div
-            v-if="section.items.length === 0"
-            class="text-subtitle2 text-italic"
-          >
-            {{ t('gameMode.noEntries') }}
-          </div>
+
+        <menu-row
+          v-for="item in section.items"
+          :key="item.routeName"
+          :label="t(item.labelKey)"
+          :icon="item.icon"
+          :shortcut="item.shortcut"
+          :primary="item.routeName === PRIMARY_MODE"
+          :to="{ name: item.routeName }"
+        />
+
+        <div
+          v-if="section.items.length === 0"
+          class="text-caption text-italic bm-dim"
+        >
+          {{ t('gameMode.noEntries') }}
         </div>
-      </div>
+      </section>
     </div>
   </q-page>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n';
-import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import MenuRow from 'components/MenuRow.vue';
+import { useShortcuts } from 'src/composables/shortcuts';
 
 const { t } = useI18n();
+const router = useRouter();
+
+interface ModeEntry {
+  routeName: string;
+  labelKey: string;
+  icon: string;
+}
 
 interface MenuSection {
-  label: string;
   key: string;
-  icon?: string;
-  items: MenuItem[];
+  labelKey: string;
+  items: (ModeEntry & { shortcut: string })[];
 }
 
-interface MenuItem {
-  routeName: string;
-  label: string;
-  icon?: string;
-}
+/** The mode a quiz show starts with — highlighted and reachable with "1". */
+const PRIMARY_MODE = 'buzzer-game';
 
-const sections = computed<MenuSection[]>(() => [
+const layout: { key: string; labelKey: string; items: ModeEntry[] }[] = [
   {
-    label: t('gameMode.section.show'),
     key: 'show',
+    labelKey: 'gameMode.section.show',
     items: [
       {
         routeName: 'buzzer-game',
-        label: t('gameMode.action.buzzer'),
+        labelKey: 'gameMode.action.buzzer',
         icon: 'sym_o_radio_button_checked',
       },
       {
         routeName: 'quiz-game',
-        label: t('gameMode.action.quiz'),
+        labelKey: 'gameMode.action.quiz',
         icon: 'sym_o_format_list_numbered',
       },
     ],
   },
   {
-    label: t('gameMode.section.games'),
     key: 'games',
+    labelKey: 'gameMode.section.games',
     items: [
       {
         routeName: 'simon-game',
-        label: t('gameMode.action.simon'),
+        labelKey: 'gameMode.action.simon',
         icon: 'grid_view',
       },
       {
         routeName: 'pong-game',
-        label: t('gameMode.action.pong'),
+        labelKey: 'gameMode.action.pong',
         icon: 'sym_o_sports_tennis',
       },
     ],
   },
   {
-    label: t('gameMode.section.utilities'),
     key: 'utility',
+    labelKey: 'gameMode.section.utilities',
     items: [
       {
         routeName: 'stopwatch-game',
-        label: t('gameMode.action.stopwatch'),
+        labelKey: 'gameMode.action.stopwatch',
         icon: 'sym_o_timer',
       },
       {
         routeName: 'viewing-rate-game',
-        label: t('gameMode.action.viewingRate'),
+        labelKey: 'gameMode.action.viewingRate',
         icon: 'sym_o_trending_up',
       },
     ],
   },
-]);
+];
+
+// Number keys run straight down the page, across section boundaries.
+let key = 0;
+const sections: MenuSection[] = layout.map((section) => ({
+  ...section,
+  items: section.items.map((item) => ({ ...item, shortcut: String(++key) })),
+}));
+
+useShortcuts(
+  Object.fromEntries(
+    sections
+      .flatMap((section) => section.items)
+      .map((item) => [
+        item.shortcut,
+        () => void router.push({ name: item.routeName }),
+      ]),
+  ),
+);
 </script>
 
-<style scoped>
-.section-header {
-  border-bottom: 1px solid;
-  margin-bottom: 1em;
+<style lang="scss" scoped>
+.bm-modes {
+  width: 100%;
+  max-width: 420px;
 }
 </style>

@@ -1,4 +1,5 @@
 export default {
+  back: 'Atrás',
   batterySaving: 'Mostrar Ahorro de Batería',
   cast: 'Abrir Cast',
   close: 'Cerrar ventana',
@@ -13,4 +14,12 @@ export default {
   settings: 'Interruptor de Ajustes',
   unpin: 'Desanclar ventana',
   updater: 'Buscar Actualizaciones',
+  status: {
+    controllers: 'Ningún mando | 1 mando | {count} mandos',
+    controllersHint: 'Mandos conectados: gestiónalos en Dispositivos',
+    castOn: 'Cast activo',
+    castOff: 'Cast inactivo',
+    battery: 'Batería: 1 | Batería: {count}',
+    batteryHint: 'Mandos a punto de entrar en modo de ahorro de energía',
+  },
 };

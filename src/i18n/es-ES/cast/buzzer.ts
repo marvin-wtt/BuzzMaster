@@ -17,6 +17,10 @@ export default {
     go: '¡Ya!',
   },
 
+  answering: {
+    label: 'Respondiendo',
+  },
+
   answered: {
     points: 'Puntos',
   },

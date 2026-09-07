@@ -1,28 +1,290 @@
-// app global css in SCSS form
+// BuzzMaster global stylesheet — theme "Studio".
+//
+// Colours live as CSS custom properties so a single set of component classes
+// works in both themes. Quasar toggles `body--dark` / `body--light` for us;
+// every token below is defined for both, so nothing is ever left undefined.
 
-/* Scrollbar */
-/* width */
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+
+:root {
+  --bm-radius: 7px;
+  --bm-radius-lg: 10px;
+}
+
+body.body--dark {
+  --bm-ground: #0b0d11;
+  --bm-surface: #14181f;
+  --bm-surface-alt: #0e1218;
+  --bm-line: #222833;
+  --bm-line-strong: #38404e;
+  --bm-ink: #e9ecf2;
+  --bm-dim: #7b8496;
+  --bm-faint: #5d6675;
+  --bm-accent: #{$primary};
+  --bm-accent-text: #ff3b47;
+  --bm-accent-soft: rgba(228, 20, 31, 0.13);
+  --bm-accent-line: #4a171d;
+  --bm-warn: #ffb020;
+  --bm-ok: #2bbd63;
+  --bm-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 34px -18px rgba(0, 0, 0, 0.8);
+}
+
+body.body--light {
+  --bm-ground: #f1f2f5;
+  --bm-surface: #ffffff;
+  --bm-surface-alt: #e9ebef;
+  --bm-line: #dde0e6;
+  --bm-line-strong: #b9bfc9;
+  --bm-ink: #14171d;
+  --bm-dim: #5d6573;
+  --bm-faint: #838b99;
+  --bm-accent: #c8121d;
+  --bm-accent-text: #c8121d;
+  --bm-accent-soft: rgba(200, 18, 29, 0.08);
+  --bm-accent-line: #f0c3c6;
+  --bm-warn: #b5730a;
+  --bm-ok: #15803d;
+  --bm-shadow:
+    0 1px 2px rgba(16, 20, 28, 0.07), 0 12px 30px -16px rgba(16, 20, 28, 0.3);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+
+/* Matches the specificity of Quasar's own `body--dark` / `body--light` rules,
+   which would otherwise win. No background on `.q-page`: the cast window is a
+   transparent BrowserWindow and needs the page to let the desktop through. */
+body.body--dark,
+body.body--light {
+  background: var(--bm-ground);
+  color: var(--bm-ink);
+  letter-spacing: -0.005em;
+}
+
+::selection {
+  background: var(--bm-accent-soft);
+}
+
+/* One visible focus style for everything the host can reach with the keyboard. */
+:focus-visible {
+  outline: 2px solid var(--bm-accent-text);
+  outline-offset: 2px;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────────── */
+
+/* The frameless window title bar and the page header below it. */
+.bm-chrome {
+  background: var(--bm-surface-alt);
+  color: var(--bm-dim);
+  border-bottom: 1px solid var(--bm-line);
+}
+
+.bm-chrome .q-btn {
+  color: var(--bm-dim);
+}
+
+.bm-chrome .q-btn:hover {
+  color: var(--bm-ink);
+}
+
+.bm-appbar {
+  background: var(--bm-surface-alt);
+  color: var(--bm-ink);
+  border-bottom: 1px solid var(--bm-line);
+}
+
+.bm-appbar__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ── Status strip ───────────────────────────────────────────────────────── */
+
+.bm-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 7px 10px;
+  background: var(--bm-surface-alt);
+  border-bottom: 1px solid var(--bm-line);
+}
+
+.bm-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.688rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--bm-dim);
+  background: var(--bm-surface);
+  border: 1px solid var(--bm-line);
+  border-radius: 5px;
+  padding: 3px 8px;
+  line-height: 1.5;
+}
+
+.bm-stat--live {
+  color: var(--bm-accent-text);
+  border-color: var(--bm-accent-line);
+  background: var(--bm-accent-soft);
+}
+
+.bm-stat--warn {
+  color: var(--bm-warn);
+  border-color: var(--bm-warn);
+  background: transparent;
+}
+
+.bm-stat__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+/* ── Menu rows ──────────────────────────────────────────────────────────── */
+
+.bm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 11px;
+  background: var(--bm-surface);
+  border: 1px solid var(--bm-line);
+  border-radius: var(--bm-radius);
+  color: var(--bm-ink);
+  font: inherit;
+  font-size: 0.813rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.14s ease,
+    background-color 0.14s ease;
+}
+
+.bm-row:hover {
+  border-color: var(--bm-line-strong);
+}
+
+.bm-row:disabled,
+.bm-row[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bm-row--primary {
+  border-color: var(--bm-accent-line);
+  background: linear-gradient(
+    90deg,
+    var(--bm-accent-soft),
+    var(--bm-surface) 62%
+  );
+}
+
+.bm-row__tag {
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--bm-line-strong);
+  flex: 0 0 auto;
+}
+
+.bm-row--primary .bm-row__tag {
+  background: var(--bm-accent);
+}
+
+.bm-row__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bm-row__label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bm-row__caption {
+  display: block;
+  font-size: 0.688rem;
+  font-weight: 400;
+  color: var(--bm-dim);
+  margin-top: 1px;
+}
+
+.bm-row__key {
+  flex: 0 0 auto;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--bm-faint);
+  border: 1px solid var(--bm-line-strong);
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1.5;
+}
+
+/* ── Panels, labels, numbers ────────────────────────────────────────────── */
+
+.bm-panel {
+  background: var(--bm-surface);
+  border: 1px solid var(--bm-line);
+  border-radius: var(--bm-radius-lg);
+}
+
+.bm-section {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bm-faint);
+}
+
+.bm-dim {
+  color: var(--bm-dim);
+}
+
+/* Timers and scores: digits must not shift width while counting. */
+.bm-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+
 ::-webkit-scrollbar {
   width: 0.6rem;
   height: 0.5rem;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 0.125rem grey;
-  border-radius: 0.25rem;
+  background: transparent;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #656565;
+  background: var(--bm-line-strong);
   border-radius: 0.25rem;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: $primary;
+  background: var(--bm-accent);
 }
 
-::-webkit-scrollbar-corner {
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -11,7 +11,7 @@ export default {
   app_name: 'Buzz Master',
 
   action: {
-    start: 'Empezar',
+    start: 'Iniciar show',
     devices: 'Dispositivos',
     leaderboard: 'Clasificación',
   },

@@ -1,5 +1,7 @@
 export default {
   title: 'Buzzer',
+  buzzedIn: 'Gebuzzerd',
+  points: 'punten',
   waitingForBuzzer: 'Wachten op buzzer...',
   controllersReady: '{count} controllers klaar!',
   action: {
@@ -9,6 +11,8 @@ export default {
     quickPlay: 'Snel spelen',
     reset: 'Reset',
     cancel: 'Annuleren',
+    correct: 'Goed',
+    wrong: 'Fout',
   },
   settings: {
     title: 'Instellingen',

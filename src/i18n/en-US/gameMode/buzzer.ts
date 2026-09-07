@@ -1,6 +1,8 @@
 export default {
   title: 'Buzzer',
 
+  buzzedIn: 'Buzzed in',
+  points: 'points',
   waitingForBuzzer: 'Waiting for buzzer...',
   controllersReady: '{count} controllers ready!',
 
@@ -11,6 +13,8 @@ export default {
     quickPlay: 'Quick Play',
     reset: 'Reset',
     cancel: 'Cancel',
+    correct: 'Correct',
+    wrong: 'Wrong',
   },
 
   settings: {

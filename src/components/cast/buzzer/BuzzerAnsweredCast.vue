@@ -1,5 +1,5 @@
 <template>
-  <div class="column justify-around">
+  <div class="column justify-around q-pa-md">
     <transition-group name="slide">
       <cross-check
         key="cross-check"

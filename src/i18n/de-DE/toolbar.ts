@@ -1,4 +1,5 @@
 export default {
+  back: 'Zurück',
   batterySaving: 'Batteriesparmodus anzeigen',
   cast: 'Cast öffnen',
   close: 'Fenster schließen',
@@ -13,4 +14,12 @@ export default {
   settings: 'Einstellungen umschalten',
   unpin: 'Fenster lösen',
   updater: 'Nach Updates suchen',
+  status: {
+    controllers: 'Kein Controller | 1 Controller | {count} Controller',
+    controllersHint: 'Verbundene Controller — unter „Geräte“ verwalten',
+    castOn: 'Cast an',
+    castOff: 'Cast aus',
+    battery: 'Akku: 1 | Akku: {count}',
+    batteryHint: 'Controller, die gleich in den Energiesparmodus gehen',
+  },
 };

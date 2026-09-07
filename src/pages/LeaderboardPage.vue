@@ -1,61 +1,43 @@
 <template>
-  <q-page
-    class="row justify-center"
-    padding
-  >
+  <q-page class="column no-wrap q-pa-md">
     <div
       v-if="leaderboard.length === 0"
-      class="text-center column self-center text-h5"
+      class="col-grow column items-center justify-center text-center bm-dim"
     >
       {{ t('leaderboard.noEntries') }}
     </div>
 
-    <div
-      v-else
-      class="col-xs-12 col-sm-10 col-md-7 col-lg-4 col-xl-2 column justify-between no-wrap"
-    >
-      <q-list>
-        <q-item
+    <template v-else>
+      <div class="bm-board col-grow column q-gutter-y-xs">
+        <button
           v-for="entry in leaderboard"
           :key="entry.id"
-          clickable
-          v-ripple
+          type="button"
+          class="bm-row"
+          :class="{ 'bm-row--primary': entry.id === leaderId }"
           @click="showUpdatePoints(entry)"
         >
-          <q-item-section avatar>
-            <q-avatar
-              :color="avatarColor(entry.position)"
-              text-color="white"
-              size="sm"
-            >
-              {{ entry.position }}
-            </q-avatar>
-          </q-item-section>
+          <span class="bm-board__rank bm-num">{{ entry.position }}</span>
 
-          <q-item-section class="ellipsis">
-            {{ entry.name }}
-          </q-item-section>
+          <span class="bm-row__body">
+            <span class="bm-row__label">{{ entry.name }}</span>
+          </span>
 
-          <q-item-section side>
-            {{ entry.value }}
-          </q-item-section>
-        </q-item>
-      </q-list>
-
-      <div
-        class="col-grow column justify-around"
-        style="max-height: 300px"
-      >
-        <div class="row justify-center">
-          <q-btn
-            :label="t('leaderboard.action.reset')"
-            color="primary"
-            rounded
-            @click="showResetPoints()"
-          />
-        </div>
+          <span class="bm-board__value bm-num">{{ entry.value }}</span>
+        </button>
       </div>
-    </div>
+
+      <div class="bm-board__actions">
+        <q-btn
+          class="full-width"
+          :label="t('leaderboard.action.reset')"
+          icon="restart_alt"
+          outline
+          no-caps
+          @click="showResetPoints()"
+        />
+      </div>
+    </template>
   </q-page>
 </template>
 
@@ -64,13 +46,27 @@ import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
 import { useLeaderboardDialogs } from 'src/composables/leaderboard';
 import { useI18n } from 'vue-i18n';
-import { watch } from 'vue';
+import { computed, watch } from 'vue';
 import { useGameState } from 'src/composables/gameState';
 
 const { t } = useI18n();
 const leaderboardStore = useLeaderboardStore();
 const { leaderboard } = storeToRefs(leaderboardStore);
 const { showUpdatePoints, showResetPoints } = useLeaderboardDialogs();
+
+/**
+ * The accent marks whoever is actually ahead. While everybody is tied — which
+ * is the whole board before the first question — nobody is highlighted.
+ */
+const leaderId = computed<string | undefined>(() => {
+  const [first, second] = leaderboard.value;
+
+  if (!first || !second) {
+    return undefined;
+  }
+
+  return first.value > second.value ? first.id : undefined;
+});
 
 const { transition } = useGameState({
   game: 'leaderboard',
@@ -88,19 +84,49 @@ watch(
     };
   }),
 );
-
-const avatarColor = (index: number) => {
-  switch (index) {
-    case 1:
-      return 'primary';
-    case 2:
-      return 'secondary';
-    case 3:
-      return 'info';
-  }
-
-  return 'grey';
-};
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.bm-board {
+  width: 100%;
+  max-width: 420px;
+  align-self: center;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.bm-board__rank {
+  flex: 0 0 auto;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bm-dim);
+  background: var(--bm-surface-alt);
+  border: 1px solid var(--bm-line);
+}
+
+.bm-row--primary .bm-board__rank {
+  color: #fff;
+  background: var(--bm-accent);
+  border-color: var(--bm-accent);
+}
+
+.bm-board__value {
+  flex: 0 0 auto;
+  font-size: 0.938rem;
+  font-weight: 700;
+}
+
+.bm-board__actions {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 420px;
+  align-self: center;
+  padding-top: 16px;
+}
+</style>

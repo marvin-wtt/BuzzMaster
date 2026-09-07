@@ -1,4 +1,5 @@
 export default {
+  back: 'Back',
   batterySaving: 'Show Battery Saving',
   cast: 'Open Cast',
   close: 'Close window',
@@ -13,4 +14,12 @@ export default {
   settings: 'Toggle Settings',
   unpin: 'Unpin window',
   updater: 'Check for updates',
+  status: {
+    controllers: 'No controller | 1 controller | {count} controllers',
+    controllersHint: 'Connected controllers — manage them under Devices',
+    castOn: 'Cast on',
+    castOff: 'Cast off',
+    battery: 'Battery: 1 | Battery: {count}',
+    batteryHint: 'Controllers about to enter energy saving mode',
+  },
 };

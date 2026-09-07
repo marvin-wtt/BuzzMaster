@@ -10,7 +10,7 @@ import updater from './updater';
 export default {
   app_name: 'Buzz Master',
   action: {
-    start: 'Start',
+    start: 'Show starten',
     devices: 'Apparaten',
     leaderboard: 'Scorebord',
   },

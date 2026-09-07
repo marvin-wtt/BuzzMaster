@@ -18,13 +18,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { computed } from 'vue';
-import type { BuzzerState } from 'app/common/gameState/BuzzerState';
-import BuzzerPreparingCast from 'components/cast/buzzer/BuzzerPreparingCast.vue';
-import BuzzerRunningCast from 'components/cast/buzzer/BuzzerRunningCast.vue';
-import BuzzerAnsweringCast from 'components/cast/buzzer/BuzzerAnsweringCast.vue';
-import BuzzerAnsweredCast from 'components/cast/buzzer/BuzzerAnsweredCast.vue';
+import type { BuzzerState } from '@/../common/gameState/BuzzerState';
+import BuzzerPreparingCast from '@/components/cast/buzzer/BuzzerPreparingCast.vue';
+import BuzzerRunningCast from '@/components/cast/buzzer/BuzzerRunningCast.vue';
+import BuzzerAnsweringCast from '@/components/cast/buzzer/BuzzerAnsweringCast.vue';
+import BuzzerAnsweredCast from '@/components/cast/buzzer/BuzzerAnsweredCast.vue';
 
 const castStore = useCastStore();
 

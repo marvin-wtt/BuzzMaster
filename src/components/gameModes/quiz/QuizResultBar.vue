@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton } from '@/plugins/buzzer/types';
 import { computed, type StyleValue } from 'vue';
 
 const props = defineProps<{

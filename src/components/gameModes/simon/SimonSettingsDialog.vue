@@ -96,10 +96,10 @@
 
 <script lang="ts" setup>
 import { QForm, useDialogPluginComponent } from 'quasar';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
-import type { SimonSettings } from 'app/common/gameSettings/SimonSettings';
+import type { SimonSettings } from '@/../common/gameSettings/SimonSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

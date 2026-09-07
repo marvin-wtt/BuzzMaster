@@ -1,25 +1,25 @@
-import { installQuasarPlugin } from 'app/test/vitest/install-quasar';
+import { installQuasarPlugin } from '@/../test/vitest/install-quasar';
 import { describe, expect, it, vi } from 'vitest';
-import QuizQuestionPage from 'pages/gameModes/QuizGamePage.vue';
-import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
+import QuizQuestionPage from '@/pages/gameModes/QuizGamePage.vue';
+import QuizSettingsDialog from '@/components/gameModes/quiz/QuizSettingsDialog.vue';
 import { Dialog, QBtn, type QIcon } from 'quasar';
-import { BuzzerButton, type IDongle } from 'src/plugins/buzzer/types';
-import { useGameStore } from 'stores/game-store';
-import { createDevice } from 'app/test/vitest/utils/buzzer';
-import { selector } from 'app/test/vitest/utils/element-selector';
+import { BuzzerButton, type IDongle } from '@/plugins/buzzer/types';
+import { useGameStore } from '@/stores/game-store';
+import { createDevice } from '@/../test/vitest/utils/buzzer';
+import { selector } from '@/../test/vitest/utils/element-selector';
 import type {
   QuizCompleteState,
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
   QuizRunningState,
-} from 'app/common/gameState/QuizState';
-import { mountPage, mountWithStore } from 'app/test/vitest/utils/mount';
-import { installTeleportTarget } from 'app/test/vitest/install-teleport-target';
-import { installFakeTimer } from 'app/test/vitest/install-timer';
+} from '@/../common/gameState/QuizState';
+import { mountPage, mountWithStore } from '@/../test/vitest/utils/mount';
+import { installTeleportTarget } from '@/../test/vitest/install-teleport-target';
+import { installFakeTimer } from '@/../test/vitest/install-timer';
 import { nextTick } from 'vue';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import QuizResultModeToggle from '@/components/gameModes/quiz/QuizResultModeToggle.vue';
 
 const mountQuizPage = () => mountPage(QuizQuestionPage);
 

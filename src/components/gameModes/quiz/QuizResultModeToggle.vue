@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 

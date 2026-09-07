@@ -1,4 +1,4 @@
-import type { IController } from 'src/plugins/buzzer/types';
+import type { IController } from '@/plugins/buzzer/types';
 
 export type StopwatchEntry = {
   controller: IController;

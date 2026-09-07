@@ -1,4 +1,4 @@
-import type { BuzzerButton } from 'src/plugins/buzzer/types';
+import type { BuzzerButton } from '@/plugins/buzzer/types';
 
 export type SimonState =
   | SimonPreparingState

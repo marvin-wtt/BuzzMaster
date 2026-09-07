@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import type { AppUpdate } from 'app/common';
+import type { AppUpdate } from '@/../common';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 

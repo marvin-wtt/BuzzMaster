@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { useUpdaterStore } from 'stores/updater-store';
+import { useUpdaterStore } from '@/stores/updater-store';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
 

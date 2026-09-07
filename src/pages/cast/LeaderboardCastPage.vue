@@ -40,14 +40,14 @@
 </template>
 
 <script lang="ts" setup>
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { computed, nextTick, onMounted, ref } from 'vue';
 import type {
   LeaderboardEntry,
   LeaderboardState,
-} from 'app/common/gameState/LeaderboardState';
+} from '@/../common/gameState/LeaderboardState';
 import { type QItem, QList } from 'quasar';
-import CastLeaderboardEntry from 'components/cast/leaderboard/CastLeaderboardEntry.vue';
+import CastLeaderboardEntry from '@/components/cast/leaderboard/CastLeaderboardEntry.vue';
 
 const castStore = useCastStore();
 

@@ -1,5 +1,5 @@
-import type { ButtonState, IDevice } from 'src/plugins/buzzer/types';
-import { buttonMapping } from 'src/plugins/buzzer/hid/playstationButtonMappings';
+import type { ButtonState, IDevice } from '@/plugins/buzzer/types';
+import { buttonMapping } from '@/plugins/buzzer/hid/playstationButtonMappings';
 
 export abstract class PlayStationDevice implements IDevice {
   static readonly VENDOR_ID = 0x054c;

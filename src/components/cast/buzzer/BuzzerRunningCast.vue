@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import PulseCircle from 'components/PulseCircle.vue';
+import PulseCircle from '@/components/PulseCircle.vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

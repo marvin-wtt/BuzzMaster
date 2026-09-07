@@ -60,13 +60,13 @@
 
 <script lang="ts" setup>
 import { useDialogPluginComponent } from 'quasar';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { ref, toRaw } from 'vue';
 import type {
   PongSettings,
   PongSpeedPreset,
-} from 'app/common/gameSettings/PongSettings';
+} from '@/../common/gameSettings/PongSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

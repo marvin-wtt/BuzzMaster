@@ -17,12 +17,12 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
-import { useCastStore } from 'stores/cast-store';
-import type { BuzzerAnsweringState } from 'app/common/gameState/BuzzerState';
-import CircleTimer from 'components/CircleTimer.vue';
-import TimerAnimated from 'components/TimerAnimated.vue';
-import TextDynamic from 'components/TextDynamic.vue';
-import type { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
+import { useCastStore } from '@/stores/cast-store';
+import type { BuzzerAnsweringState } from '@/../common/gameState/BuzzerState';
+import CircleTimer from '@/components/CircleTimer.vue';
+import TimerAnimated from '@/components/TimerAnimated.vue';
+import TextDynamic from '@/components/TextDynamic.vue';
+import type { BuzzerSettings } from '@/../common/gameSettings/BuzzerSettings';
 import { computed } from 'vue';
 
 const castStore = useCastStore();

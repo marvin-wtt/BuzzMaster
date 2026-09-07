@@ -4,10 +4,10 @@ import type {
   IDevice,
   IDongle,
   LightApi,
-} from 'src/plugins/buzzer/types';
-import { Controller } from 'src/plugins/buzzer/Controller';
-import { ButtonEventEmitter } from 'src/plugins/buzzer/ButtonEventEmitter';
-import { FindCoordinator } from 'src/plugins/buzzer/utils/FindCoordinator';
+} from '@/plugins/buzzer/types';
+import { Controller } from '@/plugins/buzzer/Controller';
+import { ButtonEventEmitter } from '@/plugins/buzzer/ButtonEventEmitter';
+import { FindCoordinator } from '@/plugins/buzzer/utils/FindCoordinator';
 
 export class Dongle extends ButtonEventEmitter implements IDongle {
   // Keep track of the total dongle count to give each dongle a unique name

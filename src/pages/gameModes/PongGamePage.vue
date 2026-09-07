@@ -253,34 +253,34 @@
 <script lang="ts" setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
-import { useBuzzer } from 'src/plugins/buzzer';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
-import PongRenderer from 'components/gameModes/pong/PongRenderer.vue';
-import PongSettingsDialog from 'components/gameModes/pong/PongSettingsDialog.vue';
+import { useBuzzer } from '@/plugins/buzzer';
+import { BuzzerButton } from '@/plugins/buzzer/types';
+import PongRenderer from '@/components/gameModes/pong/PongRenderer.vue';
+import PongSettingsDialog from '@/components/gameModes/pong/PongSettingsDialog.vue';
 
 import type {
   Team,
   Ball,
   Paddle,
   StageFrame,
-} from 'components/gameModes/pong/PongTypes';
+} from '@/components/gameModes/pong/PongTypes';
 
-import { useGameState } from 'src/composables/gameState';
+import { useGameState } from '@/composables/gameState';
 import type {
   PongState,
   PongPreparingState,
   PongRunningState,
   PongPaused,
   PongEnded,
-} from 'app/common/gameState/PongState';
+} from '@/../common/gameState/PongState';
 import { useI18n } from 'vue-i18n';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import { useLeaderboardStore } from 'stores/leaderboard-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import { useLeaderboardStore } from '@/stores/leaderboard-store';
 import type {
   PongSpeedConfig,
   PongSpeedPreset,
-} from 'app/common/gameSettings/PongSettings';
-import { usePongAudio } from 'components/gameModes/pong/pong-audtio';
+} from '@/../common/gameSettings/PongSettings';
+import { usePongAudio } from '@/components/gameModes/pong/pong-audtio';
 
 const { controllers } = useBuzzer();
 const { t } = useI18n();

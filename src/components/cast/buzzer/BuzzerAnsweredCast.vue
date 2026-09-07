@@ -29,10 +29,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { BuzzerAnsweredState } from 'app/common/gameState/BuzzerState';
-import CrossCheck from 'components/CrossCheck.vue';
+import type { BuzzerAnsweredState } from '@/../common/gameState/BuzzerState';
+import CrossCheck from '@/components/CrossCheck.vue';
 import { computed, ref } from 'vue';
-import { useCastStore } from 'stores/cast-store';
+import { useCastStore } from '@/stores/cast-store';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 

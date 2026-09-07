@@ -64,14 +64,14 @@
 </template>
 
 <script lang="ts" setup>
-import BeepTimer from 'components/TimerAnimated.vue';
+import BeepTimer from '@/components/TimerAnimated.vue';
 import type {
   StopwatchCompletedState,
   StopwatchPausedState,
   StopwatchRunningState,
-} from 'app/common/gameState/StopwatchState';
-import StopwatchTime from 'components/gameModes/stopwatch/StopwatchTime.vue';
-import { useCastStore } from 'stores/cast-store';
+} from '@/../common/gameState/StopwatchState';
+import StopwatchTime from '@/components/gameModes/stopwatch/StopwatchTime.vue';
+import { useCastStore } from '@/stores/cast-store';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

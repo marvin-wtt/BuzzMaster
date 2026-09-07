@@ -3,58 +3,58 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/cast',
-    component: () => import('layouts/CastLayout.vue'),
+    component: () => import('@/layouts/CastLayout.vue'),
     children: [
       {
         path: '',
         name: 'cast',
-        component: () => import('pages/cast/CastIndexPage.vue'),
+        component: () => import('@/pages/cast/CastIndexPage.vue'),
       },
       {
         path: 'leaderboard',
         name: 'cast-leaderboard',
-        component: () => import('pages/cast/LeaderboardCastPage.vue'),
+        component: () => import('@/pages/cast/LeaderboardCastPage.vue'),
       },
       {
         path: 'buzzer',
         name: 'cast-buzzer',
-        component: () => import('pages/cast/BuzzerCastPage.vue'),
+        component: () => import('@/pages/cast/BuzzerCastPage.vue'),
       },
       {
         path: 'quiz',
         name: 'cast-quiz',
-        component: () => import('pages/cast/QuizCastPage.vue'),
+        component: () => import('@/pages/cast/QuizCastPage.vue'),
       },
       {
         path: 'simon',
         name: 'cast-simon',
-        component: () => import('pages/cast/SimonCastPage.vue'),
+        component: () => import('@/pages/cast/SimonCastPage.vue'),
       },
       {
         path: 'stopwatch',
         name: 'cast-stopwatch',
-        component: () => import('pages/cast/StopwatchCastPage.vue'),
+        component: () => import('@/pages/cast/StopwatchCastPage.vue'),
       },
       {
         path: 'pong',
         name: 'cast-pong',
-        component: () => import('pages/cast/PongCastPage.vue'),
+        component: () => import('@/pages/cast/PongCastPage.vue'),
       },
     ],
   },
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     children: [
       {
         path: '',
         name: 'home',
-        component: () => import('pages/IndexPage.vue'),
+        component: () => import('@/pages/IndexPage.vue'),
       },
       {
         path: 'leaderboard',
         name: 'leaderboard',
-        component: () => import('pages/LeaderboardPage.vue'),
+        component: () => import('@/pages/LeaderboardPage.vue'),
         meta: {
           title: 'leaderboard.title',
         },
@@ -62,7 +62,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'devices',
         name: 'devices',
-        component: () => import('pages/DevicesPage.vue'),
+        component: () => import('@/pages/DevicesPage.vue'),
         meta: {
           title: 'devices.title',
         },
@@ -72,7 +72,7 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: '',
-            component: () => import('pages/gameModes/GameModesIndexPage.vue'),
+            component: () => import('@/pages/gameModes/GameModesIndexPage.vue'),
             meta: {
               title: 'gameMode.title',
             },
@@ -80,7 +80,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'buzzer',
             name: 'buzzer-game',
-            component: () => import('pages/gameModes/BuzzerGamePage.vue'),
+            component: () => import('@/pages/gameModes/BuzzerGamePage.vue'),
             meta: {
               title: 'gameMode.buzzer.title',
             },
@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'quiz',
             name: 'quiz-game',
-            component: () => import('pages/gameModes/QuizGamePage.vue'),
+            component: () => import('@/pages/gameModes/QuizGamePage.vue'),
             meta: {
               title: 'gameMode.quiz.title',
             },
@@ -96,7 +96,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'simon',
             name: 'simon-game',
-            component: () => import('pages/gameModes/SimonGamePage.vue'),
+            component: () => import('@/pages/gameModes/SimonGamePage.vue'),
             meta: {
               title: 'gameMode.simon.title',
             },
@@ -104,7 +104,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'stopwatch',
             name: 'stopwatch-game',
-            component: () => import('pages/gameModes/StopwatchGamePage.vue'),
+            component: () => import('@/pages/gameModes/StopwatchGamePage.vue'),
             meta: {
               title: 'gameMode.stopwatch.title',
             },
@@ -112,7 +112,8 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'viewing-rate',
             name: 'viewing-rate-game',
-            component: () => import('pages/gameModes/ViewingRateGamePage.vue'),
+            component: () =>
+              import('@/pages/gameModes/ViewingRateGamePage.vue'),
             meta: {
               title: 'gameMode.viewingRate.title',
             },
@@ -120,7 +121,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'pong',
             name: 'pong-game',
-            component: () => import('pages/gameModes/PongGamePage.vue'),
+            component: () => import('@/pages/gameModes/PongGamePage.vue'),
             meta: {
               title: 'gameMode.pong.title',
             },
@@ -134,7 +135,7 @@ const routes: RouteRecordRaw[] = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('@/pages/ErrorNotFound.vue'),
   },
 ];
 

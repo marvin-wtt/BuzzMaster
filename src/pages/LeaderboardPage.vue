@@ -60,12 +60,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useLeaderboardStore } from 'stores/leaderboard-store';
+import { useLeaderboardStore } from '@/stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
-import { useLeaderboardDialogs } from 'src/composables/leaderboard';
+import { useLeaderboardDialogs } from '@/composables/leaderboard';
 import { useI18n } from 'vue-i18n';
 import { watch } from 'vue';
-import { useGameState } from 'src/composables/gameState';
+import { useGameState } from '@/composables/gameState';
 
 const { t } = useI18n();
 const leaderboardStore = useLeaderboardStore();

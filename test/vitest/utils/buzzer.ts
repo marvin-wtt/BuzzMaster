@@ -4,8 +4,8 @@ import type {
   IController,
   IDevice,
   IDongle,
-} from 'src/plugins/buzzer/types';
-import type { BuzzerApi } from 'src/plugins/buzzer/BuzzerApi';
+} from '@/plugins/buzzer/types';
+import type { BuzzerApi } from '@/plugins/buzzer/BuzzerApi';
 
 export const createDevice = async (
   plugin: BuzzerApi,

@@ -101,11 +101,11 @@
 
 <script lang="ts" setup>
 import { QForm, useDialogPluginComponent } from 'quasar';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
 import { isNumber } from 'lodash-es';
 import { ref, toRaw } from 'vue';
-import type { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
+import type { BuzzerSettings } from '@/../common/gameSettings/BuzzerSettings';
 
 defineEmits([...useDialogPluginComponent.emits]);
 

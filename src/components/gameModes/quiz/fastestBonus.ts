@@ -1,4 +1,4 @@
-import type { BuzzerButton } from 'src/plugins/buzzer/types';
+import type { BuzzerButton } from '@/plugins/buzzer/types';
 
 /**
  * Determines which controllers answered correctly the fastest.

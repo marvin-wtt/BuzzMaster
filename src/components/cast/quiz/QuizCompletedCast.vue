@@ -78,7 +78,7 @@ import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import QuizCompletedResult from '@/components/cast/quiz/QuizCompletedResult.vue';
 import QuizResultBarChart from '@/components/gameModes/quiz/QuizResultBarChart.vue';
-import { findFastestControllers } from 'components/gameModes/quiz/fastestBonus';
+import { findFastestControllers } from '@/components/gameModes/quiz/fastestBonus';
 
 const { t, n } = useI18n();
 const castStore = useCastStore();

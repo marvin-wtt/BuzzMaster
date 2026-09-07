@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install electron dependencies
+        run: npm ci --prefix src-electron
+
       - name: Run Prettier
         run: npm run format:check
 
@@ -46,6 +49,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install electron dependencies
+        run: npm ci --prefix src-electron
 
       - name: Run Lint
         run: npm run lint

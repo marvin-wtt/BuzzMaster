@@ -44,7 +44,6 @@ export default {
           normal: 'Normal',
           survey: 'Supervivencia',
           elimination: 'Eliminación',
-          'fastest-bonus': 'Bono de velocidad',
         },
       },
       points: 'Puntos',
@@ -53,11 +52,10 @@ export default {
         label: 'Respuesta incorrecta',
         hint: 'Introduce un número negativo para restar puntos',
       },
-      pointsFastestBonus: 'Puntos por el más rápido',
+      pointsFastestBonus: 'Premio a la respuesta más rápida',
       sounds: 'Sonidos',
       playSounds: 'Reproducir sonidos',
       beepAt: 'Iniciar pitido de cuenta atrás en',
-      castShowControllers: 'Mostrar nombres en pantalla Cast',
     },
 
     action: {

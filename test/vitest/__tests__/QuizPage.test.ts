@@ -3,7 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import QuizQuestionPage from 'pages/gameModes/QuizGamePage.vue';
 import QuizSettingsDialog from 'components/gameModes/quiz/QuizSettingsDialog.vue';
 import { Dialog, QBtn, type QIcon } from 'quasar';
-import { BuzzerButton, type IDongle } from 'src/plugins/buzzer/types';
+import {
+  BuzzerButton,
+  type IController,
+  type IDongle,
+} from 'src/plugins/buzzer/types';
 import { useGameStore } from 'stores/game-store';
 import { createDevice } from 'app/test/vitest/utils/buzzer';
 import { selector } from 'app/test/vitest/utils/element-selector';
@@ -20,6 +24,8 @@ import { installFakeTimer } from 'app/test/vitest/install-timer';
 import { nextTick } from 'vue';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import QuizResultModeToggle from 'components/gameModes/quiz/QuizResultModeToggle.vue';
+import QuizLeaderboardButtons from 'components/gameModes/quiz/QuizLeaderboardButtons.vue';
+import { useLeaderboardStore } from 'stores/leaderboard-store';
 
 const mountQuizPage = () => mountPage(QuizQuestionPage);
 
@@ -839,6 +845,168 @@ describe('QuizPage', () => {
       });
     });
 
-    describe.todo('points');
+    describe('points', () => {
+      const mountCompletedQuiz = async (
+        result: (controllers: IController[]) => Record<string, BuzzerButton>,
+        answerTimes: (
+          controllers: IController[],
+        ) => Record<string, number> = () => ({}),
+      ) => {
+        const { wrapper, buzzer } = mountQuizPage();
+        const { getDongle } = await createDevice(buzzer, 3);
+        const controllers = getDongle().controllers;
+
+        useGameStore().transition({
+          game: 'quiz',
+          name: 'completed',
+          mode: 'normal',
+          controllers: controllers.map((controller) => controller.id),
+          result: result(controllers),
+          answerTimes: answerTimes(controllers),
+        });
+        // Wait for the leaderboard buttons to be rendered
+        await nextTick();
+
+        const { quizSettings } = useGameSettingsStore();
+        const leaderboardStore = useLeaderboardStore();
+
+        const clickButton = async (button: BuzzerButton) => {
+          const index = quizSettings.activeButtons.indexOf(button);
+          await wrapper
+            .findComponent(QuizLeaderboardButtons)
+            .findAllComponents(QBtn)
+            [index]!.trigger('click');
+        };
+
+        const pointsOf = (controller: IController) =>
+          leaderboardStore.leaderboard.find(
+            (entry) => entry.id === controller.id,
+          )?.value;
+
+        return { controllers, quizSettings, clickButton, pointsOf };
+      };
+
+      it('should grant points for correct and wrong answers', async () => {
+        const { controllers, quizSettings, clickButton, pointsOf } =
+          await mountCompletedQuiz((c) => ({
+            [c[0]!.id]: BuzzerButton.BLUE,
+            [c[1]!.id]: BuzzerButton.GREEN,
+          }));
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsWrong = -5;
+
+        await clickButton(BuzzerButton.BLUE);
+
+        expect(pointsOf(controllers[0]!)).toBe(10);
+        expect(pointsOf(controllers[1]!)).toBe(-5);
+      });
+
+      it('should revert the points when a button is deselected', async () => {
+        const { controllers, quizSettings, clickButton, pointsOf } =
+          await mountCompletedQuiz((c) => ({
+            [c[0]!.id]: BuzzerButton.BLUE,
+            [c[1]!.id]: BuzzerButton.GREEN,
+          }));
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsWrong = -5;
+
+        await clickButton(BuzzerButton.BLUE);
+        await clickButton(BuzzerButton.BLUE);
+
+        expect(pointsOf(controllers[0]!)).toBe(0);
+        expect(pointsOf(controllers[1]!)).toBe(0);
+      });
+
+      it('should grant the bonus on top of the points for a correct answer', async () => {
+        const { controllers, quizSettings, clickButton, pointsOf } =
+          await mountCompletedQuiz(
+            (c) => ({
+              [c[0]!.id]: BuzzerButton.BLUE,
+              [c[1]!.id]: BuzzerButton.BLUE,
+              [c[2]!.id]: BuzzerButton.GREEN,
+            }),
+            // A higher value means less time elapsed, so controller 1 was the fastest
+            (c) => ({
+              [c[0]!.id]: 5,
+              [c[1]!.id]: 8,
+              [c[2]!.id]: 9,
+            }),
+          );
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsWrong = -5;
+        quizSettings.pointsFastestBonus = 3;
+
+        await clickButton(BuzzerButton.BLUE);
+
+        expect(pointsOf(controllers[1]!)).toBe(13);
+        expect(pointsOf(controllers[0]!)).toBe(10);
+        expect(pointsOf(controllers[2]!)).toBe(-5);
+      });
+
+      it('should grant the bonus to all controllers with the same answer time', async () => {
+        const { controllers, quizSettings, clickButton, pointsOf } =
+          await mountCompletedQuiz(
+            (c) => ({
+              [c[0]!.id]: BuzzerButton.BLUE,
+              [c[1]!.id]: BuzzerButton.BLUE,
+            }),
+            (c) => ({
+              [c[0]!.id]: 8,
+              [c[1]!.id]: 8,
+            }),
+          );
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsFastestBonus = 3;
+
+        await clickButton(BuzzerButton.BLUE);
+
+        expect(pointsOf(controllers[0]!)).toBe(13);
+        expect(pointsOf(controllers[1]!)).toBe(13);
+      });
+
+      it('should not grant a bonus if it is disabled', async () => {
+        const { controllers, quizSettings, clickButton, pointsOf } =
+          await mountCompletedQuiz(
+            (c) => ({
+              [c[0]!.id]: BuzzerButton.BLUE,
+              [c[1]!.id]: BuzzerButton.BLUE,
+            }),
+            (c) => ({
+              [c[0]!.id]: 5,
+              [c[1]!.id]: 8,
+            }),
+          );
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsFastestBonus = 0;
+
+        await clickButton(BuzzerButton.BLUE);
+
+        expect(pointsOf(controllers[0]!)).toBe(10);
+        expect(pointsOf(controllers[1]!)).toBe(10);
+      });
+
+      it('should not grant the bonus for a wrong answer', async () => {
+        const { controllers, quizSettings, clickButton, pointsOf } =
+          await mountCompletedQuiz(
+            (c) => ({
+              [c[0]!.id]: BuzzerButton.BLUE,
+              [c[1]!.id]: BuzzerButton.GREEN,
+            }),
+            // Controller 1 was the fastest but answered wrong
+            (c) => ({
+              [c[0]!.id]: 5,
+              [c[1]!.id]: 9,
+            }),
+          );
+        quizSettings.pointsCorrect = 10;
+        quizSettings.pointsWrong = -5;
+        quizSettings.pointsFastestBonus = 3;
+
+        await clickButton(BuzzerButton.BLUE);
+
+        expect(pointsOf(controllers[0]!)).toBe(13);
+        expect(pointsOf(controllers[1]!)).toBe(-5);
+      });
+    });
   });
 });

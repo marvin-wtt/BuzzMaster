@@ -1,20 +1,11 @@
 <template>
-  <div class="col-grow column justify-around">
+  <div class="col-grow column justify-around no-wrap">
     <transition-group name="bounce">
       <cross-check
-        v-if="props.symbol === 'check' || props.symbol === 'cross'"
         key="cross-check"
         :style="{ width: symbolWidth + '%' }"
         class="check-cross"
         :symbol="props.symbol"
-      />
-      <q-icon
-        v-else-if="props.symbol === 'timer'"
-        key="timer"
-        name="timer"
-        color="warning"
-        :style="{ fontSize: '12vh', marginTop: '40px' }"
-        class="check-cross q-mx-auto block"
       />
 
       <div
@@ -23,7 +14,7 @@
         class="q-gutter-lg points-info"
       >
         <div
-          class="text-h2 font-bold text-center points"
+          class="font-bold text-center points"
           :class="pointsClass"
         >
           {{ n(props.points, { signDisplay: 'exceptZero' }) }}
@@ -31,38 +22,16 @@
           <slot />
         </div>
 
-        <div class="row justify-center items-start q-gutter-x-md">
+        <div class="row justify-center q-gutter-x-md">
           <div
             v-for="button in props.buttons"
             :key="button"
-            class="column items-center q-gutter-y-sm"
-          >
-            <div
-              :class="buzzerButtonBgColor[button]"
-              class="result-item"
-            />
-
-            <div
-              v-if="settings.castShowControllers"
-              class="column text-center text-h5 q-mt-md"
-            >
-              <div
-                v-for="controllerId in buttonControllers[button]"
-                :key="controllerId"
-                class="q-my-xs row items-center justify-center"
-              >
-                {{ castStore.controllers[controllerId] || controllerId }}
-                <span
-                  v-if="settings.mode === 'fastest-bonus'"
-                  class="text-weight-light q-ml-sm"
-                  style="opacity: 0.7"
-                >
-                  ({{ elapsedTime(controllerId) }}s)
-                </span>
-              </div>
-            </div>
-          </div>
+            :class="buzzerButtonBgColor[button]"
+            class="result-item"
+          />
         </div>
+
+        <slot name="bonus" />
       </div>
     </transition-group>
   </div>
@@ -74,53 +43,14 @@ import { computed } from 'vue';
 import { BuzzerButton } from 'src/plugins/buzzer/types';
 import { useI18n } from 'vue-i18n';
 
-import { useCastStore } from 'stores/cast-store';
-import type { QuizCompleteState } from 'app/common/gameState/QuizState';
-import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
-
 const { n } = useI18n();
-const castStore = useCastStore();
 
 const props = defineProps<{
   showResult: boolean;
   buttons: BuzzerButton[] | undefined;
-  symbol: 'check' | 'cross' | 'timer';
+  symbol: 'check' | 'cross';
   points: number;
-  state: QuizCompleteState;
-  filterControllers?: string[];
 }>();
-
-const settings = computed<QuizSettings>(() => castStore.gameSettings.quiz);
-
-const elapsedTime = (controllerId: string) => {
-  const time = props.state.answerTimes?.[controllerId] || 0;
-  return Math.max(0, settings.value.answerTime - time).toFixed(2);
-};
-
-const buttonControllers = computed<Record<BuzzerButton, string[]>>(() => {
-  const map: Record<number, string[]> = {
-    [BuzzerButton.RED]: [],
-    [BuzzerButton.BLUE]: [],
-    [BuzzerButton.ORANGE]: [],
-    [BuzzerButton.GREEN]: [],
-    [BuzzerButton.YELLOW]: [],
-  };
-
-  Object.entries(props.state.result).forEach(([controllerId, btn]) => {
-    if (
-      props.filterControllers &&
-      !props.filterControllers.includes(controllerId)
-    ) {
-      return;
-    }
-    const list = map[btn as number];
-    if (list) {
-      list.push(controllerId);
-    }
-  });
-
-  return map as unknown as Record<BuzzerButton, string[]>;
-});
 
 const symbolWidth = computed<number>(() => {
   return props.showResult ? 25 : 50;
@@ -149,6 +79,10 @@ const buzzerButtonBgColor = {
 
 <style scoped>
 .check-cross {
+  display: block;
+  margin-inline: auto;
+  /* Keeps the symbol from pushing the points out of a short cast window */
+  max-height: 22vh;
   transition:
     width 0.5s ease-in-out,
     transform 0.5s ease-in-out;
@@ -161,10 +95,16 @@ const buzzerButtonBgColor = {
     transform 0.5s ease-in-out;
 }
 
+/* Font sizes scale with the cast window, which is often only a few hundred pixels wide */
+.points {
+  font-size: clamp(1.75rem, 10vw, 3.75rem);
+  line-height: 1.2;
+}
+
 .result-item {
-  width: 50px;
+  width: clamp(1.5rem, 5vw, 3.125rem);
   aspect-ratio: 1;
-  border-radius: 50px;
+  border-radius: 50%;
 }
 
 .slide-move,

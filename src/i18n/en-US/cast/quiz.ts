@@ -25,5 +25,6 @@ export default {
   completed: {
     points: 'Points',
     fastestBonus: 'Fastest Bonus',
+    seconds: '{n} s',
   },
 };

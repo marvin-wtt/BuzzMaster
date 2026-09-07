@@ -14,6 +14,10 @@ export default {
   running: {
     go: 'START',
   },
+  answering: {
+    label: 'Aan de beurt',
+  },
+
   answered: {
     points: 'Punten',
   },

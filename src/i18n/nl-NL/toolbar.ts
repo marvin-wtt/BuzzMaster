@@ -1,4 +1,5 @@
 export default {
+  back: 'Terug',
   batterySaving: 'Toon batterijbesparing',
   cast: 'Open Cast',
   close: 'Venster sluiten',
@@ -13,4 +14,12 @@ export default {
   settings: 'Instellingen in-/uitschakelen',
   unpin: 'Venster losmaken',
   updater: 'Zoeken naar updates',
+  status: {
+    controllers: 'Geen controller | 1 controller | {count} controllers',
+    controllersHint: 'Verbonden controllers — beheer ze bij Apparaten',
+    castOn: 'Cast aan',
+    castOff: 'Cast uit',
+    battery: 'Batterij: 1 | Batterij: {count}',
+    batteryHint: 'Controllers die zo in energiebesparingsmodus gaan',
+  },
 };

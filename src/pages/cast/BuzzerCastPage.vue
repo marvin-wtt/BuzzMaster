@@ -2,7 +2,6 @@
   <q-page
     v-if="state"
     class="row justify-center"
-    padding
   >
     <buzzer-preparing-cast v-if="state.name === 'preparing'" />
     <buzzer-running-cast v-else-if="state.name === 'running'" />

@@ -17,6 +17,10 @@ export default {
     go: 'Los',
   },
 
+  answering: {
+    label: 'Am Zug',
+  },
+
   answered: {
     points: 'Punkte',
   },

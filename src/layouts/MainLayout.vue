@@ -1,29 +1,26 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header>
-      <q-bar class="q-electron-drag bg-primary">
+      <!-- Window chrome -->
+      <q-bar class="q-electron-drag bm-chrome">
         <q-btn
           dense
           flat
           no-caps
           no-wrap
-          rounded
           @click="goToHome"
         >
-          <div class="row q-gutter-sm">
-            <q-icon name="cast" />
-            <div class="text-body2 gt-xs">
+          <div class="row items-center q-gutter-xs">
+            <q-icon
+              name="radio_button_checked"
+              size="16px"
+              class="text-primary"
+            />
+            <div class="text-body2 text-weight-medium">
               {{ t('app_name') }}
             </div>
           </div>
         </q-btn>
-
-        <q-separator
-          class="lt-sm"
-          vertical
-          spaced
-          inset
-        />
 
         <q-space />
 
@@ -37,6 +34,7 @@
             dense
             flat
             rounded
+            size="sm"
             icon="emoji_events"
             @click="showLeaderboard"
           >
@@ -45,28 +43,11 @@
             </q-tooltip>
           </q-btn>
 
-          <q-btn
-            v-if="quasar.platform.is.electron"
-            :aria-label="t('toolbar.cast')"
-            key="cast"
-            dense
-            flat
-            rounded
-            size="sm"
-            class="settings-button bg-primary"
-            icon="cast"
-            @click="toggleCast"
-          >
-            <q-tooltip>
-              {{ t('toolbar.cast') }}
-            </q-tooltip>
-          </q-btn>
-
           <!-- Settings -->
           <div
             v-if="expandSettings"
             key="settings"
-            class="settings-container bg-white row no-wrap"
+            class="bm-settings"
           >
             <!-- Pin -->
             <q-btn
@@ -76,7 +57,6 @@
               flat
               rounded
               size="sm"
-              class="settings-button bg-primary"
               :icon="pinned ? 'lock_open' : 'push_pin'"
               @click="togglePin"
             >
@@ -93,7 +73,6 @@
               flat
               rounded
               size="sm"
-              class="settings-button bg-primary"
               icon="developer_mode"
               @click="openDevTools"
             />
@@ -107,7 +86,6 @@
               size="sm"
               key="battery-saving"
               icon="battery_saver"
-              class="settings-button bg-primary"
               @click="showBatterySavingDialog"
             >
               <q-tooltip>
@@ -122,7 +100,6 @@
               flat
               rounded
               size="sm"
-              class="settings-button bg-primary"
               :icon="darkMode ? 'light_mode' : 'dark_mode'"
               @click="toggleDarkMode"
             >
@@ -139,7 +116,6 @@
               flat
               rounded
               size="sm"
-              class="settings-button bg-primary"
               icon="language"
             >
               <q-menu
@@ -167,7 +143,6 @@
               flat
               rounded
               size="sm"
-              class="settings-button bg-primary"
               :icon="volumeIcon"
             >
               <q-tooltip>
@@ -207,7 +182,6 @@
               flat
               rounded
               size="sm"
-              class="settings-button bg-primary"
             >
               <q-tooltip>
                 {{ t('toolbar.updater') }}
@@ -223,6 +197,7 @@
           round
           dense
           flat
+          size="sm"
           @click="expandSettings = !expandSettings"
         >
           <q-tooltip>
@@ -235,7 +210,6 @@
             vertical
             spaced
             inset
-            dark
           />
 
           <q-btn
@@ -243,6 +217,7 @@
             dense
             round
             flat
+            size="sm"
             icon="minimize"
             @click="minimize"
           >
@@ -255,6 +230,7 @@
             dense
             flat
             round
+            size="sm"
             icon="crop_square"
             @click="toggleMaximize"
           >
@@ -267,7 +243,9 @@
             dense
             flat
             round
+            size="sm"
             icon="close"
+            class="bm-chrome__close"
             @click="closeApp"
           >
             <q-tooltip :delay="1000">
@@ -277,22 +255,26 @@
         </template>
       </q-bar>
 
+      <!-- Always-on status: controllers, cast, sleeping controllers -->
+      <app-status-bar />
+
+      <!-- Page header -->
       <div
         v-if="title"
-        class="row col-shrink justify-between bg-primary text-white"
+        class="bm-appbar row items-center no-wrap"
       >
         <div class="col-2 row justify-start">
           <q-btn
+            :aria-label="t('toolbar.back')"
             icon="arrow_back"
-            size="md"
-            rounded
+            size="sm"
             dense
             flat
             @click="navigateBack()"
           />
         </div>
 
-        <div class="col text-h5 text-center self-center">
+        <div class="col bm-appbar__title text-center">
           {{ t(title) }}
         </div>
 
@@ -332,6 +314,7 @@ import type { GameState } from 'app/common/gameState';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { GameSettings } from 'app/common/gameSettings';
 import AppUpdateBtn from 'components/layout/AppUpdateBtn.vue';
+import AppStatusBar from 'components/layout/AppStatusBar.vue';
 import { useUpdaterStore } from 'stores/updater-store';
 import OnlineDialog from 'components/layout/OnlineDialog.vue';
 
@@ -517,10 +500,6 @@ function closeApp() {
     });
 }
 
-function toggleCast() {
-  window.castAPI?.toggle();
-}
-
 const controllerNames = computed<Record<string, string>>(() => {
   return controllers.value.reduce(
     (acc, curr) => {
@@ -560,14 +539,26 @@ function toValue<T>(value: T): T {
 </script>
 
 <style lang="scss">
-/* Settings menu */
-.settings-container {
+/* Settings cluster in the title bar */
+.bm-settings {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 2px;
   padding: 2px;
-  border-radius: 20px;
+  margin: 0 4px;
+  border-radius: 999px;
+  background: var(--bm-surface);
+  border: 1px solid var(--bm-line);
 }
 
-.settings-button {
-  margin: 0 2px;
+.bm-chrome__close:hover {
+  color: #fff;
+  background: var(--bm-accent);
+}
+
+.bm-appbar {
+  padding: 6px 8px;
 }
 
 /* Animations */

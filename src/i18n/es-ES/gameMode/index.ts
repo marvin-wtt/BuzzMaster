@@ -17,6 +17,14 @@ export default {
     pong: 'Pong',
   },
 
+  section: {
+    show: 'Show',
+    games: 'Juegos',
+    utilities: 'Utilidades',
+  },
+
+  noEntries: 'No hay entradas disponibles en esta sección',
+
   buzzer,
   quiz,
   simon,

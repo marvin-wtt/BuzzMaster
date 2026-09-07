@@ -1,34 +1,60 @@
 <template>
-  <div class="row justify-center reverse">
-    <q-btn
-      aria-label="correct"
-      icon="check"
-      color="positive"
-      class="q-mx-sm"
-      rounded
-      :outline="answerCorrect !== true"
-      @click="onAnswerChange(true)"
-    />
+  <div class="row no-wrap q-col-gutter-x-sm">
+    <div class="col">
+      <q-btn
+        class="full-width"
+        color="positive"
+        no-caps
+        unelevated
+        :outline="answerCorrect !== true"
+        data-testid="btn-answer-correct"
+        @click="onAnswerChange(true)"
+      >
+        <q-icon
+          name="check"
+          size="18px"
+          class="q-mr-xs"
+        />
+        {{ t('gameMode.buzzer.action.correct') }}
+        <span class="bm-num text-weight-bold q-ml-sm">
+          {{ n(buzzerSettings.pointsCorrect, { signDisplay: 'exceptZero' }) }}
+        </span>
+      </q-btn>
+    </div>
 
-    <q-btn
-      aria-label="wrong"
-      icon="clear"
-      color="negative"
-      class="q-mx-sm"
-      rounded
-      :outline="answerCorrect !== false"
-      @click="onAnswerChange(false)"
-    />
+    <div class="col">
+      <q-btn
+        class="full-width"
+        color="negative"
+        no-caps
+        unelevated
+        :outline="answerCorrect !== false"
+        data-testid="btn-answer-wrong"
+        @click="onAnswerChange(false)"
+      >
+        <q-icon
+          name="clear"
+          size="18px"
+          class="q-mr-xs"
+        />
+        {{ t('gameMode.buzzer.action.wrong') }}
+        <span class="bm-num text-weight-bold q-ml-sm">
+          {{ n(buzzerSettings.pointsWrong, { signDisplay: 'exceptZero' }) }}
+        </span>
+      </q-btn>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { onBeforeMount, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useLeaderboardStore } from 'stores/leaderboard-store';
 import { useGameSettingsStore } from 'stores/game-settings-store';
 import type { IController } from 'src/plugins/buzzer/types';
 import { useAudio } from 'src/composables/audio';
 
+const { t, n } = useI18n();
 const leaderboardStore = useLeaderboardStore();
 const { buzzerSettings } = useGameSettingsStore();
 const { createAudio } = useAudio();
@@ -91,5 +117,3 @@ const updateLeaderboard = (points: number) => {
   leaderboardStore.addPoints(props.controller.id, points);
 };
 </script>
-
-<style scoped></style>

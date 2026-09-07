@@ -1,16 +1,11 @@
 <template>
-  <div class="col-12 column no-wrap">
-    <!-- This can be simplified... -->
-    <div class="col-12 row justify-center">
-      <div class="col-12 self-center text-center justify-center">
-        <pulse-circle
-          class="column justify-center q-col-gutter-sm text-h3"
-          pulse
-        >
-          {{ t('cast.buzzer.running.go') }}
-        </pulse-circle>
-      </div>
-    </div>
+  <div class="col-12 column no-wrap justify-center items-center q-pa-xl">
+    <pulse-circle
+      class="cast-go column justify-center items-center text-center"
+      pulse
+    >
+      {{ t('cast.buzzer.running.go') }}
+    </pulse-circle>
   </div>
 </template>
 
@@ -21,4 +16,12 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.cast-go {
+  width: min(52vh, 62vw);
+  font-size: clamp(2rem, 9vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+</style>

@@ -1,25 +1,48 @@
 // Quasar SCSS (& Sass) Variables
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
+// BuzzMaster theme: "Studio"
+//
+// The host operates this app in a darkened room next to the projector, under
+// time pressure, often with half a glance. So: graphite everywhere, and a
+// single accent — the red of the buzzer — reserved for the primary action and
+// for the moment somebody buzzes in. Amber is the only other signal colour and
+// means "time is running out".
+//
+// Everything that follows is derived from those two rules.
 
-// Check documentation for full list of Quasar variables
+// Accent — the buzzer.
+$primary: #e4141f;
+// Graphite. Used for outlined/secondary controls.
+$secondary: #38404e;
+// Amber. Time running out, battery warnings.
+$accent: #ffb020;
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+// Surfaces. `dark` is the raised panel, `dark-page` the window ground.
+$dark: #14181f;
+$dark-page: #0b0d11;
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+$positive: #1c9550;
+$negative: #d32029;
+$info: #7b8496;
+$warning: #ffb020;
 
-$primary: #1976d2;
-$secondary: #26a69a;
-$accent: #9c27b0;
+// Typography. Inter ships with the app already (@fontsource-variable/inter)
+// and is loaded globally in App.vue.
+$typography-font-family:
+  'Inter Variable',
+  'Inter',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  Roboto,
+  sans-serif;
 
-$dark: #1d1d1d;
-$dark-page: #121212;
+// Corners. Small and consistent — this is an instrument, not a toy.
+// `$button-rounded-border-radius` also covers every `<q-btn rounded>` in the app.
+$generic-border-radius: 7px;
+$button-border-radius: 7px;
+$button-rounded-border-radius: 7px;
+$card-border-radius: 10px;
 
-$positive: #21ba45;
-$negative: #c10015;
-$info: #31ccec;
-$warning: #f2c037;
+$separator-color: rgba(20, 23, 29, 0.12);
+$separator-dark-color: #222833;

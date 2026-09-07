@@ -1,6 +1,8 @@
 export default {
   title: 'Pulsador',
 
+  buzzedIn: 'Ha pulsado',
+  points: 'puntos',
   waitingForBuzzer: 'Esperando pulsador...',
   controllersReady: '{count} controladores listos!',
 
@@ -11,6 +13,8 @@ export default {
     quickPlay: 'Juego Rapido',
     reset: 'Reiniciar',
     cancel: 'Cancelar',
+    correct: 'Correcto',
+    wrong: 'Incorrecto',
   },
 
   settings: {

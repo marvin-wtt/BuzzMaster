@@ -7,13 +7,12 @@
   >
     <q-header
       v-if="showAppBar"
-      :class="darkMode ? 'bg-grey-10' : 'bg-grey-2'"
-      elevated
+      class="bm-chrome"
       @mouseenter="onMouseEnter"
       @mouseleave="onMouseLeave"
     >
-      <q-bar class="q-electron-drag">
-        {{ t('cast.title') }}
+      <q-bar class="q-electron-drag bm-chrome">
+        <span class="text-caption">{{ t('cast.title') }}</span>
 
         <q-space />
 
@@ -23,6 +22,7 @@
           dense
           flat
           round
+          size="sm"
           :icon="darkMode ? 'light_mode' : 'dark_mode'"
           @click="toggleDarkMode"
         >
@@ -36,6 +36,7 @@
           dense
           flat
           round
+          size="sm"
           icon="visibility_off"
           @click.stop="setTransparent"
         >
@@ -49,6 +50,7 @@
           dense
           flat
           round
+          size="sm"
           icon="close"
           @click="closeWindow"
         >
@@ -125,25 +127,18 @@ function setTransparent() {
 </script>
 
 <style>
-@import '@fontsource-variable/inter';
-
-* {
-  font-family: 'Inter Variable', sans-serif;
-}
-
+/* The cast window is a transparent BrowserWindow. `.layout` paints the
+   backdrop; without it the desktop shows through, which is the whole point of
+   the "hide" button in the title bar. */
 body.body--dark {
   background: transparent !important;
 }
 
-body.body--light .layout {
-  background: #fff;
-}
-
-body.body--dark .layout {
-  background: var(--q-dark-page) !important;
+.layout {
+  background: var(--bm-ground);
 }
 
 .layout:focus {
-  box-shadow: inset 0 0 0 1px gray;
+  box-shadow: inset 0 0 0 1px var(--bm-line-strong);
 }
 </style>

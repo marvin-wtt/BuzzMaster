@@ -1,20 +1,18 @@
 <template>
-  <q-page class="row justify-center">
-    <q-list
-      class="col-10"
-      separator
-    >
+  <q-page class="column no-wrap q-pa-md">
+    <div class="bm-devices column q-gutter-y-sm">
       <!-- Dongles -->
       <q-expansion-item
         v-for="dongle in dongles"
         :key="dongle.name"
+        class="bm-panel overflow-hidden"
         group="dongles"
-        expand-separator
+        header-class="bm-devices__header"
       >
         <template v-slot:header="{ expanded }">
           <q-item-section
             v-if="!expanded"
-            class="col col-shrink"
+            class="col-shrink"
           >
             <q-icon
               name="circle"
@@ -22,18 +20,26 @@
               size="xs"
             />
           </q-item-section>
-          <q-item-section class="col col-grow">
-            <q-item-label>
+
+          <q-item-section class="col-grow">
+            <q-item-label class="text-weight-medium">
               {{ dongle.name }}
             </q-item-label>
+            <q-item-label
+              caption
+              class="bm-dim"
+            >
+              {{ t('toolbar.status.controllers', dongle.controllers.length) }}
+            </q-item-label>
           </q-item-section>
+
           <q-item-section
             v-if="!expanded"
             side
           >
             <q-btn
               icon="search"
-              size="xs"
+              size="sm"
               flat
               round
               @click.stop="dongle.find()"
@@ -43,13 +49,14 @@
               </q-tooltip>
             </q-btn>
           </q-item-section>
+
           <q-item-section
             v-if="disconnectedDongles.length > 0"
             side
           >
             <q-btn
               icon="history"
-              size="xs"
+              size="sm"
               flat
               round
               @click.stop="onRestoreDongle(dongle)"
@@ -60,162 +67,153 @@
             </q-btn>
           </q-item-section>
         </template>
+
         <template v-slot:default>
-          <q-list>
-            <q-item
+          <div class="bm-devices__controllers column q-gutter-y-xs">
+            <div
               v-for="controller in dongle.controllers"
               :key="controller.name"
+              class="bm-row"
+              :class="{ 'bm-devices__row--off': controller.disabled }"
             >
-              <q-item-section class="col col-shrink">
-                <q-icon
-                  name="circle"
-                  :color="getButtonColor(controller)"
-                  size="xs"
-                />
-              </q-item-section>
+              <!-- Lights up in the colour of whatever button is held down,
+                   so a controller can be identified without looking away. -->
+              <q-icon
+                name="circle"
+                :color="getButtonColor(controller)"
+                size="xs"
+              />
 
-              <q-item-section class="col col-grow">
-                <q-item-label>
-                  {{ controller.name }}
-                </q-item-label>
-              </q-item-section>
+              <span class="bm-row__body">
+                <span class="bm-row__label">{{ controller.name }}</span>
+              </span>
 
-              <q-item-section side>
-                <q-btn
-                  icon="search"
-                  size="xs"
-                  flat
-                  round
-                  @click="controller.find()"
-                >
-                  <q-tooltip>
-                    {{ t('devices.item.controller.find') }}
-                  </q-tooltip>
-                </q-btn>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  icon="edit"
-                  size="xs"
-                  flat
-                  round
-                  @click="editControllerName(controller)"
-                >
-                  <q-tooltip>
-                    {{ t('devices.item.controller.edit') }}
-                  </q-tooltip>
-                </q-btn>
-              </q-item-section>
-              <q-item-section side>
-                <q-btn
-                  :icon="
+              <q-btn
+                icon="search"
+                size="sm"
+                flat
+                round
+                dense
+                @click="controller.find()"
+              >
+                <q-tooltip>
+                  {{ t('devices.item.controller.find') }}
+                </q-tooltip>
+              </q-btn>
+
+              <q-btn
+                icon="edit"
+                size="sm"
+                flat
+                round
+                dense
+                @click="editControllerName(controller)"
+              >
+                <q-tooltip>
+                  {{ t('devices.item.controller.edit') }}
+                </q-tooltip>
+              </q-btn>
+
+              <q-btn
+                :icon="
+                  controller.disabled ? 'play_circle' : 'remove_circle_outline'
+                "
+                size="sm"
+                flat
+                round
+                dense
+                @click="controller.disabled = !controller.disabled"
+              >
+                <q-tooltip>
+                  {{
                     controller.disabled
-                      ? 'play_circle'
-                      : 'remove_circle_outline'
-                  "
-                  size="xs"
-                  flat
-                  round
-                  @click="controller.disabled = !controller.disabled"
-                >
-                  <q-tooltip>
-                    {{
-                      controller.disabled
-                        ? t('devices.item.controller.enable')
-                        : t('devices.item.controller.disable')
-                    }}
-                  </q-tooltip>
-                </q-btn>
-              </q-item-section>
-            </q-item>
-          </q-list>
+                      ? t('devices.item.controller.enable')
+                      : t('devices.item.controller.disable')
+                  }}
+                </q-tooltip>
+              </q-btn>
+            </div>
+          </div>
         </template>
       </q-expansion-item>
 
       <!-- No entries -->
-      <q-item v-if="dongles.length === 0">
-        <q-item>
-          <q-item-section>
-            <q-item-label>
-              {{ t('devices.item.noEntries.label') }}
-            </q-item-label>
-            <q-item-label caption>
-              {{ t('devices.item.noEntries.caption') }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-item>
+      <div
+        v-if="dongles.length === 0"
+        class="bm-panel bm-devices__empty column items-center text-center q-gutter-y-xs"
+      >
+        <q-icon
+          name="usb_off"
+          size="30px"
+          class="bm-dim"
+        />
+        <div class="text-weight-medium">
+          {{ t('devices.item.noEntries.label') }}
+        </div>
+        <div class="text-caption bm-dim">
+          {{ t('devices.item.noEntries.caption') }}
+        </div>
+      </div>
 
       <!-- Missing controllers hint -->
-      <q-item v-if="quasar.platform.is.win || !quasar.platform.is.electron">
-        <q-item-section>
-          <q-item-label>
-            {{ t('devices.item.missing.label') }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section
+      <div
+        v-if="quasar.platform.is.win || !quasar.platform.is.electron"
+        class="bm-panel bm-devices__action"
+      >
+        <span class="col">{{ t('devices.item.missing.label') }}</span>
+
+        <q-btn
           v-if="quasar.platform.is.win"
-          side
-        >
-          <q-btn
-            icon="question_mark"
-            :aria-label="t('devices.item.missing.help')"
-            outline
-            round
-            dense
-            @click="showMissingDongleHelp"
-          />
-        </q-item-section>
-        <q-item-section
+          :label="t('devices.item.missing.help')"
+          outline
+          no-caps
+          size="sm"
+          @click="showMissingDongleHelp"
+        />
+
+        <q-btn
           v-if="!quasar.platform.is.electron"
-          side
-        >
-          <q-btn
-            icon="add"
-            :aria-label="t('devices.item.missing.add')"
-            outline
-            round
-            dense
-            @click="requestDevicePermissions"
-          />
-        </q-item-section>
-      </q-item>
+          :label="t('devices.item.missing.add')"
+          outline
+          no-caps
+          size="sm"
+          @click="requestDevicePermissions"
+        />
+      </div>
 
       <!-- Buzzer Test -->
-      <q-item v-if="dongles.length > 0">
-        <q-item-section>
-          <q-item-label>
-            {{ t('devices.item.test.label') }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn
-            :label="t('devices.item.test.button')"
-            outline
-            rounded
-            :disable="!hasEnabledController"
-            @click="startBuzzerTest"
-          />
-        </q-item-section>
-      </q-item>
+      <div
+        v-if="dongles.length > 0"
+        class="bm-panel bm-devices__action"
+      >
+        <span class="col">{{ t('devices.item.test.label') }}</span>
+
+        <q-btn
+          :label="t('devices.item.test.button')"
+          outline
+          no-caps
+          size="sm"
+          :disable="!hasEnabledController"
+          @click="startBuzzerTest"
+        />
+      </div>
 
       <!-- Dongle naming -->
-      <q-item v-else>
-        <q-item-section>
-          <q-item-label>
-            {{ t('devices.item.names.label') }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn
-            :label="t('devices.item.names.button')"
-            outline
-            rounded
-            @click="updateDongleNamingList"
-          />
-        </q-item-section>
-      </q-item>
-    </q-list>
+      <div
+        v-else
+        class="bm-panel bm-devices__action"
+      >
+        <span class="col">{{ t('devices.item.names.label') }}</span>
+
+        <q-btn
+          :label="t('devices.item.names.button')"
+          outline
+          no-caps
+          size="sm"
+          @click="updateDongleNamingList"
+        />
+      </div>
+    </div>
   </q-page>
 </template>
 
@@ -269,7 +267,6 @@ const editControllerName = (controller: IController) => {
     .dialog({
       title: t('devices.edit.title'),
       color: 'primary',
-      // message: 'Maximum 20 characters',
       prompt: {
         model: controller.name,
         isValid: (val) => val.length > 0 && val.length <= maxLength,
@@ -357,4 +354,35 @@ const requestDevicePermissions = async () => {
 };
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.bm-devices {
+  width: 100%;
+  max-width: 460px;
+  align-self: center;
+}
+
+.bm-devices :deep(.bm-devices__header) {
+  padding: 8px 12px;
+  min-height: 0;
+}
+
+.bm-devices__controllers {
+  padding: 0 8px 8px;
+}
+
+.bm-devices__row--off {
+  opacity: 0.5;
+}
+
+.bm-devices__empty {
+  padding: 26px 18px;
+}
+
+.bm-devices__action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+}
+</style>

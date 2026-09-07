@@ -19,6 +19,7 @@
             v-for="entry in entries"
             :key="entry.id"
             :entry="entry"
+            :lead="entry.id === leaderId"
           />
         </div>
         <div
@@ -30,6 +31,7 @@
             v-for="entry in entries"
             :key="entry.id"
             :entry="entry"
+            :lead="entry.id === leaderId"
           />
         </div>
       </transition>
@@ -88,6 +90,17 @@ const intervalId = setInterval(() => {
     pageNumber.value += 1;
   }
 }, 4000);
+
+/** Only a genuine lead gets the accent — see LeaderboardPage for the rule. */
+const leaderId = computed<string | undefined>(() => {
+  const [first, second] = leaderboard.value;
+
+  if (!first || !second) {
+    return undefined;
+  }
+
+  return first.value > second.value ? first.id : undefined;
+});
 
 const entries = computed<LeaderboardEntry[]>(() => {
   const entries = leaderboard.value;

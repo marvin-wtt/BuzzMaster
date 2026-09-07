@@ -1,5 +1,5 @@
-import type { GameState } from 'app/common/gameState';
-import type { GameSettings } from 'app/common/gameSettings';
+import type { GameState } from '@/../common/gameState';
+import type { GameSettings } from '@/../common/gameSettings';
 
 export type CastAPI = CastSenderAPI & CastReceiverAPI;
 

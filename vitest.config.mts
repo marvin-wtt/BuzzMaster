@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { getTestingConfig } from '@quasar/app-vite/lib/testing.js';
+import { getTestingConfig } from '@quasar/app-vite/testing';
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({

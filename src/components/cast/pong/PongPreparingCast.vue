@@ -160,8 +160,8 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useCastStore } from 'stores/cast-store';
-import type { PongPreparingState } from 'app/common/gameState/PongState';
+import { useCastStore } from '@/stores/cast-store';
+import type { PongPreparingState } from '@/../common/gameState/PongState';
 
 const { t } = useI18n();
 const castStore = useCastStore();

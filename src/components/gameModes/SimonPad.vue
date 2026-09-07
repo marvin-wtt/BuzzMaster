@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { BuzzerButton } from 'src/plugins/buzzer/types';
+import { BuzzerButton } from '@/plugins/buzzer/types';
 
 const { highlight = null, buttons } = defineProps<{
   buttons?: readonly BuzzerButton[] | undefined;

@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import ControllerLogo from 'components/ControllerLogo.vue';
+import ControllerLogo from '@/components/ControllerLogo.vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

@@ -1,10 +1,10 @@
-import type { BuzzerState } from 'app/common/gameState/BuzzerState';
-import type { QuizState } from 'app/common/gameState/QuizState';
-import type { StopwatchState } from 'app/common/gameState/StopwatchState';
-import type { LeaderboardState } from 'app/common/gameState/LeaderboardState';
-import type { ViewingRateState } from 'app/common/gameState/ViewingRateState';
-import type { SimonState } from 'app/common/gameState/SimonState';
-import type { PongState } from 'app/common/gameState/PongState';
+import type { BuzzerState } from '@/../common/gameState/BuzzerState';
+import type { QuizState } from '@/../common/gameState/QuizState';
+import type { StopwatchState } from '@/../common/gameState/StopwatchState';
+import type { LeaderboardState } from '@/../common/gameState/LeaderboardState';
+import type { ViewingRateState } from '@/../common/gameState/ViewingRateState';
+import type { SimonState } from '@/../common/gameState/SimonState';
+import type { PongState } from '@/../common/gameState/PongState';
 
 export type GameState =
   | BuzzerState

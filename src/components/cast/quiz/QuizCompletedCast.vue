@@ -70,14 +70,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuizCompleteState } from 'app/common/gameState/QuizState';
-import { useCastStore } from 'stores/cast-store';
+import type { QuizCompleteState } from '@/../common/gameState/QuizState';
+import { useCastStore } from '@/stores/cast-store';
 import { computed } from 'vue';
-import type { BuzzerButton } from 'src/plugins/buzzer/types';
-import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
+import type { BuzzerButton } from '@/plugins/buzzer/types';
+import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
-import QuizCompletedResult from 'components/cast/quiz/QuizCompletedResult.vue';
-import QuizResultBarChart from 'components/gameModes/quiz/QuizResultBarChart.vue';
+import QuizCompletedResult from '@/components/cast/quiz/QuizCompletedResult.vue';
+import QuizResultBarChart from '@/components/gameModes/quiz/QuizResultBarChart.vue';
 import { findFastestControllers } from 'components/gameModes/quiz/fastestBonus';
 
 const { t, n } = useI18n();

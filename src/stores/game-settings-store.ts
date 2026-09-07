@@ -1,13 +1,13 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { BuzzerButton } from 'src/plugins/buzzer/types';
-import type { BuzzerSettings } from 'app/common/gameSettings/BuzzerSettings';
-import type { QuizSettings } from 'app/common/gameSettings/QuizSettings';
-import type { SimonSettings } from 'app/common/gameSettings/SimonSettings';
-import type { StopwatchSettings } from 'app/common/gameSettings/StopwatchSettings';
-import type { GameSettings } from 'app/common/gameSettings';
-import type { ViewingRateSettings } from 'app/common/gameSettings/ViewingRateSettings';
-import type { PongSettings } from 'app/common/gameSettings/PongSettings';
+import { BuzzerButton } from '@/plugins/buzzer/types';
+import type { BuzzerSettings } from '@/../common/gameSettings/BuzzerSettings';
+import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
+import type { SimonSettings } from '@/../common/gameSettings/SimonSettings';
+import type { StopwatchSettings } from '@/../common/gameSettings/StopwatchSettings';
+import type { GameSettings } from '@/../common/gameSettings';
+import type { ViewingRateSettings } from '@/../common/gameSettings/ViewingRateSettings';
+import type { PongSettings } from '@/../common/gameSettings/PongSettings';
 
 export const useGameSettingsStore = defineStore('gameSettings', () => {
   const buzzerSettings = ref<BuzzerSettings>({

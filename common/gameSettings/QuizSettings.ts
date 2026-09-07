@@ -1,5 +1,5 @@
-import type { BuzzerButton } from 'src/plugins/buzzer/types';
-import type { QuizMode } from 'app/common/gameState/QuizState';
+import type { BuzzerButton } from '@/plugins/buzzer/types';
+import type { QuizMode } from '@/../common/gameState/QuizState';
 
 export interface QuizSettings {
   activeButtons: BuzzerButton[];

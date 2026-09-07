@@ -250,22 +250,22 @@
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
-import { useBuzzer } from 'src/plugins/buzzer';
-import { type ButtonEvent, BuzzerButton } from 'src/plugins/buzzer/types';
-import { useGameState } from 'src/composables/gameState';
-import { useTimer } from 'src/composables/timer';
+import { useBuzzer } from '@/plugins/buzzer';
+import { type ButtonEvent, BuzzerButton } from '@/plugins/buzzer/types';
+import { useGameState } from '@/composables/gameState';
+import { useTimer } from '@/composables/timer';
 import type {
   SimonInputState,
   SimonState,
-} from 'app/common/gameState/SimonState';
-import { useControllerFlasher } from 'src/composables/controllerFlasher';
-import SimonPad from 'components/gameModes/SimonPad.vue';
-import SimonSettingsDialog from 'components/gameModes/simon/SimonSettingsDialog.vue';
-import TimerAnimated from 'components/TimerAnimated.vue';
-import { useAudio } from 'src/composables/audio';
-import SafeDeleteBtn from 'components/SafeDeleteBtn.vue';
-import { useGameSettingsStore } from 'stores/game-settings-store';
-import { useLeaderboardStore } from 'stores/leaderboard-store';
+} from '@/../common/gameState/SimonState';
+import { useControllerFlasher } from '@/composables/controllerFlasher';
+import SimonPad from '@/components/gameModes/SimonPad.vue';
+import SimonSettingsDialog from '@/components/gameModes/simon/SimonSettingsDialog.vue';
+import TimerAnimated from '@/components/TimerAnimated.vue';
+import { useAudio } from '@/composables/audio';
+import SafeDeleteBtn from '@/components/SafeDeleteBtn.vue';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
+import { useLeaderboardStore } from '@/stores/leaderboard-store';
 import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();

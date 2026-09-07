@@ -161,27 +161,27 @@
 </template>
 
 <script lang="ts" setup>
-import BuzzerLeaderboardButtons from 'components/gameModes/buzzer/BuzzerLeaderboardButtons.vue';
-import BuzzerSettingsDialog from 'components/gameModes/buzzer/BuzzerSettingsDialog.vue';
-import CircleTimer from 'components/CircleTimer.vue';
-import PulseCircle from 'components/PulseCircle.vue';
+import BuzzerLeaderboardButtons from '@/components/gameModes/buzzer/BuzzerLeaderboardButtons.vue';
+import BuzzerSettingsDialog from '@/components/gameModes/buzzer/BuzzerSettingsDialog.vue';
+import CircleTimer from '@/components/CircleTimer.vue';
+import PulseCircle from '@/components/PulseCircle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
-import { useBuzzer } from 'src/plugins/buzzer';
+import { useBuzzer } from '@/plugins/buzzer';
 import {
   type ButtonEvent,
   BuzzerButton,
   type IController,
-} from 'src/plugins/buzzer/types';
+} from '@/plugins/buzzer/types';
 import { useQuasar } from 'quasar';
-import { useGameSettingsStore } from 'stores/game-settings-store';
+import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
-import type { BuzzerState } from 'app/common/gameState/BuzzerState';
-import { useGameState } from 'src/composables/gameState';
-import TimerAnimated from 'components/TimerAnimated.vue';
-import { useTimer } from 'src/composables/timer';
-import AudioBeep from 'components/AudioBeep.vue';
-import TextDynamic from 'components/TextDynamic.vue';
-import { useAudio } from 'src/composables/audio';
+import type { BuzzerState } from '@/../common/gameState/BuzzerState';
+import { useGameState } from '@/composables/gameState';
+import TimerAnimated from '@/components/TimerAnimated.vue';
+import { useTimer } from '@/composables/timer';
+import AudioBeep from '@/components/AudioBeep.vue';
+import TextDynamic from '@/components/TextDynamic.vue';
+import { useAudio } from '@/composables/audio';
 import { storeToRefs } from 'pinia';
 
 const quasar = useQuasar();

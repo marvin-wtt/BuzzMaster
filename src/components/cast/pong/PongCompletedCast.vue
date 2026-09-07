@@ -32,9 +32,9 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import PongRenderer from 'components/gameModes/pong/PongRenderer.vue';
-import type { PongEnded } from 'app/common/gameState/PongState';
-import type { StageFrame } from 'components/gameModes/pong/PongTypes';
+import PongRenderer from '@/components/gameModes/pong/PongRenderer.vue';
+import type { PongEnded } from '@/../common/gameState/PongState';
+import type { StageFrame } from '@/components/gameModes/pong/PongTypes';
 
 const { t } = useI18n();
 

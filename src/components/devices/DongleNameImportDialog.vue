@@ -53,7 +53,7 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
-import { config } from 'src/config';
+import { config } from '@/config';
 
 const file = ref<File>();
 const error = ref<string>();

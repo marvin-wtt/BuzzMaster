@@ -220,22 +220,22 @@
 </template>
 
 <script lang="ts" setup>
-import { useBuzzer } from 'src/plugins/buzzer';
+import { useBuzzer } from '@/plugins/buzzer';
 import {
   BuzzerButton,
   type IController,
   type IDongle,
-} from 'src/plugins/buzzer/types';
+} from '@/plugins/buzzer/types';
 import { type NamedColor, useQuasar } from 'quasar';
-import BuzzerTestDialog from 'components/devices/BuzzerTestDialog.vue';
+import BuzzerTestDialog from '@/components/devices/BuzzerTestDialog.vue';
 import { computed, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import DongleNameImportDialog from 'components/devices/DongleNameImportDialog.vue';
-import { Dongle } from 'src/plugins/buzzer/Dongle';
-import { config } from 'src/config';
-import DongleMissingDialog from 'components/devices/DongleMissingDialog.vue';
-import DongleRestoreDialog from 'components/devices/DongleRestoreDialog.vue';
-import { requestBuzzerDevicePermissions } from 'src/plugins/buzzer/permission';
+import DongleNameImportDialog from '@/components/devices/DongleNameImportDialog.vue';
+import { Dongle } from '@/plugins/buzzer/Dongle';
+import { config } from '@/config';
+import DongleMissingDialog from '@/components/devices/DongleMissingDialog.vue';
+import DongleRestoreDialog from '@/components/devices/DongleRestoreDialog.vue';
+import { requestBuzzerDevicePermissions } from '@/plugins/buzzer/permission';
 
 const quasar = useQuasar();
 const { t } = useI18n();

@@ -237,6 +237,10 @@ watch(time, tick);
 
 onStateEntry('preparing', async () => {
   await buzzer.reset();
+
+  // Reset presentation settings to default for every quiz game
+  quizSettings.value.presentationView = 'bar-chart';
+  quizSettings.value.showReactionTimes = false;
 });
 
 onStateEntry('running', (state) => {

@@ -10,6 +10,7 @@
           <quiz-result-table
             v-if="quizSettings.presentationView === 'table'"
             :answers="gameState.result"
+            :answer-times="gameState.answerTimes"
             :controller-names="controllerNames"
             data-testid="result"
           />
@@ -94,6 +95,7 @@
           >
             <quiz-leaderboard-buttons
               :answers="gameState.result"
+              :answer-times="gameState.answerTimes"
               @update="onPointsUpdate"
             />
 
@@ -152,7 +154,10 @@
   </q-page>
 
   <!-- Actions -->
-  <quiz-result-mode-toggle v-if="gameState.name === 'completed'" />
+  <template v-if="gameState.name === 'completed'">
+    <quiz-reaction-time-toggle />
+    <quiz-result-mode-toggle />
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -162,6 +167,7 @@ import PulseCircle from '@/components/PulseCircle.vue';
 import QuizSettingsDialog from '@/components/gameModes/quiz/QuizSettingsDialog.vue';
 import QuizLeaderboardButtons from '@/components/gameModes/quiz/QuizLeaderboardButtons.vue';
 import QuizResultModeToggle from '@/components/gameModes/quiz/QuizResultModeToggle.vue';
+import QuizReactionTimeToggle from '@/components/gameModes/quiz/QuizReactionTimeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from '@/plugins/buzzer';
@@ -190,7 +196,7 @@ const quasar = useQuasar();
 const quizSettingsStore = useGameSettingsStore();
 const { quizSettings } = storeToRefs(quizSettingsStore);
 const { controllers, buzzer } = useBuzzer();
-const { time, stopTimer, startTimer } = useTimer({
+const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,
   direction: 'down',
 });
@@ -217,6 +223,7 @@ const tick = transition('running', (state, time: number) => {
       name: 'completed',
       controllers: state.controllers,
       result: state.result,
+      answerTimes: state.answerTimes,
       mode: state.mode,
     };
   }
@@ -230,6 +237,10 @@ watch(time, tick);
 
 onStateEntry('preparing', async () => {
   await buzzer.reset();
+
+  // Reset presentation settings to default for every quiz game
+  quizSettings.value.presentationView = 'bar-chart';
+  quizSettings.value.showReactionTimes = false;
 });
 
 onStateEntry('running', (state) => {
@@ -286,6 +297,15 @@ const buttonColorClass = (button: BuzzerButton) => {
     : 'grey';
 };
 
+/**
+ * Remaining answer time at this very moment.
+ *
+ * The state only carries the time of the last timer tick, which would round all
+ * answers of the same tick to the same time. Reading the exact time keeps the
+ * answers apart, e.g. for the bonus of the fastest answer.
+ */
+const remainingTime = (): number => Math.max(0, exactTime());
+
 const listener = transition('running', (state, event: ButtonEvent) => {
   if (!state.controllers.includes(event.controller.id)) {
     return;
@@ -314,6 +334,11 @@ const buttonPressedAnswerChangeAlways = (
     [event.controller.id]: event.button,
   };
 
+  const answerTimes = {
+    ...state.answerTimes,
+    [event.controller.id]: remainingTime(),
+  };
+
   return {
     game: 'quiz',
     name: 'running',
@@ -322,6 +347,7 @@ const buttonPressedAnswerChangeAlways = (
     controllers: state.controllers,
     time: state.time,
     result,
+    answerTimes,
   };
 };
 
@@ -346,6 +372,11 @@ const buttonPressedAnswerChangeNever = (
     [event.controller.id]: event.button,
   };
 
+  const answerTimes = {
+    ...state.answerTimes,
+    [event.controller.id]: remainingTime(),
+  };
+
   // Transition to completed if all controllers answered
   if (Object.keys(result).length >= state.controllers.length) {
     return {
@@ -354,6 +385,7 @@ const buttonPressedAnswerChangeNever = (
       mode: state.mode,
       controllers: state.controllers,
       result,
+      answerTimes,
     };
   }
 
@@ -365,6 +397,7 @@ const buttonPressedAnswerChangeNever = (
     mode: state.mode,
     time: state.time,
     result,
+    answerTimes,
   };
 };
 
@@ -392,6 +425,7 @@ const buttonPressedAnswerChangeConfirm = (
       mode: state.mode,
       time: state.time,
       result: state.result,
+      answerTimes: state.answerTimes,
       unconfirmed: {
         ...state.unconfirmed,
         [event.controller.id]: event.button,
@@ -418,6 +452,11 @@ const buttonPressedAnswerChangeConfirm = (
     [event.controller.id]: button,
   };
 
+  const answerTimes = {
+    ...state.answerTimes,
+    [event.controller.id]: remainingTime(),
+  };
+
   // Transition to completed if all controllers confirmed
   if (Object.keys(result).length >= state.controllers.length) {
     return {
@@ -426,6 +465,7 @@ const buttonPressedAnswerChangeConfirm = (
       mode: state.mode,
       controllers: state.controllers,
       result,
+      answerTimes,
     };
   }
 
@@ -437,6 +477,7 @@ const buttonPressedAnswerChangeConfirm = (
     mode: state.mode,
     time: state.time,
     result,
+    answerTimes,
     unconfirmed,
   };
 };
@@ -466,6 +507,7 @@ const startGame = (controllerIds: string[]): QuizRunningState => {
       answerChangeAllowed,
       unconfirmed: {},
       result: {},
+      answerTimes: {},
     };
   }
 
@@ -473,6 +515,7 @@ const startGame = (controllerIds: string[]): QuizRunningState => {
     answerChangeAllowed,
     ...nextState,
     result: {},
+    answerTimes: {},
   };
 };
 
@@ -512,6 +555,7 @@ const onPointsUpdate = transition(
       game: 'quiz',
       name: 'completed',
       result: state.result,
+      answerTimes: state.answerTimes,
       mode: state.mode,
       controllers: state.controllers,
       correct,

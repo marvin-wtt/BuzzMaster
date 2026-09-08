@@ -24,5 +24,12 @@ export default {
 
   completed: {
     points: 'Puntos',
+    fastestBonus: 'Bono de velocidad',
+    seconds: '{n} s',
+    reactionTimes: {
+      title: 'Tiempos de reacción',
+      more: '+{n} más',
+      empty: 'Sin respuestas',
+    },
   },
 };

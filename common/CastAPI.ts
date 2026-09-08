@@ -1,7 +1,12 @@
 import type { GameState } from '@/../common/gameState';
 import type { GameSettings } from '@/../common/gameSettings';
 
-export type CastAPI = CastSenderAPI & CastReceiverAPI;
+export type CastAPI = CastSenderAPI & CastReceiverAPI & CastWindowAPI;
+
+export interface CastWindowAPI {
+  isOpen: () => Promise<boolean>;
+  onCastWindowUpdate: (callback: (open: boolean) => void) => void;
+}
 
 export interface CastSenderAPI {
   ready: () => void;

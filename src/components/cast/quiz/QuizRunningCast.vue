@@ -3,6 +3,7 @@
     <circle-timer
       :time="props.state.time"
       :max="settings.answerTime"
+      style="width: 75vmin; height: 75vmin; margin: auto"
     >
       <timer-animated
         :time="props.state.time"

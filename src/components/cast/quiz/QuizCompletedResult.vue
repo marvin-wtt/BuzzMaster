@@ -1,5 +1,5 @@
 <template>
-  <div class="col-grow column justify-around">
+  <div class="col-grow column justify-around no-wrap">
     <transition-group name="bounce">
       <cross-check
         key="cross-check"
@@ -14,7 +14,7 @@
         class="q-gutter-lg points-info"
       >
         <div
-          class="text-h2 font-bold text-center points"
+          class="font-bold text-center points"
           :class="pointsClass"
         >
           {{ n(props.points, { signDisplay: 'exceptZero' }) }}
@@ -30,6 +30,8 @@
             class="result-item"
           />
         </div>
+
+        <slot name="bonus" />
       </div>
     </transition-group>
   </div>
@@ -77,6 +79,10 @@ const buzzerButtonBgColor = {
 
 <style scoped>
 .check-cross {
+  display: block;
+  margin-inline: auto;
+  /* Keeps the symbol from pushing the points out of a short cast window */
+  max-height: 22vh;
   transition:
     width 0.5s ease-in-out,
     transform 0.5s ease-in-out;
@@ -89,10 +95,16 @@ const buzzerButtonBgColor = {
     transform 0.5s ease-in-out;
 }
 
+/* Font sizes scale with the cast window, which is often only a few hundred pixels wide */
+.points {
+  font-size: clamp(1.75rem, 10vw, 3.75rem);
+  line-height: 1.2;
+}
+
 .result-item {
-  width: 50px;
+  width: clamp(1.5rem, 5vw, 3.125rem);
   aspect-ratio: 1;
-  border-radius: 50px;
+  border-radius: 50%;
 }
 
 .slide-move,

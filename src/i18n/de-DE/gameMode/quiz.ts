@@ -11,6 +11,16 @@ export default {
     reset: 'Zurücksetzen',
     cancel: 'Abbrechen',
     nextRound: 'Nächste Runde',
+    reactionTimes: {
+      show: 'Reaktionszeiten im Cast anzeigen',
+      hide: 'Ergebnis im Cast anzeigen',
+    },
+  },
+
+  result: {
+    reactionTime: {
+      seconds: '{n} s',
+    },
   },
 
   settings: {
@@ -52,6 +62,7 @@ export default {
         label: 'Falsche Antwort',
         hint: 'Negative Zahl eintragen, um Punkte abzuziehen',
       },
+      pointsFastestBonus: 'Bonus für schnellste Antwort',
       sounds: 'Ton',
       playSounds: 'Ton abspielen',
       beepAt: 'Start des Countdown-Tons bei',

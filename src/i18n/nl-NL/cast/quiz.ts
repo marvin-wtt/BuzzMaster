@@ -21,5 +21,12 @@ export default {
   running: {},
   completed: {
     points: 'Punten',
+    fastestBonus: 'Snelheidsbonus',
+    seconds: '{n} s',
+    reactionTimes: {
+      title: 'Reactietijden',
+      more: '+{n} meer',
+      empty: 'Geen antwoorden',
+    },
   },
 };

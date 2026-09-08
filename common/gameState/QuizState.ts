@@ -28,17 +28,20 @@ export type QuizRunningState =
 export interface QuizRunningChangeAlwaysState extends QuizRunningStateBase {
   answerChangeAllowed: 'always';
   result: Record<string, BuzzerButton>;
+  answerTimes: Record<string, number>;
 }
 
 export interface QuizRunningChangeNeverState extends QuizRunningStateBase {
   answerChangeAllowed: 'never';
   result: Record<string, BuzzerButton>;
+  answerTimes: Record<string, number>;
 }
 
 export interface QuizRunningChangeConfirmState extends QuizRunningStateBase {
   answerChangeAllowed: 'confirm';
   unconfirmed: Record<string, BuzzerButton>;
   result: Record<string, BuzzerButton>;
+  answerTimes: Record<string, number>;
 }
 
 export interface QuizCompleteState extends QuizStateBase {
@@ -46,5 +49,6 @@ export interface QuizCompleteState extends QuizStateBase {
   mode: QuizMode;
   controllers: string[];
   result: Record<string, BuzzerButton>;
+  answerTimes: Record<string, number>;
   correct?: BuzzerButton[] | undefined;
 }

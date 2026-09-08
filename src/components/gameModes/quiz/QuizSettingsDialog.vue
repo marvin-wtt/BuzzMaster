@@ -118,6 +118,20 @@
                 <q-icon name="close" />
               </template>
             </q-input>
+
+            <q-input
+              v-model.number="settings.pointsFastestBonus"
+              :label="t('gameMode.quiz.settings.field.pointsFastestBonus')"
+              type="number"
+              :rules="[isNumber]"
+              hide-bottom-space
+              rounded
+              outlined
+            >
+              <template #prepend>
+                <q-icon name="speed" />
+              </template>
+            </q-input>
           </template>
 
           <div class="text-h6">
@@ -187,10 +201,12 @@ const onOk = async () => {
     return;
   }
 
-  // Surveyjs should not get points
+  // Surveys should not get points or rank the players by reaction time
   if (!showPoints.value) {
     settings.value.pointsCorrect = 0;
     settings.value.pointsWrong = 0;
+    settings.value.pointsFastestBonus = 0;
+    settings.value.showReactionTimes = false;
   }
 
   gameSettingsStore.quizSettings = settings.value;

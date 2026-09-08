@@ -13,6 +13,7 @@ import { createDevice } from '@/../test/vitest/utils/buzzer';
 import { selector } from '@/../test/vitest/utils/element-selector';
 import type {
   QuizCompleteState,
+  QuizMode,
   QuizRunningChangeAlwaysState,
   QuizRunningChangeConfirmState,
   QuizRunningChangeNeverState,
@@ -24,6 +25,8 @@ import { installFakeTimer } from '@/../test/vitest/install-timer';
 import { nextTick } from 'vue';
 import { useGameSettingsStore } from '@/stores/game-settings-store';
 import QuizResultModeToggle from '@/components/gameModes/quiz/QuizResultModeToggle.vue';
+import QuizReactionTimeToggle from '@/components/gameModes/quiz/QuizReactionTimeToggle.vue';
+import { useCastWindowStore } from '@/stores/cast-window-store';
 import QuizLeaderboardButtons from '@/components/gameModes/quiz/QuizLeaderboardButtons.vue';
 import { useLeaderboardStore } from '@/stores/leaderboard-store';
 
@@ -811,6 +814,58 @@ describe('QuizPage', () => {
       await btn.trigger('click');
 
       expect(quizSettings.presentationView).not.toBe(initialView);
+    });
+
+    describe('reaction times', () => {
+      const mountToggle = async (options: {
+        castOpen: boolean;
+        mode?: QuizMode;
+      }) => {
+        const { wrapper } = mountQuizPage();
+        const { quizSettings } = useGameSettingsStore();
+        if (options.mode !== undefined) {
+          quizSettings.mode = options.mode;
+        }
+        useCastWindowStore().open = options.castOpen;
+
+        await initializeStore();
+
+        return wrapper.findComponent(QuizReactionTimeToggle);
+      };
+
+      it('should not show the toggle without a cast window', async () => {
+        const toggle = await mountToggle({ castOpen: false });
+
+        expect(toggle.findComponent(QBtn).exists()).toBe(false);
+      });
+
+      it('should show the toggle if the cast window is open', async () => {
+        const toggle = await mountToggle({ castOpen: true });
+
+        expect(toggle.findComponent(QBtn).exists()).toBe(true);
+      });
+
+      it('should not show the toggle in survey mode', async () => {
+        const toggle = await mountToggle({ castOpen: true, mode: 'survey' });
+
+        expect(toggle.findComponent(QBtn).exists()).toBe(false);
+      });
+
+      it('should toggle the reaction times of the cast', async () => {
+        const toggle = await mountToggle({ castOpen: true });
+        const { quizSettings } = useGameSettingsStore();
+        const btn = toggle.findComponent(QBtn);
+
+        expect(quizSettings.showReactionTimes).toBe(false);
+
+        await btn.trigger('click');
+        expect(quizSettings.showReactionTimes).toBe(true);
+
+        await btn.trigger('click');
+        expect(quizSettings.showReactionTimes).toBe(false);
+      });
+
+      it.todo('should show the reaction times in the list view');
     });
 
     describe('result', () => {

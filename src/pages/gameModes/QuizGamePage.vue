@@ -10,6 +10,7 @@
           <quiz-result-table
             v-if="quizSettings.presentationView === 'table'"
             :answers="gameState.result"
+            :answer-times="gameState.answerTimes"
             :controller-names="controllerNames"
             data-testid="result"
           />
@@ -153,7 +154,10 @@
   </q-page>
 
   <!-- Actions -->
-  <quiz-result-mode-toggle v-if="gameState.name === 'completed'" />
+  <template v-if="gameState.name === 'completed'">
+    <quiz-reaction-time-toggle />
+    <quiz-result-mode-toggle />
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -163,6 +167,7 @@ import PulseCircle from '@/components/PulseCircle.vue';
 import QuizSettingsDialog from '@/components/gameModes/quiz/QuizSettingsDialog.vue';
 import QuizLeaderboardButtons from '@/components/gameModes/quiz/QuizLeaderboardButtons.vue';
 import QuizResultModeToggle from '@/components/gameModes/quiz/QuizResultModeToggle.vue';
+import QuizReactionTimeToggle from '@/components/gameModes/quiz/QuizReactionTimeToggle.vue';
 import { computed, onBeforeMount, onUnmounted, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBuzzer } from '@/plugins/buzzer';

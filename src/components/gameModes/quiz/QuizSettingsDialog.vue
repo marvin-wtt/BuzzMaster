@@ -201,11 +201,12 @@ const onOk = async () => {
     return;
   }
 
-  // Surveyjs should not get points
+  // Surveys should not get points or rank the players by reaction time
   if (!showPoints.value) {
     settings.value.pointsCorrect = 0;
     settings.value.pointsWrong = 0;
     settings.value.pointsFastestBonus = 0;
+    settings.value.showReactionTimes = false;
   }
 
   gameSettingsStore.quizSettings = settings.value;

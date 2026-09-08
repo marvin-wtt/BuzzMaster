@@ -9,7 +9,17 @@ export default {
     reset: 'Reset',
     cancel: 'Annuleren',
     nextRound: 'Volgende ronde',
+    reactionTimes: {
+      show: 'Reactietijden op de cast tonen',
+      hide: 'Resultaat op de cast tonen',
+    },
   },
+  result: {
+    reactionTime: {
+      seconds: '{n} s',
+    },
+  },
+
   settings: {
     title: 'Instellingen',
     field: {

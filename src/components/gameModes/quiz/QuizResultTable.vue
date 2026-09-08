@@ -27,12 +27,24 @@
       <q-virtual-scroll
         :items="controllersByButton[button]"
         separator
-        v-slot="{ item }"
+        v-slot="{ item }: { item: ControllerAnswer }"
         style="height: 100%"
       >
-        <q-item>
+        <q-item :key="item.controllerId">
           <q-item-section>
-            {{ item }}
+            {{ item.name }}
+          </q-item-section>
+          <q-item-section
+            v-if="item.reactionTime !== undefined"
+            side
+            class="text-bold"
+            data-testid="result-reaction-time"
+          >
+            {{
+              t('gameMode.quiz.result.reactionTime.seconds', {
+                n: item.reactionTime.toFixed(1),
+              })
+            }}
           </q-item-section>
         </q-item>
       </q-virtual-scroll>
@@ -44,13 +56,20 @@
 import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { BuzzerButton } from '@/plugins/buzzer/types';
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { buzzerButtonColor } from '@/components/buttonColors';
+import {
+  type ControllerAnswer,
+  groupAnswersByButton,
+} from '@/components/gameModes/quiz/answerGroups';
 
+const { t } = useI18n();
 const { quizSettings } = useGameSettingsStore();
 
 const activeResult = ref<BuzzerButton>();
 const props = defineProps<{
   answers: Record<string, BuzzerButton>;
+  answerTimes: Record<string, number>;
   controllerNames: Record<string, string>;
 }>();
 
@@ -69,23 +88,15 @@ const buttonOccurrences = computed<Record<BuzzerButton, number>>(() => {
   }, result);
 });
 
-const controllersByButton = computed<Record<BuzzerButton, string[]>>(() => {
-  const result: Record<BuzzerButton, string[]> = {
-    [BuzzerButton.RED]: [],
-    [BuzzerButton.BLUE]: [],
-    [BuzzerButton.ORANGE]: [],
-    [BuzzerButton.GREEN]: [],
-    [BuzzerButton.YELLOW]: [],
-  };
-
-  return Object.entries(props.answers).reduce((acc, [controllerId, button]) => {
-    const name = props.controllerNames[controllerId];
-    if (name !== undefined) {
-      acc[button].push(name);
-    }
-    return acc;
-  }, result);
-});
+const controllersByButton = computed<Record<BuzzerButton, ControllerAnswer[]>>(
+  () =>
+    groupAnswersByButton(
+      props.answers,
+      props.answerTimes,
+      props.controllerNames,
+      quizSettings.answerTime,
+    ),
+);
 
 const resultOptions = computed<BuzzerButton[]>(() => {
   // The red button as equivalent for not pressed

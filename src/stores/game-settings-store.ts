@@ -32,6 +32,7 @@ export const useGameSettingsStore = defineStore('gameSettings', () => {
     countDownBeepStartAt: 10,
     mode: 'normal',
     presentationView: 'bar-chart',
+    showReactionTimes: false,
     pointsCorrect: 0,
     pointsWrong: 0,
     pointsFastestBonus: 0,

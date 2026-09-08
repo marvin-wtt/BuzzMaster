@@ -11,6 +11,16 @@ export default {
     reset: 'Resetear',
     cancel: 'Cancelar',
     nextRound: 'Siguiente ronda',
+    reactionTimes: {
+      show: 'Mostrar tiempos de reacción en la emisión',
+      hide: 'Mostrar el resultado en la emisión',
+    },
+  },
+
+  result: {
+    reactionTime: {
+      seconds: '{n} s',
+    },
   },
 
   settings: {

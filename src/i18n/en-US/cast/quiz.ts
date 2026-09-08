@@ -26,5 +26,10 @@ export default {
     points: 'Points',
     fastestBonus: 'Fastest Bonus',
     seconds: '{n} s',
+    reactionTimes: {
+      title: 'Reaction times',
+      more: '+{n} more',
+      empty: 'No answers',
+    },
   },
 };

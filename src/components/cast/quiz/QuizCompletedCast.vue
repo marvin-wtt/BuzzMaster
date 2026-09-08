@@ -12,6 +12,10 @@
       />
     </div>
   </div>
+  <quiz-reaction-times-cast
+    v-else-if="settings.showReactionTimes"
+    :state="props.state"
+  />
   <div
     v-else
     class="column no-wrap result-column"
@@ -78,7 +82,9 @@ import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import QuizCompletedResult from '@/components/cast/quiz/QuizCompletedResult.vue';
 import QuizResultBarChart from '@/components/gameModes/quiz/QuizResultBarChart.vue';
+import QuizReactionTimesCast from '@/components/cast/quiz/QuizReactionTimesCast.vue';
 import { findFastestControllers } from '@/components/gameModes/quiz/fastestBonus';
+import { reactionTimeOf } from '@/components/gameModes/quiz/reactionTimes';
 
 const { t, n } = useI18n();
 const castStore = useCastStore();
@@ -125,9 +131,13 @@ const fastestControllers = computed<string[]>(() => {
 });
 
 const reactionTime = (controllerId: string): string => {
-  const time = props.state.answerTimes[controllerId] ?? 0;
+  const time = reactionTimeOf(
+    props.state.answerTimes,
+    controllerId,
+    settings.value.answerTime,
+  );
 
-  return Math.max(0, settings.value.answerTime - time).toFixed(1);
+  return (time ?? 0).toFixed(1);
 };
 </script>
 

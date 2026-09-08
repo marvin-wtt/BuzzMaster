@@ -35,7 +35,7 @@
         <div class="text-weight-bold">
           {{
             t('cast.quiz.completed.seconds', {
-              n: entry.reactionTime.toFixed(1),
+              n: formatReactionTime(entry.reactionTime),
             })
           }}
         </div>
@@ -59,6 +59,7 @@ import { useCastStore } from '@/stores/cast-store';
 import type { QuizCompleteState } from '@/../common/gameState/QuizState';
 import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import {
+  formatReactionTime,
   rankReactionTimes,
   type ReactionTime,
 } from '@/components/gameModes/quiz/reactionTimes';

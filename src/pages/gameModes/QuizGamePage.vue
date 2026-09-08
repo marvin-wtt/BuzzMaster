@@ -196,7 +196,7 @@ const quasar = useQuasar();
 const quizSettingsStore = useGameSettingsStore();
 const { quizSettings } = storeToRefs(quizSettingsStore);
 const { controllers, buzzer } = useBuzzer();
-const { time, stopTimer, startTimer } = useTimer({
+const { time, stopTimer, startTimer, exactTime } = useTimer({
   updateRate: 100,
   direction: 'down',
 });
@@ -297,6 +297,15 @@ const buttonColorClass = (button: BuzzerButton) => {
     : 'grey';
 };
 
+/**
+ * Remaining answer time at this very moment.
+ *
+ * The state only carries the time of the last timer tick, which would round all
+ * answers of the same tick to the same time. Reading the exact time keeps the
+ * answers apart, e.g. for the bonus of the fastest answer.
+ */
+const remainingTime = (): number => Math.max(0, exactTime());
+
 const listener = transition('running', (state, event: ButtonEvent) => {
   if (!state.controllers.includes(event.controller.id)) {
     return;
@@ -327,7 +336,7 @@ const buttonPressedAnswerChangeAlways = (
 
   const answerTimes = {
     ...state.answerTimes,
-    [event.controller.id]: state.time,
+    [event.controller.id]: remainingTime(),
   };
 
   return {
@@ -365,7 +374,7 @@ const buttonPressedAnswerChangeNever = (
 
   const answerTimes = {
     ...state.answerTimes,
-    [event.controller.id]: state.time,
+    [event.controller.id]: remainingTime(),
   };
 
   // Transition to completed if all controllers answered
@@ -445,7 +454,7 @@ const buttonPressedAnswerChangeConfirm = (
 
   const answerTimes = {
     ...state.answerTimes,
-    [event.controller.id]: state.time,
+    [event.controller.id]: remainingTime(),
   };
 
   // Transition to completed if all controllers confirmed

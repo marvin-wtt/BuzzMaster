@@ -789,6 +789,23 @@ describe('QuizPage', () => {
       expect(gameStore.state?.name).toBe('preparing');
     });
 
+    it('should reset the presentation settings for the next game', async () => {
+      const { wrapper } = mountQuizPage();
+      const gameStore = await initializeStore();
+      const { quizSettings } = useGameSettingsStore();
+
+      quizSettings.presentationView = 'table';
+      quizSettings.showReactionTimes = true;
+
+      await wrapper.find(selector('btn-game-restart')).trigger('click');
+      expect(gameStore.state?.name).toBe('preparing');
+
+      await vi.waitFor(() => {
+        expect(quizSettings.presentationView).toBe('bar-chart');
+        expect(quizSettings.showReactionTimes).toBe(false);
+      });
+    });
+
     it('should transition to running on quick-play', async () => {
       const { wrapper } = mountQuizPage();
       const gameStore = await initializeStore();

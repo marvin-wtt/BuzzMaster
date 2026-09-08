@@ -42,7 +42,7 @@
           >
             {{
               t('gameMode.quiz.result.reactionTime.seconds', {
-                n: item.reactionTime.toFixed(1),
+                n: formatReactionTime(item.reactionTime),
               })
             }}
           </q-item-section>
@@ -62,6 +62,7 @@ import {
   type ControllerAnswer,
   groupAnswersByButton,
 } from '@/components/gameModes/quiz/answerGroups';
+import { formatReactionTime } from '@/components/gameModes/quiz/reactionTimes';
 
 const { t } = useI18n();
 const { quizSettings } = useGameSettingsStore();

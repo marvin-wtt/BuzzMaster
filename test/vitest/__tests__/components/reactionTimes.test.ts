@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BuzzerButton } from '@/plugins/buzzer/types';
 import {
+  formatReactionTime,
   rankReactionTimes,
   reactionTimeOf,
 } from '@/components/gameModes/quiz/reactionTimes';
@@ -18,6 +19,14 @@ describe('reactionTimes', () => {
     it('should not return a negative time', () => {
       // The answer time may be changed in the settings after a round
       expect(reactionTimeOf({ a: 40 }, 'a', 30)).toBe(0);
+    });
+  });
+
+  describe('formatReactionTime', () => {
+    it('should show two decimals', () => {
+      expect(formatReactionTime(7.5)).toBe('7.50');
+      expect(formatReactionTime(1.238)).toBe('1.24');
+      expect(formatReactionTime(0)).toBe('0.00');
     });
   });
 

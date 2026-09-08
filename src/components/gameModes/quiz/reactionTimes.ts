@@ -27,6 +27,15 @@ export const reactionTimeOf = (
 };
 
 /**
+ * Formats a reaction time for display.
+ *
+ * Two decimals, as answers are often only milliseconds apart and a shared
+ * displayed time would make the bonus for the fastest answer look arbitrary.
+ */
+export const formatReactionTime = (reactionTime: number): string =>
+  reactionTime.toFixed(2);
+
+/**
  * Ranks all given answers by their reaction time, fastest first.
  */
 export const rankReactionTimes = (

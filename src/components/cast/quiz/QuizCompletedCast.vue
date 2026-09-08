@@ -84,7 +84,10 @@ import QuizCompletedResult from '@/components/cast/quiz/QuizCompletedResult.vue'
 import QuizResultBarChart from '@/components/gameModes/quiz/QuizResultBarChart.vue';
 import QuizReactionTimesCast from '@/components/cast/quiz/QuizReactionTimesCast.vue';
 import { findFastestControllers } from '@/components/gameModes/quiz/fastestBonus';
-import { reactionTimeOf } from '@/components/gameModes/quiz/reactionTimes';
+import {
+  formatReactionTime,
+  reactionTimeOf,
+} from '@/components/gameModes/quiz/reactionTimes';
 
 const { t, n } = useI18n();
 const castStore = useCastStore();
@@ -137,7 +140,7 @@ const reactionTime = (controllerId: string): string => {
     settings.value.answerTime,
   );
 
-  return (time ?? 0).toFixed(1);
+  return formatReactionTime(time ?? 0);
 };
 </script>
 

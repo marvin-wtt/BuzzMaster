@@ -66,12 +66,15 @@ import {
 const { t } = useI18n();
 const { quizSettings } = useGameSettingsStore();
 
-const activeResult = ref<BuzzerButton>();
 const props = defineProps<{
   answers: Record<string, BuzzerButton>;
   answerTimes: Record<string, number>;
   controllerNames: Record<string, string>;
 }>();
+
+const activeResult = ref<BuzzerButton>(
+  quizSettings.activeButtons[0] ?? BuzzerButton.RED,
+);
 
 const buttonOccurrences = computed<Record<BuzzerButton, number>>(() => {
   const result: Record<BuzzerButton, number> = {

@@ -6,7 +6,7 @@
     :thickness
     show-value
     :animation-speed="10"
-    class="fit"
+    class="circle-timer"
   >
     <slot />
   </q-circular-progress>
@@ -47,4 +47,13 @@ const color = computed<string>(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+/*
+ * Fills the parent by default but stays overridable: `.fit` uses `!important`
+ * and would silently discard any width/height set by the caller.
+ */
+.circle-timer {
+  width: 100%;
+  height: 100%;
+}
+</style>

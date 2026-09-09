@@ -1,5 +1,7 @@
 export default {
   powerpoint: {
+    checkLog:
+      'The integration could not start. See the application log for details.',
     label: 'PowerPoint integration',
     enabled: 'PowerPoint integration is on',
     disabled: 'PowerPoint integration is off',

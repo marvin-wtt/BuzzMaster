@@ -595,15 +595,26 @@ async function togglePowerPoint() {
     const status = await window.appAPI.setPowerPointEnabled(next);
     powerPointEnabled.value = status.enabled;
 
+    // Enabling can "succeed" while the server fails to start - a missing
+    // certificate, a port conflict. Saying "enabled" then would be a lie the
+    // user only discovers when the add-in refuses to load.
+    const brokenAfterEnabling = status.enabled && !status.websocket;
+
     // `exactOptionalPropertyTypes`: omit `caption` rather than passing undefined.
     quasar.notify({
-      type: status.error ? 'negative' : 'positive',
-      message: status.error
-        ? t('toolbar.powerpoint.failed')
-        : status.enabled
-          ? t('toolbar.powerpoint.turnedOn')
-          : t('toolbar.powerpoint.turnedOff'),
-      ...(status.error ? { caption: status.error, timeout: 0 } : {}),
+      type: status.error || brokenAfterEnabling ? 'negative' : 'positive',
+      message:
+        status.error || brokenAfterEnabling
+          ? t('toolbar.powerpoint.failed')
+          : status.enabled
+            ? t('toolbar.powerpoint.turnedOn')
+            : t('toolbar.powerpoint.turnedOff'),
+      ...(status.error || brokenAfterEnabling
+        ? {
+            caption: status.error ?? t('toolbar.powerpoint.checkLog'),
+            timeout: 0,
+          }
+        : {}),
     });
   } catch (reason) {
     quasar.notify({ type: 'negative', message: String(reason) });

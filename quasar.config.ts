@@ -12,6 +12,17 @@ import { defineConfig } from '#q-app';
 import { fileURLToPath } from 'node:url';
 import { powerPointDevServer } from './scripts/powerpoint-dev-server.mjs';
 
+/**
+ * Absolute path to a file in this repository.
+ *
+ * electron-builder resolves relative `extraResources` paths against Quasar's
+ * generated app directory (`dist/electron/UnPackaged`), not the project root — so
+ * repo-relative paths silently match nothing and the files are quietly omitted
+ * from the build. Absolute paths remove the ambiguity.
+ */
+const fromRepo = (relative: string) =>
+  fileURLToPath(new URL(relative, import.meta.url));
+
 export default defineConfig((ctx) => {
   const isSpa = ctx.modeName === 'spa';
   const isGhPages = process.env.GH_PAGES === 'true';
@@ -227,11 +238,11 @@ export default defineConfig((ctx) => {
         // path because the Office registry entry points at it by absolute path.
         extraResources: [
           {
-            from: 'integrations/powerpoint/manifest.xml',
+            from: fromRepo('./integrations/powerpoint/manifest.xml'),
             to: 'powerpoint/manifest.xml',
           },
           {
-            from: 'src-electron/powerpoint/provision.ps1',
+            from: fromRepo('./src-electron/powerpoint/provision.ps1'),
             to: 'powerpoint/provision.ps1',
           },
         ],

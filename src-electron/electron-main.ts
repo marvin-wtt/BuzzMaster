@@ -153,7 +153,6 @@ async function applyPowerPointIntegration(isDev: boolean): Promise<void> {
       // Read per connection, so toggling the setting takes effect immediately.
       websocketEnabled: isPowerPointEnabled,
     });
-    powerPointServer.start();
 
     // Second cast sink: same stream the cast window receives, different
     // transport. Plan section 17 - one broadcaster, many surfaces.
@@ -162,10 +161,30 @@ async function applyPowerPointIntegration(isDev: boolean): Promise<void> {
     });
   }
 
+  // Outside the block above, and idempotent: the first start can fail because
+  // there is no certificate yet, which is exactly the state of a fresh install
+  // before provisioning has run. Starting only on creation left the server
+  // permanently dead until the app was restarted.
+  powerPointServer.start();
+
+  // Report what actually happened, not what was asked for. An earlier version
+  // logged "enabled" even when provisioning had failed and nothing was
+  // listening, which made a completely dead integration look healthy.
+  const listening = powerPointServer?.listening ?? false;
+
+  if (enabled && !listening) {
+    log.error(
+      'PowerPoint integration is enabled but the local server is not listening. ' +
+        'The add-in will not load. See the warnings above for the cause.',
+    );
+    return;
+  }
+
   log.info(
-    `PowerPoint integration ${enabled ? 'enabled' : 'disabled'}` +
-      (!enabled && provisioned
-        ? ' (still serving the add-in page so embedded elements can explain themselves)'
+    `PowerPoint integration ${enabled ? 'enabled' : 'disabled'}, ` +
+      `server ${listening ? 'listening' : 'stopped'}` +
+      (!enabled && listening
+        ? ' (serving the add-in page so embedded elements can explain themselves)'
         : ''),
   );
 }

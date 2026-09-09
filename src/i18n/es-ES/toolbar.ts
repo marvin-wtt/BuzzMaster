@@ -1,5 +1,7 @@
 export default {
   powerpoint: {
+    checkLog:
+      'La integración no ha podido iniciarse. Consulta el registro de la aplicación.',
     label: 'Integración con PowerPoint',
     enabled: 'La integración con PowerPoint está activada',
     disabled: 'La integración con PowerPoint está desactivada',

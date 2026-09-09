@@ -8,29 +8,24 @@
       style="max-width: 20rem"
     >
       <q-card-section>
-        <a class="text-h5">
-          {{ t('gameMode.stopwatch.settings.title') }}
-        </a>
+        <span class="text-h5">{{
+          t('gameMode.stopwatch.settings.title')
+        }}</span>
       </q-card-section>
 
       <q-card-section>
-        <q-form
-          ref="form"
-          class="column q-gutter-y-sm"
-        >
-          <q-toggle
-            :label="t('gameMode.stopwatch.settings.field.playSounds')"
-            v-model="settings.playSounds"
-          />
-        </q-form>
+        <StopwatchSettingsForm
+          ref="settingsForm"
+          v-model="settings"
+        />
       </q-card-section>
 
       <q-card-actions align="center">
         <q-btn
           :label="t('gameMode.stopwatch.settings.action.ok')"
           color="primary"
-          @click="onOk"
           rounded
+          @click="onOk"
         />
       </q-card-actions>
     </q-card>
@@ -38,11 +33,12 @@
 </template>
 
 <script lang="ts" setup>
-import { QForm, useDialogPluginComponent } from 'quasar';
+import { useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
-import { ref, toRaw } from 'vue';
+import { ref, toRaw, useTemplateRef } from 'vue';
 import type { StopwatchSettings } from '@/../common/gameSettings/StopwatchSettings';
+import StopwatchSettingsForm from '@/components/gameModes/stopwatch/StopwatchSettingsForm.vue';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
@@ -50,21 +46,25 @@ const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 
 const gameSettingsStore = useGameSettingsStore();
-const form = ref<QForm | null>(null);
+const settingsForm =
+  useTemplateRef<InstanceType<typeof StopwatchSettingsForm>>('settingsForm');
+
+// Edit a copy: the dialog is cancellable, so the store must not see changes
+// until OK.
 const settings = ref<StopwatchSettings>(
   structuredClone(toRaw(gameSettingsStore.stopwatchSettings)),
 );
 
 const onOk = async () => {
-  const valid = await form.value?.validate();
+  const valid = await settingsForm.value?.validate();
 
   if (!valid) {
     return;
   }
 
+  settingsForm.value?.normalize();
+
   gameSettingsStore.stopwatchSettings = settings.value;
   onDialogOK();
 };
 </script>
-
-<style scoped></style>

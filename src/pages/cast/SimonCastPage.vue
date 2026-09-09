@@ -187,7 +187,7 @@ import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCastStore } from '@/stores/cast-store';
 import type { SimonState } from '@/../common/gameState/SimonState';
-import SimonPad from '@/components/gameModes/SimonPad.vue';
+import SimonPad from '@/components/gameModes/simon/SimonPad.vue';
 import TimerAnimated from '@/components/TimerAnimated.vue';
 import { BuzzerButton } from '@/plugins/buzzer/types';
 

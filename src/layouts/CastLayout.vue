@@ -67,7 +67,8 @@
 <script lang="ts" setup>
 import { useCastStore } from '@/stores/cast-store';
 import { useQuasar } from 'quasar';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
 const castStore = useCastStore();
@@ -76,6 +77,36 @@ const { t } = useI18n();
 
 quasar.dark.set(true);
 const toggleDarkMode = quasar.dark.toggle;
+
+const router = useRouter();
+
+/**
+ * Route to the page for the current game.
+ *
+ * This used to live in `cast-store`, which made the store unusable by any
+ * surface without these routes — notably the PowerPoint add-in. Behaviour is
+ * unchanged: go via the index page first, so a page never sees state belonging
+ * to a different game.
+ */
+watch(
+  () => castStore.gameState,
+  (state, previous) => {
+    if (previous?.game === state?.game) {
+      return;
+    }
+
+    void router.push({ name: 'cast' });
+
+    if (state === undefined) {
+      return;
+    }
+
+    const routeName = `cast-${state.game}`;
+    if (router.hasRoute(routeName)) {
+      void router.push({ name: routeName });
+    }
+  },
+);
 
 window.castAPI.onGameStateUpdate(castStore.updateGameState);
 window.castAPI.onGameSettingsUpdate(castStore.updateGameSettings);

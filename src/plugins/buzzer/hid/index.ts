@@ -11,6 +11,17 @@ import { PlayStation3Device } from '@/plugins/buzzer/hid/PlayStation3Device';
 const deviceMap: Map<HIDDevice, string> = new Map<HIDDevice, string>();
 
 export const initHidDeviceManager: IBuzzerPlugin = async (api: IBuzzerApi) => {
+  // WebHID is absent outside Electron - notably in PowerPoint's WebView2, which
+  // hosts the /powerpoint add-in route. The boot file installs this plugin for
+  // every route, so without this guard the add-in dies during app startup on
+  // `navigator.hid` being undefined.
+  if (!('hid' in navigator)) {
+    console.info(
+      'WebHID unavailable; buzzer support disabled for this window.',
+    );
+    return;
+  }
+
   const hidDevices = await navigator.hid.getDevices();
 
   // Load all already connected devices

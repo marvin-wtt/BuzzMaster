@@ -1,4 +1,15 @@
 export default {
+  powerpoint: {
+    checkLog:
+      'De integratie kon niet starten. Zie het applicatielogboek voor details.',
+    label: 'PowerPoint-integratie',
+    enabled: 'PowerPoint-integratie staat aan',
+    disabled: 'PowerPoint-integratie staat uit',
+    turnedOn:
+      'PowerPoint-integratie ingeschakeld. Voeg de BuzzMaster-invoegtoepassing toe in PowerPoint.',
+    turnedOff: 'PowerPoint-integratie uitgeschakeld.',
+    failed: 'Kon de PowerPoint-integratie niet wijzigen',
+  },
   batterySaving: 'Toon batterijbesparing',
   cast: 'Open Cast',
   close: 'Venster sluiten',

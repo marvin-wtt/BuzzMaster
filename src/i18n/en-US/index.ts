@@ -6,6 +6,7 @@ import cast from './cast';
 import updater from './updater';
 import toolbar from './toolbar';
 import online from './online';
+import powerpoint from './powerpoint';
 
 export default {
   app_name: 'Buzz Master',
@@ -30,6 +31,8 @@ export default {
   devices,
   gameMode,
   leaderboard,
+
+  powerpoint,
 
   toolbar,
   updater,

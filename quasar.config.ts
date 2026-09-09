@@ -10,6 +10,7 @@
 
 import { defineConfig } from '#q-app';
 import { fileURLToPath } from 'node:url';
+import { powerPointDevServer } from './scripts/powerpoint-dev-server.mjs';
 
 export default defineConfig((ctx) => {
   const isSpa = ctx.modeName === 'spa';
@@ -112,6 +113,7 @@ export default defineConfig((ctx) => {
     devServer: {
       // https: true
       open: true, // opens browser window automatically
+      ...powerPointDevServer(),
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
@@ -219,6 +221,20 @@ export default defineConfig((ctx) => {
         // https://www.electron.build/configuration/configuration
 
         appId: 'buzzmaster',
+
+        // Shipped alongside the app and read at runtime from
+        // `process.resourcesPath`. The manifest must exist on disk at a stable
+        // path because the Office registry entry points at it by absolute path.
+        extraResources: [
+          {
+            from: 'integrations/powerpoint/manifest.xml',
+            to: 'powerpoint/manifest.xml',
+          },
+          {
+            from: 'src-electron/powerpoint/provision.ps1',
+            to: 'powerpoint/provision.ps1',
+          },
+        ],
       },
     },
 

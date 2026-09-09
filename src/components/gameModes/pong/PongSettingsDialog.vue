@@ -12,38 +12,10 @@
       </q-card-section>
 
       <q-card-section>
-        <q-form class="column q-gutter-y-sm">
-          <q-input
-            v-model.number="settings.rounds"
-            :label="t('gameMode.pong.settings.field.rounds')"
-            type="number"
-            outlined
-            rounded
-          />
-
-          <q-select
-            v-model="settings.speed"
-            :label="t('gameMode.pong.settings.field.speed')"
-            :options="speedOptions"
-            emit-value
-            map-options
-            outlined
-            rounded
-          />
-
-          <q-input
-            v-model.number="settings.pointsForWin"
-            :label="t('gameMode.pong.settings.field.pointsForWin')"
-            type="number"
-            :min="0"
-            outlined
-            rounded
-          >
-            <template #prepend>
-              <q-icon name="emoji_events" />
-            </template>
-          </q-input>
-        </q-form>
+        <PongSettingsForm
+          ref="settingsForm"
+          v-model="settings"
+        />
       </q-card-section>
 
       <q-card-actions align="center">
@@ -62,11 +34,9 @@
 import { useDialogPluginComponent } from 'quasar';
 import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useI18n } from 'vue-i18n';
-import { ref, toRaw } from 'vue';
-import type {
-  PongSettings,
-  PongSpeedPreset,
-} from '@/../common/gameSettings/PongSettings';
+import { ref, toRaw, useTemplateRef } from 'vue';
+import type { PongSettings } from '@/../common/gameSettings/PongSettings';
+import PongSettingsForm from '@/components/gameModes/pong/PongSettingsForm.vue';
 
 defineEmits([...useDialogPluginComponent.emits]);
 
@@ -74,21 +44,24 @@ const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent();
 const { t } = useI18n();
 
 const gameSettingsStore = useGameSettingsStore();
+const settingsForm =
+  useTemplateRef<InstanceType<typeof PongSettingsForm>>('settingsForm');
+
+// Edit a copy: the dialog is cancellable, so the store must not see changes
+// until OK.
 const settings = ref<PongSettings>(
   structuredClone(toRaw(gameSettingsStore.pongSettings)),
 );
 
-const speedOptions: { label: string; value: PongSpeedPreset }[] = [
-  'slow',
-  'normal',
-  'fast',
-  'turbo',
-].map((s) => ({
-  label: t(`gameMode.pong.settings.speed.${s}`),
-  value: s as PongSpeedPreset,
-}));
+const onOk = async () => {
+  const valid = await settingsForm.value?.validate();
 
-const onOk = () => {
+  if (!valid) {
+    return;
+  }
+
+  settingsForm.value?.normalize();
+
   gameSettingsStore.pongSettings = settings.value;
   onDialogOK();
 };

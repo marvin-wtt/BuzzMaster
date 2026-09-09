@@ -1,4 +1,13 @@
 export default {
+  powerpoint: {
+    label: 'PowerPoint-integratie',
+    enabled: 'PowerPoint-integratie staat aan',
+    disabled: 'PowerPoint-integratie staat uit',
+    turnedOn:
+      'PowerPoint-integratie ingeschakeld. Voeg de BuzzMaster-invoegtoepassing toe in PowerPoint.',
+    turnedOff: 'PowerPoint-integratie uitgeschakeld.',
+    failed: 'Kon de PowerPoint-integratie niet wijzigen',
+  },
   batterySaving: 'Toon batterijbesparing',
   cast: 'Open Cast',
   close: 'Venster sluiten',

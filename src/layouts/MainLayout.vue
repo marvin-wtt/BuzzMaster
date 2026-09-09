@@ -115,6 +115,28 @@
               </q-tooltip>
             </q-btn>
 
+            <!-- PowerPoint integration -->
+            <q-btn
+              v-if="quasar.platform.is.electron"
+              :aria-label="t('toolbar.powerpoint.label')"
+              dense
+              flat
+              rounded
+              size="sm"
+              class="settings-button bg-primary"
+              :icon="powerPointEnabled ? 'slideshow' : 'cancel_presentation'"
+              :loading="powerPointBusy"
+              @click="togglePowerPoint"
+            >
+              <q-tooltip>
+                {{
+                  powerPointEnabled
+                    ? t('toolbar.powerpoint.enabled')
+                    : t('toolbar.powerpoint.disabled')
+                }}
+              </q-tooltip>
+            </q-btn>
+
             <!-- Dark mode -->
             <q-btn
               :aria-label="t('toolbar.darkMode')"
@@ -334,6 +356,7 @@ import type { GameSettings } from '@/../common/gameSettings';
 import AppUpdateBtn from '@/components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from '@/stores/updater-store';
 import OnlineDialog from '@/components/layout/OnlineDialog.vue';
+import { activateGamePreset } from '@/services/gameActivation';
 
 const router = useRouter();
 const route = useRoute();
@@ -534,6 +557,81 @@ const controllerNames = computed<Record<string, string>>(() => {
 function sendControllerNames(controllers: Record<string, string>) {
   window.castAPI.updateControllers(toRaw(controllers));
 }
+
+/**
+ * PowerPoint integration toggle.
+ *
+ * Off by default: enabling installs a trusted certificate into the user's
+ * certificate store and writes an Office registry entry, which is a real change
+ * to their machine and disproportionate for the many people who will never open
+ * PowerPoint. Opting in is a deliberate act.
+ */
+const powerPointEnabled = ref(false);
+const powerPointBusy = ref(false);
+
+onMounted(() => {
+  if (!quasar.platform.is.electron) {
+    return;
+  }
+  window.appAPI
+    .getPowerPointStatus()
+    .then((status) => {
+      powerPointEnabled.value = status.enabled;
+    })
+    .catch((reason: unknown) => {
+      console.error('Failed to read PowerPoint status', reason);
+    });
+});
+
+async function togglePowerPoint() {
+  const next = !powerPointEnabled.value;
+  powerPointBusy.value = true;
+
+  try {
+    const status = await window.appAPI.setPowerPointEnabled(next);
+    powerPointEnabled.value = status.enabled;
+
+    // `exactOptionalPropertyTypes`: omit `caption` rather than passing undefined.
+    quasar.notify({
+      type: status.error ? 'negative' : 'positive',
+      message: status.error
+        ? t('toolbar.powerpoint.failed')
+        : status.enabled
+          ? t('toolbar.powerpoint.turnedOn')
+          : t('toolbar.powerpoint.turnedOff'),
+      ...(status.error ? { caption: status.error, timeout: 0 } : {}),
+    });
+  } catch (reason) {
+    quasar.notify({ type: 'negative', message: String(reason) });
+  } finally {
+    powerPointBusy.value = false;
+  }
+}
+
+// Activation requests from a PowerPoint add-in (plan section 16). Handled at the
+// layout level because it is application-level behaviour: no game page should
+// know that PowerPoint exists.
+window.powerPointAPI?.onActivationRequest((request) => {
+  activateGamePreset(request.preset, router)
+    .then((result) => {
+      window.powerPointAPI?.reportActivationResult(
+        result.success
+          ? { requestId: request.requestId, success: true }
+          : {
+              requestId: request.requestId,
+              success: false,
+              error: result.error,
+            },
+      );
+    })
+    .catch((reason: unknown) => {
+      window.powerPointAPI?.reportActivationResult({
+        requestId: request.requestId,
+        success: false,
+        error: String(reason),
+      });
+    });
+});
 
 if (quasar.platform.is.electron) {
   watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));

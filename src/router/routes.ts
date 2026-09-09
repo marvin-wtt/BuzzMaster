@@ -131,6 +131,15 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
+  {
+    // The PowerPoint content add-in. Runs inside PowerPoint's WebView2, not
+    // Electron, so it deliberately has no layout, no window chrome and no
+    // dependency on window.castAPI / window.appAPI.
+    path: '/powerpoint',
+    name: 'powerpoint',
+    component: () => import('@/pages/PowerPointPage.vue'),
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {

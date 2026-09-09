@@ -1,4 +1,13 @@
 export default {
+  powerpoint: {
+    label: 'PowerPoint integration',
+    enabled: 'PowerPoint integration is on',
+    disabled: 'PowerPoint integration is off',
+    turnedOn:
+      'PowerPoint integration enabled. Insert the BuzzMaster add-in from PowerPoint.',
+    turnedOff: 'PowerPoint integration disabled.',
+    failed: 'Could not change the PowerPoint integration',
+  },
   batterySaving: 'Show Battery Saving',
   cast: 'Open Cast',
   close: 'Close window',

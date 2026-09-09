@@ -352,6 +352,7 @@ import BatterySavingDialog from '@/components/layout/BatterySavingDialog.vue';
 import { useGameStore } from '@/stores/game-store';
 import type { GameState } from '@/../common/gameState';
 import { useGameSettingsStore } from '@/stores/game-settings-store';
+import { useCastWindowStore } from '@/stores/cast-window-store';
 import type { GameSettings } from '@/../common/gameSettings';
 import AppUpdateBtn from '@/components/layout/AppUpdateBtn.vue';
 import { useUpdaterStore } from '@/stores/updater-store';
@@ -365,6 +366,7 @@ const { t, locale, availableLocales } = useI18n();
 const { buzzer, controllers } = useBuzzer();
 const gameStore = useGameStore();
 const gameSettingsStore = useGameSettingsStore();
+const castWindowStore = useCastWindowStore();
 
 useBatterySavingStore();
 useUpdaterStore();
@@ -476,6 +478,8 @@ onMounted(() => {
   window.addEventListener('keydown', keyDownListener);
 
   if (quasar.platform.is.electron) {
+    castWindowStore.initialize();
+
     // Send the initial state of the game store for the cast window
     sendGameState(gameStore.state);
     sendGameSettings(gameSettingsStore.gameSettings);
@@ -541,7 +545,7 @@ function closeApp() {
 }
 
 function toggleCast() {
-  window.castAPI?.toggle();
+  castWindowStore.toggle();
 }
 
 const controllerNames = computed<Record<string, string>>(() => {
@@ -636,7 +640,8 @@ window.powerPointAPI?.onActivationRequest((request) => {
 if (quasar.platform.is.electron) {
   watch(locale, (value) => window.castAPI.updateLocale(toRaw(value)));
   watch(() => gameStore.state, sendGameState);
-  watch(() => gameSettingsStore.gameSettings, sendGameSettings);
+  // Deep, as settings are also changed in place, e.g. by the result view toggle
+  watch(() => gameSettingsStore.gameSettings, sendGameSettings, { deep: true });
   watch(controllerNames, sendControllerNames);
 }
 

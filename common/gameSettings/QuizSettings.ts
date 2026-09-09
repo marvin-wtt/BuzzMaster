@@ -9,6 +9,8 @@ export interface QuizSettings {
   countDownBeepStartAt: number;
   mode: QuizMode;
   presentationView: 'table' | 'bar-chart';
+  showReactionTimes: boolean;
   pointsCorrect: number;
   pointsWrong: number;
+  pointsFastestBonus: number;
 }

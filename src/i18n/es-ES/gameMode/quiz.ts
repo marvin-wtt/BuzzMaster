@@ -11,6 +11,16 @@ export default {
     reset: 'Resetear',
     cancel: 'Cancelar',
     nextRound: 'Siguiente ronda',
+    reactionTimes: {
+      show: 'Mostrar tiempos de reacción en la emisión',
+      hide: 'Mostrar el resultado en la emisión',
+    },
+  },
+
+  result: {
+    reactionTime: {
+      seconds: '{n} s',
+    },
   },
 
   settings: {
@@ -52,6 +62,7 @@ export default {
         label: 'Respuesta incorrecta',
         hint: 'Introduce un número negativo para restar puntos',
       },
+      pointsFastestBonus: 'Premio a la respuesta más rápida',
       sounds: 'Sonidos',
       playSounds: 'Reproducir sonidos',
       beepAt: 'Iniciar pitido de cuenta atrás en',

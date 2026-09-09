@@ -9,7 +9,17 @@ export default {
     reset: 'Reset',
     cancel: 'Annuleren',
     nextRound: 'Volgende ronde',
+    reactionTimes: {
+      show: 'Reactietijden op de cast tonen',
+      hide: 'Resultaat op de cast tonen',
+    },
   },
+  result: {
+    reactionTime: {
+      seconds: '{n} s',
+    },
+  },
+
   settings: {
     title: 'Instellingen',
     field: {
@@ -48,6 +58,7 @@ export default {
         label: 'Fout antwoord',
         hint: 'Voer een negatief getal in om punten af te trekken',
       },
+      pointsFastestBonus: 'Bonus voor het snelste antwoord',
       sounds: 'Geluiden',
       playSounds: 'Geluiden afspelen',
       beepAt: 'Start aftelgeluid bij',

@@ -37,8 +37,10 @@ export const DEFAULT_QUIZ_SETTINGS: QuizSettings = {
   countDownBeepStartAt: 10,
   mode: 'normal',
   presentationView: 'bar-chart',
+  showReactionTimes: false,
   pointsCorrect: 0,
   pointsWrong: 0,
+  pointsFastestBonus: 0,
 };
 
 export const DEFAULT_SIMON_SETTINGS: SimonSettings = {

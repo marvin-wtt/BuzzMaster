@@ -109,6 +109,21 @@
           <q-icon name="close" />
         </template>
       </q-input>
+
+      <q-input
+        v-model.number="model.pointsFastestBonus"
+        :label="t('gameMode.quiz.settings.field.pointsFastestBonus')"
+        type="number"
+        :rules="[isNumber]"
+        hide-bottom-space
+        rounded
+        outlined
+        data-testid="quiz-points-fastest-bonus"
+      >
+        <template #prepend>
+          <q-icon name="speed" />
+        </template>
+      </q-input>
     </template>
 
     <div class="text-h6">
@@ -207,12 +222,14 @@ const activeBuzzerOptions = [
 defineExpose<SettingsFormApi>({
   validate: () => form.value?.validate() ?? Promise.resolve(true),
   normalize: () => {
-    // A survey has no right or wrong answer, so it carries no points. This used
-    // to live in the dialog's OK handler, where the PowerPoint add-in could
-    // never reach it.
+    // A survey has no right or wrong answer, so it carries no points and does
+    // not rank players by reaction time. This used to live in the dialog's OK
+    // handler, where the PowerPoint add-in could never reach it.
     if (!showPoints.value) {
       model.value.pointsCorrect = 0;
       model.value.pointsWrong = 0;
+      model.value.pointsFastestBonus = 0;
+      model.value.showReactionTimes = false;
     }
   },
 });

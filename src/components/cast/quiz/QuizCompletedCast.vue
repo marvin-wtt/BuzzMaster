@@ -12,9 +12,13 @@
       />
     </div>
   </div>
+  <quiz-reaction-times-cast
+    v-else-if="settings.showReactionTimes"
+    :state="props.state"
+  />
   <div
     v-else
-    class="column text-h2"
+    class="column no-wrap result-column"
   >
     <!-- Correct -->
     <quiz-completed-result
@@ -24,6 +28,35 @@
       :points="settings.pointsCorrect"
     >
       {{ t('cast.quiz.completed.points') }}
+
+      <template #bonus>
+        <div
+          v-if="fastestControllers.length > 0"
+          class="column items-center text-warning"
+        >
+          <div class="row items-center justify-center no-wrap bonus-title">
+            <q-icon
+              name="bolt"
+              class="q-mr-xs"
+            />
+            {{ n(settings.pointsFastestBonus, { signDisplay: 'exceptZero' }) }}
+            &nbsp;{{ t('cast.quiz.completed.fastestBonus') }}
+          </div>
+
+          <div
+            v-for="controllerId in fastestControllers"
+            :key="controllerId"
+            class="bonus-winner ellipsis"
+          >
+            {{ castStore.controllers[controllerId] ?? controllerId }} &middot;
+            {{
+              t('cast.quiz.completed.seconds', {
+                n: reactionTime(controllerId),
+              })
+            }}
+          </div>
+        </div>
+      </template>
     </quiz-completed-result>
 
     <q-separator />
@@ -49,8 +82,14 @@ import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import { useI18n } from 'vue-i18n';
 import QuizCompletedResult from '@/components/cast/quiz/QuizCompletedResult.vue';
 import QuizResultBarChart from '@/components/gameModes/quiz/QuizResultBarChart.vue';
+import QuizReactionTimesCast from '@/components/cast/quiz/QuizReactionTimesCast.vue';
+import { findFastestControllers } from '@/components/gameModes/quiz/fastestBonus';
+import {
+  formatReactionTime,
+  reactionTimeOf,
+} from '@/components/gameModes/quiz/reactionTimes';
 
-const { t } = useI18n();
+const { t, n } = useI18n();
 const castStore = useCastStore();
 
 const props = defineProps<{
@@ -80,6 +119,48 @@ const wrongButtons = computed<BuzzerButton[] | undefined>(() => {
 
   return allButtons.filter((value) => !props.state.correct?.includes(value));
 });
+
+// Controllers that earned the bonus for the fastest correct answer
+const fastestControllers = computed<string[]>(() => {
+  if (settings.value.pointsFastestBonus === 0) {
+    return [];
+  }
+
+  return findFastestControllers(
+    props.state.result,
+    props.state.answerTimes,
+    props.state.correct,
+  );
+});
+
+const reactionTime = (controllerId: string): string => {
+  const time = reactionTimeOf(
+    props.state.answerTimes,
+    controllerId,
+    settings.value.answerTime,
+  );
+
+  return formatReactionTime(time ?? 0);
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+/* The cast window is often only a few hundred pixels wide, so the result fills
+   the available width and all sizes scale with it. */
+.result-column {
+  width: min(100%, 40rem);
+}
+
+.bonus-title {
+  font-size: clamp(1.1rem, 5vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.bonus-winner {
+  max-width: 100%;
+  font-size: clamp(0.9rem, 3.5vw, 1.5rem);
+  line-height: 1.4;
+  opacity: 0.8;
+}
+</style>

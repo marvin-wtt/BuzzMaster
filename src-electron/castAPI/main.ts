@@ -1,4 +1,10 @@
-import { type BrowserWindow, ipcMain, type IpcMainEvent } from 'electron';
+import {
+  type BrowserWindow,
+  ipcMain,
+  type IpcMainEvent,
+  type IpcMainInvokeEvent,
+  type WebContents,
+} from 'electron';
 import log from 'electron-log';
 import type { GameState } from '@/../common/gameState';
 import type { GameSettings } from '@/../common/gameSettings';
@@ -19,6 +25,7 @@ export default (windowFactory: CastWindowFactory) => {
 
   ipcMain.on('cast:ready', ready);
   ipcMain.on('cast:toggle', toggle);
+  ipcMain.handle('cast:isOpen', isOpen);
 
   ipcMain.on('cast:updateGameState', (_event, state: GameState | undefined) => {
     broadcaster.updateGameState(state);
@@ -37,6 +44,8 @@ export default (windowFactory: CastWindowFactory) => {
   );
 
   let castWindow: BrowserWindow | undefined;
+  // The window controlling the cast window, notified whenever it opens or closes
+  let host: WebContents | undefined;
 
   function isCastWindowClosed(): boolean {
     return castWindow === undefined || castWindow.isDestroyed();
@@ -89,18 +98,40 @@ export default (windowFactory: CastWindowFactory) => {
     event.sender.send('cast:onGameStateUpdate', snapshot.gameState);
   }
 
-  function toggle() {
-    if (isCastWindowClosed()) {
-      windowFactory()
-        .then((window) => {
-          castWindow = window;
-        })
-        .catch((reason) => {
-          log.error(`Failed to create cast window: ${reason}`);
-        });
-    } else {
+  function isOpen(event: IpcMainInvokeEvent): boolean {
+    host = event.sender;
+
+    return !isCastWindowClosed();
+  }
+
+  function toggle(event: IpcMainEvent) {
+    host = event.sender;
+
+    if (!isCastWindowClosed()) {
+      // The close listener notifies the host
       castWindow?.close();
+      return;
     }
+
+    windowFactory()
+      .then((window) => {
+        castWindow = window;
+        window.on('closed', () => {
+          notifyHost(false);
+        });
+        notifyHost(true);
+      })
+      .catch((reason) => {
+        log.error(`Failed to create cast window: ${reason}`);
+      });
+  }
+
+  function notifyHost(open: boolean) {
+    if (host === undefined || host.isDestroyed()) {
+      return;
+    }
+
+    host.send('cast:onCastWindowUpdate', open);
   }
 
   return broadcaster;

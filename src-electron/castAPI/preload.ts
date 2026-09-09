@@ -1,5 +1,10 @@
 import { ipcRenderer } from 'electron';
-import type { CastAPI, CastReceiverAPI, CastSenderAPI } from '@/../common';
+import type {
+  CastAPI,
+  CastReceiverAPI,
+  CastSenderAPI,
+  CastWindowAPI,
+} from '@/../common';
 
 const send =
   <K extends keyof CastSenderAPI>(name: K) =>
@@ -32,9 +37,19 @@ const receiverAPI: CastReceiverAPI = {
   onControllerUpdate: on('onControllerUpdate'),
 };
 
+const castWindowAPI: CastWindowAPI = {
+  isOpen: () => ipcRenderer.invoke('cast:isOpen') as Promise<boolean>,
+  onCastWindowUpdate: (callback) => {
+    ipcRenderer.on('cast:onCastWindowUpdate', (_event, open: boolean) =>
+      callback(open),
+    );
+  },
+};
+
 const api: CastAPI = {
   ...senderAPI,
   ...receiverAPI,
+  ...castWindowAPI,
 };
 
 export default api;

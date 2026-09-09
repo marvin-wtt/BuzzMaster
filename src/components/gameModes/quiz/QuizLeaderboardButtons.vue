@@ -20,6 +20,7 @@ import { onBeforeMount, ref } from 'vue';
 import { useLeaderboardStore } from '@/stores/leaderboard-store';
 import { useGameSettingsStore } from '@/stores/game-settings-store';
 import { useAudio } from '@/composables/audio';
+import { findFastestControllers } from '@/components/gameModes/quiz/fastestBonus';
 
 const leaderboardStore = useLeaderboardStore();
 const { quizSettings } = useGameSettingsStore();
@@ -28,7 +29,11 @@ const { createAudio } = useAudio();
 const correctAnswers = ref<Set<BuzzerButton>>(new Set());
 const props = defineProps<{
   answers: Record<string, BuzzerButton>;
+  answerTimes: Record<string, number>;
 }>();
+
+// Points granted for the current selection. Kept to revert them when the selection changes.
+const grantedPoints = ref<Record<string, number>>({});
 
 const emit = defineEmits<{
   (e: 'update', correct: BuzzerButton[] | undefined): void;
@@ -42,50 +47,48 @@ onBeforeMount(() => {
 });
 
 const updateButtonPoints = async (button: BuzzerButton): Promise<void> => {
-  // No button was preciously pressed, so we assume all answers are wrong.
-  // Points for correct answers are refunded later
-  if (correctAnswers.value.size === 0) {
-    Object.keys(props.answers).forEach((controllerId) => {
-      leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong);
-    });
-  }
+  // Revert the points of the previous selection
+  Object.entries(grantedPoints.value).forEach(([controllerId, points]) => {
+    leaderboardStore.addPoints(controllerId, -points);
+  });
 
+  // Toggle the button
   if (correctAnswers.value.has(button)) {
-    // Add wrong point and refund correct points
-    Object.keys(props.answers)
-      .filter((controllerId) => props.answers[controllerId] === button)
-      .forEach((controllerId) => {
-        leaderboardStore.addPoints(
-          controllerId,
-          quizSettings.pointsCorrect * -1,
-        );
-        leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong);
-      });
-
     correctAnswers.value.delete(button);
   } else {
-    // Add correct point and refund wrong points
-    Object.keys(props.answers)
-      .filter((controllerId) => props.answers[controllerId] === button)
-      .forEach((controllerId) => {
-        leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong * -1);
-        leaderboardStore.addPoints(controllerId, quizSettings.pointsCorrect);
-      });
-
     correctAnswers.value.add(button);
   }
 
+  const correct = [...correctAnswers.value];
+  const points: Record<string, number> = {};
+
   // If all buzzers are unselected, no points are granted
-  if (correctAnswers.value.size === 0) {
-    Object.keys(props.answers).forEach((controllerId) => {
-      leaderboardStore.addPoints(controllerId, quizSettings.pointsWrong * -1);
+  if (correct.length > 0) {
+    const fastest =
+      quizSettings.pointsFastestBonus === 0
+        ? []
+        : findFastestControllers(props.answers, props.answerTimes, correct);
+
+    Object.entries(props.answers).forEach(([controllerId, answer]) => {
+      if (!correctAnswers.value.has(answer)) {
+        points[controllerId] = quizSettings.pointsWrong;
+        return;
+      }
+
+      // The bonus is granted on top of the points for a correct answer
+      points[controllerId] = fastest.includes(controllerId)
+        ? quizSettings.pointsCorrect + quizSettings.pointsFastestBonus
+        : quizSettings.pointsCorrect;
     });
   }
 
-  emit(
-    'update',
-    correctAnswers.value.size === 0 ? undefined : [...correctAnswers.value],
-  );
+  Object.entries(points).forEach(([controllerId, value]) => {
+    leaderboardStore.addPoints(controllerId, value);
+  });
+
+  grantedPoints.value = points;
+
+  emit('update', correct.length === 0 ? undefined : correct);
 
   await playAudio();
 };

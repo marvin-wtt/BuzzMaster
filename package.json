@@ -17,7 +17,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "quasar prepare",
+    "postinstall": "quasar prepare && node scripts/sync-office-js.mjs",
     "lint": "eslint -c ./eslint.config.js \"./src*/**/*.{ts,js,cjs,mjs,vue}\"",
     "typecheck": "vue-tsc --noEmit",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
@@ -27,7 +27,9 @@
     "build": "quasar build -m electron",
     "test:unit:ui": "vitest --ui",
     "test:unit": "vitest",
-    "test:unit:ci": "vitest run"
+    "test:unit:ci": "vitest run",
+    "dev:powerpoint": "node scripts/dev-powerpoint.mjs",
+    "sync:office-js": "node scripts/sync-office-js.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -42,6 +44,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@intlify/unplugin-vue-i18n": "^11.2.4",
+    "@microsoft/office-js": "^1.1.110",
     "@pinia/testing": "^2.0.1",
     "@quasar/app-vite": "^3.2.0",
     "@quasar/cli": "^5.0.3",

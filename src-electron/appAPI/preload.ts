@@ -7,6 +7,10 @@ const api: AppAPI = {
   getLocale: () => ipcRenderer.invoke('app:getLocale'),
   setLocale: (locale: string) => ipcRenderer.send('app:setLocale', locale),
 
+  getPowerPointStatus: () => ipcRenderer.invoke('app:getPowerPointStatus'),
+  setPowerPointEnabled: (enabled: boolean) =>
+    ipcRenderer.invoke('app:setPowerPointEnabled', enabled),
+
   onUpdateInfo: (callback) =>
     ipcRenderer.on('app:updateInfo', (event, value) => callback(value)),
 

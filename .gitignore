@@ -36,3 +36,6 @@ yarn-error.log*
 
 # local .env files
 .env.local*
+
+# local dev TLS material - never commit
+.certs/

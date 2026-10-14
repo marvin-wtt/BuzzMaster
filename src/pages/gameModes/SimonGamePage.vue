@@ -259,7 +259,7 @@ import type {
   SimonState,
 } from '@/../common/gameState/SimonState';
 import { useControllerFlasher } from '@/composables/controllerFlasher';
-import SimonPad from '@/components/gameModes/SimonPad.vue';
+import SimonPad from '@/components/gameModes/simon/SimonPad.vue';
 import SimonSettingsDialog from '@/components/gameModes/simon/SimonSettingsDialog.vue';
 import TimerAnimated from '@/components/TimerAnimated.vue';
 import { useAudio } from '@/composables/audio';

@@ -4,6 +4,7 @@ import batterySaving from './batterySaving';
 import devices from './devices';
 import leaderboard from './leaderboard';
 import online from './online';
+import powerpoint from './powerpoint';
 import toolbar from './toolbar';
 import updater from './updater';
 
@@ -28,6 +29,8 @@ export default {
   devices,
   leaderboard,
   online,
+  powerpoint,
+
   toolbar,
   updater,
 };

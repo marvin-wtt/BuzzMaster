@@ -1,4 +1,15 @@
 export default {
+  powerpoint: {
+    checkLog:
+      'La integración no ha podido iniciarse. Consulta el registro de la aplicación.',
+    label: 'Integración con PowerPoint',
+    enabled: 'La integración con PowerPoint está activada',
+    disabled: 'La integración con PowerPoint está desactivada',
+    turnedOn:
+      'Integración activada. Inserta el complemento de BuzzMaster desde PowerPoint.',
+    turnedOff: 'Integración con PowerPoint desactivada.',
+    failed: 'No se ha podido cambiar la integración con PowerPoint',
+  },
   batterySaving: 'Mostrar Ahorro de Batería',
   cast: 'Abrir Cast',
   close: 'Cerrar ventana',

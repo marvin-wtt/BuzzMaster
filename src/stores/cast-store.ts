@@ -2,35 +2,27 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
 import type { GameState } from '@/../common/gameState';
-import { useRouter } from 'vue-router';
 import type { GameSettings } from '@/../common/gameSettings';
+import type { CastSnapshot } from '@/../common/CastSnapshot';
 
+/**
+ * Cast state, shared by every surface that renders it.
+ *
+ * Deliberately holds no transport and no navigation. It used to push router
+ * routes on game change, which made it unusable anywhere but the cast window —
+ * the PowerPoint add-in would have been navigated away from its own route, and
+ * out of its Office context, on the first game change.
+ *
+ * Routing now lives in `CastLayout`, which is the surface that actually has
+ * routes. Plan section 21: the transport, and the navigation, belong outside the
+ * presentation layer.
+ */
 export const useCastStore = defineStore('cast', () => {
   const { locale } = useI18n();
-  const router = useRouter();
 
   const gameState = ref<GameState>();
   function updateGameState(state: GameState | undefined) {
-    const changeRoute = gameState.value?.game !== state?.game;
-
-    if (changeRoute) {
-      // Always to via index page to avoid state conflicts
-      void router.push({ name: 'cast' });
-    }
-
     gameState.value = state;
-
-    // Route to next page if needed
-    if (!changeRoute || state === undefined) {
-      return;
-    }
-
-    const routeName = `cast-${state.game}`;
-    if (!router.hasRoute(routeName)) {
-      return;
-    }
-
-    void router.push({ name: routeName });
   }
 
   const gameSettings = ref<GameSettings>({} as GameSettings);
@@ -47,6 +39,18 @@ export const useCastStore = defineStore('cast', () => {
     locale.value = value;
   }
 
+  /** Apply a complete snapshot at once, as a newly connected client receives. */
+  function applySnapshot(snapshot: CastSnapshot) {
+    if (snapshot.gameSettings) {
+      updateGameSettings(snapshot.gameSettings);
+    }
+    updateControllers(snapshot.controllers);
+    updateLocale(snapshot.locale);
+    // Game state last: surfaces switch presentation on it, so everything else
+    // should already be in place when it changes.
+    updateGameState(snapshot.gameState);
+  }
+
   return {
     controllers,
     gameState,
@@ -56,6 +60,7 @@ export const useCastStore = defineStore('cast', () => {
     updateGameSettings,
     updateLocale,
     updateControllers,
+    applySnapshot,
   };
 });
 

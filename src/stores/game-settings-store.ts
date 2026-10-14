@@ -1,6 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { BuzzerButton } from '@/plugins/buzzer/types';
 import type { BuzzerSettings } from '@/../common/gameSettings/BuzzerSettings';
 import type { QuizSettings } from '@/../common/gameSettings/QuizSettings';
 import type { SimonSettings } from '@/../common/gameSettings/SimonSettings';
@@ -8,58 +7,34 @@ import type { StopwatchSettings } from '@/../common/gameSettings/StopwatchSettin
 import type { GameSettings } from '@/../common/gameSettings';
 import type { ViewingRateSettings } from '@/../common/gameSettings/ViewingRateSettings';
 import type { PongSettings } from '@/../common/gameSettings/PongSettings';
+import {
+  DEFAULT_BUZZER_SETTINGS,
+  DEFAULT_QUIZ_SETTINGS,
+  DEFAULT_SIMON_SETTINGS,
+  DEFAULT_STOPWATCH_SETTINGS,
+  DEFAULT_VIEWING_RATE_SETTINGS,
+  DEFAULT_PONG_SETTINGS,
+} from '@/../common/gamePreset/defaults';
 
 export const useGameSettingsStore = defineStore('gameSettings', () => {
-  const buzzerSettings = ref<BuzzerSettings>({
-    answerTime: 10,
-    multipleAttempts: false,
-    playSounds: true,
-    countDownBeepStartAt: 10,
-    pointsCorrect: 0,
-    pointsWrong: 0,
-  });
+  const buzzerSettings = ref<BuzzerSettings>({ ...DEFAULT_BUZZER_SETTINGS });
 
   const quizSettings = ref<QuizSettings>({
-    activeButtons: [
-      BuzzerButton.BLUE,
-      BuzzerButton.ORANGE,
-      BuzzerButton.GREEN,
-      BuzzerButton.YELLOW,
-    ],
-    answerTime: 30,
-    changeMode: 'never',
-    playSounds: true,
-    countDownBeepStartAt: 10,
-    mode: 'normal',
-    presentationView: 'bar-chart',
-    showReactionTimes: false,
-    pointsCorrect: 0,
-    pointsWrong: 0,
-    pointsFastestBonus: 0,
+    ...DEFAULT_QUIZ_SETTINGS,
+    activeButtons: [...DEFAULT_QUIZ_SETTINGS.activeButtons],
   });
 
-  const simonSettings = ref<SimonSettings>({
-    answerTime: 1,
-    showingSpeed: 1,
-    autoNextRound: false,
-    lastManStanding: false,
-    winnerPoints: 0,
-  });
+  const simonSettings = ref<SimonSettings>({ ...DEFAULT_SIMON_SETTINGS });
 
   const stopwatchSettings = ref<StopwatchSettings>({
-    playSounds: true,
+    ...DEFAULT_STOPWATCH_SETTINGS,
   });
 
   const viewingRateSettings = ref<ViewingRateSettings>({
-    startViewing: false,
-    readyCheck: true,
+    ...DEFAULT_VIEWING_RATE_SETTINGS,
   });
 
-  const pongSettings = ref<PongSettings>({
-    rounds: 7,
-    speed: 'normal',
-    pointsForWin: 1,
-  });
+  const pongSettings = ref<PongSettings>({ ...DEFAULT_PONG_SETTINGS });
 
   const gameSettings = computed<GameSettings>(() => ({
     buzzer: buzzerSettings.value,

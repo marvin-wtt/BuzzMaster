@@ -1,3 +1,15 @@
 {
-  "extends": "./.quasar/tsconfig.json"
+  "extends": "./.quasar/tsconfig.json",
+
+  // Repeats the generated config's excludes because `exclude` replaces rather
+  // than merges. `public/office-js` is Microsoft's vendored Office.js runtime:
+  // third-party, minified, and not ours to typecheck.
+  "exclude": [
+    "./dist",
+    "./node_modules",
+    "./src-capacitor",
+    "./src-cordova",
+    "./quasar.config.*.temporary.compiled*",
+    "./public/office-js"
+  ]
 }
